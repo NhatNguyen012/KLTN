@@ -1,0 +1,150 @@
+{
+  "benign": [
+    {
+      "timestamp": "2019-09-22T00:08:11.405-04:00",
+      "id": "ab1f23e0-5f40-45d3-95a9-5929a9f1ed77",
+      "hostname": "SysClient0201.systemia.com",
+      "objectID": "5c9b953a-1ecb-4e86-8734-eb9831967a3b",
+      "object": "FLOW",
+      "action": "INFO",
+      "actorID": "d81e8bff-bd70-40ef-b414-a1cdd6ddb231",
+      "pid": 5096,
+      "ppid": 5024,
+      "tid": -1,
+      "principal": "SYSTEMIACOM\\zleazer",
+      "properties": {
+        "acuity_level": "1",
+        "bro_uid": "C6YY3x4SoJlbgT8mxg",
+        "dest_ip": "98.61.14.5",
+        "dest_port": "80",
+        "direction": "outbound",
+        "image_path": "\\\\?\\C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe",
+        "l4protocol": "6",
+        "src_ip": "142.20.56.202",
+        "src_port": "65177"
+      }
+    },
+    {
+      "timestamp": "2019-09-22T00:15:06.122-04:00",
+      "id": "b2531c39-e869-46e6-be1f-d09710d82fb2",
+      "hostname": "SysClient0501.systemia.com",
+      "objectID": "34b4496b-aee1-44cb-b00c-98440c2d0981",
+      "object": "FLOW",
+      "action": "INFO",
+      "actorID": "7ce8a06f-76e1-491c-9264-45facd96023b",
+      "pid": 3496,
+      "ppid": 5176,
+      "tid": -1,
+      "principal": "SYSTEMIACOM\\bantonio",
+      "properties": {
+        "acuity_level": "1",
+        "bro_uid": "CdMz7t4ke8mWAdg3Xe",
+        "dest_ip": "98.61.14.5",
+        "dest_port": "80",
+        "direction": "outbound",
+        "image_path": "\\\\?\\C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe",
+        "l4protocol": "6",
+        "src_ip": "142.20.57.246",
+        "src_port": "56787"
+      }
+    },
+    {
+      "timestamp": "2019-09-22T00:03:33.143-04:00",
+      "id": "e5ecb29c-9cc0-4649-970d-d31f33c1d2ec",
+      "hostname": "SysClient0051.systemia.com",
+      "objectID": "81e9c027-cf03-4273-803c-1dce75f0387e",
+      "object": "FLOW",
+      "action": "INFO",
+      "actorID": "ba64eb01-4802-4947-a2e0-ab5947fcf954",
+      "pid": 4976,
+      "ppid": 5424,
+      "tid": -1,
+      "principal": "SYSTEMIACOM\\dcoombes",
+      "properties": {
+        "acuity_level": "1",
+        "bro_uid": "Cz9AUX1SqlTzE98s8h",
+        "dest_ip": "98.61.14.5",
+        "dest_port": "80",
+        "direction": "outbound",
+        "image_path": "\\\\?\\C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe",
+        "l4protocol": "6",
+        "src_ip": "142.20.56.52",
+        "src_port": "59989"
+      }
+    }
+  ],
+  "attack": [
+    {
+      "timestamp": "2019-09-23T11:24:03.584-04:00",
+      "id": "c8e87648-5217-456f-8912-8b4e605d4968",
+      "hostname": "SysClient0201.systemia.com",
+      "objectID": "343e3f0a-2926-4c08-b1ba-1eb6b4fb98a8",
+      "object": "FLOW",
+      "action": "INFO",
+      "actorID": "96913629-c1c9-4503-9586-4a91de0e7311",
+      "pid": 5452,
+      "ppid": 1284,
+      "tid": -1,
+      "principal": "SYSTEMIACOM\\zleazer",
+      "properties": {
+        "acuity_level": "1",
+        "bro_uid": "Cw0kxmzTVo9YTkkB3",
+        "dest_ip": "132.197.158.98",
+        "dest_port": "80",
+        "direction": "outbound",
+        "image_path": "powershell.exe",
+        "l4protocol": "6",
+        "src_ip": "142.20.56.202",
+        "src_port": "49166"
+      }
+    },
+    {
+      "timestamp": "2019-09-24T10:35:59.663-04:00",
+      "id": "1a3f7860-2b54-4eb1-90ad-5e80cc3c041b",
+      "hostname": "SysClient0501.systemia.com",
+      "objectID": "216b3abc-9ac6-4a7e-a5e6-7eaa93c1b7eb",
+      "object": "FLOW",
+      "action": "INFO",
+      "actorID": "b9955edc-eccc-4948-8c2f-4cc6608c1e27",
+      "pid": 4776,
+      "ppid": 3420,
+      "tid": -1,
+      "principal": "SYSTEMIACOM\\bantonio",
+      "properties": {
+        "acuity_level": "1",
+        "bro_uid": "CCEGLm3VpR5Vg8Donf",
+        "dest_ip": "132.197.158.98",
+        "dest_port": "8000",
+        "direction": "outbound",
+        "image_path": "powershell.exe",
+        "l4protocol": "6",
+        "src_ip": "142.20.57.246",
+        "src_port": "49807"
+      }
+    },
+    {
+      "timestamp": "2019-09-25T10:27:52.995-04:00",
+      "id": "47c30340-b547-4516-966f-c09d4eee503d",
+      "hostname": "SysClient0051.systemia.com",
+      "objectID": "36906966-3888-4530-a9a0-cb8bd0adc5fa",
+      "object": "FLOW",
+      "action": "INFO",
+      "actorID": "89d8a0b2-5b72-402a-b50a-66f596583f53",
+      "pid": 3288,
+      "ppid": 3756,
+      "tid": -1,
+      "principal": "SYSTEMIACOM\\dcoombes",
+      "properties": {
+        "acuity_level": "1",
+        "bro_uid": "CiqkRFxienDw9FEX6",
+        "dest_ip": "53.192.68.50",
+        "dest_port": "80",
+        "direction": "outbound",
+        "image_path": "\\Device\\HarddiskVolume1\\Program Files (x86)\\Notepad++\\notepad++.exe",
+        "l4protocol": "6",
+        "src_ip": "142.20.56.52",
+        "src_port": "49800"
+      }
+    }
+  ]
+}

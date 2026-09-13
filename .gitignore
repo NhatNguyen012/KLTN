@@ -1,0 +1,25 @@
+# Dataset
+host-begnin
+host-malicious
+bro
+ecar-bro
+
+# Temporary directories
+Temp
+temp
+
+# Papers
+paper*
+
+# Agent & Codex metadata
+.agent
+.agents
+.agent*
+.codex
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local pipeline outputs & checkpoints
+code/output/
