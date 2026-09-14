@@ -288,7 +288,8 @@ Validation/test không ảnh hưởng tần suất, lựa chọn token hay featu
 Tokenizer Structure/Anchor/Syntax vẫn là bộ quy tắc cố định, không học từ nhãn.
 
 `vocab.json` ánh xạ token → cột, không phải ordinal token value. Baseline dùng
-CSR binary; `--representation both` ở bước matrix thêm count để ablation.
+CSR binary. Đường shard hiện tại chỉ lưu binary; đường matrix truyền thống
+có `--representation both` cho count ablation trên tập vừa tài nguyên.
 TF-IDF là tương lai. Model học cả hai lớp qua `X_train, y_train`.
 
 Vocabulary metadata chứa `fit_classes=[0,1]`, `fit_counts`, `split_sha256`,
@@ -309,10 +310,12 @@ host_ml/
   split/manifest.json + *.split.gz
   vocab.json
   vocab_metadata.json
-  matrix/X_{train,val,test}.npz
-  matrix/y_{train,val,test}.npy
-  matrix/row_sidecar_{train,val,test}.jsonl
-  matrix/split_metadata.json
+  model_input/manifest.json
+  model_input/assets/vocab.json + vocab_metadata.json
+  model_input/host_shards.py + shard_metrics.py
+  model_input/host_{rf,xgb,lgbm}_shards.ipynb
+  model_input/volumes/ssd/.../*.npz
+  model_input/checkpoints/.../*.json
   sample_tokenization.md
 ```
 
@@ -320,7 +323,7 @@ Giữ vocabulary/split cùng nhau. Vocabulary fit benign 16–20/09 không đáp
 contract của random split mới và không được dùng để tạo matrix thí nghiệm này.
 Các artifact ngoài `host_ml/` hiện có được giữ nguyên. Các artifact dùng tên thống nhất, không thêm hậu tố phiên bản.
 
-Index/split/vocabulary/matrix resume theo file hoàn tất. Checkpoint validate
+Index/split/vocabulary/model input resume theo file hoàn tất. Checkpoint validate
 code/config, split/vocab identity khi áp dụng, source path/size/mtime_ns và
 SHA256 artifact. Đây **không** phải content hash toàn bộ dataset. Chạy lại cùng
 lệnh khi bị ngắt; file đang dở sẽ được đọc lại. Directory output index/split/
@@ -328,13 +331,11 @@ matrix cuối phải chưa tồn tại; output hoàn tất được giữ lại,
 partial run. Vocabulary publish cặp JSON theo từng file atomic; consumer kiểm
 tra checksum để phát hiện cặp không đồng bộ.
 
-Các lệnh dưới đây là full corpus. Dry-run hiện tìm thấy 4.695 file; đó là số
-file nguồn, không phải số event. Với hàng tỷ Host events, matrix/sidecar và
-checkpoint có thể cần rất nhiều dung lượng. Bộ nhớ merge dùng disk-backed
-arrays, nhưng không bảo đảm full training vừa RAM 31 GiB. Index và split phải
-hoàn tất trước để biết số row chính xác; đọc metadata và kiểm tra `df -h` trước
-bước matrix. Không suy rằng pipeline streaming đồng nghĩa full model training
-sẽ vừa RAM. TF/DF counters của vocabulary vẫn tăng theo số token khác nhau.
+Các lệnh dưới đây là full corpus. Split hiện có 4.695 file và 4.635.036.829
+Host events. Bước 5 dùng shard nén trên các volume được cho phép, không ghép
+CSR/sidecar toàn corpus. Không cần chạy lại bước 1–4 đã thành công. TF/DF counters
+của vocabulary vẫn tăng theo số token khác nhau; resource của preprocessing và
+resource khi train trên Kaggle là hai vấn đề riêng.
 
 ### 9.3. Lệnh local đầy đủ
 
@@ -420,41 +421,132 @@ tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/explain_sample_tokeniz
 Script walkthrough có thể thành công với log rỗng vì báo cáo nằm trong Markdown.
 Đây là audit mẫu, không thay thế đánh giá OOV trên corpus.
 
-**Bước 5 — build ba matrix cùng split, binary sparse:**
+**Bước 5 — tạo full input dạng shard nén, dùng chung cho ba model:**
+
+Đã xong bước 4 thì bắt đầu ở đây. Dùng `build_model_input.py` thay cho lệnh
+`build_matrix.py` ghép toàn corpus. Không build lại index/split/vocabulary.
+Builder mới kiểm tra nguyên trạng các artifact hiện có và không sửa hash hoặc
+metadata của chúng.
+
+Cấu hình ở [`code/model_input_volumes.json`](../code/model_input_volumes.json):
+
+| Volume | Thư mục output | Hạn mức file output | Giữ trống tối thiểu |
+|---|---|---:|---:|
+| `ssd` | `/mnt/SSD_Data/optc/code/output/host_ml/model_input/volumes/ssd` | 500 GiB | 20 GiB |
+| `hdd` | `/mnt/HDD_Data/optc_model_input` | 220 GiB | 20 GiB |
+| `system` | `/home/nguyen/optc_model_input` | 100 GB (100.000.000.000 byte) | 30 GiB |
+
+Các thư mục HDD/system đã được user cho phép riêng, nằm ngoài dataset roots.
+Builder ưu tiên SSD, rồi HDD, rồi system; không cần trải đều khi output còn nhỏ.
+Quota tính tổng kích thước file trong thư mục volume, gồm run trước còn giữ lại;
+filesystem có thể có thêm overhead nhỏ. Giới hạn kiểm tra cả dung lượng trống
+thực tế mỗi lần ghi. Nếu hết cả ba volume, builder dừng và giữ checkpoint.
+Không tự xóa artifact, thay đổi nhãn, lấy mẫu hay gộp các event giống nhau.
+
+Kiểm tra input/placement trước (read-only; checksum split có thể mất thời gian):
 
 ```bash
-df -h /mnt/SSD_Data/optc/code/output/host_ml
-nohup python3 -u /mnt/SSD_Data/optc/code/build_matrix.py \
+python3 /mnt/SSD_Data/optc/code/build_model_input.py \
   --split /mnt/SSD_Data/optc/code/output/host_ml/split/manifest.json \
   --vocab /mnt/SSD_Data/optc/code/output/host_ml/vocab.json \
   --vocab-metadata /mnt/SSD_Data/optc/code/output/host_ml/vocab_metadata.json \
-  --output-dir /mnt/SSD_Data/optc/code/output/host_ml/matrix \
-  --representation binary --workers 12 --chunk-rows 10000 \
-  < /dev/null > /mnt/SSD_Data/optc/code/output/host_ml/logs/build_matrix.log 2>&1 &
-tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/build_matrix.log
+  --storage-config /mnt/SSD_Data/optc/code/model_input_volumes.json \
+  --output-dir /mnt/SSD_Data/optc/code/output/host_ml/model_input \
+  --workers 4 --rows-per-shard 100000 --buffer-mib 32 --dry-run
 ```
 
-Đọc `matrix/split_metadata.json` sau khi thành công: số row/nhãn phải khớp split;
-OOV, nnz và avg_nnz_per_row phản ánh phép transform thực tế. Matrix không tự
-chia lại theo ngày/host. `build_host_pilot.py` là công cụ scenario train/test
-riêng, không dùng cho baseline này.
-
-**Bước 6 — đóng gói local để chuyển sang Kaggle (sau khi matrix hoàn tất):**
+Chạy full preprocessing nền:
 
 ```bash
-nohup python3 -u /mnt/SSD_Data/optc/code/package_kaggle_input.py \
-  --input-dir /mnt/SSD_Data/optc/code/output/host_ml \
-  --matrix-dir /mnt/SSD_Data/optc/code/output/host_ml/matrix \
-  --output-dir /mnt/SSD_Data/optc/code/output/host_ml/kaggle_input \
-  < /dev/null > /mnt/SSD_Data/optc/code/output/host_ml/logs/package_kaggle_input.log 2>&1 &
-tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/package_kaggle_input.log
+mkdir -p /mnt/SSD_Data/optc/code/output/host_ml/logs
+nohup python3 -u /mnt/SSD_Data/optc/code/build_model_input.py \
+  --split /mnt/SSD_Data/optc/code/output/host_ml/split/manifest.json \
+  --vocab /mnt/SSD_Data/optc/code/output/host_ml/vocab.json \
+  --vocab-metadata /mnt/SSD_Data/optc/code/output/host_ml/vocab_metadata.json \
+  --storage-config /mnt/SSD_Data/optc/code/model_input_volumes.json \
+  --output-dir /mnt/SSD_Data/optc/code/output/host_ml/model_input \
+  --workers 4 --rows-per-shard 100000 --buffer-mib 32 \
+  < /dev/null >> /mnt/SSD_Data/optc/code/output/host_ml/logs/build_model_input.log 2>&1 &
+tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/build_model_input.log
 ```
 
-Packaging tạo bản sao, cần thêm dung lượng tương ứng matrix. Bước này chỉ tạo
-thư mục local, không upload hay chạy model. Full training trên Kaggle vẫn phụ
-thuộc giới hạn dung lượng/RAM của môi trường; preprocessing thành công không
-bảo đảm toàn bộ corpus vừa môi trường đó. Các script model đọc sẵn cùng
-`matrix/`, không gọi random split lần nữa.
+Mỗi worker có tối đa ba buffer, mỗi buffer flush khi đủ 100.000 row hoặc chạm
+32 MiB array thô. RAM còn gồm vocabulary, cache tokenizer, nén và các bản sao
+ngắn hạn; đây không phải giới hạn RSS tuyệt đối. Có thể đổi `--workers` khi
+resume mà không thay đổi output assignment. Giữ nguyên `--rows-per-shard`,
+`--buffer-mib`, tokenizer/vocabulary/split và builder để reuse checkpoint.
+Chạy lại cùng lệnh khi bị ngắt. Log `RESUME` là file đã kiểm tra checksum và tái
+sử dụng. File đang dở được đọc lại, shard đã ghi đúng có thể được tái sử dụng.
+Khóa builder/volume ngăn hai builder ghi đồng thời vào cùng output volume.
+
+Mỗi shard `.npz` là container numeric nén, chỉ gồm:
+
+- `row_nnz`: số cột có mặt trong từng event.
+- `column_delta`: chênh lệch các chỉ số cột đã sắp xếp, uint32.
+- `label`: nhãn 0/1 cho từng event, uint8.
+- `source_line_delta`: vị trí source line nén theo chênh lệch, uint64.
+
+Giá trị feature là **1 ngầm định**, khôi phục được CSR binary ban đầu. Không lưu
+float `1` lặp hàng chục tỷ lần; không tạo JSONL sidecar và không ghép matrix lớn.
+Manifest ghi file nguồn một lần và liên kết từng shard với source ID. Kết hợp
+source ID + source line để đọc lại hostname/UUID/timestamp từ dữ liệu gốc khi cần
+join; các trường đó không phải feature và không cần lặp trong input training.
+`OOV` của builder này đếm token duy nhất trong từng event, không phải TF lặp.
+
+Chỉ publish `model_input/manifest.json` với `complete=true` sau khi mọi file
+được xử lý và tổng nhãn của ba tập khớp chính xác split gốc. Shard vừa là output
+cuối vừa là phần được checkpoint tham chiếu; không có bản sao CSR tạm toàn corpus.
+Dung lượng cuối lấy từ `splits.*.bytes`; chưa thể suy chắc từ dung lượng gzip nguồn.
+
+**Bước 6 — kiểm tra full output, đọc mỗi shard một lần:**
+
+```bash
+nohup python3 -u /mnt/SSD_Data/optc/code/verify_model_input.py \
+  --manifest /mnt/SSD_Data/optc/code/output/host_ml/model_input/manifest.json \
+  --decode \
+  < /dev/null >> /mnt/SSD_Data/optc/code/output/host_ml/logs/verify_model_input.log 2>&1 &
+tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/verify_model_input.log
+```
+
+Không có bước copy toàn bộ matrix sang `kaggle_input/`. Manifest, `assets/`,
+reader, metric helper, ba notebook và tất cả shard được manifest tham chiếu là
+bộ input. Giữ checkpoint và `storage_ledger.json` ở local để resume/audit.
+Khi biết kích thước thực, mới quyết định đóng gói/upload. Nếu chuyển shard sang
+mount khác, reader nhận `volume_roots` để đổi đường dẫn, không sửa split.
+
+### 9.4. Ba notebook riêng và phạm vi đã kiểm thử
+
+Builder chép các notebook và helper vào `model_input/`:
+
+| Notebook | Cách đọc/train |
+|---|---|
+| `host_xgb_shards.ipynb` | `DataIter` + `ExtMemQuantileDMatrix`, CPU external memory; cần XGBoost ≥ 3.0 và đủ scratch/cache |
+| `host_rf_shards.ipynb` | Dựng full TRAIN CSR sau kiểm tra budget; RF chuẩn vẫn cần nhiều RAM |
+| `host_lgbm_shards.ipynb` | Dựng full TRAIN CSR rồi LightGBM Dataset; Dataset/model vẫn cần RAM bổ sung |
+
+Ba notebook dùng cùng manifest, không tự chia lại, không tự undersample,
+không dùng `warm_start` để giả lập việc RF học toàn bộ dữ liệu qua từng shard.
+Với 4,64 tỷ event, RF/LightGBM trên notebook Kaggle thông thường có thể dừng ở
+kiểm tra RAM. Input vẫn là full-data và tương thích qua CSR, nhưng nén input
+không biến hai estimator này thành thuật toán external-memory. Cần quyết định
+môi trường train sau khi đo kích thước; không tuyên bố train full cả ba đã chạy.
+XGBoost external memory cũng cần cache, RAM cho trạng thái model và thời gian;
+không được hiểu là bảo đảm vừa giới hạn Kaggle.
+Tham khảo [XGBoost external memory](https://xgboost.readthedocs.io/en/stable/tutorials/external_memory.html),
+[RF API](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
+và [LightGBM Dataset](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.Dataset.html).
+
+Metric helper đọc validation/test theo shard, chọn threshold trên validation,
+giữ nguyên cho test. Precision/recall/F1/FPR tại threshold là số đếm chính xác;
+PR-AUC/ROC-AUC ghi rõ `*_binned` vì dùng histogram score để tránh giữ hàng tỷ
+probability trong RAM. Đây không phải AP/AUC tính chính xác trên mọi score.
+
+Kiểm thử local gồm: round-trip mọi cột/nhãn/source line, row rỗng, source line
+lớn, quota và chuyển volume, resume sau gián đoạn/corrupt shard, tổng nhãn đúng
+split, reader đổi mount, và RF trên fixture tổng hợp. XGBoost/LightGBM không có
+trong môi trường local này, nên adapter/notebook chỉ được kiểm tra cấu trúc và
+interface; chưa chạy training hai thư viện đó. Probe 18.000 event đầu file ở
+sáu ngày đã round-trip, nhưng prefix probe không đại diện tỷ lệ nén toàn corpus.
 
 ## 10. Join và phạm vi tương lai
 
@@ -469,9 +561,9 @@ Không join UUID eCAR với Zeek UID chỉ vì cùng là string. Fallback tuple/
 có host scope, protocol, tolerance và audit riêng. `sample/sample_ecarbro.json`
 minh họa liên kết, không chứng minh coverage toàn corpus.
 
-Row sidecar hiện có event ID, actor/object ID, host/time, pid khi có, source file
-và line. FLOW không tạo row Host, nên sidecar Host này không thay thế FLOW/linkage
-index. Network DL, fusion, graph joins và incremental retraining chưa được triển
+Shard hiện hành giữ source ID + source line để truy hồi event gốc có UUID,
+host/time và PID. FLOW không tạo row Host, nên mapping này không thay thế
+FLOW/linkage index. Network DL, fusion, graph joins và incremental retraining chưa được triển
 khai bởi thay đổi tokenization này.
 
 ## 11. Kết quả lần chạy, kiểm thử và bằng chứng
@@ -479,8 +571,8 @@ khai bởi thay đổi tokenization này.
 Sau lần build đầu tiên, đọc số token, số record và phạm vi corpus từ
 [`code/output/host_ml/vocab_metadata.json`](../code/output/host_ml/vocab_metadata.json).
 Không ấn định trước kích thước vocabulary hoặc số record đã xử lý. Quy trình là
-fit `code/output/host_ml/vocab.json` từ TRAIN, sau đó transform matrix ở
-`code/output/host_ml/matrix/` theo cùng split đã lưu.
+fit `code/output/host_ml/vocab.json` từ TRAIN, sau đó tạo
+`code/output/host_ml/model_input/manifest.json` và shard theo cùng split đã lưu.
 Số liệu trong sample nhỏ không phải bằng chứng distribution toàn corpus.
 
 Kiểm thử local:

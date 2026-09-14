@@ -1,25 +1,39 @@
-# Dataset
-host-begnin
-host-malicious
-bro
-ecar-bro
+# Read-only datasets
+/host-begnin/
+/host-malicious/
+/bro/
+/ecar-bro/
 
 # Temporary directories
-Temp
-temp
+/Temp/
+/temp/
 
 # Papers
-paper*
+/paper*/
 
 # Agent & Codex metadata
-.agent
-.agents
-.agent*
-.codex
+/.agent/
+/.agents/
+/.agent*/
+/.codex/
 
 # Python cache
 __pycache__/
 *.pyc
 
+# Python environments and test/tool caches
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Notebook and runtime by-products
+.ipynb_checkpoints/
+*.log
+
 # Local pipeline outputs & checkpoints
-code/output/
+/code/output/

@@ -107,7 +107,10 @@ generalization. Report precision-recall behavior and false-positive rates.
 - Treat papers and supplied reference implementations as evidence. Do not edit
   them unless the user explicitly asks for such a change.
 
-The active order is `build_host_index.py`, `build_split.py`, `build_vocab.py --split`, then `build_matrix.py --split`. Re-running compatible commands resumes
+The active order is `build_host_index.py`, `build_split.py`, `build_vocab.py --split`,
+then `build_model_input.py` (compressed binary shards, no global CSR merge).
+Keep already-built index/split/vocabulary unchanged when updating downstream
+packaging. Re-running compatible commands resumes
 automatically. Checkpoints must be written outside all dataset roots and must be
 validated against the scan configuration, source-file identity, and tokenizer
 code before reuse.
@@ -122,6 +125,13 @@ nohup python3 /mnt/SSD_Data/optc/code/build_vocab.py \
   --workers 4 \
   > /mnt/SSD_Data/optc/code/output/build_vocab.log 2>&1 &
 ```
+
+Additional preprocessing storage authorized by the user: up to 100 GB of output
+under `/home/nguyen/optc_model_input`, and spare capacity under
+`/mnt/HDD_Data/optc_model_input` and `code/output/host_ml/model_input/volumes/ssd`.
+Use the quotas/free-space reserves in `code/model_input_volumes.json`. These are
+output directories, not dataset roots. Training remains on Kaggle; do not launch
+full local training as part of preprocessing.
 
 ## Engineering expectations
 

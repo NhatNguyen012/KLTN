@@ -1,0 +1,22 @@
+{
+  "volumes": [
+    {
+      "id": "ssd",
+      "path": "/mnt/SSD_Data/optc/code/output/host_ml/model_input/volumes/ssd",
+      "max_bytes": 536870912000,
+      "reserve_free_bytes": 21474836480
+    },
+    {
+      "id": "hdd",
+      "path": "/mnt/HDD_Data/optc_model_input",
+      "max_bytes": 236223201280,
+      "reserve_free_bytes": 21474836480
+    },
+    {
+      "id": "system",
+      "path": "/home/nguyen/optc_model_input",
+      "max_bytes": 100000000000,
+      "reserve_free_bytes": 32212254720
+    }
+  ]
+}
