@@ -48,6 +48,21 @@ class SharedSplitTests(unittest.TestCase):
             build_vocab(['--split',str(sp/'manifest.json'),'--workers','2','--output',str(fitted/'vocab.json'),'--metadata-output',str(fitted/'vocab_metadata.json')])
             vocab,meta=load_vocabulary(fitted/'vocab.json',fitted/'vocab_metadata.json',split_sha256=sha)
             self.assertEqual(meta['fit_counts'],{'label_0':90,'label_1':30})
+            derived=base/'fit_derived'
+            build_vocab([
+                '--split', str(sp/'manifest.json'),
+                '--selection-source-vocab', str(fitted/'vocab.json'),
+                '--selection-source-metadata', str(fitted/'vocab_metadata.json'),
+                '--output', str(derived/'vocab.json'),
+                '--metadata-output', str(derived/'vocab_metadata.json'),
+                '--min-frequency', '2', '--min-document-frequency', '2',
+                '--max-vocab-size', '20', '--rank-by', 'document-frequency',
+            ])
+            derived_vocab,derived_meta=load_vocabulary(
+                derived/'vocab.json', derived/'vocab_metadata.json', split_sha256=sha)
+            self.assertEqual(len(derived_vocab),20)
+            self.assertFalse(derived_meta['checkpoint']['telemetry_rescanned'])
+            self.assertEqual(derived_meta['frequency_policy']['min_document_frequency'],2)
             tokens={1:set(),2:set(),3:set()}; assigned={s:set() for s in (1,2,3)}
             for e in manifest['entries']:
                 for code,line,row in split_rows(e,sp):

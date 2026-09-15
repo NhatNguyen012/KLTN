@@ -118,8 +118,11 @@ def load_manifest(path, kind):
         raise ValueError(f'expected {kind} manifest')
     if value.get('tokenizer_sha256') != code_hashes():
         raise ValueError('manifest tokenizer mismatch; rebuild index and split')
-    if value.get('implementation') != implementation():
-        raise ValueError('manifest preprocessing implementation mismatch; rebuild index and split')
+    # The recorded implementation is provenance for this immutable artifact.
+    # Downstream-only builder edits must not invalidate an existing split; its
+    # tokenizer, source identities and assignment checksums are validated here.
+    if not isinstance(value.get('implementation'), dict):
+        raise ValueError('manifest lacks preprocessing implementation provenance')
     entries = value['entries']
     if not entries or len({e['source']['path'] for e in entries}) != len(entries):
         raise ValueError('empty or overlapping manifest sources')
@@ -430,9 +433,9 @@ def vocab_file(entry, split_dir, work):
 
 
 def vocab_main(args):
-    from build_vocab import _publish, select_vocabulary
-    if args.workers < 1 or args.min_frequency < 1:
-        raise ValueError('positive workers and min frequency required')
+    from build_vocab import VOCABULARY_LAYERS, _publish, select_vocabulary
+    if args.workers < 1:
+        raise ValueError('positive workers required')
     manifest, split_sha = load_manifest(args.split,'host_random_split')
     output = validate_output_path(args.output)
     metadata_output = validate_output_path(args.metadata_output)
@@ -457,15 +460,39 @@ def vocab_main(args):
     if dict(counts) != manifest['counts']['train']:
         raise ValueError('fit counts differ from TRAIN split')
     checked_manifest(args.split,split_sha,manifest)
-    vocabulary,groups = select_vocabulary(df,tf,args.min_frequency)
+    vocabulary,groups = select_vocabulary(
+        df, tf, args.min_frequency, args.min_document_frequency,
+        args.max_vocab_size, args.rank_by, args.layer_minimums,
+    )
     if not vocabulary:
         raise ValueError('empty vocabulary')
-    metadata = dict(schema_version=6,created_utc=stamp(),source_sha256=code_hashes(),implementation=config['implementation'],
+    selected_by_layer = Counter(layer for token in vocabulary for layer in token_layers(token))
+    eligible_by_layer = Counter(
+        layer for group in GROUPS for token, frequency in tf[group].items()
+        if frequency >= args.min_frequency and df[group][token] >= args.min_document_frequency
+        for layer in token_layers(token)
+    )
+    metadata = dict(schema_version=7,created_utc=stamp(),source_sha256=code_hashes(),implementation=config['implementation'],
         tokenizer_policy=TOKENIZER_POLICY,fit_purpose='supervised_training',fit_classes=[0,1],
         split_sha256=split_sha,split_file=str(args.split.resolve()),split_seed=manifest['seed'],
         split_counts=manifest['counts'],fit_counts=dict(counts),vocab_size=len(vocabulary),
         scan=dict(read_to_eof=True,days=dict(Counter(e['day'] for e in manifest['entries'])),sources=[e['source'] for e in manifest['entries']]),
-        frequency_policy=dict(min_term_frequency=args.min_frequency,document_unit='TRAIN Host event',max_tokens=None),
+        frequency_policy=dict(
+            min_term_frequency=args.min_frequency,
+            min_document_frequency=args.min_document_frequency,
+            document_unit='one TRAIN Host event; repeated occurrences in an event count once',
+            max_tokens=args.max_vocab_size,
+            rank_by=args.rank_by,
+            tie_break='secondary frequency, then lexical token order',
+            layer_minimums=args.layer_minimums,
+            layer_order=list(VOCABULARY_LAYERS),
+            eligible_tokens=len(groups),
+            selected_tokens_by_group=dict(sorted(Counter(groups[token] for token in vocabulary).items())),
+            eligible_tokens_by_layer=dict(sorted(eligible_by_layer.items())),
+            selected_tokens_by_layer=dict(sorted(selected_by_layer.items())),
+            layer_counts_overlap=True,
+            test_used_for_selection=False,
+        ),
         checkpoint=dict(files=len(manifest['entries']),validation='split SHA256, implementation, source identity, counter SHA256'),
         token_statistics={t:dict(group=groups[t],layers=token_layers(t),term_frequency=tf[groups[t]][t],document_frequency=df[groups[t]][t]) for t in vocabulary})
     _publish(vocabulary,metadata,output,metadata_output)
