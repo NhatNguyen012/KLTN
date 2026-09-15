@@ -44,6 +44,7 @@ DAY_PATTERN = re.compile(r"\d{4}-\d{2}-\d{2}")
 ALLOWED_OBJECTS = frozenset(name.upper() for name in HOST_OBJECTS)
 CHECKPOINT_SCHEMA_VERSION = 1
 SCAN_LOGIC_VERSION = 1
+VOCABULARY_LAYERS = ("structure", "semantic", "anchor", "syntax", "context", "lexical")
 
 
 @dataclass(frozen=True)
@@ -331,19 +332,98 @@ def select_vocabulary(
     document_frequency: dict[str, Counter[str]],
     term_frequency: dict[str, Counter[str]],
     min_frequency: int = 2,
+    min_document_frequency: int = 1,
+    max_vocab_size: int | None = None,
+    rank_by: str = "term-frequency",
+    layer_minimums: dict[str, int] | None = None,
 ) -> tuple[dict[str, int], dict[str, str]]:
-    """Retain all tokens meeting TF; no cap, host/day gate or exceptions."""
-    if min_frequency < 1:
-        raise ValueError("minimum frequency must be positive")
+    """Filter, reserve requested evidence layers, then apply a deterministic cap."""
+    if min_frequency < 1 or min_document_frequency < 1:
+        raise ValueError("minimum term/document frequency must be positive")
+    if max_vocab_size is not None and max_vocab_size < 1:
+        raise ValueError("maximum vocabulary size must be positive")
+    if rank_by not in {"term-frequency", "document-frequency"}:
+        raise ValueError("rank_by must be term-frequency or document-frequency")
+    layer_minimums = dict(layer_minimums or {})
+    if any(layer not in VOCABULARY_LAYERS for layer in layer_minimums):
+        raise ValueError(f"layer minimum must name one of: {', '.join(VOCABULARY_LAYERS)}")
+    if any(type(count) is not int or count < 1 for count in layer_minimums.values()):
+        raise ValueError("layer minimums must be positive integers")
     token_group = {
         token: group for group in GROUPS
-        for token, frequency in term_frequency[group].items() if frequency >= min_frequency
+        for token, frequency in term_frequency[group].items()
+        if (frequency >= min_frequency
+            and document_frequency[group][token] >= min_document_frequency)
     }
-    selected = sorted(token_group, key=lambda token: (
-        -term_frequency[token_group[token]][token],
-        -document_frequency[token_group[token]][token], token,
-    ))
+    if rank_by == "document-frequency":
+        ranked = sorted(token_group, key=lambda token: (
+            -document_frequency[token_group[token]][token],
+            -term_frequency[token_group[token]][token], token,
+        ))
+    else:
+        ranked = sorted(token_group, key=lambda token: (
+            -term_frequency[token_group[token]][token],
+            -document_frequency[token_group[token]][token], token,
+        ))
+
+    selected: list[str] = []
+    selected_set: set[str] = set()
+    # Canonical order makes results independent of repeated CLI option order.
+    for layer in VOCABULARY_LAYERS:
+        minimum = layer_minimums.get(layer, 0)
+        if not minimum:
+            continue
+        candidates = [token for token in ranked if layer in token_layers(token)]
+        if len(candidates) < minimum:
+            raise ValueError(
+                f"layer minimum {layer}={minimum:,} cannot be met; "
+                f"only {len(candidates):,} eligible tokens"
+            )
+        have = sum(layer in token_layers(token) for token in selected)
+        for token in candidates:
+            if have >= minimum:
+                break
+            if token not in selected_set:
+                selected.append(token)
+                selected_set.add(token)
+                have += 1
+        if max_vocab_size is not None and len(selected) > max_vocab_size:
+            raise ValueError("layer minimums cannot fit within maximum vocabulary size")
+
+    for token in ranked:
+        if max_vocab_size is not None and len(selected) >= max_vocab_size:
+            break
+        if token not in selected_set:
+            selected.append(token)
+            selected_set.add(token)
+    rank_position = {token: index for index, token in enumerate(ranked)}
+    selected.sort(key=rank_position.__getitem__)
     return {token: index for index, token in enumerate(selected)}, token_group
+
+
+def parse_layer_minimum(value: str) -> tuple[str, int]:
+    """Parse repeatable CLI values such as structure=1800."""
+    layer, separator, raw_count = value.partition("=")
+    if not separator or layer not in VOCABULARY_LAYERS:
+        raise argparse.ArgumentTypeError(
+            f"expected LAYER=COUNT where LAYER is one of: {', '.join(VOCABULARY_LAYERS)}"
+        )
+    try:
+        count = int(raw_count)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("layer minimum COUNT must be an integer") from exc
+    if count < 1:
+        raise argparse.ArgumentTypeError("layer minimum COUNT must be positive")
+    return layer, count
+
+
+def layer_minimum_mapping(values: Iterable[tuple[str, int]]) -> dict[str, int]:
+    result: dict[str, int] = {}
+    for layer, count in values:
+        if layer in result:
+            raise ValueError(f"duplicate --layer-minimum for {layer}")
+        result[layer] = count
+    return result
 
 
 def _publish(vocabulary: dict[str, int], metadata: dict[str, Any], output: Path, metadata_output: Path) -> None:
@@ -444,9 +524,136 @@ def reuse_existing(vocab_path: Path, meta_path: Path) -> int:
     return 0
 
 
+def select_from_existing_train_statistics(args: argparse.Namespace) -> int:
+    """Publish a stricter/capped TRAIN vocabulary without rescanning telemetry."""
+    from pipeline_contract import load_vocabulary
+    from stratified_pipeline import file_hash, implementation, load_manifest
+
+    manifest, split_sha = load_manifest(args.split, 'host_random_split')
+    source_vocab_path = args.selection_source_vocab.resolve()
+    source_meta_path = args.selection_source_metadata.resolve()
+    output = validate_output_path(args.output)
+    metadata_output = validate_output_path(args.metadata_output)
+    if len({source_vocab_path, source_meta_path, output, metadata_output}) != 4:
+        raise ValueError('selection sources and outputs must be four different files')
+    if any(path.is_relative_to(args.split.resolve().parent) for path in (output, metadata_output)):
+        raise ValueError('vocabulary outputs must be outside the immutable split directory')
+
+    source_vocab, source_meta = load_vocabulary(
+        source_vocab_path, source_meta_path, split_sha256=split_sha)
+    policy = source_meta.get('frequency_policy', {})
+    source_min_tf = policy.get('min_term_frequency')
+    source_min_df = policy.get('min_document_frequency', 1)
+    if (type(source_min_tf) is not int or type(source_min_df) is not int
+            or source_min_tf > args.min_frequency
+            or source_min_df > args.min_document_frequency
+            or policy.get('max_tokens') is not None):
+        raise ValueError(
+            'selection source is not an uncapped superset of the requested TF/DF candidates'
+        )
+    statistics = source_meta.get('token_statistics')
+    if not isinstance(statistics, dict) or set(statistics) != set(source_vocab):
+        raise ValueError('selection source must contain statistics for every source vocabulary token')
+
+    tf, df = _new_group_counters(), _new_group_counters()
+    for token, values in statistics.items():
+        if not isinstance(values, dict):
+            raise ValueError(f'invalid source token statistics: {token}')
+        group = values.get('group')
+        term = values.get('term_frequency')
+        documents = values.get('document_frequency')
+        if (group not in GROUPS or type(term) is not int or type(documents) is not int
+                or term < 1 or documents < 1 or documents > term):
+            raise ValueError(f'invalid source token statistics: {token}')
+        tf[group][token] = term
+        df[group][token] = documents
+
+    vocabulary, groups = select_vocabulary(
+        df, tf, args.min_frequency, args.min_document_frequency,
+        args.max_vocab_size, args.rank_by, args.layer_minimums,
+    )
+    if not vocabulary:
+        raise ValueError('empty vocabulary')
+    selected_by_layer = Counter(layer for token in vocabulary for layer in token_layers(token))
+    eligible_by_layer = Counter(
+        layer for token in groups for layer in token_layers(token)
+    )
+    metadata = dict(
+        schema_version=7,
+        created_utc=datetime.now(timezone.utc).isoformat(),
+        source_sha256=code_hashes(),
+        implementation=implementation(),
+        tokenizer_policy=TOKENIZER_POLICY,
+        fit_purpose='supervised_training',
+        fit_classes=[0, 1],
+        split_sha256=split_sha,
+        split_file=str(args.split.resolve()),
+        split_seed=manifest['seed'],
+        split_counts=manifest['counts'],
+        fit_counts=source_meta.get('fit_counts'),
+        vocab_size=len(vocabulary),
+        scan=source_meta.get('scan'),
+        frequency_policy=dict(
+            min_term_frequency=args.min_frequency,
+            min_document_frequency=args.min_document_frequency,
+            document_unit='one TRAIN Host event; repeated occurrences in an event count once',
+            max_tokens=args.max_vocab_size,
+            rank_by=args.rank_by,
+            tie_break='secondary frequency, then lexical token order',
+            layer_minimums=args.layer_minimums,
+            layer_order=list(VOCABULARY_LAYERS),
+            eligible_tokens=len(groups),
+            selected_tokens_by_group=dict(sorted(Counter(groups[token] for token in vocabulary).items())),
+            eligible_tokens_by_layer=dict(sorted(eligible_by_layer.items())),
+            selected_tokens_by_layer=dict(sorted(selected_by_layer.items())),
+            layer_counts_overlap=True,
+            test_used_for_selection=False,
+        ),
+        checkpoint=dict(
+            mode='selection_from_complete_train_statistics',
+            telemetry_rescanned=False,
+            validation='source vocabulary SHA256, metadata SHA256, split SHA256, tokenizer SHA256, uncapped source policy',
+        ),
+        selection_source=dict(
+            vocabulary_file=str(source_vocab_path),
+            vocabulary_sha256=source_meta['vocabulary_sha256'],
+            metadata_file=str(source_meta_path),
+            metadata_sha256=file_hash(source_meta_path),
+            source_min_term_frequency=source_min_tf,
+            source_min_document_frequency=source_min_df,
+            source_max_tokens=None,
+        ),
+        token_statistics={
+            token: dict(
+                group=groups[token], layers=token_layers(token),
+                term_frequency=tf[groups[token]][token],
+                document_frequency=df[groups[token]][token],
+            )
+            for token in vocabulary
+        },
+    )
+    if args.dry_run:
+        print(json.dumps(dict(
+            split_sha256=split_sha,
+            source_vocab_size=len(source_vocab),
+            eligible_tokens=len(groups),
+            selected_tokens=len(vocabulary),
+            selected_tokens_by_layer=dict(sorted(selected_by_layer.items())),
+        ), indent=2))
+        return 0
+    _publish(vocabulary, metadata, output, metadata_output)
+    print(f'wrote {len(vocabulary):,} tokens to {output}', flush=True)
+    print(f'wrote metadata to {metadata_output}', flush=True)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--split', type=Path, help='shared manifest from build_split.py; fit BOTH classes assigned to TRAIN')
+    parser.add_argument('--selection-source-vocab', type=Path,
+                        help='complete uncapped TRAIN vocabulary to filter without rescanning telemetry')
+    parser.add_argument('--selection-source-metadata', type=Path,
+                        help='metadata containing complete TF/DF for --selection-source-vocab')
     parser.add_argument("--roots", type=Path, nargs="+", default=[PROJECT_ROOT / "host-begnin"],
                         help="benign roots only; dates outside 2019-09-16..22 are rejected")
     parser.add_argument("--lines-per-host-day", "--records-per-host-day", type=int, default=100_000,
@@ -457,6 +664,16 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--fit-purpose", choices=("discovery", "training"), default="discovery",
                         help="training restricts the benign fit to September 16–20; discovery may use all benign days")
     parser.add_argument("--min-frequency", type=int, default=2, help="minimum total token occurrences (TF, not DF)")
+    parser.add_argument("--min-document-frequency", type=int, default=1,
+                        help="minimum TRAIN events containing the token (DF; default: 1)")
+    parser.add_argument("--max-vocab-size", type=int,
+                        help="maximum feature columns after filtering and layer reservations")
+    parser.add_argument("--rank-by", choices=("term-frequency", "document-frequency"),
+                        default="term-frequency",
+                        help="primary ranking used for layer reservations and cap (default: term-frequency)")
+    parser.add_argument("--layer-minimum", action="append", type=parse_layer_minimum, default=[],
+                        metavar="LAYER=COUNT",
+                        help="repeatable minimum selected tokens for an evidence layer")
     parser.add_argument("--workers", type=int, default=10, help="parallel host/day processes (default: 10)")
     parser.add_argument("--progress-every", type=int, default=0,
                         help="extra worker progress every N JSON records; 0 prints group completions only")
@@ -477,11 +694,21 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    args.layer_minimums = layer_minimum_mapping(args.layer_minimum)
+    if (args.min_frequency < 1 or args.min_document_frequency < 1
+            or (args.max_vocab_size is not None and args.max_vocab_size < 1)):
+        raise ValueError('term/document frequency and maximum vocabulary size must be positive')
     if args.split is not None:
         if args.days or args.reuse_existing or args.no_checkpoint or args.no_resume:
             raise ValueError('--split uses the immutable TRAIN assignment with automatic checkpoints; legacy options cannot override it')
+        if bool(args.selection_source_vocab) != bool(args.selection_source_metadata):
+            raise ValueError('--selection-source-vocab and --selection-source-metadata must be used together')
+        if args.selection_source_vocab is not None:
+            return select_from_existing_train_statistics(args)
         from stratified_pipeline import vocab_main
         return vocab_main(args)
+    if args.selection_source_vocab is not None or args.selection_source_metadata is not None:
+        raise ValueError('--selection-source-* requires --split')
     for path in (args.output, args.metadata_output):
         validate_output_path(path, args.roots)
     if args.reuse_existing:
@@ -492,7 +719,7 @@ def main(argv: list[str] | None = None) -> int:
         args.days = args.days or sorted(TRAIN_BENIGN_DAYS)
     read_to_eof = args.read_to_eof or (args.lines_per_host_day == 0)
     line_budget = None if read_to_eof else args.lines_per_host_day
-    if args.min_frequency < 1 or args.workers < 1 or (not read_to_eof and args.lines_per_host_day < 1) or args.progress_every < 0:
+    if args.workers < 1 or (not read_to_eof and args.lines_per_host_day < 1) or args.progress_every < 0:
         raise SystemExit("frequency/workers must be positive; progress interval must be nonnegative; lines-per-host-day must be >= 0")
     if args.output.resolve() == args.metadata_output.resolve():
         raise SystemExit("vocabulary and metadata output paths must differ")
@@ -532,12 +759,14 @@ def main(argv: list[str] | None = None) -> int:
     if read_to_eof:
         print(f"Benign full scan (EOF): {len(groups):,} host/days, {len(inputs):,} files; "
               f"unlimited lines/group; {discovery['workers']} workers; "
-              f"TF >= {args.min_frequency}, no vocab cap", file=sys.stderr, flush=True)
+              f"TF >= {args.min_frequency}, DF >= {args.min_document_frequency}, "
+              f"vocab cap {args.max_vocab_size or 'none'}", file=sys.stderr, flush=True)
     else:
         print(f"Benign prefixes: {len(groups):,} host/days, {len(inputs):,} files; "
               f"up to {args.lines_per_host_day:,} SOURCE lines/group "
               f"({discovery['source_line_upper_bound']:,} total); {discovery['workers']} workers; "
-              f"TF >= {args.min_frequency}, no vocab cap", file=sys.stderr, flush=True)
+              f"TF >= {args.min_frequency}, DF >= {args.min_document_frequency}, "
+              f"vocab cap {args.max_vocab_size or 'none'}", file=sys.stderr, flush=True)
         print("Sampling is bounded-prefix, not uniform over a day. FLOW and blank/excluded rows consume the read budget.",
               file=sys.stderr, flush=True)
     source_hashes = code_hashes(("build_vocab.py", "ecar_tokenizer.py", "command_syntax.py", "pipeline_contract.py"))
@@ -645,7 +874,10 @@ def main(argv: list[str] | None = None) -> int:
         if _stable_digest(identity) != expected_identity:
             raise ValueError(f"source identity changed during scan: {group.day}/{group.host}; no final publication")
         source_manifest.append(identity)
-    vocabulary, token_group = select_vocabulary(df, tf, args.min_frequency)
+    vocabulary, token_group = select_vocabulary(
+        df, tf, args.min_frequency, args.min_document_frequency,
+        args.max_vocab_size, args.rank_by, args.layer_minimums,
+    )
     if not vocabulary:
         raise SystemExit("no tokens meet the threshold; no outputs written. Check Host coverage or increase the prefix budget.")
     empty_groups = sum(item["host_records"] == 0 for item in host_days)
@@ -653,7 +885,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Note: {empty_groups:,} sampled host/days contributed no eligible Host records; "
               "the source-line budget was not extended.", file=sys.stderr, flush=True)
     metadata = {
-        "schema_version": 5, "created_utc": datetime.now(timezone.utc).isoformat(),
+        "schema_version": 6, "created_utc": datetime.now(timezone.utc).isoformat(),
         "vocabulary_file": str(args.output), "source_sha256": source_hashes,
         "representation": "Host-ML structure, anchor, syntax, semantic and lexical tokens; sparse binary/count columns",
         "fit_purpose": args.fit_purpose,
@@ -665,18 +897,28 @@ def main(argv: list[str] | None = None) -> int:
         "sample_unit": "one eligible eCAR event; document frequency is event-level",
         "classifier_note": "Benign-only vocabulary is distinct from supervised classifier training, which still needs both classes.",
         "vocabulary_size_actual": len(vocabulary),
-        "ranking": "total term frequency, then document frequency, then lexical token order",
+        "ranking": ("document frequency, then term frequency, then lexical token order"
+                    if args.rank_by == "document-frequency" else
+                    "total term frequency, then document frequency, then lexical token order"),
         "selection": {
-            "frequency_measure": "total term frequency; repetitions within one event count",
-            "minimum_frequency": args.min_frequency, "maximum_vocabulary_size": None,
+            "frequency_measure": "TF counts repetitions; DF counts distinct eligible events",
+            "minimum_frequency": args.min_frequency,
+            "minimum_document_frequency": args.min_document_frequency,
+            "maximum_vocabulary_size": args.max_vocab_size,
+            "rank_by": args.rank_by,
+            "layer_minimums": args.layer_minimums,
+            "layer_minimum_policy": "reserve by canonical layer order, then fill from global ranking",
             "minimum_hosts": None, "minimum_days": None, "group_quotas": None,
-            "mandatory_token_exceptions": False,
+            "mandatory_token_exceptions": bool(args.layer_minimums),
             "unique_candidates": sum(len(counter) for counter in tf.values()),
             "rejected_below_minimum_frequency": sum(
                 frequency < args.min_frequency for counter in tf.values() for frequency in counter.values()),
+            "rejected_below_minimum_document_frequency_after_tf": sum(
+                frequency >= args.min_frequency and df[group][token] < args.min_document_frequency
+                for group in GROUPS for token, frequency in tf[group].items()),
         },
         "tokenizer_policy": TOKENIZER_POLICY,
-        "selected_tokens_by_group": dict(sorted(Counter(token_group.values()).items())),
+        "selected_tokens_by_group": dict(sorted(Counter(token_group[token] for token in vocabulary).items())),
         "selected_tokens_by_layer": dict(sorted(Counter(layer for token in vocabulary for layer in token_layers(token)).items())),
         "layer_count_note": "overlapping tags; totals may exceed vocabulary size; tags do not create columns",
         "scan": {

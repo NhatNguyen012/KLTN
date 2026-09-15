@@ -4,6 +4,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+from collections import Counter
 from pathlib import Path
 import subprocess
 import sys
@@ -79,6 +80,10 @@ class BuildVocabTests(unittest.TestCase):
         self.assertEqual(args.workers, 10)
         self.assertEqual(args.lines_per_host_day, 100_000)
         self.assertEqual(args.min_frequency, 2)
+        self.assertEqual(args.min_document_frequency, 1)
+        self.assertIsNone(args.max_vocab_size)
+        self.assertEqual(args.rank_by, 'term-frequency')
+        self.assertEqual(args.layer_minimum, [])
         self.assertEqual([root.name for root in args.roots], ["host-begnin"])
         self.assertFalse(args.no_resume)
         self.assertFalse(args.no_checkpoint)
@@ -93,6 +98,34 @@ class BuildVocabTests(unittest.TestCase):
             self.assertEqual(len(groups), 2)
             self.assertEqual(len(groups[0].files), 2)
             self.assertEqual(groups[0].host, "sysclient0001")
+
+    def test_df_filter_cap_ranking_and_layer_minimums(self):
+        from ecar_tokenizer import GROUPS
+        tf = {group: Counter() for group in GROUPS}
+        df = {group: Counter() for group in GROUPS}
+        group = 'command_line'
+        values = {
+            'command_line::plain': (100, 1),
+            'command_line::common': (20, 20),
+            'command_line::anchor::reserved': (10, 10),
+            'command_line::middle': (15, 15),
+        }
+        for token, (term, documents) in values.items():
+            tf[group][token] = term
+            df[group][token] = documents
+        vocab, _ = select_vocabulary(
+            df, tf, min_frequency=10, min_document_frequency=10,
+            max_vocab_size=3, rank_by='document-frequency',
+            layer_minimums={'anchor': 1},
+        )
+        self.assertEqual(list(vocab), [
+            'command_line::common',
+            'command_line::middle',
+            'command_line::anchor::reserved',
+        ])
+        self.assertNotIn('command_line::plain', vocab)
+        with self.assertRaisesRegex(ValueError, 'cannot be met'):
+            select_vocabulary(df, tf, layer_minimums={'structure': 1})
 
     def test_discovery_rejects_attack_day_unknown_filename_and_day_mismatch(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -226,7 +259,7 @@ class BuildVocabTests(unittest.TestCase):
                 self.assertEqual(meta["scan"]["workers"], workers)
                 self.assertEqual(meta["aggregate"]["source_lines"], 36)
                 self.assertEqual(meta["aggregate"]["host_records"], 24)
-                self.assertEqual(meta["schema_version"], 5)
+                self.assertEqual(meta["schema_version"], 6)
                 self.assertFalse(meta["scan"]["read_to_eof"])
                 outputs.append((vocab, meta["selected_token_statistics"], meta["aggregate"]))
             self.assertEqual(outputs[0], outputs[1])

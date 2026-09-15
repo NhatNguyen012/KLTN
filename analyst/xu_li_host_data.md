@@ -508,11 +508,155 @@ nohup python3 -u /mnt/SSD_Data/optc/code/verify_model_input.py \
 tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/verify_model_input.log
 ```
 
-Không có bước copy toàn bộ matrix sang `kaggle_input/`. Manifest, `assets/`,
-reader, metric helper, ba notebook và tất cả shard được manifest tham chiếu là
-bộ input. Giữ checkpoint và `storage_ledger.json` ở local để resume/audit.
-Khi biết kích thước thực, mới quyết định đóng gói/upload. Nếu chuyển shard sang
-mount khác, reader nhận `volume_roots` để đổi đường dẫn, không sửa split.
+Chờ log kết thúc bằng JSON có `verified_shards` bằng tổng shard trong manifest,
+không có traceback. Lần build hiện tại có **53.249 shard**, nên cần thấy
+`"verified_shards": 53249`. `Ctrl+C` khi đang chạy `tail -f` chỉ đóng tail;
+process verifier đã chạy bằng `nohup` vẫn tiếp tục. Không khởi chạy thêm verifier
+khi process cũ còn chạy.
+
+**Bước 7 — đóng gói full input để upload Kaggle:**
+
+Số liệu từ manifest của lần build hoàn tất ngày 15/09/2026:
+
+| Split | Event | Benign | Malicious | Shard nén (GB thập phân) |
+|---|---:|---:|---:|---:|
+| TRAIN | 3.476.277.622 | 3.476.076.071 | 201.551 | 12,487 |
+| Validation | 463.503.683 | 463.476.810 | 26.873 | 2,687 |
+| Test | 695.255.524 | 695.215.214 | 40.310 | 3,752 |
+| Tổng | 4.635.036.829 | 4.634.768.095 | 268.734 | 18,926 |
+
+Cả 53.249 shard đều nằm ở volume `ssd`; chưa dùng dung lượng shard ở `hdd`
+hoặc `system`. Một dataset chứa đủ ba split cho cả ba model. Không fit lại
+vocabulary, không build lại matrix và không copy dữ liệu nguồn. Script mới
+[`code/kaggle/package_host_shards.py`](../code/kaggle/package_host_shards.py)
+đọc manifest, giữ nguyên checksum/split/feature và tạo một TAR khoảng **19 GB**.
+NPZ bên trong đã nén nên TAR không nén thêm; chỉ cần khoảng **19 GB SSD bổ sung**,
+không tạo CSR hay staging copy toàn bộ shard. Script giữ ít nhất 20 GiB trống.
+RAM dành cho manifest và buffer copy, không dựng toàn bộ dataset trong RAM.
+Archive dùng **USTAR** để tên dài được lưu bằng trường prefix/name tiêu chuẩn,
+không phụ thuộc PAX extended headers. Script kiểm tra giới hạn USTAR trước khi ghi.
+
+Chạy sau khi Bước 6 thành công:
+
+```bash
+nohup python3 -u /mnt/SSD_Data/optc/code/kaggle/package_host_shards.py \
+  --manifest /mnt/SSD_Data/optc/code/output/host_ml/model_input/manifest.json \
+  --output-dir /mnt/SSD_Data/optc/code/output/host_ml/kaggle_upload \
+  < /dev/null > /mnt/SSD_Data/optc/code/output/host_ml/logs/package_host_shards.log 2>&1 &
+tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/package_host_shards.log
+```
+
+Thêm `--dry-run` để chỉ kiểm tra đường dẫn/kích thước trước khi tạo TAR.
+Sau thành công, log có `"ready_for_upload": true` và thư mục upload chứa:
+
+```text
+code/output/host_ml/kaggle_upload/
+  host-input.tar       # khoảng 19 GB, đủ manifest/assets/helper/notebook/shard
+  package_report.json # tổng số event/shard, split identity, SHA256 của TAR
+```
+
+Script kiểm tra SHA256 mỗi shard khi chép vào TAR, tính SHA256 của TAR và chỉ
+publish thư mục cuối sau thành công. Nếu lỗi thông thường, staging được dọn;
+chạy lại cùng lệnh sẽ đóng gói lại, không đọc lại eCAR và không ảnh hưởng Bước 1–6.
+Đóng gói TAR không resume theo byte. Nếu mất điện/SIGKILL có thể còn thư mục ẩn
+`.kaggle_upload.stage-*`; không upload thư mục dở đó. Script từ chối ghi đè một
+`kaggle_upload/` đã tồn tại. Checkpoint, lock, storage ledger và shard không được
+manifest tham chiếu đều không nằm trong TAR.
+
+**Bước 8 — tạo Kaggle Dataset riêng tư từ máy local:**
+
+Theo [Kaggle Datasets documentation](https://www.kaggle.com/docs/datasets)
+(kiểm tra 15/09/2026), giới hạn là **200 GB/dataset**, tổng private datasets tối
+đa 200 GB và tối đa 50 file ở cấp trên cùng. Archive được giải nén và giữ cấu
+trúc thư mục. Gói khoảng 19 GB này phù hợp với giới hạn dataset nếu tài khoản
+còn đủ quota. Giới hạn dataset không phải RAM/scratch của notebook.
+
+Cài Kaggle CLI trong môi trường riêng để không đổi thư viện preprocessing:
+
+```bash
+python3 -m venv /mnt/SSD_Data/optc/code/output/kaggle_cli
+/mnt/SSD_Data/optc/code/output/kaggle_cli/bin/pip install --upgrade kaggle
+/mnt/SSD_Data/optc/code/output/kaggle_cli/bin/kaggle auth login
+```
+
+Lệnh login dùng đăng nhập qua trình duyệt. Nếu chạy SSH không thuận tiện, dùng
+API token file tại `~/.kaggle/access_token` hoặc legacy `~/.kaggle/kaggle.json`
+theo [hướng dẫn xác thực chính thức](https://github.com/Kaggle/kaggle-cli/blob/main/docs/README.md#authentication).
+Credential ở máy local, không đặt trong thư mục upload.
+
+Tạo metadata sau khi Bước 7 hoàn tất:
+
+```bash
+/mnt/SSD_Data/optc/code/output/kaggle_cli/bin/kaggle datasets init \
+  -p /mnt/SSD_Data/optc/code/output/host_ml/kaggle_upload
+nano /mnt/SSD_Data/optc/code/output/host_ml/kaggle_upload/dataset-metadata.json
+```
+
+Điền `title` là `OpTC Host ML Full Input`, `id` là
+`YOUR_KAGGLE_USERNAME/optc-host-input` (thay username thật), và `licenses`
+theo giấy phép áp dụng cho dữ liệu nguồn. Không mặc định nhận CC0 từ template.
+Định dạng metadata ở [Kaggle CLI metadata](https://github.com/Kaggle/kaggle-cli/blob/main/docs/datasets_metadata.md).
+Sau khi lưu metadata và đăng nhập, chạy upload:
+
+```bash
+nohup /mnt/SSD_Data/optc/code/output/kaggle_cli/bin/kaggle datasets create \
+  -p /mnt/SSD_Data/optc/code/output/host_ml/kaggle_upload \
+  < /dev/null > /mnt/SSD_Data/optc/code/output/host_ml/logs/upload_kaggle.log 2>&1 &
+tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/upload_kaggle.log
+```
+
+CLI mặc định tạo **private dataset**; lệnh này không có `--public`. Thư mục
+upload chỉ có file ở cấp trên cùng, nên không cần `--dir-mode`. Không trỏ CLI
+thẳng vào `model_input/`, vì CLI mặc định bỏ qua subdirectory và sẽ thiếu shard.
+Nguồn: [Kaggle CLI datasets](https://github.com/Kaggle/kaggle-cli/blob/main/docs/datasets.md#kaggle-datasets-create).
+
+Kiểm tra Kaggle đã xử lý xong (thay username thật):
+
+```bash
+/mnt/SSD_Data/optc/code/output/kaggle_cli/bin/kaggle datasets status \
+  YOUR_KAGGLE_USERNAME/optc-host-input
+```
+
+Nếu upload bị ngắt, kiểm tra status trước khi chạy lại `create`; `nohup` giữ
+process khi ngắt SSH nhưng không bảo đảm resume upload khi máy/mạng hỏng.
+Cũng có thể dùng giao diện **New Dataset**, tải `host-input.tar`, giữ **Private**
+và tạo dataset. Không cần tải riêng 53.249 file NPZ.
+
+Nếu gói cũ báo `File already exists: 09e83798ff9316cb73f555b`: chuỗi này khớp
+với tên bị cắt trong raw header của TAR PAX cũ. Kiểm tra local xác nhận tên đầy
+đủ không trùng; đây là dấu hiệu Kaggle không dùng PAX extended path. Lỗi không
+đòi hỏi tài khoản phải có dataset khác. Script đã đổi sang USTAR; không cần chạy
+lại index/split/vocabulary/shards. Giữ gói cũ để đối chiếu, tạo gói sửa riêng:
+
+```bash
+nohup python3 -u /mnt/SSD_Data/optc/code/kaggle/package_host_shards.py \
+  --manifest /mnt/SSD_Data/optc/code/output/host_ml/model_input/manifest.json \
+  --output-dir /mnt/SSD_Data/optc/code/output/host_ml/kaggle_upload_ustar \
+  < /dev/null > /mnt/SSD_Data/optc/code/output/host_ml/logs/package_host_shards_ustar.log 2>&1 &
+tail -n 30 -f /mnt/SSD_Data/optc/code/output/host_ml/logs/package_host_shards_ustar.log
+```
+
+Chỉ chạy lệnh này nếu thư mục `kaggle_upload_ustar/` chưa được tạo thành công.
+Upload **`kaggle_upload_ustar/host-input.tar`** thay gói cũ. Nếu dùng CLI, tạo
+`dataset-metadata.json` trong `kaggle_upload_ustar/` và đổi `-p` của lệnh create
+sang thư mục này. Không upload cả hai TAR vào cùng dataset. Việc Kaggle nhận
+gói mới cần xác nhận bằng lần upload thực tế; kiểm tra local chỉ xác nhận cấu
+trúc USTAR và checksum. Tham khảo [Python TAR formats](https://docs.python.org/3/library/tarfile.html#supported-tar-formats).
+
+**Bước 9 — gắn cùng dataset vào ba notebook:**
+
+Tạo ba Kaggle notebook riêng, import lần lượt bản mới trong `code/kaggle/`:
+`host_rf_shards.ipynb`, `host_xgb_shards.ipynb`, `host_lgbm_shards.ipynb`.
+Ở mỗi notebook, dùng **Add Input** để gắn `YOUR_KAGGLE_USERNAME/optc-host-input`.
+Các notebook mới cũng nằm trong TAR; bản builder đã chép vào `model_input/`
+trước đây giữ nguyên và có thể còn cấu hình đường dẫn cũ.
+
+Cell setup tự tìm `manifest.json` trong `/kaggle/input`, kể cả khi Kaggle thêm
+một cấp thư mục khi giải nén TAR, và map mọi volume về `manifest.parent/volumes/`.
+Nếu gắn nhiều Host datasets, đặt `MANIFEST` cụ thể trong cell đó. Setup kiểm tra
+vocabulary/manifest rồi decode một shard của mỗi split và in shape/nhãn. Đây là
+kiểm tra đường dẫn/format sau upload, không phải full validation lần thứ hai.
+Không giải nén NPZ hoặc copy toàn bộ dataset sang `/kaggle/working`.
 
 ### 9.4. Ba notebook riêng và phạm vi đã kiểm thử
 
@@ -530,6 +674,10 @@ Với 4,64 tỷ event, RF/LightGBM trên notebook Kaggle thông thường có th
 kiểm tra RAM. Input vẫn là full-data và tương thích qua CSR, nhưng nén input
 không biến hai estimator này thành thuật toán external-memory. Cần quyết định
 môi trường train sau khi đo kích thước; không tuyên bố train full cả ba đã chạy.
+Với nnz đã đo, full TRAIN CSR theo reader hiện tại cần khoảng **591,5 GiB**,
+chưa gồm RAM bổ sung của estimator. Vì vậy hai notebook RF/LightGBM hiện tại sẽ
+dừng ở budget check 12 GiB trên bộ full này. Upload thành công chỉ xác nhận lưu
+được input; không phải bằng chứng train full ba model trên Kaggle đã khả thi.
 XGBoost external memory cũng cần cache, RAM cho trạng thái model và thời gian;
 không được hiểu là bảo đảm vừa giới hạn Kaggle.
 Tham khảo [XGBoost external memory](https://xgboost.readthedocs.io/en/stable/tutorials/external_memory.html),
@@ -547,6 +695,10 @@ split, reader đổi mount, và RF trên fixture tổng hợp. XGBoost/LightGBM 
 trong môi trường local này, nên adapter/notebook chỉ được kiểm tra cấu trúc và
 interface; chưa chạy training hai thư viện đó. Probe 18.000 event đầu file ở
 sáu ngày đã round-trip, nhưng prefix probe không đại diện tỷ lệ nén toàn corpus.
+Packaging được kiểm thử round-trip TAR trên fixture nhiều volume, giữ nguyên
+manifest/cột/nhãn, từ chối checksum sai và output vào nguồn, bảo vệ output đã có,
+và chạy cell setup của cả ba notebook sau đổi mount. Chưa upload/training thực
+tế trên Kaggle trong các kiểm thử local này.
 
 ## 10. Join và phạm vi tương lai
 
