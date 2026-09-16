@@ -19,8 +19,14 @@ SPLITS = ('train', 'val', 'test')
 
 
 def sha256(path):
+    if hasattr(hashlib, 'file_digest'):
+        with Path(path).open('rb') as handle:
+            return hashlib.file_digest(handle, 'sha256').hexdigest()
+    result = hashlib.sha256()
     with Path(path).open('rb') as handle:
-        return hashlib.file_digest(handle, 'sha256').hexdigest()
+        for block in iter(lambda: handle.read(1024 * 1024), b''):
+            result.update(block)
+    return result.hexdigest()
 
 
 class ShardBuffer:

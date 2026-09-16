@@ -18,7 +18,29 @@ import numpy as np
 import scipy
 from scipy import sparse
 from scipy.stats import hypergeom
-from host_shards import HostShardDataset, decode_shard, sha256
+import host_shards as _host_shards
+from host_shards import HostShardDataset, decode_shard
+
+
+def sha256(path):
+    """Streaming SHA256 compatible with Python 3.10 and existing packages."""
+    result = hashlib.sha256()
+    with Path(path).open('rb') as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b''):
+            result.update(block)
+    return result.hexdigest()
+
+
+if not hasattr(hashlib, 'file_digest'):
+    def _file_digest(fileobj, digest, /, **kwargs):
+        h = hashlib.new(digest, **kwargs) if isinstance(digest, str) else digest(**kwargs)
+        for block in iter(lambda: fileobj.read(1024 * 1024), b''):
+            h.update(block)
+        return h
+    hashlib.file_digest = _file_digest
+    # The uploaded reader also hashes assets and every decoded shard internally.
+    # Patch its module binding in memory, never the read-only input file.
+    _host_shards.sha256 = sha256
 
 if 'RUNTIME_SHA256' not in globals():
     RUNTIME_SHA256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -376,14 +398,15 @@ class ExactPredictor:
 
 
 def evaluate_resumable(data, split, predict, state_path, model_identity, threshold=None,
-                       bins=100000, workers=1, checkpoint_every=32):
+                       bins=100000, workers=1, checkpoint_every=32, diagnostics=None):
     if split not in ('val', 'test') or bins < 2 or (split == 'test' and threshold is None):
         raise ValueError('test requires a frozen validation threshold')
     if threshold is not None and not 0 <= threshold <= 1:
         raise ValueError('threshold outside [0,1]')
     state_path = output_path(state_path, data.protected)
     config = dict(input=data.identity(), model=model_identity, runtime_sha256=RUNTIME_SHA256,
-                  split=split, bins=bins, threshold=threshold)
+                  split=split, bins=bins, threshold=threshold,
+                  diagnostics=diagnostics.config if diagnostics is not None else None)
     signature = digest(config)
     positive = np.zeros(bins+1, dtype=np.int64)
     negative = np.zeros(bins+1, dtype=np.int64)
@@ -395,22 +418,26 @@ def evaluate_resumable(data, split, predict, state_path, model_identity, thresho
                 raise ValueError('evaluation checkpoint model/input/config mismatch; use a new run directory')
             positive, negative, counts = saved['positive'], saved['negative'], saved['counts']
             next_part = int(saved['next_part'])
+            if diagnostics is not None:
+                diagnostics.restore(json.loads(str(saved['diagnostics'])))
     parts = [p for p in data.meta['shards'] if p['split'] == split]
     started = time.monotonic()
     print(f'{split}: resume shard {next_part}/{len(parts)}; full split {data.meta["splits"][split]["rows"]:,} rows', flush=True)
 
     def save():
         atomic_write(state_path, lambda p: np.savez_compressed(p, signature=signature, positive=positive,
-                     negative=negative, counts=counts, next_part=next_part), data.protected)
+                     negative=negative, counts=counts, next_part=next_part,
+                     diagnostics=json.dumps(diagnostics.state if diagnostics is not None else None)), data.protected)
 
     def load(part):
-        X,y,_ = decode_shard(data.path_for(part), data.width, part)
-        return X,y
+        return decode_shard(data.path_for(part), data.width, part)
 
-    for _, (X,y) in ordered_prefetch(parts[next_part:], load, workers):
+    for part, (X,y,lines) in ordered_prefetch(parts[next_part:], load, workers):
         p = np.asarray(predict(X)).reshape(-1)
         if len(p) != len(y) or not np.all(np.isfinite(p)) or np.any((p < 0) | (p > 1)):
             raise ValueError('invalid probabilities')
+        if diagnostics is not None:
+            diagnostics.update(part, X, y, lines, p, threshold)
         bucket = np.minimum((p.astype(np.float64)*bins).astype(np.int64), bins)
         positive += np.bincount(bucket[y == 1], minlength=bins+1)
         negative += np.bincount(bucket[y == 0], minlength=bins+1)
@@ -598,3 +625,245 @@ def fit_sample_model(data, sample_dir, sample, output, model_name, threads,
         model.set_params(n_jobs=predict_threads)
         predict = lambda X: model.predict_proba(X)[:,1]
     return model, predict, latest
+
+
+class XGBDiagnostics:
+    """Bounded stratified uniform probes and extreme-score examples.
+
+    State is published inside the evaluation checkpoint, so metrics and diagnostics
+    always resume at the same shard. No extra full validation/test scan is needed.
+    """
+    def __init__(self, data, probe_negative=10000, probe_positive=1000,
+                 examples=100, seed=17, max_probe_nnz=1000000, model_name=None):
+        if min(probe_negative, probe_positive, examples, max_probe_nnz) < 1:
+            raise ValueError('diagnostic limits must be positive')
+        self.data = data
+        self.config = dict(probe_negative=probe_negative, probe_positive=probe_positive,
+                           examples=examples, seed=seed, max_probe_nnz=max_probe_nnz,
+                           model_name=model_name)
+        self.rng = np.random.default_rng(seed)
+        self.sources = {s['source_id']:s for s in data.meta['sources']}
+        self.state = dict(probe=[[], []], extremes=[[], []], rows=[0,0],
+                          empty_rows=[0,0], groups={}, rng=self.rng.bit_generator.state)
+
+    def restore(self, state):
+        self.state = state
+        self.rng.bit_generator.state = state['rng']
+
+    def update(self, part, X, y, lines, scores, threshold=None):
+        scores = np.asarray(scores, dtype=np.float64)
+        source = self.sources.get(part['source_id'], {})
+        source_meta = dict(source_id=part['source_id'], day=source.get('day','unknown'),
+                           host=source.get('file_host','unknown'), shard=part.get('path',''))
+        sizes = np.diff(X.indptr)
+        for label in (0,1):
+            rows = np.flatnonzero(y == label)
+            self.state['rows'][label] += len(rows)
+            self.state['empty_rows'][label] += int(np.count_nonzero(sizes[rows] == 0))
+            for name, limit, keys in (
+                ('probe', self.config['probe_positive' if label else 'probe_negative'], self.rng.random(len(rows))),
+                ('extremes', self.config['examples'], scores[rows] if label else -scores[rows]),
+            ):
+                previous = self.state[name][label]
+                # Keep only candidates that can enter the current bounded pool.
+                candidates = np.flatnonzero(keys < previous[-1]['priority']) if len(previous) == limit else np.arange(len(rows))
+                if len(candidates) > limit:
+                    candidates = candidates[np.argsort(keys[candidates], kind='stable')[:limit]]
+                incoming = []
+                for j in candidates:
+                    i = int(rows[j])
+                    incoming.append(dict(**source_meta, source_line=int(lines[i]), label=label,
+                        score=float(scores[i]), priority=float(keys[j]),
+                        columns=X.indices[X.indptr[i]:X.indptr[i+1]].tolist()))
+                self.state[name][label] = sorted(previous+incoming, key=lambda r:r['priority'])[:limit]
+        if sum(len(r['columns']) for name in ('probe','extremes') for pool in self.state[name] for r in pool) > self.config['max_probe_nnz']:
+            raise MemoryError('diagnostic sparse budget exceeded; reduce probe/example limits in a new run directory')
+        if threshold is not None:
+            predicted = scores >= threshold
+            counts = [int(np.sum(predicted & (y==1))), int(np.sum(predicted & (y==0))),
+                      int(np.sum(~predicted & (y==1))), int(np.sum(~predicted & (y==0)))]
+            for kind, key in [('day',source_meta['day']),('host',source_meta['host'])]:
+                group = self.state['groups'].setdefault(kind, {}).setdefault(key, [0,0,0,0])
+                self.state['groups'][kind][key] = [a+b for a,b in zip(group, counts)]
+        self.state['rng'] = self.rng.bit_generator.state
+
+    def matrix(self):
+        records = self.state['probe'][0]+self.state['probe'][1]
+        ptr = np.r_[0, np.cumsum([len(r['columns']) for r in records])]
+        columns = np.array([c for r in records for c in r['columns']],dtype=np.int32)
+        X = sparse.csr_matrix((np.ones(len(columns),dtype=np.float32),columns,ptr),
+                              shape=(len(records),self.data.width))
+        return X, np.array([r['label'] for r in records],dtype=np.uint8)
+
+    def publish(self, directory, split, threshold):
+        directory = output_path(directory, self.data.protected)
+        vocab_path = self.data.manifest_path.parent/'assets/vocab.json'
+        reverse = {int(v):k for k,v in json.loads(vocab_path.read_text()).items()}
+        errors = []
+        for label,pool in enumerate(self.state['extremes']):
+            for row in pool:
+                if (row['score'] >= threshold) == bool(label):
+                    continue
+                record = {k:v for k,v in row.items() if k != 'priority'}
+                record.update(error='FN' if label else 'FP', threshold=threshold,
+                              tokens=[reverse[c] for c in row['columns']])
+                errors.append(record)
+        atomic_json(directory/f'{split}_errors.json', dict(
+            split=split, selection='lowest-score positives / highest-score negatives; NOT a representative error sample',
+            maximum_per_error_type=self.config['examples'], examples=errors), self.data.protected)
+        atomic_json(directory/f'{split}_diagnostics.json', dict(
+            split=split, threshold=threshold, rows_by_label=self.state['rows'],
+            empty_rows_by_label=self.state['empty_rows'], groups=self.state['groups'],
+            group_count_order=['tp','fp','fn','tn'],
+            group_scope='full split at frozen threshold' if split=='test' else 'not collected: validation threshold is selected after the pass',
+            probe_counts=[len(x) for x in self.state['probe']], config=self.config), self.data.protected)
+
+
+def posthoc_learning_curve(data, sample_dir, sample, model, validation_probe,
+                           directory, threshold, model_name=None, threads=1, every=25):
+    """Evaluate prefixes of the final ensemble, not retraining or early stopping.
+
+    Supports XGBoost, LightGBM, and Random Forest.
+    TRAIN probe is drawn from the actual fitted sample. Validation probe is drawn
+    during full evaluation. Both use class weights restoring original split priors.
+    Negative-tail estimates on small probes are noisy; full metrics remain primary.
+    """
+    from sklearn.metrics import average_precision_score, log_loss, roc_auc_score
+    directory = output_path(directory, data.protected)
+    if every < 1:
+        raise ValueError('curve interval must be positive')
+    if model_name is None:
+        if hasattr(model, 'num_boosted_rounds'):
+            model_name = 'xgb'
+        elif hasattr(model, 'num_trees'):
+            model_name = 'lgbm'
+        elif hasattr(model, 'estimators_'):
+            model_name = 'rf'
+        else:
+            raise ValueError(f'unsupported model type: {type(model)}')
+
+    train_probe = XGBDiagnostics(data, **validation_probe.config)
+    train_path = directory/'train-probe.json'
+    identity = dict(sample_id=sample['sample_id'], runtime=RUNTIME_SHA256,
+                    config=train_probe.config, input=data.identity())
+    if train_path.exists():
+        saved = json.loads(train_path.read_text())
+        if saved['identity'] != identity:
+            raise ValueError('training probe identity mismatch; use a new diagnostics directory')
+        train_probe.restore(saved['state'])
+    else:
+        with phase('fixed TRAIN diagnostic probe (sample parts only)'):
+            for index,part in enumerate(sample['parts']):
+                path = Path(sample_dir)/part['path']
+                if sha256(path) != part['sha256']:
+                    raise ValueError('sample checksum changed during diagnostics')
+                with np.load(path,allow_pickle=False) as c:
+                    X = sparse.csr_matrix((np.ones(len(c['indices']),dtype=np.float32),c['indices'],c['indptr']),
+                                          shape=(len(c['label']), data.width))
+                    # Train probe provenance is not exported as raw-source lines.
+                    train_probe.update(data.meta['shards'][part['index']],X,c['label'],
+                                       c['source_rows'],np.zeros(len(c['label'])))
+                if (index+1)%256 == 0:
+                    print(f'TRAIN probe: {index+1}/{len(sample["parts"])} parts',flush=True)
+        atomic_json(train_path,dict(identity=identity,state=train_probe.state,
+                    line_identity='source_rows are zero-based source-shard offsets, not source file lines'),data.protected)
+
+    if model_name == 'xgb':
+        import xgboost as xgb
+        rounds = model.num_boosted_rounds()
+    elif model_name == 'lgbm':
+        rounds = model.num_trees()
+    elif model_name == 'rf':
+        rounds = len(model.estimators_)
+    else:
+        raise ValueError(f'unrecognized model_name: {model_name}')
+
+    steps = sorted(set([1, rounds, *range(every, rounds+1, every)]))
+    curves = []
+    for split,probe in [('train',train_probe),('val',validation_probe)]:
+        X,y = probe.matrix()
+        if len(np.unique(y)) != 2:
+            raise ValueError(f'{split} probe needs both classes')
+        totals = data.meta['splits'][split]
+        weights = np.where(y==1,totals['label_1']/np.sum(y==1),totals['label_0']/np.sum(y==0))
+        
+        if model_name == 'xgb':
+            matrix = xgb.DMatrix(X, nthread=threads)
+            preds_by_step = {trees: model.predict(matrix, iteration_range=(0, trees)).astype(np.float64) for trees in steps}
+        elif model_name == 'lgbm':
+            preds_by_step = {trees: model.predict(X, num_iteration=trees, num_threads=threads).astype(np.float64) for trees in steps}
+        elif model_name == 'rf':
+            step_set = set(steps)
+            preds_by_step = {}
+            accum = np.zeros(len(y), dtype=np.float64)
+            for i, tree in enumerate(model.estimators_, 1):
+                accum += tree.predict_proba(X)[:, 1]
+                if i in step_set:
+                    preds_by_step[i] = (accum / i).astype(np.float64)
+
+        for trees in steps:
+            p = preds_by_step[trees]
+            pred = p >= threshold
+            tp = float(weights[pred & (y==1)].sum()); fp = float(weights[pred & (y==0)].sum())
+            fn = float(weights[~pred & (y==1)].sum())
+            curves.append(dict(split=split,trees=trees,probe_rows=len(y),
+                weighted_logloss=float(log_loss(y,p,sample_weight=weights,labels=[0,1])),
+                weighted_average_precision=float(average_precision_score(y,p,sample_weight=weights)),
+                weighted_roc_auc=float(roc_auc_score(y,p,sample_weight=weights)),
+                weighted_f1_at_final_validation_threshold=2*tp/max(2*tp+fp+fn,1),
+                threshold=threshold))
+            print(f'Curve {split} trees={trees}: logloss={curves[-1]["weighted_logloss"]:.6g}, AP={curves[-1]["weighted_average_precision"]:.6g}',flush=True)
+
+    if model_name == 'xgb':
+        model_sha = hashlib.sha256(model.save_raw()).hexdigest()
+        model_cfg = json.loads(model.save_config())
+    elif model_name == 'lgbm':
+        model_sha = hashlib.sha256(model.model_to_string().encode()).hexdigest()
+        model_cfg = model.dump_model()
+    else:
+        import pickle
+        model_sha = hashlib.sha256(pickle.dumps(model)).hexdigest()
+        model_cfg = {k: str(v) for k, v in model.get_params().items()}
+
+    report = dict(method='posthoc ensemble-prefix curve on fixed class-stratified uniform probes',
+        model_name=model_name,
+        identity=identity, model_sha256=model_sha,
+        model_config=model_cfg, validation_probe_config=validation_probe.config,
+        caveats=['Not full-split metrics; rare false positives may be absent from the probe.',
+                 'TRAIN probe comes from fitted undersampled TRAIN; class weighting does not restore missing negative patterns.',
+                 'F1 uses the final full-validation threshold at every prefix; logloss/AP are better for studying learning progress.',
+                 'No test data, early stopping or automatic hyperparameter decisions are used.'], curve=curves)
+    atomic_json(directory/'learning_curve.json',report,data.protected)
+    import csv
+    def write_csv(path):
+        with path.open('w',newline='') as f:
+            writer=csv.DictWriter(f,fieldnames=list(curves[0]));writer.writeheader();writer.writerows(curves)
+    atomic_write(directory/'learning_curve.csv',write_csv,data.protected)
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print('matplotlib unavailable; learning_curve.json and .csv are ready',flush=True)
+    else:
+        fig,axes=plt.subplots(1,2,figsize=(11,4))
+        for ax,key in zip(axes,['weighted_logloss','weighted_average_precision']):
+            for split in ('train','val'):
+                rows=[r for r in curves if r['split']==split]
+                ax.plot([r['trees'] for r in rows],[r[key] for r in rows],label=split)
+            ax.set(xlabel='Trees',ylabel=key);ax.legend();ax.grid(alpha=.3)
+        fig.suptitle(f'{model_name.upper()} fixed probe estimates — not full-split performance');fig.tight_layout()
+        atomic_write(directory/'learning_curve.png',lambda p:fig.savefig(p,dpi=150),data.protected)
+        plt.close(fig)
+    # Scores at every grid threshold from the existing full-validation histogram.
+    state_path = directory.parent/'validation-state.npz'
+    with np.load(state_path,allow_pickle=False) as saved:
+        pos,neg=saved['positive'],saved['negative']
+    tp=pos[::-1].cumsum()[::-1];fp=neg[::-1].cumsum()[::-1]
+    atomic_write(directory/'validation_threshold_curve.npz',lambda p:np.savez_compressed(p,
+        threshold=np.arange(len(pos))/(len(pos)-1),tp=tp,fp=fp,fn=pos.sum()-tp,
+        precision=tp/np.maximum(tp+fp,1),recall=tp/max(int(pos.sum()),1),
+        f1=2*tp/np.maximum(tp+fp+pos.sum(),1)),data.protected)
+    return report
+
+
+xgb_posthoc_learning_curve = posthoc_learning_curve
+ModelDiagnostics = XGBDiagnostics

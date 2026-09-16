@@ -91,6 +91,46 @@ sys.path.insert(0, str(MANIFEST.parent))
 # BEGIN EMBEDDED RUNTIME (regenerate with refresh_host_notebooks.py)
 RUNTIME_SHA256 = {hashlib.sha256(runtime.encode()).hexdigest()!r}
 '''
+    if model in ('xgb', 'lgbm', 'rf'):
+        extra_check = ""
+        if model == 'xgb':
+            extra_check = """try:
+    xgb_ver = version('xgboost')
+    _versions['xgboost'] = xgb_ver
+    if not Version('2.0') <= Version(xgb_ver) < Version('4.0'):
+        raise RuntimeError(f'Unsupported notebook environment: xgboost={xgb_ver}; expected >= 2.0, < 4.0. '
+                           'Run this in a separate cell with Internet enabled, then restart the kernel/session and Run All:\\n' + PACKAGE_REPAIR)
+except PackageNotFoundError:
+    pass
+"""
+        elif model == 'lgbm':
+            extra_check = """try:
+    lgb_ver = version('lightgbm')
+    _versions['lightgbm'] = lgb_ver
+    if not Version('3.0') <= Version(lgb_ver) < Version('5.0'):
+        raise RuntimeError(f'Unsupported notebook environment: lightgbm={lgb_ver}; expected >= 3.0, < 5.0. '
+                           'Run this in a separate cell with Internet enabled, then restart the kernel/session and Run All:\\n' + PACKAGE_REPAIR)
+except PackageNotFoundError:
+    pass
+"""
+        preflight = f"""# Check versions before importing binary scientific packages.
+from importlib.metadata import version, PackageNotFoundError
+from packaging.version import Version
+PACKAGE_REPAIR = '%pip install numpy==1.26.4 scipy==1.15.3 scikit-learn==1.6.1 joblib==1.5.1 threadpoolctl==3.6.0 lightgbm==4.6.0 xgboost==3.0.5'
+_versions = {{}}
+for package, minimum, maximum in [('numpy','1.23.5','3.0'), ('scipy','1.15','3.0'),
+                                  ('scikit-learn','1.3','3.0')]:
+    try:
+        installed = version(package)
+    except PackageNotFoundError:
+        installed = '0'
+    _versions[package] = installed
+    if not Version(minimum) <= Version(installed) < Version(maximum):
+        raise RuntimeError(f'Unsupported notebook environment: {{package}}={{installed}}; expected >= {{minimum}}, < {{maximum}}. '
+                           'Run this in a separate cell with Internet enabled, then restart the kernel/session and Run All:\\n' + PACKAGE_REPAIR)
+{extra_check}print('Python:', sys.version.split()[0], 'Packages:', _versions, flush=True)
+"""
+        setup = setup.replace(f"MODEL_NAME = '{model}'", preflight + f"\nMODEL_NAME = '{model}'", 1)
     setup += runtime
     setup += '''
 # END EMBEDDED RUNTIME
@@ -110,23 +150,24 @@ _blas_limiter = configure_threads(CPU_THREADS)
 if DEVICE == 'auto':
     try:
         DEVICE = 'cuda' if subprocess.run(['nvidia-smi'], stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL, timeout=5).returncode == 0 else 'cpu'
-    except (OSError, subprocess.TimeoutExpired):
+                                          stderr=subprocess.DEVNULL).returncode == 0 else 'cpu'
+    except OSError:
         DEVICE = 'cpu'
 print(f'Manifest: {MANIFEST}; CPU train={CPU_THREADS}, predict={PREDICT_THREADS}, decode={LOADER_WORKERS}; XGB device={DEVICE}', flush=True)
 print(f'Available RAM: {available_bytes()/2**30:.2f} GiB; sample={SAMPLE_DIR}; output={OUTPUT}', flush=True)
 '''
     train = '''with phase('TRAIN sample preparation / resume'):
     sample = prepare_sample(data, SAMPLE_DIR, target_rows=TRAIN_TARGET_ROWS,
-                            neg_per_pos=NEG_PER_POS, seed=SEED, workers=LOADER_WORKERS,
-                            max_nnz=MAX_SAMPLE_NNZ)
-model, raw_predict, model_receipt = fit_sample_model(
-    data, SAMPLE_DIR, sample, OUTPUT / 'model', MODEL_NAME, CPU_THREADS,
-    max_matrix_bytes=MAX_MATRIX_GIB * 2**30, device=DEVICE if MODEL_NAME == 'xgb' else 'cpu',
-    balance_classes=BALANCE_CLASSES, rounds=BOOST_ROUNDS, rf_trees=RF_TREES,
-    predict_threads=PREDICT_THREADS)
-predict = ExactPredictor(raw_predict, enabled=DEDUPE_PREDICTION,
-                         budget_bytes=DEDUPE_BUDGET_MIB * 2**20)
+                            neg_per_pos=NEG_PER_POS, seed=SEED,
+                            workers=LOADER_WORKERS, max_nnz=MAX_SAMPLE_NNZ)
+with phase(f'fit {MODEL_NAME} / resume'):
+    model, raw_predict, model_receipt = fit_sample_model(
+        data, SAMPLE_DIR, sample, OUTPUT / 'model', MODEL_NAME, CPU_THREADS,
+        max_matrix_bytes=MAX_MATRIX_GIB * 2**30, device=DEVICE if MODEL_NAME == 'xgb' else 'cpu',
+        balance_classes=BALANCE_CLASSES, rounds=BOOST_ROUNDS, rf_trees=RF_TREES,
+        predict_threads=PREDICT_THREADS)
+    predict = ExactPredictor(raw_predict, enabled=DEDUPE_PREDICTION,
+                             budget_bytes=DEDUPE_BUDGET_MIB * 2**20)
 '''
     evaluation = '''# Full evaluation; a completed model resumes here without fitting again.
 model_identity = {'model_sha256': model_receipt['sha256'], 'sample_id': sample['sample_id']}
@@ -153,7 +194,67 @@ report = dict(model=MODEL_NAME, profile=PROFILE, seed=SEED,
 atomic_json(OUTPUT/(MODEL_NAME+'_metrics.json'), report, data.protected)
 print(json.dumps(report, indent=2), flush=True)
 '''
-    return dict(cells=[cell('markdown', intro), cell('code', setup), cell('code', train), cell('code', evaluation)],
+    diagnostic_cell = []
+    if model in ('xgb', 'lgbm', 'rf'):
+        model_upper = model.upper()
+        intro += f"""
+## Diagnostics
+
+FP/FN examples and full-test host/day counts are collected during evaluation.
+Learning curves evaluate prefixes of the completed ensemble on fixed stratified
+TRAIN/validation probes; they are estimates, not full-split learning curves or
+early stopping. Class weights restore original split priors for probe metrics.
+Rare false positives can be absent from a small probe, so use full validation
+metrics for decisions. Test diagnostics are for final reporting, not tuning.
+
+Outputs are under OUTPUT/diagnostics: learning_curve.json/csv/png (PNG requires
+matplotlib), validation_threshold_curve.npz, val_errors.json, test_errors.json,
+and val/test_diagnostics.json. Error examples are the highest-score negatives
+and lowest-score positives, NOT a representative random error sample. Columns
+map to tokens in the current input vocabulary; source_id + source_line locate
+the raw event without executing any telemetry payload.
+
+Use a new output/sample directory for this runtime revision: older checkpoints
+are rejected by the runtime hash guard. Full source input packages are unchanged.
+"""
+        setup += f"""
+# {model_upper} diagnostics: bounded state included in evaluation checkpoints.
+DIAGNOSTICS_ENABLED = True
+DIAGNOSTIC_NEGATIVE_ROWS = 10_000
+DIAGNOSTIC_POSITIVE_ROWS = 1_000
+DIAGNOSTIC_ERROR_EXAMPLES = 100  # maximum per FP/FN, each split
+DIAGNOSTIC_MAX_NNZ = 1_000_000
+LEARNING_CURVE_EVERY = 25
+DIAGNOSTICS = OUTPUT / 'diagnostics'
+def new_diagnostics():
+    return ModelDiagnostics(data, probe_negative=DIAGNOSTIC_NEGATIVE_ROWS,
+        probe_positive=DIAGNOSTIC_POSITIVE_ROWS, examples=DIAGNOSTIC_ERROR_EXAMPLES,
+        max_probe_nnz=DIAGNOSTIC_MAX_NNZ, seed=17, model_name=MODEL_NAME) if DIAGNOSTICS_ENABLED else None
+validation_diagnostics = new_diagnostics()
+test_diagnostics = new_diagnostics()
+"""
+        evaluation = evaluation.replace('bins=RANKING_BINS, workers=LOADER_WORKERS)',
+            'bins=RANKING_BINS, workers=LOADER_WORKERS, diagnostics=validation_diagnostics)')
+        evaluation = evaluation.replace('workers=LOADER_WORKERS)\nreport =',
+            'workers=LOADER_WORKERS, diagnostics=test_diagnostics)\nreport =')
+        evaluation = evaluation.replace("with phase('full test evaluation'):", f"""if DIAGNOSTICS_ENABLED:
+    validation_diagnostics.publish(DIAGNOSTICS, 'val', validation['threshold'])
+    with phase('{model_upper} fixed-probe learning curves'):
+        learning_curve = posthoc_learning_curve(data, SAMPLE_DIR, sample, model,
+            validation_diagnostics, DIAGNOSTICS, validation['threshold'],
+            model_name=MODEL_NAME, threads=PREDICT_THREADS, every=LEARNING_CURVE_EVERY)
+with phase('full test evaluation'):""")
+        evaluation += f"""
+if DIAGNOSTICS_ENABLED:
+    test_diagnostics.publish(DIAGNOSTICS, 'test', validation['threshold'])
+    print('FP/FN examples and full-test day/host counts:', DIAGNOSTICS, flush=True)
+"""
+        diagnostic_cell = [cell('code', """# Curves are saved after validation, before the full test pass.
+if DIAGNOSTICS_ENABLED and (DIAGNOSTICS/'learning_curve.png').exists():
+    from IPython.display import display, Image
+    display(Image(filename=str(DIAGNOSTICS/'learning_curve.png')))
+""")]
+    return dict(cells=[cell('markdown', intro), cell('code', setup), cell('code', train), cell('code', evaluation)] + diagnostic_cell,
                 metadata=dict(kernelspec=dict(display_name='Python 3', language='python', name='python3')),
                 nbformat=4, nbformat_minor=5)
 
@@ -161,15 +262,16 @@ print(json.dumps(report, indent=2), flush=True)
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--profile', choices=['kaggle', 'ec2-100m'], required=True)
+    parser.add_argument('--models', nargs='+', choices=['rf','xgb','lgbm'], default=['rf','xgb','lgbm'])
     args = parser.parse_args()
     root = Path(__file__).resolve().parent
     runtime = (root/'host_training_runtime.py').read_text()
-    for model in ('rf', 'xgb', 'lgbm'):
+    for model in args.models:
         path = validate_output_path(root/f'host_{model}_shards.ipynb')
         path.write_text(json.dumps(notebook(model, args.profile, runtime), indent=1)+'\n')
     # Extra Nguyen notebooks keep their own training policies; refresh only a
     # setup cell that already opted into the embedded runtime.
-    if args.profile == 'kaggle':
+    if args.profile == 'kaggle' and set(args.models) == {'rf','xgb','lgbm'}:
         for model in ('isoforest', 'river_stream'):
             path = root/f'host_{model}_shards.ipynb'
             if not path.exists():
