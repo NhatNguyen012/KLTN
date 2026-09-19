@@ -1,5 +1,5 @@
 # Read-only datasets
-/host-begnin/
+/host-begnin
 /host-malicious/
 /bro/
 /ecar-bro/
@@ -37,3 +37,7 @@ htmlcov/
 
 # Local pipeline outputs & checkpoints
 /code/output/
+
+# Audit results & Archives
+/code/kaggle/mission4_audit_results_final/
+*.zip

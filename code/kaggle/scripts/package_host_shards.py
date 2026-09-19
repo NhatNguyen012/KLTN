@@ -19,13 +19,14 @@ import sys
 import tarfile
 import tempfile
 
-CODE = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(CODE))
+CODE = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(CODE / 'preprocess'))
 from host_shards import HostShardDataset, sha256
 from pipeline_contract import sync_directory, validate_output_path
 
 BASE = CODE / 'output/host_ml'
 NOTEBOOKS = tuple(f'host_{model}_shards.ipynb' for model in ('rf', 'xgb', 'lgbm'))
+
 
 
 class HashReader:
@@ -89,7 +90,7 @@ def collect(data):
             raise ValueError(f'published reader differs from builder identity: {name}')
         files.append((name, path, path.stat().st_size, digest))
     for name in NOTEBOOKS:
-        path = Path(__file__).parent / name
+        path = Path(__file__).resolve().parent.parent / 'notebooks' / name
         files.append((name, path, path.stat().st_size, sha256(path)))
     for part in data.meta['shards']:
         if not re.fullmatch(r'[A-Za-z0-9_]+', part['volume']):

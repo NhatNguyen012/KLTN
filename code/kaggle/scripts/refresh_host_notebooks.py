@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'preprocess'))
 from pipeline_contract import validate_output_path
 
 
@@ -254,6 +254,12 @@ if DIAGNOSTICS_ENABLED and (DIAGNOSTICS/'learning_curve.png').exists():
     from IPython.display import display, Image
     display(Image(filename=str(DIAGNOSTICS/'learning_curve.png')))
 """)]
+    
+    diagnostic_cell.append(cell('code', """# Package outputs for download
+import shutil
+shutil.make_archive(f'{MODEL_NAME}_{PROFILE}_results', 'zip', OUTPUT)
+print(f'Created zip archive for download: {MODEL_NAME}_{PROFILE}_results.zip')
+"""))
     return dict(cells=[cell('markdown', intro), cell('code', setup), cell('code', train), cell('code', evaluation)] + diagnostic_cell,
                 metadata=dict(kernelspec=dict(display_name='Python 3', language='python', name='python3')),
                 nbformat=4, nbformat_minor=5)
@@ -264,10 +270,10 @@ def main():
     parser.add_argument('--profile', choices=['kaggle', 'ec2-100m'], required=True)
     parser.add_argument('--models', nargs='+', choices=['rf','xgb','lgbm'], default=['rf','xgb','lgbm'])
     args = parser.parse_args()
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
     runtime = (root/'host_training_runtime.py').read_text()
     for model in args.models:
-        path = validate_output_path(root/f'host_{model}_shards.ipynb')
+        path = validate_output_path(root/'notebooks'/f'host_{model}_shards.ipynb')
         path.write_text(json.dumps(notebook(model, args.profile, runtime), indent=1)+'\n')
     # Extra Nguyen notebooks keep their own training policies; refresh only a
     # setup cell that already opted into the embedded runtime.
