@@ -6,10 +6,20 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from pipeline_contract import DATA_ROOT_NAMES, TRAIN_BENIGN_DAYS, code_hashes, load_vocabulary, validate_output_path, validate_fit_input_path
+from pipeline_contract import DATA_ROOT_NAMES, TRAIN_BENIGN_DAYS, code_hashes, load_vocabulary, validate_output_path, validate_fit_input_path, split_tokenizer_compatibility, V4_SPLIT_TOKENIZER, V5_SPLIT_TOKENIZER
 
 
 class ContractTests(unittest.TestCase):
+    def test_only_reviewed_feature_migration_can_reuse_split(self):
+        with patch('pipeline_contract.code_hashes', return_value=V5_SPLIT_TOKENIZER):
+            self.assertIn('feature_only', split_tokenizer_compatibility(V4_SPLIT_TOKENIZER))
+            self.assertEqual(split_tokenizer_compatibility(V5_SPLIT_TOKENIZER), 'exact_tokenizer')
+            with self.assertRaisesRegex(ValueError, 'mismatch'):
+                split_tokenizer_compatibility(dict(V4_SPLIT_TOKENIZER, **{'command_syntax.py': 'changed'}))
+        with patch('pipeline_contract.code_hashes', return_value=dict(V5_SPLIT_TOKENIZER, **{'ecar_tokenizer.py': 'future'})):
+            with self.assertRaisesRegex(ValueError, 'mismatch'):
+                split_tokenizer_compatibility(V4_SPLIT_TOKENIZER)
+
     def test_all_roots_and_symlinks_are_protected(self):
         with tempfile.TemporaryDirectory() as tmp, patch('pipeline_contract.PROJECT_ROOT', Path(tmp)):
             base = Path(tmp)

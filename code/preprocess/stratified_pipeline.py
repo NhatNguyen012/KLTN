@@ -21,9 +21,9 @@ import tempfile
 
 import numpy as np
 from ecar_tokenizer import GROUPS, HOST_OBJECT_FIELDS, TOKENIZER_POLICY, flatten_tokens, token_layers, tokenize_record
-from pipeline_contract import PROJECT_ROOT, code_hashes, load_vocabulary, sync_directory, validate_output_path
+from pipeline_contract import PROJECT_ROOT, code_hashes, load_vocabulary, sync_directory, validate_output_path, split_tokenizer_compatibility
 
-BASE = PROJECT_ROOT / 'code/output/host_ml'
+BASE = PROJECT_ROOT / 'code/output/host_ml_seed02'
 SPLITS = ('train', 'val', 'test')
 BLOCK = 1024 * 1024
 
@@ -116,7 +116,9 @@ def load_manifest(path, kind):
     value = json.loads(path.read_text())
     if value.get('kind') != kind or value.get('schema') != 1:
         raise ValueError(f'expected {kind} manifest')
-    if value.get('tokenizer_sha256') != code_hashes():
+    if kind == 'host_random_split':
+        split_tokenizer_compatibility(value.get('tokenizer_sha256'))
+    elif value.get('tokenizer_sha256') != code_hashes():
         raise ValueError('manifest tokenizer mismatch; rebuild index and split')
     # The recorded implementation is provenance for this immutable artifact.
     # Downstream-only builder edits must not invalidate an existing split; its
@@ -476,6 +478,8 @@ def vocab_main(args):
         tokenizer_policy=TOKENIZER_POLICY,fit_purpose='supervised_training',fit_classes=[0,1],
         split_sha256=split_sha,split_file=str(args.split.resolve()),split_seed=manifest['seed'],
         split_counts=manifest['counts'],fit_counts=dict(counts),vocab_size=len(vocabulary),
+        split_tokenizer_compatibility=split_tokenizer_compatibility(manifest['tokenizer_sha256']),
+        split_tokenizer_sha256=manifest['tokenizer_sha256'],
         scan=dict(read_to_eof=True,days=dict(Counter(e['day'] for e in manifest['entries'])),sources=[e['source'] for e in manifest['entries']]),
         frequency_policy=dict(
             min_term_frequency=args.min_frequency,

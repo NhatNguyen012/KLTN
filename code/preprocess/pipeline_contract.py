@@ -13,6 +13,28 @@ DATA_ROOT_NAMES = ("host-begnin", "host-malicious", "ecar-bro", "bro")
 TRAIN_BENIGN_DAYS = frozenset(f"2019-09-{day:02d}" for day in range(16, 21))
 TOKENIZER_FILES = ("ecar_tokenizer.py", "command_syntax.py")
 
+# Reviewed feature-only migration: v4 -> v5 changes emitted features, never
+# object eligibility, labels, source-line enumeration or split assignments.
+# Pin BOTH implementations: future edits do not inherit this exception.
+V4_SPLIT_TOKENIZER = {
+    "ecar_tokenizer.py": "47642f9a95cf330f123e0c77b2f10a080d3df7326b3070c15d2ce72897118d6f",
+    "command_syntax.py": "e625846e083df1ee1e7d908de60c3a997c51c67ff9b09cfda9d522ebb5661e89",
+}
+V5_SPLIT_TOKENIZER = {
+    "ecar_tokenizer.py": "4d41f40c165853939b3cb9b441adccabcb4c7184fe3f613f36092654d0944fd0",
+    "command_syntax.py": V4_SPLIT_TOKENIZER["command_syntax.py"],
+}
+
+
+def split_tokenizer_compatibility(recorded: dict) -> str:
+    """Validate split eligibility compatibility, never frozen feature compatibility."""
+    current = code_hashes()
+    if recorded == current:
+        return "exact_tokenizer"
+    if recorded == V4_SPLIT_TOKENIZER and current == V5_SPLIT_TOKENIZER:
+        return "reviewed_v4_to_v5_feature_only; unchanged eligibility and labels"
+    raise ValueError("manifest tokenizer mismatch; no reviewed eligibility-compatible migration")
+
 
 def validate_fit_input_path(path: Path) -> Path:
     """Guard the historical benign-only scan, including misleading symlinks.

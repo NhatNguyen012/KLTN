@@ -1,0 +1,148 @@
+
+# OpTC workspace map
+
+This file maps the maintained source in this workspace. The current milestone is the **Host ML preprocessing pipeline**: corrected Host telemetry is indexed, split once (75/10/15, seed `02`, frozen contextual cohort), tokenized, and written as lossless sparse shards for RF, XGBoost, and LightGBM. The `bro/` and `ecar-bro/` inputs are not part of this pipeline.
+
+## Main run: host_ml_seed02
+
+The teacher-approved run (formerly v4) is consolidated under
+`code/output/host_ml_seed02/`. See `code/README.md` for identities and commands.
+The run contains `index/`, frozen `split/`, vocabulary, `model_input/volumes/ssd/`,
+the Kaggle archive, and approved training results. Older output namespaces have
+been removed. Historical paths in immutable provenance describe the original run.
+
+Only active path defaults and local notebook discovery paths changed during the
+rename. Tokenizer, training runtime, split assignments, vocabulary columns, and
+shard bytes remain unchanged. `maintenance/` contains restoration and relocation
+records. Do not regenerate or overwrite the approved artifacts.
+
+## Workspace roots
+
+| Path | Role |
+| --- | --- |
+| `AGENTS.md` | Project rules, data boundaries, and the authoritative current pipeline order. Read this first. |
+| `analyst/` | Analyst notes, sample fixtures, and architecture material; not runtime code. |
+| `a_new_hope_for_darpa_optc/` | Corrected-dataset documentation. |
+| `host-begnin/`, `host-malicious/` | Read-only corrected Host/eCAR telemetry inputs. `host-begnin` is intentionally misspelled. |
+| `bro/`, `ecar-bro/` | Read-only network telemetry and linkage data, reserved for later Network DL/fusion work. |
+| `code/` | Source code, tests, Kaggle/EC2 delivery material, and generated output. |
+| `code/output/` | Generated indexes, splits, vocabulary, shards, packages, logs, reviews, and audits. It is deliberately excluded from the source-file inventory below. |
+| `paper-general/`, `paper-token/` | Research references; do not edit as part of pipeline work. |
+| `Temp/` | Temporary workspace material, not a pipeline input or publication location. |
+
+## Historical pipeline entry points
+
+```text
+read-only Host JSON/JSON.GZ
+  → preprocess/build_host_index.py
+  → preprocess/build_split.py     (one persisted 75/10/15 split, seed 01)
+  → preprocess/build_vocab.py     (TRAIN only; benign + malicious)
+  → preprocess/build_model_input.py
+  → compressed, lossless binary sparse shards + manifest
+  → Kaggle/EC2 notebooks using host_training_runtime.py
+  → model metrics, diagnostics, and optional audit scripts
+```
+
+`build_matrix.py` is a compatible, older global-CSR route. It is useful for tests and small experiments, but it is **not** the full-corpus default: the shard route avoids a global CSR merge. All writers must keep artifacts outside the four read-only dataset roots.
+
+## `code/preprocess/` — production preprocessing
+
+| File | Effect / responsibility |
+| --- | --- |
+| `build_host_index.py` | Thin CLI entry point for `stratified_pipeline.index_main`. Streams both Host roots, records every source-line label as a compact index, fingerprints source files, and supports per-file resume. Produces the immutable input to splitting. |
+| `build_split.py` | Thin CLI entry point for `stratified_pipeline.split_main`. Creates and publishes the shared stratified random event assignment: 75% TRAIN, 10% validation, 15% test, seed `01`. Every downstream supervised model must reuse it. |
+| `build_split_contextual.py` | Option B contextual cohort → standard `host_random_split` masks in `host_ml_seed02/split/`. Uses available attacked-file-host baseline windows on Sep 21–22, retains all eligible positives and benign events in the 42 inclusive attack windows, records missing benign files, validates old index labels against current eligibility, checkpoints per source, and atomically publishes. Dry-run checks coverage without scanning raw events; current index has 32/34 baseline hosts, 106 files and 268,734 eligible positives; selected totals require a real run. |
+| `stratified_pipeline.py` | Implements the indexed/split workflow and shared helpers: source identity and hashes, atomic publication, compact gzip label/split streams, deterministic assignment, TRAIN-only two-class vocabulary fitting, and the compatible matrix-building path. It enforces that excluded rows stay excluded and that all stages bind to the same artifacts. |
+| `build_vocab.py` | Approved vocabulary builder; supply the approved split explicitly. Reads the persisted split, scans only rows assigned to TRAIN from **both** labels, tokenizes them, counts TF/DF, applies frequency/layer/cap rules, and atomically writes `vocab.json` plus provenance-rich metadata. Supports bounded, resumable scanning; its explicit `--roots` mode is retained only for historical benign-only experiments/tests. |
+| `ecar_tokenizer.py` | Pure, non-executing structure-aware Host-event tokenizer. Policy v5 canonicalizes duplicate switch/launcher/DLL features and dynamic pipe/hex literals; retains XSL/Office extensions, finite Office path roles alongside location, and richer registry categories. Converts eligible eCAR records into deterministic field, command, relationship, semantic-value, and safe embedded-code tokens; excludes `FLOW`. Feature changes require a newly fitted vocabulary and rebuilt shards. |
+| `command_syntax.py` | Bounded lexer used by the tokenizer for Windows argv, CMD clauses, and PowerShell text. Identifies safe spans/operators without executing or decoding telemetry payloads; unsupported syntax is kept opaque and audited. |
+| `pipeline_contract.py` | Shared safety and compatibility contract. Rejects output paths under data roots (including through symlinks), synchronizes directories, hashes implementation files, and validates a frozen vocabulary/metadata pair against the expected TRAIN split. Allows one hash-pinned, reviewed v4→v5 feature-only migration to reuse immutable split assignments; frozen vocabulary compatibility remains exact. |
+| `build_model_input.py` | Approved shard builder; supply the approved split/vocabulary/output paths explicitly. Validates the published split/vocabulary pair, tokenizes every eligible event once, and writes lossless binary sparse NPZ shards across approved volumes. It resumes from durable receipts, copies the reader, vocabulary and split-manifest assets, and notebooks beside the manifest, and never assembles a global CSR matrix. Accepts the approved `host_random_split` manifest. |
+
+| `host_shards.py` | Defines the portable shard format and readers/writers. Stores row nonzero counts, delta-encoded feature columns, labels, and source-line deltas in compressed NPZ; validates hashes and reconstructs one shard at a time into CSR when a consumer needs it. |
+| `shard_storage.py` | Volume-management layer for shard construction. Loads the approved volume quota configuration, locks the build, selects an output volume with reserve space, places files atomically, and preserves resumable completed shards when capacity is exhausted. |
+| `shard_metrics.py` | Bounded-memory streamed validation/test evaluator for shard consumers. Chooses a threshold from validation only and reports binned ranking/threshold metrics without materializing an entire split. |
+| `verify_model_input.py` | Read-only verifier for a completed shard manifest. Checks manifest/assets/shard integrity and, with `--decode`, reconstructs and validates each shard separately; supports relocated volume paths. |
+| `build_matrix.py` | Alternative bounded/chunked CSR builder. Reuses a frozen split and vocabulary to publish binary and/or count matrices with sidecars and checkpoints. Intended for smaller/legacy matrix consumers, not the primary full-data shard route. |
+| `build_host_pilot.py` | Builds a deterministic corrected train/test pilot from malicious telemetry plus ground truth and sampled benign rows. It uses a frozen vocabulary, has no validation partition, and is for pilot/regression work rather than the shared 75/10/15 corpus run. |
+| `build_malicious_index.py` | Quick structured inventory of `host-malicious/`, optionally sampling header lines for label counts. It is diagnostic only and cannot replace the two-root full label index used by `build_host_index.py`. |
+| `package_kaggle_input.py` | Legacy matrix-input packager. Safely copies matrices, vocabulary, tokenizer/reference code from `preprocess/` and `others/`, training scripts from `kaggle/scripts/`, and a Kaggle README into a newly published upload directory. It does not modify telemetry. |
+
+## `code/kaggle/` — training delivery and runtime
+
+| File | Effect / responsibility |
+| --- | --- |
+| `host_training_runtime.py` | Shared standalone runtime embedded in the shard notebooks. Opens and verifies manifests, samples TRAIN deterministically/resumably, decodes shard batches, trains RF/XGB/LGBM with alternating durable model slots, evaluates full validation/test sets, selects the validation-only threshold, deduplicates identical prediction rows, and publishes diagnostics/checkpoints safely. |
+| `scripts/refresh_host_notebooks.py` | Generates/replaces the reviewed RF/XGB/LGBM notebooks with an embedded copy of `host_training_runtime.py`. Supports a Kaggle sampled profile and an EC2 100-million-row shared-sample profile; it rebuilds notebooks only, never dataset artifacts. Owns the shared atomic result-zip cell with source-ID/raw-line provenance for all three models. |
+| `notebooks/host_rf_shards.ipynb` | Runnable RF notebook using the persisted shard manifest, a shared TRAIN sample, full validation/test, checkpoints, and diagnostics. |
+| `notebooks/host_xgb_shards.ipynb` | Runnable XGBoost equivalent, including CPU/CUDA selection and the same split/sample/evaluation contract. Last cell packages results as a zip that includes bounded `val_errors.json`/`test_errors.json` examples under results, vocab, split manifest, and a `shard_source_index.json` mapping volume/shard→source gz paths for offline lookup by source ID and 1-based raw line; the Mission 4 audit helper is not a generic zip reader. |
+| `notebooks/host_lgbm_shards.ipynb` | Runnable LightGBM equivalent with the same sampling, full evaluation, checkpoints, and diagnostics. |
+| `notebooks/host_isoforest_shards.ipynb` | Exploratory Isolation Forest notebook on the shared shards; not one of the supervised RF/XGB/LGBM baseline models. |
+| `notebooks/host_river_stream_shards.ipynb` | Exploratory incremental River tree-model notebook that streams the shared shards; outside the primary baseline trio. |
+| `scripts/prepare_train_sample.py` | Small CLI wrapper that makes/resumes the common deterministic TRAIN sample via the shared runtime before fitting any model, so models can use exactly the same sampled rows. |
+| `scripts/package_host_shards.py` | Packages an already-built shard manifest, assets, readers, and shards as an integrity-checked USTAR archive for upload. It refuses existing targets, validates paths/space, and writes a package report; it neither refits nor uploads. Includes `assets/split_manifest.json` when recorded by the builder; requires the frozen reader copies beside the manifest and preserves existing upload directories. |
+| `scripts/train_rf.py` | Older matrix-based Random Forest trainer. Loads a prebuilt matrix bundle, fits/evaluates RF, chooses an F1 threshold from validation, and writes a pickle model, feature importances, probabilities, and training log. |
+| `scripts/train_xgb.py` | Older matrix-based XGBoost trainer. Detects GPU availability, trains from a prebuilt matrix bundle, selects a validation F1 threshold, and writes a UBJ model, importances, probabilities, and log. |
+| `scripts/train_lgbm.py` | Older matrix-based LightGBM trainer. Detects GPU availability, trains from a prebuilt matrix bundle, selects a validation F1 threshold, and writes a text model, importances, probabilities, and log. |
+| `scripts/evaluate_models.py` | Matrix-era unified evaluator for RF/XGB/LGBM outputs. Produces val/test metrics, PR/ROC and confusion-matrix graphics, optional SHAP results, and a feature-importance comparison. |
+| `requirements-cpu.txt` | Pinned CPU environment for reproducible EC2/Kaggle-compatible matrix/runtime experiments. |
+| `requirements-gpu.txt` | Pinned GPU environment; uses GPU XGBoost instead of the CPU package. |
+| `docs/KAGGLE_RUNBOOK.md` | Current seed02 Kaggle workflow, frozen cohort counts, notebook settings, checkpoint handling, and input/results locations; replaces the obsolete full-corpus EC2 plan. |
+| `docs/XGB_DIAGNOSTICS.md` | Vietnamese guide to diagnostic artifacts, environment repair, reading F1/threshold results, and regenerating diagnostics for XGB/RF/LGBM. |
+
+## `code/others/` — shared support/configuration
+
+| File | Effect / responsibility |
+| --- | --- |
+| `evaluation_metrics.py` | Small shared metric functions. Validates binary labels, selects a threshold strictly from validation probabilities, and computes fixed-threshold binary metrics (including false-positive behavior). |
+| `model_input_volumes.json` | Approved multi-volume quota and free-space-reserve plan for the main `host_ml_seed02` shard output. Pass this configuration to the shard builder when appropriate. |
+
+## `code/audit/` — post-run investigation tools
+
+These scripts inspect already-created model diagnostics, vocabularies, manifests, and raw telemetry. Reusable audits and approved-run inspection helpers remain; fixed-path helpers for deleted experiments were removed.
+
+| File | Effect / responsibility |
+| --- | --- |
+| `audit_xgb_run.py` | Re-scores a frozen XGBoost result against matching local shards without training. Checks reproduced validation/test confusion counts, exports every FP/FN with exact source-line provenance, counts full-TRAIN/test feature-vector label collisions, and optionally traces representative raw events. Publishes to a new output directory. |
+| `extract_error_rows.py` | Converts complete error JSONL exports into raw-event JSONL using manifest source IDs and 1-based lines. Validates source identities/labels, checkpoints source reads outside data roots, and atomically publishes all traces. |
+| `review_host_vocabulary.py` | Reviews a frozen vocabulary/metadata pair without editing columns. Publishes `token_review.csv`, canonical-alias/dynamic-literal counts and rare-lexical review flags; optionally compares a newly fitted vocabulary on the same split and exports added/removed token strings. The canonical projection is not a replacement fitted vocabulary. |
+| `extract_failed_events.py` | CLI utility that retrieves raw Host JSON for diagnostics’ failed events and writes an audit JSON plus human-readable Markdown report. |
+| `explain_sample_tokenization.py` | Renders a Vietnamese Markdown walkthrough of tokenizer output for a sample record, optionally checking the matching frozen vocabulary; it does not fit a vocabulary. |
+
+## `code/test/` — regression and reproducibility checks
+
+| File | What it protects |
+| --- | --- |
+| `test_stratified_pipeline.py` | Synthetic end-to-end index → split → two-class TRAIN vocabulary → matrix/package flow, including deterministic shared assignments and leakage prevention. |
+| `test_build_vocab.py` | Vocabulary sampling, filtering, deterministic parallel output, checkpoints/resume, atomic publication, output-boundary checks, and TRAIN-only fitting. |
+| `test_build_split_contextual.py` | Synthetic contextual windows, exact class quotas, deterministic masks, interruption/resume, old-index revalidation, and downstream TRAIN vocab → lossless shards. |
+| `test_audit_xgb_run.py` | Frozen-threshold error semantics, collision bounds and exhaustive F1-oracle check, source-line extraction, resume, and output/source-identity guards. |
+| `test_notebook_exports.py` | Shared generator/notebook export consistency, valid Python cells, unique manifest names, source-ID/volume provenance and raw-line interpretation in generated result zips. |
+| `test_ecar_tokenizer.py` | Tokenizer behavior: command syntax, semantic typing, relationship tokens, embedded-code handling, bounds, determinism, and non-mutation/non-execution guarantees. |
+| `test_pipeline_contract.py` | Read-only-root/symlink output protections and frozen vocabulary/split/checksum compatibility checks. |
+| `test_review_host_vocabulary.py` | Protects canonical vocabulary mappings, dynamic-counter normalization, and retention of distinct field/command roles and unfamiliar anchors. |
+| `test_host_shards.py` | Shard encoding/decoding round trips, quota spillover, resume behavior, and full lossless shard-pipeline validation. |
+| `test_host_training_runtime.py` | Shared runtime sampling plans, safe output paths, CPU prediction, checkpoints, resume behavior, and error handling. |
+| `test_xgb_diagnostics.py` | Runtime diagnostic state, version/preflight safeguards, resume identity, error provenance, and post-hoc learning-curve behavior. |
+| `test_package_host_shards.py` | Archive contents, hashes, safety/space guards, and all-row preservation for host-shard packaging. |
+| `test_build_matrix.py` | Legacy/compatible chunked matrix output, binary/count representation, safe publication, checkpoints, and matrix-input packaging. |
+| `test_build_host_pilot.py` | Corrected pilot selection, label reconciliation, deterministic sampling, and checkpoint regression coverage. |
+| `test_evaluation_metrics.py` | Validation-only threshold selection, false-positive budgeting, and binary-target validation. |
+| `test_rng.py` | Tiny ad hoc NumPy RNG-state/digest probe for reproducibility investigations; not a `unittest` suite. |
+
+| `lsass_tokens.py` | Small read-only helper inspecting LSASS false positives in the approved seed02 XGBoost diagnostics. |
+| `provenance_tracer.py` | Exploratory raw-log PID trace helper; not used for approved features or training. |
+
+## Practical commands
+
+Run tests from the repository root. For tests that import shared modules, set `PYTHONPATH=code/preprocess:code/others:code/kaggle:code/kaggle/scripts:code/test`. The focused suite below does not touch source telemetry:
+
+```bash
+python3 code/test/test_stratified_pipeline.py
+python3 code/test/test_build_vocab.py
+python3 code/test/test_ecar_tokenizer.py
+python3 code/test/test_host_shards.py
+python3 code/test/test_host_training_runtime.py
+```
+
+For the production ordering and output locations, use the commands in `AGENTS.md`. In particular, preserve completed index/split/vocabulary artifacts when rebuilding downstream shards or packages.

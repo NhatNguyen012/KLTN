@@ -52,7 +52,7 @@ HOST_OBJECT_FIELDS = {
     "registry": ("image_path", "key", "registry_key", "registry_path"),
     "task": ("image_path", "path"),
     "shell": ("image_path", "payload"),
-    "thread": (),
+    "thread": ("image_path",),
     "user_session": (),
     "service": (),
     "host": (),
@@ -67,6 +67,7 @@ KNOWN_ACTIONS = frozenset({
 MAX_COMMAND_CHARS = 32768
 TOKENIZER_POLICY = {
     "name": "host_ml_structure_anchor_syntax",
+    "revision": "v5_canonical_office_registry",
     "feature_contract": {
         "structure": "clause-local roles, directed pipeline and provenance relations",
         "anchor": "normalized launcher/command/module/API names observed in grammar roles",
@@ -81,12 +82,14 @@ TOKENIZER_POLICY = {
     "excluded_objects": ["flow"],
     "unknown_or_missing_object": "exclude",
     "unknown_action": "action::unknown",
-    "principals_and_accounts": "drop",
+    "principals_and_accounts": "finite built-in/domain/absent buckets; no account literals",
     "property_key_inventory": "drop",
     "generic_property_values": "drop",
     "network_fields": "drop (including on retained objects)",
-    "path_features": "basename for executable/module; finite category and extension for resource paths",
-    "registry_features": "root and finite category; no key/value/data literals",
+    "path_features": "finite location category/subcategory plus office_category; normalized system32/syswow64 stems; executable/module basenames; XSL and Office extensions",
+    "registry_features": "root and overlapping finite persistence/security/Office categories; no key/value/data literals",
+    "canonical_tokens": "one syntax switch and anchor launcher/DLL/entrypoint token; retain distinct command roles and field scopes",
+    "dynamic_literals": "typed UUID/SID/numeric/hex placeholders; normalize Search gather pipe counters; no rarity-based deletion",
     "shell_features": "recognized CommandInvocation and ParameterBinding payload; no context_info",
     "relations": ["action->object", "parent executable->child executable", "switch->value role",
                   "command->switch", "pipeline source->destination", "launcher->inline payload"],
@@ -105,6 +108,8 @@ LONG_BASE64_RE = re.compile(r"(?<![A-Za-z0-9+/])[A-Za-z0-9+/]{40,}={0,2}(?![A-Za
 NUMBER_RE = re.compile(r"(?<![a-zA-Z0-9])\d+(?![a-zA-Z0-9])")
 HOST_COUNTER_RE = re.compile(r"(?i)\bsysclient\d+\b")
 HARDDISK_VOLUME_RE = re.compile(r"(?i)\bharddiskvolume\d+\b")
+SEARCH_PIPE_COUNTER_RE = re.compile(r"(?i)\b(usgthr(?:ctrl)?fltpipemssgthrpipe)\d+(?=_|\b)")
+HEX_ADDRESS_RE = re.compile(r"(?i)(?<![a-z0-9_])0x[0-9a-f]+(?![a-z0-9_])")
 USER_PATH_RE = re.compile(r"(?i)([\\/](?:users|documents and settings)[\\/])[^\\/\s\"']+")
 ENCODED_SWITCHES = {"-" + "encodedcommand"[:n] for n in range(1, 15)} | {"-ec"}
 POWERSHELL_ENCODED_RE = re.compile(
@@ -119,7 +124,10 @@ KNOWN_EXTENSIONS = {
     ".hta", ".tmp", ".log", ".evtx", ".json", ".jsonlz4", ".xml", ".txt", ".csv",
     ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".pdf", ".zip", ".7z",
     ".rar", ".lnk", ".dat", ".bin", ".db", ".ini", ".cfg", ".conf", ".manifest",
-    ".cat", ".mui", ".cmdline", ".db-wal", ".db-shm", ".etl", ".pol",
+    ".cat", ".mui", ".cmdline", ".db-wal", ".db-shm", ".etl", ".pol", ".ttf", ".otf",
+    ".xsl", ".xslt", ".docm", ".dot", ".dotx", ".dotm", ".xlsm", ".xlsb",
+    ".xlt", ".xltx", ".xltm", ".xla", ".xlam", ".pptm", ".pot", ".potx",
+    ".potm", ".ppa", ".ppam", ".dic",
 }
 
 SHELL_OPERATORS = (
@@ -270,6 +278,8 @@ def normalize_literals(text: str, *, replace_base64: bool = True) -> str:
     text = USER_PATH_RE.sub(r"\1user_name", text)
     text = HOST_COUNTER_RE.sub("host_name", text)
     text = HARDDISK_VOLUME_RE.sub("harddiskvolume", text)
+    text = SEARCH_PIPE_COUNTER_RE.sub(r"\1_number_value", text)
+    text = HEX_ADDRESS_RE.sub("hex_value", text)
     text = UUID_RE.sub("uuid_value", text)
     text = SID_RE.sub("sid_value", text)
     text = IPV4_RE.sub(_replace_ipv4, text)
@@ -580,7 +590,7 @@ def _arguments_tokens(items: list[Lexeme], family: str, launcher: str,
         if not switch:
             continue
         stable = normalize_literals(switch)
-        tokens.extend((f"command_line::structure::switch={stable}", f"command_line::syntax::switch={stable}"))
+        tokens.append(f"command_line::syntax::switch={stable}")
         if anchor:
             tokens.append(f"command_line::relation::command_switch={anchor}->{stable}")
         if attached is not None or (switch in value_switches and i + 1 < len(items)):
@@ -722,7 +732,7 @@ def _invocation_tokens(command_line: str, image_path: str,
     status: dict[str, int] = {}
     if launcher:
         normalized = normalize_literals(launcher)
-        tokens.extend((f"command_line::launcher={normalized}", f"command_line::anchor::launcher={normalized}"))
+        tokens.append(f"command_line::anchor::launcher={normalized}")
     else:
         tokens.append("command_line::syntax::parse=missing_launcher")
 
@@ -758,6 +768,17 @@ def _invocation_tokens(command_line: str, image_path: str,
             if family == "powershell" and value in {"-file", "-f"}:
                 option_end = i + 2
                 break
+
+    if family in {"wscript", "cscript"}:
+        # WSH host options precede the script; subsequent switches belong to it.
+        option_end = next((i for i in range(int(has_launcher), len(items))
+                           if not items[i].value.startswith("//")), len(items))
+        for item in items[int(has_launcher):option_end]:
+            option = item.value.casefold()
+            if option in {"//b", "//i", "//nologo", "//logo", "//s", "//h:cscript", "//h:wscript"}:
+                tokens.append(f"command_line::syntax::wsh_option={option}")
+            elif re.fullmatch(r"//t:[0-9]+", option):
+                tokens.append("command_line::syntax::wsh_timeout=present")
 
     wrapper = list(items)
     if marker is not None:
@@ -808,7 +829,7 @@ def _invocation_tokens(command_line: str, image_path: str,
         for item in items[int(has_launcher):]:
             extension = _extension(item.value)
             if extension in SCRIPT_EXTENSIONS:
-                tokens.append(f"command_line::{family}::script_ext={extension}")
+                tokens.extend((f"command_line::{family}::script_ext={extension}", f"command_line::anchor::script_ext={extension}"))
                 break
     elif family == "rundll32":
         target = next((item.value for item in items[int(has_launcher):]
@@ -816,12 +837,17 @@ def _invocation_tokens(command_line: str, image_path: str,
         if "," in target:
             dll, entry = target.split(",", 1)
             if dll and entry:
-                tokens.extend((f"command_line::rundll32::dll={normalize_literals(_basename_windows(dll))}",
-                               f"command_line::rundll32::entry={normalize_literals(entry)}",
-                               "command_line::syntax::delimiter=dll_entry",
+                dll_name = normalize_literals(_basename_windows(dll))
+                entry_name = normalize_literals(entry)
+                tokens.extend((f"command_line::anchor::dll={dll_name}",
+                               f"command_line::anchor::entrypoint={entry_name}",
+                               f"command_line::relation::dll_entry={dll_name}->{entry_name}"))
+                # Finite review list from the approved plan; a context feature,
+                # never a malicious label or an execution decision.
+                if dll_name in {"comsvcs.dll", "advpack.dll", "ieadvpack.dll"}:
+                    tokens.append(f"command_line::rundll32::review_dll={dll_name}")
+                tokens.extend(("command_line::syntax::delimiter=dll_entry",
                                "command_line::relation::launcher_target=library->entry_point"))
-    elif family == "native" and launcher:
-        tokens.append(f"command_line::native::executable={normalize_literals(launcher)}")
     return tokens, status
 
 
@@ -918,7 +944,7 @@ def _ip_class(value: Any) -> str | None:
 
 def is_learned_token(token: str) -> bool:
     """Classify literal-derived tokens for diagnostics; selection remains corpus-based."""
-    if "::anchor::" in token or any(marker in token for marker in ("::component=", "::basename=", "::prefix=", "::launcher=", "::executable=", "::script=", "::dll=", "::entry=", "::process_lineage=", "::parent_launch_family=")):
+    if "::anchor::" in token or any(marker in token for marker in ("::component=", "::basename=", "::prefix=", "::launcher=", "::executable=", "::script=", "::dll=", "::entry=", "::process_lineage=", "::parent_launch_family=", "::system_stem=", "shell::class_name=", "shell::class_namespace=")):
         return True
     tail = token.rsplit("::", 1)[-1]
     return "=" not in tail and not token.startswith(("action::", "object::", "property_key::"))
@@ -927,13 +953,13 @@ def is_learned_token(token: str) -> bool:
 def token_layers(token: str) -> tuple[str, ...]:
     """Overlapping evidence tags for audit/ablation; never extra feature columns."""
     layers: set[str] = set()
-    if "::anchor::" in token or any(x in token for x in ("::basename=", "::launcher=", "::dll=", "::entry=", "shell::invocation=")):
+    if "::anchor::" in token or any(x in token for x in ("::basename=", "::launcher=", "::dll=", "::entry=", "shell::invocation=", "::system_stem=", "shell::class_name=", "shell::class_namespace=")):
         layers.add("anchor")
     if "::syntax::" in token or "::ast" in token or "::switch=" in token or "::operator=" in token or "::mode=" in token:
         layers.add("syntax")
-    if "::relation::" in token or token.startswith("structure::") or "::structure::" in token or "::ast_edge=" in token:
+    if "::relation::" in token or token.startswith("structure::") or "::structure::" in token or "::ast_edge=" in token or "::syntax::switch=" in token:
         layers.add("structure")
-    if "::semantic::" in token or any(x in token for x in ("::category=", "::extension=", "::root=", "::parameter_role=")):
+    if token.startswith("principal::") or "::semantic::" in token or any(x in token for x in ("::category=", "::office_category=", "::extension=", "::root=", "::parameter_role=", "::subcategory=")):
         layers.add("semantic")
     if not layers:
         layers.add("context" if token.startswith(("action::", "object::", "command_line::family=")) else "lexical")
@@ -948,8 +974,24 @@ def token_rejection_reason(token: str) -> str | None:
     return None
 
 
-@lru_cache(maxsize=8192)
-def _compact_path_tokens(key: str, value: str, keep_basename: bool = False) -> tuple[str, ...]:
+def tokenize_principal(value: Any) -> list[str]:
+    """Bucket account context without emitting domain, username or SID values."""
+    if not isinstance(value, str) or not value.strip():
+        return ["principal::absent"]
+    p = value.strip().casefold()
+    if p == "nt authority\\system":
+        return ["principal::nt_system"]
+    if p.startswith("nt authority\\"):
+        return ["principal::nt_authority"]
+    if p.startswith("nt service\\"):
+        return ["principal::nt_service"]
+    if "\\" in p:
+        user = p.split("\\", 1)[1].strip()
+        return ["principal::domain_user"] + (["principal::admin_account"] if user in {"admin", "administrator", "sysadmin"} else [])
+    return ["principal::local_or_unknown"]
+
+
+def categorize_path(value: str) -> tuple[str, str | None]:
     path = value.strip().strip('"\'').replace("/", "\\").casefold()
     parts = [part for part in path.split("\\") if part]
     part_set = set(parts)
@@ -961,7 +1003,8 @@ def _compact_path_tokens(key: str, value: str, keep_basename: bool = False) -> t
         category = "appdata"
     elif "programdata" in part_set or "%programdata%" in part_set:
         category = "programdata"
-    elif part_set & {"system32", "syswow64", "sysnative"}:
+    elif any(a in {"windows", "%windir%", "%systemroot%"} and b in {"system32", "syswow64", "sysnative"}
+             for a, b in zip(parts, parts[1:])):
         category = "system"
     elif part_set & {"windows", "%windir%", "%systemroot%"}:
         category = "windows"
@@ -975,7 +1018,55 @@ def _compact_path_tokens(key: str, value: str, keep_basename: bool = False) -> t
         category = "other_path"
     else:
         category = "relative"
+    subcategory = None
+    if category == "system":
+        subcategory = next((p for p in ("system32", "syswow64", "sysnative") if p in part_set), None)
+    elif category == "windows":
+        subcategory = "windows_other"
+    elif category == "temp":
+        subcategory = "windows_temp" if part_set & {"windows", "%windir%", "%systemroot%"} else "user_temp"
+    elif category == "appdata":
+        subcategory = "roaming" if "roaming" in part_set or "%appdata%" in part_set else "local" if "local" in part_set or "%localappdata%" in part_set else None
+    return category, subcategory
+
+
+def _office_path_category(path: str, location: str) -> str | None:
+    """Finite application roles, independent of location and private filenames."""
+    normalized = "\\" + "\\".join(p for p in path.split("\\") if p)
+    if location in {"program_files", "startup"} and re.search(
+            r"\\(?:program files(?: \(x86\))?|%programfiles(?:\(x86\))?%)\\microsoft office(?:\\|$)", normalized):
+        if re.search(r"\\(?:startup|xlstart)(?:\\|$)", normalized):
+            return "startup"
+        return "installation"
+    if location not in {"appdata", "startup"}:
+        return None
+    rules = (
+        (r"\\microsoft\\bibliography\\style(?:\\|$)", "bibliography_style"),
+        (r"\\microsoft\\bibliography(?:\\|$)", "bibliography"),
+        (r"\\microsoft\\(?:word\\startup|excel\\xlstart)(?:\\|$)", "startup"),
+        (r"\\microsoft\\templates(?:\\|$)", "templates"),
+        (r"\\microsoft\\proof(?:\\|$)", "proofing"),
+        (r"\\microsoft\\office\\unsavedfiles(?:\\|$)", "recovery"),
+        (r"\\microsoft\\(?:word|excel|powerpoint)(?:\\|$)", "application_data"),
+        (r"\\microsoft\\office(?:\\|$)", "application_data"),
+    )
+    return next((name for pattern, name in rules if re.search(pattern, normalized)), None)
+
+
+@lru_cache(maxsize=8192)
+def _compact_path_tokens(key: str, value: str, keep_basename: bool = False) -> tuple[str, ...]:
+    path = value.strip().strip('"\'').replace("/", "\\").casefold()
+    category, subcategory = categorize_path(path)
     tokens = [f"{key}::category={category}"]
+    if subcategory:
+        tokens.append(f"{key}::subcategory={subcategory}")
+    office = _office_path_category(path, category)
+    if office:
+        tokens.append(f"{key}::office_category={office}")
+    if key in {"file_path", "module_path"} and category == "system" and subcategory in {"system32", "syswow64"}:
+        stem = normalize_literals(ntpath.splitext(_basename_windows(path))[0])
+        if re.fullmatch(r"[a-z_][a-z0-9_.-]{0,95}", stem):
+            tokens.append(f"{key}::system_stem={stem}")
     if keep_basename:
         basename = normalize_literals(_basename_windows(path))
         if basename:
@@ -996,6 +1087,23 @@ REGISTRY_CATEGORIES = (
     (re.compile(r"\\(?:powershell|windows powershell)(?:\\|$)"), "powershell"),
     (re.compile(r"\\windows defender(?:\\|$)"), "defender"),
     (re.compile(r"\\environment(?:\\|$)"), "environment"),
+    # Overlapping categories preserve both the broad application and key role.
+    # Match stable key components only; never emit account/SID/value/data text.
+    (re.compile(r"\\microsoft\\office(?:\\|$)"), "office"),
+    (re.compile(r"\\microsoft\\office\\(?:\d+\.\d+\\)?(?:word|excel|powerpoint|outlook|common)\\security(?:\\|$)"), "office_security"),
+    (re.compile(r"\\microsoft\\office\\(?:\d+\.\d+\\)?(?:word|excel|powerpoint|outlook|common)\\security\\trusted locations(?:\\|$)"), "office_trusted_locations"),
+    (re.compile(r"\\microsoft\\office\\(?:\d+\.\d+\\)?(?:word|excel|powerpoint|outlook|common)\\security\\trusted documents(?:\\|$)"), "office_trusted_documents"),
+    (re.compile(r"\\microsoft\\office\\(?:\d+\.\d+\\)?(?:word|excel|powerpoint|outlook)\\addins(?:\\|$)"), "office_addins"),
+    (re.compile(r"\\microsoft\\shared tools\\proofing tools(?:\\|$)"), "office_proofing"),
+    (re.compile(r"\\microsoft\\shared tools\\proofing tools\\(?:\d+\.\d+\\)?custom dictionaries(?:\\|$)"), "office_custom_dictionaries"),
+    (re.compile(r"\\microsoft\\windows\\currentversion\\(?:explorer\\)?(?:user shell folders|shell folders)(?:\\|$)"), "shell_folders"),
+    (re.compile(r"\\microsoft\\windows\\currentversion\\explorer\\(?:runmru|typedpaths|recentdocs)(?:\\|$)"), "shell_history"),
+    (re.compile(r"\\microsoft\\windows\\currentversion\\internet settings(?:\\|$)"), "internet_settings"),
+    (re.compile(r"\\(?:currentcontrolset|controlset\d+)\\control\\lsa(?:\\|$)"), "lsa"),
+    (re.compile(r"\\(?:currentcontrolset|controlset\d+)\\control\\securityproviders(?:\\|$)"), "security_providers"),
+    (re.compile(r"\\(?:currentcontrolset|controlset\d+)\\control\\terminal server(?:\\|$)"), "remote_desktop"),
+    (re.compile(r"\\(?:classes|hkcr|hkey_classes_root)\\(?:wow6432node\\)?clsid(?:\\|$)"), "com_class"),
+    (re.compile(r"\\(?:classes|hkcr|hkey_classes_root)\\(?:wow6432node\\)?clsid\\[^\\]+\\(?:inprocserver32|localserver32)(?:\\|$)"), "com_server"),
 )
 
 
@@ -1034,6 +1142,11 @@ def _shell_payload_tokens(payload: str) -> list[str]:
         if not re.fullmatch(r"[a-z_][a-z0-9_.-]{0,95}", command):
             continue
         parameter = normalize_literals(match.group(2))
+        if parameter == "typename" and command == "new-object":
+            name = match.group(3).casefold()
+            if re.fullmatch(r"[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*){1,15}", name) and len(name) <= 128:
+                parts = normalize_literals(name).split(".")
+                tokens.extend((f"shell::class_namespace={'.'.join(parts[:2])}", f"shell::class_name={parts[-1]}"))
         role, _ = _argument_role(match.group(3))
         tokens.extend((f"shell::parameter={parameter}", f"shell::parameter_role={parameter}->{role}"))
     if not tokens:
@@ -1064,6 +1177,7 @@ def tokenize_record(record: Mapping[str, Any]) -> tuple[dict[str, list[str]], di
     action = raw_action.strip().casefold() if isinstance(raw_action, str) else ""
     if action not in KNOWN_ACTIONS:
         action = "unknown"
+    grouped["principal"].extend(tokenize_principal(record.get("principal")))
     grouped["action"].append(f"action::{action}")
     grouped["object"].append(f"object::{object_type}")
     grouped["structure_semantic"].append(f"structure::action_object={action}->{object_type}")
@@ -1085,6 +1199,10 @@ def tokenize_record(record: Mapping[str, Any]) -> tuple[dict[str, list[str]], di
             image = normalize_literals(_basename_windows(image_path))
             if parent and image:
                 grouped["structure_semantic"].append(f"structure::process_lineage={parent}->{image}")
+                if parent == image == "cmd.exe":
+                    grouped["command_line"].append("command_line::cmd::self_spawn=true")
+                if parent in {"python.exe", "pythonw.exe", "python3.exe"} and image in {"ping.exe", "net.exe", "net1.exe", "ipconfig.exe"}:
+                    grouped["command_line"].append("command_line::context::suspicious_parent=python->network_tool")
         command_line = values.get("command_line", "")
         if command_line:
             if len(command_line) > MAX_COMMAND_CHARS:

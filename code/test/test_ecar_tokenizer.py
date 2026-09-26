@@ -9,7 +9,7 @@ from pathlib import Path
 import sys
 import unittest
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "preprocess"))
 from ecar_tokenizer import (
     COMMAND_FAMILIES, GROUPS, HOST_OBJECTS, HOST_OBJECT_FIELDS, MAX_COMMAND_CHARS,
     MAX_ENCODED_CHARS, POWERSHELL_ENCODED_RE, TOKENIZER_POLICY, classify_command_line,
@@ -28,6 +28,135 @@ def process(command: str, image: str = "cmd.exe", **properties: str) -> dict:
 class EcarTokenizerTests(unittest.TestCase):
     def tokens(self, command: str, image: str = "cmd.exe") -> set[str]:
         return set(flatten_tokens(tokenize_record(process(command, image))[0]))
+
+    def test_v5_canonical_aliases_preserve_roles_and_occurrences(self):
+        tokens = flatten_tokens(tokenize_record(process('tool.exe /q /q', 'tool.exe'))[0])
+        self.assertEqual(tokens.count('command_line::syntax::switch=/q'), 2)
+        self.assertEqual(tokens.count('command_line::anchor::launcher=tool.exe'), 1)
+        self.assertIn('command_line::anchor::command=tool.exe', tokens)
+        self.assertIn('command_line::relation::command_switch=tool.exe->/q', tokens)
+        self.assertFalse(any(t.startswith(('command_line::structure::switch=',
+                                          'command_line::launcher=',
+                                          'command_line::native::executable=')) for t in tokens))
+        self.assertEqual(token_layers('command_line::syntax::switch=/q'), ('structure', 'syntax'))
+        dll = self.tokens('rundll32.exe shell32.dll,Control_RunDLL', 'rundll32.exe')
+        self.assertIn('command_line::anchor::dll=shell32.dll', dll)
+        self.assertIn('command_line::anchor::entrypoint=control_rundll', dll)
+        self.assertFalse(any(t.startswith(('command_line::rundll32::dll=',
+                                          'command_line::rundll32::entry=')) for t in dll))
+
+    def test_v5_dynamic_counters_and_hex_preserve_technical_names(self):
+        a = self.tokens(r'tool.exe \\.\pipe\usgthrfltpipemssgthrpipe117_ 0x1234abcd', 'tool.exe')
+        b = self.tokens(r'tool.exe \\.\pipe\usgthrfltpipemssgthrpipe252_ 0x9876fedc', 'tool.exe')
+        self.assertEqual(a, b)
+        self.assertIn('command_line::native::usgthrfltpipemssgthrpipe_number_value_', a)
+        self.assertIn('command_line::native::hex_value', a)
+        self.assertEqual(normalize_literals('kernel32.dll python3.exe winword.exe'),
+                         'kernel32.dll python3.exe winword.exe')
+
+    def test_v5_office_paths_preserve_location_and_hide_private_names(self):
+        from ecar_tokenizer import _compact_path_tokens
+        for user, filename in [('alice', 'private'), ('bob', 'different')]:
+            path = rf'C:\Users\{user}\AppData\Roaming\Microsoft\Bibliography\Style\{filename}.XSL'
+            tokens = _compact_path_tokens('file_path', path)
+            self.assertIn('file_path::extension=.xsl', tokens)
+            self.assertIn('file_path::category=appdata', tokens)
+            self.assertIn('file_path::subcategory=roaming', tokens)
+            self.assertIn('file_path::office_category=bibliography_style', tokens)
+            self.assertFalse(any(user in t or filename in t for t in tokens))
+        cases = [(r'C:\Program Files (x86)\Microsoft Office\Office15\WINWORD.EXE', 'installation'),
+                 (r'C:\Program Files\Microsoft Office\root\Office16\STARTUP\x.dotm', 'startup'),
+                 (r'%APPDATA%\Microsoft\Word\STARTUP\x.dotm', 'startup'),
+                 (r'%APPDATA%\Microsoft\Templates\x.dotm', 'templates'),
+                 (r'%APPDATA%\Microsoft\Proof\custom.dic', 'proofing'),
+                 (r'%LOCALAPPDATA%\Microsoft\Office\UnsavedFiles\x.docm', 'recovery')]
+        for path, role in cases:
+            self.assertIn('file_path::office_category='+role, _compact_path_tokens('file_path', path))
+        for path in (r'C:\Users\alice\Documents\office\x.xsl',
+                     r'C:\Users\alice\AppData\Roaming\Microsoft\BibliographyFake\x.xsl'):
+            self.assertFalse(any('office_category=' in t for t in _compact_path_tokens('file_path', path)))
+        self.assertIn('new_path::extension=.xslt', _compact_path_tokens('new_path', r'C:\x.xslt'))
+
+    def test_v5_registry_roles_are_bounded_and_private_values_absent(self):
+        from ecar_tokenizer import _registry_tokens
+        for sid in ('S-1-5-21-123-456-789-1001', 'S-1-5-21-987-654-321-1002'):
+            key = rf'\REGISTRY\USER\{sid}\Software\Microsoft\Shared Tools\Proofing Tools\1.0\Custom Dictionaries\private@domain'
+            tokens = _registry_tokens(key)
+            self.assertEqual(set(tokens), {'registry::root=hku', 'registry::category=office_proofing',
+                                          'registry::category=office_custom_dictionaries'})
+        key = r'HKCU\Software\Microsoft\Office\16.0\Word\Security\Trusted Locations\Location1'
+        tokens = _registry_tokens(key)
+        self.assertTrue({'registry::category=office', 'registry::category=office_security',
+                         'registry::category=office_trusted_locations'} <= set(tokens))
+        self.assertNotIn('registry::category=office_trusted_locations', _registry_tokens(key.replace('Trusted Locations', 'Trusted LocationsFake')))
+        for key, category in [
+            (r'HKLM\Software\Microsoft\Office\Outlook\Addins\private', 'office_addins'),
+            (r'HKLM\System\CurrentControlSet\Control\Lsa', 'lsa'),
+            (r'HKLM\System\ControlSet001\Control\Terminal Server', 'remote_desktop'),
+            (r'HKCR\CLSID\{private-uuid}\InprocServer32', 'com_server'),
+            (r'HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders', 'shell_folders')]:
+            self.assertIn('registry::category='+category, _registry_tokens(key))
+        event = dict(object='REGISTRY', properties=dict(key=key, data='secret', value='private', image_path='reg.exe'))
+        self.assertFalse(any('secret' in t or 'private' in t for t in flatten_tokens(tokenize_record(event)[0])))
+
+    def test_v4_wsh_boundary_timeout_and_dll_review(self):
+        tokens = self.tokens('cscript.exe //H:cscript //T:30 //S sample.js /silent', 'cscript.exe')
+        self.assertIn('command_line::syntax::wsh_option=//h:cscript', tokens)
+        self.assertIn('command_line::syntax::wsh_timeout=present', tokens)
+        self.assertIn('command_line::syntax::script_argument_switch=/silent', tokens)
+        self.assertIn('command_line::anchor::script_ext=.js', tokens)
+        after = self.tokens('cscript.exe sample.js //T:30', 'cscript.exe')
+        self.assertNotIn('command_line::syntax::wsh_timeout=present', after)
+        for dll in ('comsvcs.dll', 'advpack.dll', 'ieadvpack.dll'):
+            tokens = self.tokens(f'rundll32.exe {dll},MiniDump argument', 'rundll32.exe')
+            self.assertIn(f'command_line::rundll32::review_dll={dll}', tokens)
+            self.assertIn(f'command_line::relation::dll_entry={dll}->minidump', tokens)
+
+    def test_v4_principal_buckets_and_no_literal_identity(self):
+        from ecar_tokenizer import tokenize_principal
+        cases = [(None, ['absent']), (' ', ['absent']),
+                 (r'NT AUTHORITY\SYSTEM', ['nt_system']),
+                 (r'NT AUTHORITY\NETWORK SERVICE', ['nt_authority']),
+                 (r'NT SERVICE\secret', ['nt_service']),
+                 (r'DOMAIN\sysadmin', ['domain_user', 'admin_account']),
+                 (r'DOMAIN\privateperson', ['domain_user']),
+                 ('S-1-5-18', ['local_or_unknown'])]
+        for value, expected in cases:
+            self.assertEqual(tokenize_principal(value), ['principal::'+x for x in expected])
+
+    def test_v4_paths_and_normalized_stems(self):
+        from ecar_tokenizer import _compact_path_tokens
+        for folder in ('System32', 'SysWOW64'):
+            for key in ('file_path', 'module_path'):
+                tokens = _compact_path_tokens(key, rf'C:\Windows\{folder}\IPHLPAPI.DLL')
+                self.assertIn(f'{key}::subcategory={folder.lower()}', tokens)
+                self.assertIn(f'{key}::system_stem=iphlpapi', tokens)
+        for path in (r'C:\Users\privateperson\Temp\private.dll', r'C:\ProgramData\private.dll', r'C:\Users\privateperson\System32\private.dll'):
+            tokens = _compact_path_tokens('file_path', path)
+            self.assertFalse(any('stem=' in t or 'private' in t for t in tokens))
+        self.assertIn('file_path::subcategory=windows_temp', _compact_path_tokens('file_path', r'C:\Windows\Temp\x.exe'))
+        self.assertIn('file_path::subcategory=user_temp', _compact_path_tokens('file_path', r'C:\Users\a\AppData\Local\Temp\x.exe'))
+        tokens = _compact_path_tokens('file_path', r'C:\Windows\System32\01234567-89ab-cdef-0123-456789abcdef.dll')
+        self.assertFalse(any('01234567' in t for t in tokens))
+
+    def test_v4_shell_classes_are_bound_to_typename(self):
+        for name, namespace, leaf in [('System.Net.WebClient', 'system.net', 'webclient'),
+                                     ('System.CodeDom.Compiler.CompilerParameters', 'system.codedom', 'compilerparameters')]:
+            payload = f'ParameterBinding(New-Object): name="TypeName"; value="{name}"'
+            tokens = flatten_tokens(tokenize_record(dict(object='SHELL', properties=dict(payload=payload)))[0])
+            self.assertIn('shell::class_namespace='+namespace, tokens)
+            self.assertIn('shell::class_name='+leaf, tokens)
+            for bad in (payload.replace('TypeName', 'Password'), payload.replace('New-Object', 'Write-Output'), name):
+                tokens = flatten_tokens(tokenize_record(dict(object='SHELL', properties=dict(payload=bad)))[0])
+                self.assertFalse(any('class_name=' in t for t in tokens))
+
+    def test_v4_lineage_markers_require_actual_parent_child(self):
+        def tokens(image, parent):
+            return flatten_tokens(tokenize_record(process('cmd.exe /c echo python.exe ping.exe', image, parent_image_path=parent))[0])
+        self.assertIn('command_line::cmd::self_spawn=true', tokens('cmd.exe', 'CMD.EXE'))
+        marker = 'command_line::context::suspicious_parent=python->network_tool'
+        self.assertIn(marker, tokens('ping.exe', 'python.exe'))
+        self.assertNotIn(marker, tokens('cmd.exe', 'explorer.exe'))
 
     def test_pipeline_direction_survives_binary_features(self):
         a = self.tokens('cmd.exe /c "whoami | findstr admin"')
@@ -102,8 +231,8 @@ class EcarTokenizerTests(unittest.TestCase):
     def test_fallback_launcher_with_quoted_spaces_and_rundll_fragment(self):
         self.assertEqual(classify_command_line('"C:\\Program Files\\Python\\python.exe" -m http.server'), 'python')
         tokens = self.tokens('"C:\\Program Files\\Example\\a.dll",Entry', 'rundll32.exe')
-        self.assertIn('command_line::rundll32::dll=a.dll', tokens)
-        self.assertIn('command_line::rundll32::entry=entry', tokens)
+        self.assertIn('command_line::anchor::dll=a.dll', tokens)
+        self.assertIn('command_line::anchor::entrypoint=entry', tokens)
 
     def test_lexer_limits_and_incomplete_source_are_explicit(self):
         items, status = lex('arg ' * (MAX_LEXEMES + 10))
@@ -180,13 +309,14 @@ class EcarTokenizerTests(unittest.TestCase):
         })
         original = copy.deepcopy(record)
         actual, _ = tokenize_record(record)
+        baseline["principal"] = ["principal::domain_user"]
         self.assertEqual(actual, baseline)
         self.assertEqual(record, original)
-        self.assertEqual(actual["principal"], [])
+        self.assertEqual(actual["principal"], ["principal::domain_user"])
         self.assertEqual(actual["property_key"], [])
         malformed, _ = tokenize_record({"action": "CREATE", "object": "PROCESS", "properties": {
             "image_path": {"nested": "secrets"}, "command_line": ["nested", "secrets"]}})
-        self.assertEqual(len(flatten_tokens(malformed)), 3)
+        self.assertEqual(len(flatten_tokens(malformed)), 4)
 
     def test_file_names_and_user_paths_abstract_but_actor_survives(self) -> None:
         def file_event(user: str, filename: str) -> dict:
@@ -213,7 +343,7 @@ class EcarTokenizerTests(unittest.TestCase):
         self.assertIn("module_path::basename=shell32.dll", tokens)
         self.assertIn("module_path::category=system", tokens)
         self.assertIn("image_path::basename=rundll32.exe", tokens)
-        self.assertEqual(len(tokens), 7)
+        self.assertEqual(len(tokens), 10)
 
     def test_registry_uses_root_and_category_only(self) -> None:
         original = {"action": "EDIT", "object": "REGISTRY", "properties": {
@@ -254,15 +384,15 @@ class EcarTokenizerTests(unittest.TestCase):
         self.assertIn("shell::payload=unparsed", flatten_tokens(unparsed))
 
     def test_schema_only_objects_and_unknown_actions_stay_finite(self) -> None:
-        for object_type in ("THREAD", "USER_SESSION", "HOST", "SERVICE"):
+        for object_type in ("USER_SESSION", "HOST", "SERVICE"):
             grouped, audit = tokenize_record({"action": "REMOTE_CREATE", "object": object_type,
                                              "properties": {"image_path": "secret.exe", "user": "alice"}})
             self.assertTrue(audit["eligible"])
-            self.assertEqual(len(flatten_tokens(grouped)), 3)
+            self.assertEqual(len(flatten_tokens(grouped)), 4)
         grouped, _ = tokenize_record({"action": "NEW_RANDOM_ACTION", "object": "PROCESS"})
         self.assertIn("action::unknown", grouped["action"])
         self.assertEqual(set(HOST_OBJECTS), set(HOST_OBJECT_FIELDS))
-        self.assertEqual(TOKENIZER_POLICY["principals_and_accounts"], "drop")
+        self.assertIn("no account literals", TOKENIZER_POLICY["principals_and_accounts"])
 
     def test_python_ast_and_rundll32_relations(self) -> None:
         grouped, _ = tokenize_record(process('python.exe -c "import os; print(os.getcwd())"', "python.exe"))
@@ -289,9 +419,9 @@ class EcarTokenizerTests(unittest.TestCase):
                         self.assertIn("command_line::relation::switch_value=-encoded->encoded_command", grouped["command_line"])
 
     def test_real_partial_decode_and_invalid_payload_limits(self) -> None:
-        fixture_path = Path(__file__).resolve().parents[1] / "analyst/sample/command_line_sample.json"
+        fixture_path = Path(__file__).resolve().parents[2] / "analyst/sample/command_line_sample.json"
         if not fixture_path.exists():
-            fixture_path = Path(__file__).resolve().parents[1] / "analyst/command_line_sample.json"
+            fixture_path = Path(__file__).resolve().parents[2] / "analyst/command_line_sample.json"
         records = json.loads(fixture_path.read_text())
         grouped, audit = tokenize_record(records[7])
         self.assertEqual(audit["decode_status"], {"encoded_partial_depth_1": 1})

@@ -12,10 +12,10 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "preprocess"))
 from build_vocab import HostDay, _scan_host_day, build_parser, discover_host_days, select_vocabulary, main
 
-BUILDER = Path(__file__).with_name("build_vocab.py")
+BUILDER = Path(__file__).resolve().parents[1] / "preprocess/build_vocab.py"
 
 
 def event(word: str = "repeatword", host: str = "sysclient0001", **extra) -> dict:
@@ -254,7 +254,7 @@ class BuildVocabTests(unittest.TestCase):
                 vocab = json.loads((target / "vocab.json").read_text())
                 meta = json.loads((target / "vocab_metadata.json").read_text())
                 self.assertEqual(sorted(vocab.values()), list(range(len(vocab))))
-                self.assertFalse(any("beyondbudget" in t or t.startswith("principal::") for t in vocab))
+                self.assertFalse(any("beyondbudget" in t for t in vocab))
                 self.assertEqual(meta["vocabulary_sha256"], hashlib.sha256((target / "vocab.json").read_bytes()).hexdigest())
                 self.assertEqual(meta["scan"]["workers"], workers)
                 self.assertEqual(meta["aggregate"]["source_lines"], 36)

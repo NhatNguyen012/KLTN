@@ -24,7 +24,7 @@ sys.path.insert(0, str(CODE / 'preprocess'))
 from host_shards import HostShardDataset, sha256
 from pipeline_contract import sync_directory, validate_output_path
 
-BASE = CODE / 'output/host_ml'
+BASE = CODE / 'output/host_ml_seed02'
 NOTEBOOKS = tuple(f'host_{model}_shards.ipynb' for model in ('rf', 'xgb', 'lgbm'))
 
 
@@ -80,6 +80,10 @@ def collect(data):
         path = base / 'assets' / name
         files.append((f'assets/{name}', path, path.stat().st_size,
                       data.meta['assets_sha256'][name]))
+    if 'split_manifest.json' in data.meta['assets_sha256']:
+        path = base / 'assets/split_manifest.json'
+        files.append(('assets/split_manifest.json', path, path.stat().st_size,
+                      data.meta['assets_sha256']['split_manifest.json']))
     # Preserve the reader that accompanied the completed preprocessing run.
     # Notebook path setup comes from the current Kaggle templates.
     for name in ('host_shards.py', 'shard_metrics.py'):
@@ -156,7 +160,7 @@ def main(argv=None):
                         print(f'[{i}/{len(files)}] packaged and SHA256 checked', flush=True)
                 readme = (
                     '# OpTC Host ML input\n\n'
-                    'Full binary features; persisted 75/10/15 event split, seed 1.\n'
+                    f"Full binary features; persisted 75/10/15 event split, seed {data.meta.get('seed')}.\n"
                     'Vocabulary fitted on benign and malicious TRAIN only.\n'
                     'Attach this dataset, import one host_*_shards.ipynb, then run its setup.\n'
                     'The notebook locates manifest.json and maps volumes relative to it.\n'

@@ -1,4 +1,7 @@
-# Điều tra F1 và Chẩn đoán cho Host ML (XGBoost, Random Forest, LightGBM)
+# Chẩn đoán Host ML seed02 (XGBoost, Random Forest, LightGBM)
+
+Input chính: `code/output/host_ml_seed02/model_input/manifest.json`. Kết quả
+đã duyệt: `code/output/host_ml_seed02/kaggle_ouput/`. Xem [hướng dẫn chạy](KAGGLE_RUNBOOK.md).
 
 Các notebook `host_xgb_shards.ipynb`, `host_rf_shards.ipynb` và `host_lgbm_shards.ipynb`
 đều đã được bật diagnostics mặc định. Dùng input package có vocabulary tương ứng;
@@ -34,8 +37,8 @@ Run All như trước. Các biến ở cuối setup cell:
 | `DIAGNOSTICS_ENABLED` | True | Thu báo cáo chẩn đoán |
 | `DIAGNOSTIC_NEGATIVE_ROWS` | 10000 | Số negative tối đa trong mỗi probe |
 | `DIAGNOSTIC_POSITIVE_ROWS` | 1000 | Số positive tối đa trong mỗi probe |
-| `DIAGNOSTIC_ERROR_EXAMPLES` | 100 | Tối đa 100 FP và 100 FN mỗi split |
-| `DIAGNOSTIC_MAX_NNZ` | 1000000 | Giới hạn tổng feature entries trong probe/examples của một collector |
+| `DIAGNOSTIC_ERROR_EXAMPLES` | 1000000 | Giới hạn ví dụ lỗi trong cấu hình notebook đã duyệt |
+| `DIAGNOSTIC_MAX_NNZ` | 100000000 | Giới hạn tổng feature entries trong probe/examples của một collector |
 | `LEARNING_CURVE_EVERY` | 25 | Đánh giá các mốc 1, 25, 50, … và mốc cuối |
 
 Probe lấy mẫu ngẫu nhiên đều riêng từng lớp, seed 17, giữ cố định giữa các mốc
@@ -43,14 +46,14 @@ cây. Không lấy các shard đầu làm đại diện cả corpus. Mẫu valid
 ngay trong full evaluation; không đọc lại toàn bộ validation hoặc test. Mẫu TRAIN
 được lấy từ các part của mẫu đã thực sự dùng fit, không quét TRAIN gốc lần nữa.
 
-Runtime đã đổi hash: dùng OUTPUT_ROOT/SAMPLE_DIR mới nếu còn checkpoint từ phiên
-bản notebook trước. Runtime từ chối trộn state cũ; không xóa hay sửa tay các hash.
-Với phiên bản mới này, metrics và collector được ghi chung vào một NPZ checkpoint,
+Runtime giữ nguyên hash của kết quả đã duyệt; đổi đường dẫn input có thể làm
+checkpoint cũ không tương thích. Khi đó dùng OUTPUT_ROOT/SAMPLE_DIR mới. Runtime từ chối trộn state cũ; không xóa hay sửa tay các hash.
+Trong runtime đã duyệt, metrics và collector được ghi chung vào một NPZ checkpoint,
 nên resume không đếm lặp/bỏ sót các shard đã publish.
 
 ## File kết quả
 
-Trong `OUTPUT/diagnostics/` (mặc định Nguyen:
+Trong `OUTPUT/diagnostics/` (profile Kaggle:
 `/kaggle/working/xgb-kaggle/diagnostics/`):
 
 - `learning_curve.json`, `.csv`: logloss, average precision, ROC AUC và F1 của
@@ -109,12 +112,11 @@ Không dùng test trong learning curve hoặc chọn threshold; sau khi dùng te
 ## Kiểm thử / regenerate
 
 ```bash
-python code/kaggle/refresh_host_notebooks.py --profile kaggle --models xgb
-python code/test_xgb_diagnostics.py
-python code/test_host_training_runtime.py
+python code/kaggle/scripts/refresh_host_notebooks.py --profile kaggle --models xgb
+PYTHONPATH=code/preprocess:code/others:code/kaggle:code/kaggle/scripts:code/test python3 -m unittest test_xgb_diagnostics test_host_training_runtime
 ```
 
 Tests dùng fixture nhỏ: full-test group totals, provenance, limits, checkpoint
 interruption/resume, config mismatch, prefix curves, full-validation threshold
 grid và thực thi code cells của notebook. Chưa benchmark overhead trên corpus
-thật hoặc GPU Kaggle. Bộ thay đổi này chỉ regenerate notebook XGB.
+thật hoặc GPU Kaggle. Lệnh ví dụ trên chỉ regenerate notebook XGB; cả ba notebook đã có diagnostics.

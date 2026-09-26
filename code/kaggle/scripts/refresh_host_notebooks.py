@@ -11,8 +11,99 @@ import json
 from pathlib import Path
 import sys
 
+CONFUSION_MATRIX_CELL = r"""# Plot the test confusion matrix
+import matplotlib.pyplot as plt
+import numpy as np
+
+try:
+    conf_matrix = np.array([[test['confusion']['tn'], test['confusion']['fp']],
+                            [test['confusion']['fn'], test['confusion']['tp']]])
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    # We use log1p for the colormap because of the massive imbalance between TN and the rest
+    cax = ax.matshow(np.log1p(conf_matrix), cmap='Blues')
+
+    # Add text annotations with commas for readability
+    labels = [
+        [f'TN = {conf_matrix[0,0]:,}', f'FP = {conf_matrix[0,1]:,}'],
+        [f'FN = {conf_matrix[1,0]:,}', f'TP = {conf_matrix[1,1]:,}']
+    ]
+
+    for i in range(2):
+        for j in range(2):
+            ax.text(j, i, labels[i][j], ha='center', va='center', fontsize=14, 
+                    bbox=dict(boxstyle='round,pad=0.5', facecolor='white', edgecolor='0.3', alpha=0.9))
+
+    plt.title('Confusion Matrix', pad=20, fontsize=16)
+    plt.xlabel('Predicted Label', fontsize=14)
+    plt.ylabel('Actual Label', fontsize=14)
+
+    ax.set_xticks([0, 1])
+    ax.set_yticks([0, 1])
+    ax.set_xticklabels(['BENIGN', 'MALICIOUS'], fontsize=12)
+    ax.set_yticklabels(['BENIGN', 'MALICIOUS'], fontsize=12)
+    ax.xaxis.set_ticks_position('bottom')
+
+    confusion_matrix_path = OUTPUT / 'confusion_matrix.png'
+    plt.savefig(confusion_matrix_path, dpi=300, bbox_inches='tight')
+    print(f"Saved to {confusion_matrix_path}")
+    plt.show()
+except Exception as e:
+    print(f"Could not plot confusion matrix: {e}")
+"""
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'preprocess'))
 from pipeline_contract import validate_output_path
+
+
+RESULT_EXPORT_CELL = r"""# Package model outputs and source-line provenance for offline investigation.
+import json, hashlib, os, zipfile
+from pathlib import Path
+
+zip_path = output_path(Path(f'{MODEL_NAME}_{PROFILE}_results.zip'), data.protected)
+temporary = output_path(zip_path.with_suffix('.zip.tmp'), data.protected)
+assets = data.manifest_path.parent / 'assets'
+sources = {entry['source_id']: entry for entry in data.meta['sources']}
+shard_index = {}
+for part in data.meta['shards']:
+    source = sources[part['source_id']]
+    key = f"{part['volume']}/{part['path']}"
+    if key in shard_index:
+        raise ValueError(f'Duplicate shard identity: {key}')
+    shard_index[key] = dict(source_id=part['source_id'], source_gz=source['source']['path'],
+        host=source['file_host'], day=source['day'], shard=part['path'], volume=part['volume'],
+        split=part['split'], label_0=part['label_0'], label_1=part['label_1'])
+
+try:
+    with zipfile.ZipFile(temporary, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+        for src in sorted(Path(OUTPUT).rglob('*')):
+            if src.is_file() and src.resolve() not in {temporary, zip_path}:
+                archive.write(src, 'results/' + src.relative_to(OUTPUT).as_posix())
+        for src, name in ((data.manifest_path, 'shard_manifest.json'),
+                          (assets/'vocab.json', 'vocab.json'),
+                          (assets/'vocab_metadata.json', 'vocab_metadata.json')):
+            archive.write(src, 'provenance/' + name)
+        split_asset = assets/'split_manifest.json'
+        if split_asset.exists():
+            archive.write(split_asset, 'provenance/split_manifest.json')
+        else:
+            print('Legacy input: split manifest absent; split hash remains in shard manifest.')
+        for split_name in ('val', 'test'):
+            for error_type in ('fp', 'fn'):
+                src = Path(DIAGNOSTICS)/f'{split_name}_{error_type}_examples.jsonl'
+                if src.exists():
+                    archive.write(src, 'provenance/' + src.name)
+        archive.writestr('provenance/shard_source_index.json', json.dumps(shard_index, indent=2))
+        archive.writestr('provenance/README.txt',
+            'Diagnostics use source_id and source_line (1-based raw JSONL line).\n'
+            'Join source_id to shard_manifest.json sources, then stream source.path locally.\n'
+            'shard_source_index.json keys are volume/path; labels do not determine source roots.\n')
+    os.replace(temporary, zip_path)
+finally:
+    temporary.unlink(missing_ok=True)
+print(f'Created {zip_path} ({zip_path.stat().st_size / 1024**2:.1f} MiB), SHA256={sha256(zip_path)}')
+"""
 
 
 def cell(kind, source):
@@ -72,7 +163,7 @@ SAMPLE_DIR = Path(os.environ.get('OPTC_SAMPLE_DIR', str(OUTPUT_ROOT / ('train-10
 
 if MANIFEST is None:
     candidates = []
-    roots = [Path('/kaggle/input')] if Path('/kaggle/input').exists() else [Path.cwd() / 'code/output/host_ml/model_input']
+    roots = [Path('/kaggle/input')] if Path('/kaggle/input').exists() else [Path.cwd() / 'code/output/host_ml_seed02/model_input']
     for root in roots:
         if not root.exists():
             continue
@@ -222,8 +313,8 @@ are rejected by the runtime hash guard. Full source input packages are unchanged
 DIAGNOSTICS_ENABLED = True
 DIAGNOSTIC_NEGATIVE_ROWS = 10_000
 DIAGNOSTIC_POSITIVE_ROWS = 1_000
-DIAGNOSTIC_ERROR_EXAMPLES = 100  # maximum per FP/FN, each split
-DIAGNOSTIC_MAX_NNZ = 1_000_000
+DIAGNOSTIC_ERROR_EXAMPLES = 1_000_000  # maximum per FP/FN, each split
+DIAGNOSTIC_MAX_NNZ = 100_000_000
 LEARNING_CURVE_EVERY = 25
 DIAGNOSTICS = OUTPUT / 'diagnostics'
 def new_diagnostics():
@@ -255,11 +346,8 @@ if DIAGNOSTICS_ENABLED and (DIAGNOSTICS/'learning_curve.png').exists():
     display(Image(filename=str(DIAGNOSTICS/'learning_curve.png')))
 """)]
     
-    diagnostic_cell.append(cell('code', """# Package outputs for download
-import shutil
-shutil.make_archive(f'{MODEL_NAME}_{PROFILE}_results', 'zip', OUTPUT)
-print(f'Created zip archive for download: {MODEL_NAME}_{PROFILE}_results.zip')
-"""))
+    diagnostic_cell.append(cell('code', CONFUSION_MATRIX_CELL))
+    diagnostic_cell.append(cell('code', RESULT_EXPORT_CELL))
     return dict(cells=[cell('markdown', intro), cell('code', setup), cell('code', train), cell('code', evaluation)] + diagnostic_cell,
                 metadata=dict(kernelspec=dict(display_name='Python 3', language='python', name='python3')),
                 nbformat=4, nbformat_minor=5)

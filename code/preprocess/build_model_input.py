@@ -124,7 +124,7 @@ def main(argv=None):
     parser.add_argument('--vocab',type=Path,default=BASE/'vocab.json')
     parser.add_argument('--vocab-metadata',type=Path,default=BASE/'vocab_metadata.json')
     parser.add_argument('--output-dir',type=Path,default=BASE/'model_input')
-    parser.add_argument('--storage-config',type=Path,default=Path(__file__).with_name('model_input_volumes.json'))
+    parser.add_argument('--storage-config',type=Path,default=Path(__file__).resolve().parents[1]/'others/model_input_volumes.json')
     parser.add_argument('--workers',type=int,default=4)
     parser.add_argument('--rows-per-shard',type=int,default=100000)
     parser.add_argument('--buffer-mib',type=int,default=32)
@@ -157,11 +157,12 @@ def main(argv=None):
             locks.enter_context(exclusive_lock(Path(volume['path'])/'volume_owner.lock',nonblocking=True))
         initialize_ledger(control,volumes)
         atomic_json(control/'run_config.json',dict(config,run_id=run_id,volumes=volumes))
+        copy_asset(args.split,control/'assets/split_manifest.json')
         copy_asset(args.vocab,control/'assets/vocab.json')
         copy_asset(args.vocab_metadata,control/'assets/vocab_metadata.json')
         copy_asset(Path(__file__).with_name('host_shards.py'),control/'host_shards.py')
         copy_asset(Path(__file__).with_name('shard_metrics.py'),control/'shard_metrics.py')
-        notebook_dir=Path(__file__).with_name('kaggle')
+        notebook_dir=Path(__file__).resolve().parents[1]/'kaggle/notebooks'
         for p in sorted(notebook_dir.glob('host_*_shards.ipynb')):copy_asset(p,control/p.name)
         parts=[];stats=Counter();resumed=0
         tasks=[(e,args.split.resolve().parent,vocab,control,run_id,volumes,args.rows_per_shard,args.buffer_mib*2**20) for e in split['entries']]

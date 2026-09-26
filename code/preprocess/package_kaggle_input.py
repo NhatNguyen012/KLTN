@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from pipeline_contract import TRAIN_BENIGN_DAYS, load_vocabulary, validate_output_path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CODE_DIR = PROJECT_ROOT / "code"
 OUTPUT_DIR = CODE_DIR / "output"
 MATRIX_DIR = OUTPUT_DIR / "matrix"
@@ -102,10 +102,10 @@ def main(argv: list[str] | None = None) -> int:
 
         # Copy tokenizer for reference
         for name in ("ecar_tokenizer.py", "command_syntax.py", "pipeline_contract.py", "evaluation_metrics.py"):
-            shutil.copy2(CODE_DIR / name, package_dir / name)
+            shutil.copy2(CODE_DIR / ("others" if name == "evaluation_metrics.py" else "preprocess") / name, package_dir / name)
 
         # Copy Kaggle training scripts
-        kaggle_scripts_dir = CODE_DIR / "kaggle"
+        kaggle_scripts_dir = CODE_DIR / "kaggle/scripts"
         if kaggle_scripts_dir.exists():
             for script in sorted(kaggle_scripts_dir.glob("*.py")):
                 shutil.copy2(script, package_dir / script.name)

@@ -54,9 +54,9 @@ def render(sample_path: Path, vocab_path: Path | None = None,
                   "Parser bounded, không execution-equivalent. Group PowerShell có thể opaque; AST Python chỉ parse source inline. "
                   "Mẫu không chứng minh coverage hoặc hiệu quả APT toàn corpus. Fit vocabulary trên cả benign và malicious thuộc TRAIN của split chung trước khi transform validation/test.", "",
                   "```bash",
-                  "python3 code/explain_sample_tokenization.py --output code/output/sample_tokenization.md",
-                  "python3 code/build_vocab.py --split code/output/host_ml/split/manifest.json --workers 4 \\",
-                  "  --output code/output/host_ml/vocab.json --metadata-output code/output/host_ml/vocab_metadata.json",
+                  "python3 code/audit/explain_sample_tokenization.py --output code/output/sample_tokenization.md",
+                  "python3 code/preprocess/build_vocab.py --split code/output/host_ml_seed02/split/manifest.json --workers 4 \\",
+                  "  --output code/output/host_ml_seed02/vocab.json --metadata-output code/output/host_ml_seed02/vocab_metadata.json",
                   "```", ""])
     return "\n".join(lines)
 

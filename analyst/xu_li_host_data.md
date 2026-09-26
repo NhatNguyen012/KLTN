@@ -747,3 +747,337 @@ liên kết trong research note. Ablation nên so lexical → anchors → syntax
 semantics/relations → AST trên cùng fit boundary. Báo cáo PR-AUC/AP, recall tại
 ngân sách FPR, false alerts/host/day, OOV/parse status theo family/layer, số cột,
 nnz, RAM và thời gian. Hiệu quả APT của phương pháp vẫn là giả thuyết cần đo.
+
+## 12. Pipeline v2 — Contextual Split Option B (21/09/2026)
+
+Implementation v4: lần chạy mới bên dưới dùng seed `02` và namespace
+`code/output/host_ml_v2_seed02/`, giữ nguyên index,
+split, vocab và shard v1. Plan gốc và checklist đã copy vào
+`code/output/implementation_v4/`. Chưa chạy full scan hoặc training.
+
+### 12.1 Phạm vi và số liệu đã kiểm tra
+
+- Baseline: `[10:00, 10:30)` ET (UTC−04:00), ngày 21 và 22/09/2019.
+- Attack: `[first_malicious, last_malicious]` inclusive trong 42 host-day files
+  ngày 23–25/09, gồm cả benign và malicious đủ điều kiện Host ML.
+- Dry-run trên index hiện có: **106 files**, **268,734 indexed malicious events**.
+  Có 34 attacked hosts nhưng chỉ **32 hosts có baseline files** mỗi ngày.
+- Theo xác nhận của người dùng, chỉ bỏ qua các baseline file bị thiếu:
+  `sysclient0005` và `sysclient0010`, mỗi host thiếu cả ngày 21 và 22.
+  Manifest ghi `missing_baseline_host_days`. Không bỏ qua attack file thiếu.
+- Các con số ~6.6M events, ~5M TRAIN và ~23:1 trong plan là ước tính cũ,
+  **chưa phải kết quả đo của implementation này**. Dry-run không ước lượng
+  bằng giả định event phân bố đều theo thời gian. Hai ngày baseline là thứ Bảy
+  và Chủ nhật; không thể dùng chúng để khẳng định weekday coverage.
+
+Split vẫn là random event 75/10/15, exact global class quotas với
+largest-remainder rounding, phân bổ theo source-file/label. **Lần chạy mới này
+chọn seed `2` (hiển thị `02`)**; default CLI vẫn là `1`, nên luôn truyền
+`--seed 02` theo các lệnh bên dưới.
+
+Host/day/time quyết định **event nào thuộc cohort**; seed quyết định **event đó
+vào TRAIN, VAL hay TEST**. Đổi cohort không bắt buộc đổi seed, nhưng dùng seed 2
+cho experiment mới là hợp lệ. Seed 2 giữ nguyên cohort và class quotas, thay đổi
+assignment ngẫu nhiên. Cả RF/XGB/LGBM phải dùng cùng manifest seed 2; không tạo
+split riêng cho từng model. Seed của thuật toán training là một tham số khác.
+Không chọn seed theo kết quả TEST. Khi cohort, tokenizer và seed cùng thay đổi,
+chênh lệch metrics không thể quy riêng cho tokenizer.
+Với 268,734 positives, quotas là TRAIN 201,550; VAL 26,874; TEST 40,310.
+Không có temporal/process/campaign isolation. Cohort được chọn theo attack
+labels, chỉ phản ánh các file-host đã bị tấn công; không suy ra FPR deployment
+trên toàn bộ corpus. Hostname trong event có thể khác hostname trong tên file;
+selection giữ semantics theo file của plan, không loại positives khác hostname.
+
+### 12.2 Compatibility, integrity và resume
+
+`build_split_contextual.py` xuất `kind=host_random_split` và gzip mask một byte
+cho mỗi source line (0 exclude, 1 TRAIN, 2 VAL, 3 TEST). Vocab/shard readers dùng
+trực tiếp format này. Raw labels là **0/1**; index codes là **0/1/2**
+(exclude/benign/malicious), không được nhầm lẫn.
+
+Index cũ có thể có tokenizer hash khác: contextual builder lưu provenance gốc,
+kiểm tra checksum label streams và source path/size/mtime, rồi kiểm tra lại
+**từng raw label và eligibility** trong các file được chọn. Nó không sửa index
+và không bỏ qua tokenizer checks của split/vocab readers. Raw source content
+không được hash toàn file; label streams và derived artifacts có SHA256.
+
+File thiếu, timestamp không hợp lệ, checksum sai, eligibility thay đổi, hoặc
+positive ngoài attack window đều làm build thất bại, không publish manifest.
+Checkpoint theo file nằm ở `.split_contextual.checkpoints/<config-hash>/`, bind
+với source identity, index checksum, selection, seed và implementation/tokenizer.
+Chạy lại cùng lệnh để resume; completed output khác config được bảo vệ.
+`--require-complete-baseline` có thể bật để từ chối cả baseline bị thiếu.
+
+Vocab v2 phải fit lại trên **cả hai lớp của TRAIN v2**, rồi build shard v2.
+Không reuse vocab v1 vì cả split và feature policy đã thay đổi. RF/XGB/LGBM
+phải dùng cùng split/vocab/shards. Default representation là binary presence.
+
+### 12.3 Chạy lại từ đầu với code mới — seed 02
+
+“Chạy lại từ đầu” ở đây nghĩa là **build contextual split mới → vocab mới →
+shards mới → verify → package**. Không cần scan lại toàn corpus để tạo index:
+`code/output/host_ml/index/manifest.json` hiện có được reuse và revalidate như
+mục 12.2. Không cần chạy `build_split.py` trước contextual builder. Không dùng
+vocab/shards cũ cho experiment này.
+
+Tất cả lệnh chạy từ `/mnt/SSD_Data/optc`. Namespace mới là
+`code/output/host_ml_v2_seed02/`, không ghi đè `host_ml/` hoặc `host_ml_v2/`.
+**Các bước dưới đây chưa được chạy full; đây là lệnh để người dùng chạy.**
+
+#### Bước 0 — Chuẩn bị biến đường dẫn và log
+
+Chạy block này trong terminal Bash; khi mở terminal mới, chạy lại để có các biến:
+
+```bash
+cd /mnt/SSD_Data/optc
+export OPTC_RUN=/mnt/SSD_Data/optc/code/output/host_ml_v2_seed02
+export OPTC_INDEX=/mnt/SSD_Data/optc/code/output/host_ml/index/manifest.json
+export OPTC_STORAGE=/mnt/SSD_Data/optc/code/others/model_input_volumes.json
+
+# Kiểm tra read-only boundary (kể cả symlink) trước khi tạo thư mục output/log.
+python3 - <<'PY_SETUP'
+import os, sys
+from pathlib import Path
+sys.path.insert(0, 'code/preprocess')
+from pipeline_contract import validate_output_path
+run = validate_output_path(Path(os.environ['OPTC_RUN']))
+validate_output_path(run / 'logs').mkdir(parents=True, exist_ok=True)
+PY_SETUP
+```
+
+#### Bước 1 — Kiểm tra cohort và build split seed 02
+
+Dry-run không scan raw telemetry hoặc tạo split:
+
+```bash
+python3 code/preprocess/build_split_contextual.py \
+  --index "$OPTC_INDEX" \
+  --output-dir "$OPTC_RUN/split_contextual" \
+  --seed 02 --dry-run
+```
+
+Mong đợi: 106 files, 42 attack windows, 268,734 indexed positives; báo thiếu
+benign của sysclient0005/sysclient0010 ở ngày 21 và 22. Không truyền
+`--require-complete-baseline` vì người dùng đã cho phép bỏ qua benign bị thiếu.
+
+Build thật, có thể mất nhiều thời gian vì phải stream các source files:
+
+```bash
+python3 -u code/preprocess/build_split_contextual.py \
+  --index "$OPTC_INDEX" \
+  --output-dir "$OPTC_RUN/split_contextual" --seed 02
+```
+
+Sau khi thành công, kiểm tra seed, selected counts thực tế và missing baseline:
+
+```bash
+python3 - <<'PY_SPLIT'
+import json, os
+from pathlib import Path
+p = Path(os.environ['OPTC_RUN']) / 'split_contextual/manifest.json'
+m = json.loads(p.read_text())
+assert m['kind'] == 'host_random_split' and m['seed'] == 2
+print(json.dumps({k: m[k] for k in ('seed', 'counts', 'missing_baseline_host_days')}, indent=2))
+PY_SPLIT
+```
+
+#### Bước 2 — Fit vocab.json mới, chỉ từ TRAIN seed 02
+
+```bash
+python3 -u code/preprocess/build_vocab.py \
+  --split "$OPTC_RUN/split_contextual/manifest.json" \
+  --output "$OPTC_RUN/vocab.json" \
+  --metadata-output "$OPTC_RUN/vocab_metadata.json" \
+  --min-frequency 2 --min-document-frequency 1 \
+  --rank-by term-frequency --workers 4
+```
+
+Fit cả benign + malicious TRAIN, gồm các feature tokenizer v4 mới. Không đặt
+`--max-vocab-size` nên không có cap bổ sung. Validation/test không đóng góp TF/DF
+hoặc feature columns. Metadata ghi split hash, seed, tokenizer hashes, thresholds
+và token statistics. `vocab.json` map token → sparse column index.
+
+#### Bước 3 — Build binary sparse shards mới
+
+```bash
+python3 -u code/preprocess/build_model_input.py \
+  --split "$OPTC_RUN/split_contextual/manifest.json" \
+  --vocab "$OPTC_RUN/vocab.json" \
+  --vocab-metadata "$OPTC_RUN/vocab_metadata.json" \
+  --output-dir "$OPTC_RUN/model_input" \
+  --storage-config "$OPTC_STORAGE" \
+  --workers 4 --rows-per-shard 100000 --buffer-mib 32
+```
+
+Manifest/assets ở `$OPTC_RUN/model_input/`. Physical NPZ shards nằm theo run ID
+trong approved volumes của `model_input_volumes.json`, **không nhất thiết ở trong
+OPTC_RUN**. Volume ledger đếm cả dữ liệu cũ để giữ quota/free-space reserve.
+Không sửa volume paths tùy ý hoặc xóa shard cũ; pipeline không cần global CSR.
+
+#### Bước 4 — Verify từng shard, gồm decode
+
+```bash
+python3 -u code/preprocess/verify_model_input.py \
+  --manifest "$OPTC_RUN/model_input/manifest.json" --decode
+```
+
+#### Bước 5 — Package để upload Kaggle
+
+```bash
+python3 -u code/kaggle/scripts/package_host_shards.py \
+  --manifest "$OPTC_RUN/model_input/manifest.json" \
+  --output-dir "$OPTC_RUN/kaggle_upload"
+```
+
+Output: `$OPTC_RUN/kaggle_upload/host-input.tar` và `package_report.json`.
+Dùng cùng package này cho RF/XGB/LGBM. Bước này chỉ package, không tự upload
+hoặc train. Chỉ chạy bước kế tiếp khi bước trước đã exit thành công.
+
+#### Cách chạy toàn chuỗi bằng một nohup job, có log từng bước
+
+Đây là **cách thay thế** cho việc chạy thủ công các bước 1–5 bên trên. Chạy
+Bước 0 trước, rồi copy cả block này. Các job chạy tuần tự; một bước lỗi thì
+script dừng. Không chạy block này đồng thời với các lệnh build thủ công.
+
+```bash
+nohup bash -s > "$OPTC_RUN/logs/pipeline.log" 2>&1 <<'PIPELINE' &
+set -euo pipefail
+cd /mnt/SSD_Data/optc
+: "${OPTC_RUN:?Run step 0 first}"
+: "${OPTC_INDEX:?Run step 0 first}"
+: "${OPTC_STORAGE:?Run step 0 first}"
+
+run_stage() {
+  local stage="$1"
+  shift
+  echo "[$(date -Is)] START $stage"
+  "$@" 2>&1 | tee -a "$OPTC_RUN/logs/$stage.log"
+  echo "[$(date -Is)] DONE $stage"
+}
+
+run_stage 00_dry_run python3 -u code/preprocess/build_split_contextual.py \
+  --index "$OPTC_INDEX" --output-dir "$OPTC_RUN/split_contextual" --seed 02 --dry-run
+run_stage 01_split python3 -u code/preprocess/build_split_contextual.py \
+  --index "$OPTC_INDEX" --output-dir "$OPTC_RUN/split_contextual" --seed 02
+run_stage 02_vocab python3 -u code/preprocess/build_vocab.py \
+  --split "$OPTC_RUN/split_contextual/manifest.json" \
+  --output "$OPTC_RUN/vocab.json" --metadata-output "$OPTC_RUN/vocab_metadata.json" \
+  --min-frequency 2 --min-document-frequency 1 --rank-by term-frequency --workers 4
+run_stage 03_shards python3 -u code/preprocess/build_model_input.py \
+  --split "$OPTC_RUN/split_contextual/manifest.json" \
+  --vocab "$OPTC_RUN/vocab.json" --vocab-metadata "$OPTC_RUN/vocab_metadata.json" \
+  --output-dir "$OPTC_RUN/model_input" --storage-config "$OPTC_STORAGE" \
+  --workers 4 --rows-per-shard 100000 --buffer-mib 32
+run_stage 04_verify python3 -u code/preprocess/verify_model_input.py \
+  --manifest "$OPTC_RUN/model_input/manifest.json" --decode
+run_stage 05_package python3 -u code/kaggle/scripts/package_host_shards.py \
+  --manifest "$OPTC_RUN/model_input/manifest.json" --output-dir "$OPTC_RUN/kaggle_upload"
+echo "[$(date -Is)] ALL STAGES COMPLETE"
+PIPELINE
+OPTC_JOB_PID=$!
+echo "Pipeline PID: $OPTC_JOB_PID"
+```
+
+Theo dõi bằng terminal hiện tại hoặc terminal khác sau khi chạy Bước 0:
+
+```bash
+tail -n 50 -f "$OPTC_RUN/logs/pipeline.log"
+# Hoặc theo dõi riêng bước đang chạy:
+tail -n 50 -f "$OPTC_RUN/logs/02_vocab.log"
+```
+
+`Ctrl+C` khi đang `tail` chỉ dừng xem log. Dòng `ALL STAGES COMPLETE` xác nhận
+chuỗi đã thành công; chỉ có PID hoặc thấy file log chưa có nghĩa là hoàn tất.
+
+Nếu bị gián đoạn: không xóa checkpoints; chạy lại lệnh của bước lỗi với cùng
+config, rồi tiếp tục các bước sau. Split/shards completed cùng config có thể
+reuse; vocab có checkpoint trong lúc scan. Package chưa publish có thể chạy lại;
+package đã tồn tại sẽ được bảo vệ và lệnh từ chối ghi đè. Nếu muốn một lần build
+hoàn toàn độc lập nữa, đổi `OPTC_RUN` sang tên mới, không xóa output cũ.
+Giữ code/tokenizer cố định trong suốt run; đổi code sau split có thể yêu cầu
+build lại split/vocab/shards ở namespace mới.
+
+### 12.4 Tokenizer v4
+
+| Feature | Hành vi |
+|---|---|
+| `principal::*` | finite built-in/domain/absent buckets, admin marker; không emit username/domain/SID |
+| `*::subcategory` | system32/syswow64/sysnative, windows_other, windows_temp/user_temp, roaming/local; giữ category hiện có |
+| `file_path::system_stem`, `module_path::system_stem` | normalized stems chỉ ở system32/syswow64; không emit raw UUID/counter |
+| `shell::class_namespace`, `shell::class_name` | bounded static parse `ParameterBinding(New-Object)` + `TypeName`; namespace 2 segments và leaf |
+| `command_line::cmd::self_spawn=true` | image và parent cùng cmd.exe |
+| `command_line::context::suspicious_parent=python->network_tool` | actual Python parent → ping/net/net1/ipconfig child; heuristic context |
+| WSH | `//` host options trước script, timeout presence, script-extension anchor, arguments sau script |
+| rundll32 | DLL/entrypoint anchors + relation; finite review list comsvcs/advpack/ieadvpack |
+
+Các feature này là giả thuyết cải thiện FP/FN, **chưa chứng minh sửa được số lỗi
+trong plan**. Không thực thi command hoặc payload. Python AST và PowerShell
+parsing hiện có được giữ nguyên.
+
+### 12.5 Notebook result zip và raw provenance
+
+RF/XGB/LGBM dùng cùng export cell trong generator
+`code/kaggle/scripts/refresh_host_notebooks.py`. Zip gồm `results/`,
+`provenance/vocab.json`, `vocab_metadata.json`, `shard_manifest.json`,
+`split_manifest.json` (new packages), `results/diagnostics/val_errors.json`,
+`test_errors.json` và `shard_source_index.json`. Diagnostic JSON hiện chỉ giữ
+tối đa 100 FP + 100 FN mỗi split (extreme scores), không phải toàn bộ lỗi;
+notebook chưa tạo per-error-type JSONL. Xem mục 13 để export toàn bộ lỗi. Legacy packages thiếu split manifest vẫn export được
+và thông báo thiếu; split hash vẫn có trong shard manifest.
+
+Index key là `volume/path`, join `shard.source_id` với manifest `sources`.
+Không suy ra source root từ shard label: file host-malicious có thể chứa benign.
+Diagnostic row chứa **`source_id`, `source_line` (1-based raw JSONL line)**,
+không phải zero-based shard offset. Join `source_id` với `sources[].source.path`,
+rồi stream gzip local bằng `enumerate(handle, 1)` để lấy đúng raw record.
+`code/audit/extract_raw_events.py` là helper Mission 4 hard-coded, không phải CLI
+trực tiếp cho mọi result zip. README trong zip giải thích lookup.
+
+Split manifest được copy vào assets khi build shards, package upload giữ asset
+này. Zip publish bằng rename sau khi hoàn tất; SHA256 tính streaming.
+
+### 12.6 Kiểm thử
+
+```bash
+python3 code/test/test_ecar_tokenizer.py
+python3 code/test/test_build_vocab.py
+python3 code/test/test_build_split_contextual.py
+python3 code/test/test_notebook_exports.py
+PYTHONPATH=code/preprocess:code/others:code/kaggle:code/kaggle/scripts:code/test \
+  python3 -m unittest test_stratified_pipeline test_host_shards \
+  test_pipeline_contract test_package_host_shards
+```
+
+Synthetic fixtures kiểm tra boundary ET, giữ positives, exact quotas,
+interruption/resume, deterministic masks, TRAIN-only vocab, shard compatibility,
+archive provenance và read-only protections. Không xem fixtures hoặc dry-run là
+bằng chứng về phân bố event hay chất lượng model toàn corpus.
+
+## 13. Audit XGBoost seed02/run1 — toàn bộ FN/FP
+
+Kết quả đã kiểm tra: test F1 **0.907662**, precision **0.983890**, recall
+**0.842396**, threshold validation **0.88845**. Test có **556 FP + 6,353 FN**.
+Saved model inference local tái tạo chính xác confusion counts cả VAL và TEST,
+không retrain. Đã trace toàn bộ **6,909 test errors** và **4,652 validation errors**
+về raw JSONL source lines; không sửa dataset/model/split/vocab.
+
+Notebook hiện chỉ lưu 100 extreme FP + 100 extreme FN mỗi split trong
+`val_errors.json` / `test_errors.json`. Để có toàn bộ errors dùng frozen model và
+local shards với `code/audit/audit_xgb_run.py`, sau đó resolve raw logs bằng
+`code/audit/extract_error_rows.py`. Không chỉ tăng số examples rồi giả định đã đủ.
+
+Artifacts của run này ở `code/output/host_ml_v2_seed02/kaggle_output/run1/`:
+
+- `audit_report.md`: phân tích chi tiết, case traces, lệnh tái tạo cho run sau.
+- `error_audit/summary.json`: full confusion, signature collisions, error counts.
+- `error_audit/error_signatures.json`: tokens, full TRAIN class counts, nhóm lỗi.
+- `all_raw_errors/test_all_errors_raw.jsonl`: toàn bộ 556 FP + 6,353 FN, có raw_event.
+- `all_raw_errors/val_all_errors_raw.jsonl`: toàn bộ 389 FP + 4,263 FN, có raw_event.
+
+Trong test, 362 vectors mang cả hai labels: ít nhất 6,235 errors không tránh được
+với deterministic classifier dùng cùng representation. Empirical test-label oracle
+F1 ceiling = 0.916770; đây chỉ là phân tích khả năng phân biệt của feature vectors,
+không phải valid trained model/threshold. THREAD image_path bị bỏ hiện tạo nhiều
+collisions; 3,288 FN thuộc THREAD. Non-THREAD lwabeat.exe tạo thêm 2,180 FN.
+Bốn Chrome FILE vectors tạo 277 FP. Report phân biệt feature loss, label/context
+ambiguity và model errors; chưa thay đổi tokenizer dựa trên audit này.

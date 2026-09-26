@@ -1,5 +1,17 @@
 # OpTC Research Workspace Instructions
 
+## Active approved run (user update 2026-09-26)
+
+The main run is now `code/output/host_ml_seed02/` (formerly v4 seed02).
+Its inherited index and frozen contextual split are consolidated as `index/`
+and `split/`; its 358 shards are under `model_input/volumes/ssd/`.
+Older output namespaces have been removed. Use `code/README.md` and
+`code/kaggle/docs/KAGGLE_RUNBOOK.md` for current paths and the approved experiment.
+The frozen split seed is 02; notebook sampling seed is separately 1. Do not
+rebuild or replace the approved artifacts using the general seed-01/full-corpus
+instructions below. Historical metadata paths/hashes are provenance, not current
+output destinations. Preserve them; only active location metadata was relocated.
+
 ## Project scope
 
 This workspace develops an APT-detection architecture from the corrected DARPA
@@ -97,8 +109,16 @@ generalization. Report precision-recall behavior and false-positive rates.
 
 ## Code and artifact layout
 
-- Put local preprocessing, tokenization, indexing, matrix-building, testing,
-  and orchestration code in `code/`.
+- Before inspecting, fixing, refactoring, or extending anything under `code/`,
+  read `MENU.md`. It is the maintained file-role map: use it to determine
+  whether the target is part of the current shard pipeline, a compatible
+  matrix-era path, a post-run audit, an exploratory helper, or a test. Update
+  `MENU.md` whenever a source file's role, location, interface, or generated
+  artifacts change materially.
+- Put local preprocessing, tokenization, indexing, split/vocabulary building,
+  and shard/matrix construction code in `code/preprocess/`; put tests in
+  `code/test/`, audits in `code/audit/`, and shared support/configuration in
+  `code/others/`.
 - Complete and validate the local pipeline before adapting it for Kaggle.
 - Put Kaggle-specific training or packaging code in `code/kaggle/`; do not make
   Kaggle copies the primary implementation while local work is incomplete.
@@ -107,8 +127,10 @@ generalization. Report precision-recall behavior and false-positive rates.
 - Treat papers and supplied reference implementations as evidence. Do not edit
   them unless the user explicitly asks for such a change.
 
-The active order is `build_host_index.py`, `build_split.py`, `build_vocab.py --split`,
-then `build_model_input.py` (compressed binary shards, no global CSR merge).
+The active order is `code/preprocess/build_host_index.py`,
+`code/preprocess/build_split.py`, `code/preprocess/build_vocab.py --split`,
+then `code/preprocess/build_model_input.py` (compressed binary shards, no
+global CSR merge).
 Keep already-built index/split/vocabulary unchanged when updating downstream
 packaging. Re-running compatible commands resumes
 automatically. Checkpoints must be written outside all dataset roots and must be
@@ -118,7 +140,7 @@ code before reuse.
 Example vocabulary fit after publishing the shared split:
 
 ```bash
-nohup python3 /mnt/SSD_Data/optc/code/build_vocab.py \
+nohup python3 /mnt/SSD_Data/optc/code/preprocess/build_vocab.py \
   --split /mnt/SSD_Data/optc/code/output/host_ml/split/manifest.json \
   --output /mnt/SSD_Data/optc/code/output/host_ml/vocab.json \
   --metadata-output /mnt/SSD_Data/optc/code/output/host_ml/vocab_metadata.json \
@@ -129,9 +151,9 @@ nohup python3 /mnt/SSD_Data/optc/code/build_vocab.py \
 Additional preprocessing storage authorized by the user: up to 100 GB of output
 under `/home/nguyen/optc_model_input`, and spare capacity under
 `/mnt/HDD_Data/optc_model_input` and `code/output/host_ml/model_input/volumes/ssd`.
-Use the quotas/free-space reserves in `code/model_input_volumes.json`. These are
-output directories, not dataset roots. Training remains on Kaggle; do not launch
-full local training as part of preprocessing.
+Use the quotas/free-space reserves in `code/others/model_input_volumes.json`.
+These are output directories, not dataset roots. Training remains on Kaggle;
+do not launch full local training as part of preprocessing.
 
 ## Engineering expectations
 
@@ -151,7 +173,7 @@ full local training as part of preprocessing.
 Useful local checks include:
 
 ```bash
-python3 code/test_build_vocab.py
-python3 code/test_ecar_tokenizer.py
-python3 code/build_host_index.py --dry-run
+python3 code/test/test_build_vocab.py
+python3 code/test/test_ecar_tokenizer.py
+python3 code/preprocess/build_host_index.py --dry-run
 ```

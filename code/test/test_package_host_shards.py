@@ -14,8 +14,8 @@ from unittest.mock import patch
 from host_shards import FORMAT, SCHEMA, HostShardDataset, ShardBuffer, sha256
 from pipeline_contract import PROJECT_ROOT
 
-CODE = Path(__file__).resolve().parent
-sys.path.insert(0, str(CODE/'kaggle'))
+CODE = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(CODE/'kaggle/scripts'))
 from package_host_shards import main, NOTEBOOKS, safe_name
 
 
@@ -29,7 +29,7 @@ def fixture(base):
     (assets/'vocab_metadata.json').write_text(json.dumps(
         dict(split_sha256='split-fixture', vocabulary_sha256=vocab_sha)))
     for name in ('host_shards.py', 'shard_metrics.py'):
-        shutil.copyfile(CODE/name, source/name)
+        shutil.copyfile(CODE/'preprocess'/name, source/name)
     roots = {name: str(base/name) for name in ('ssd', 'hdd', 'unused')}
     parts = []
     totals = {}
@@ -59,6 +59,16 @@ def fixture(base):
 
 
 class PackageTests(unittest.TestCase):
+    def test_optional_split_manifest_is_packaged(self):
+        with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()):
+            base=Path(tmp);manifest=fixture(base)
+            asset=manifest.parent/'assets/split_manifest.json';asset.write_text('{"kind":"host_random_split"}')
+            meta=json.loads(manifest.read_text());meta['assets_sha256']['split_manifest.json']=sha256(asset)
+            manifest.write_text(json.dumps(meta))
+            main(['--manifest',str(manifest),'--output-dir',str(base/'upload'),'--reserve-free-gib','0'])
+            with tarfile.open(base/'upload/host-input.tar') as archive:
+                self.assertEqual(archive.extractfile('assets/split_manifest.json').read(),asset.read_bytes())
+
     def test_archive_roundtrip_and_notebook_setup_after_relocation(self):
         with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()):
             base = Path(tmp)

@@ -2,7 +2,7 @@
   "volumes": [
     {
       "id": "ssd",
-      "path": "/mnt/SSD_Data/optc/code/output/host_ml/model_input/volumes/ssd",
+      "path": "/mnt/SSD_Data/optc/code/output/host_ml_seed02/model_input/volumes/ssd",
       "max_bytes": 536870912000,
       "reserve_free_bytes": 21474836480
     },
