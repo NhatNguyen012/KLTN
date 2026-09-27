@@ -12,6 +12,19 @@ rebuild or replace the approved artifacts using the general seed-01/full-corpus
 instructions below. Historical metadata paths/hashes are provenance, not current
 output destinations. Preserve them; only active location metadata was relocated.
 
+## Separate provenance experiment (user update 2026-09-26)
+
+The user authorizes `code/provenace_graph/` (spelling intentional) as a separate
+workspace with its own preprocess/test/notebook/docs subfolders. Generated artifacts
+belong in `code/output/provenace_graph/`. Its purpose is a lightweight two-hop
+Host/Process graph supporting RF/XGB/LightGBM; it is not the future Network DL branch.
+Reuse the frozen seed02 split for the first comparison, keep baseline artifacts
+unchanged, and never use true ancestor labels or future evidence as features.
+The user clarified that this must be a learned provenance graph model, not another
+RF/XGB/LGBM pipeline or only engineered ancestry columns. The active implementation
+is in `code/provenace_graph/model/`; preserve the raw-index checkpoint and consult
+its README before restarting the scanner.
+
 ## Project scope
 
 This workspace develops an APT-detection architecture from the corrected DARPA

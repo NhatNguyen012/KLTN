@@ -146,3 +146,27 @@ python3 code/test/test_host_training_runtime.py
 ```
 
 For the production ordering and output locations, use the commands in `AGENTS.md`. In particular, preserve completed index/split/vocabulary artifacts when rebuilding downstream shards or packages.
+
+## `code/provenace_graph/` — learned two-hop provenance graph
+
+The corrected experiment is a learned relational mean GraphSAGE encoder with an
+optional neural risk head, not another tree model. The approved Host ML baseline
+is untouched. Read `code/provenace_graph/README.md` and `docs/DESIGN.md`.
+
+| Path | Role |
+| --- | --- |
+| `preprocess/build_graph.py`, `graph.py`, `common.py` | Frozen raw-index scanner, graph schema, causal lookup and safety helpers; their hashes remain compatible with the unfinished scan. |
+| `preprocess/audit_graph.py`, `explain_event.py` | Earlier bounded index diagnostics; not a learned-model evaluator. |
+| `model/ego.py` | Actual typed causal ego graphs, capped at 64 nodes and two hops. |
+| `model/relational_sage.py` | Two learned message-passing layers, 16-dimensional embeddings and optional neural risk head; 9,041 parameters. |
+| `model/train.py` | TRAIN-only graph-model fitting, validation threshold, explicit sampled/full evaluation and resumable epoch checkpoints. Resolves relocated baseline shard volumes from Kaggle mounts using manifest-relative shard paths. |
+| `model/score_event.py` | Learned risk, embeddings, source-line evidence and ancestry-edge ablations. |
+| `model/resume_index.py` | Verifies the existing 200,000-line checkpoint against active source and the archived retired-adapter fingerprint before resuming the unchanged scanner. |
+| `notebook/provenance_graph.ipynb` | Graph-only Kaggle workflow; extracts the code ZIP, selects the complete Host shard manifest by format, and verifies relocated shards in the trainer. |
+| `test/test_graph.py`, `test/test_learned_graph.py` | Index safety/causality and neural gradients/message-passing/learning/resume tests. |
+| `test/test_relocated_shards.py` | Relocated shard-volume discovery from conventional and nested Kaggle package layouts. |
+| `code/output/provenace_graph/` | Index checkpoint, pilot, research extracts, synthetic validation reports, and `learned_graph_code.zip`. No full OpTC graph-model results yet. |
+
+The unwanted tree-column augmentation script and RF/XGB/LGBM notebooks were removed
+from this branch. The retired adapter's exact bytes are stored only beside the old
+checkpoint to validate its original implementation fingerprint, not as active code.
