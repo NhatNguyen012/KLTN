@@ -108,6 +108,8 @@ These scripts inspect already-created model diagnostics, vocabularies, manifests
 | `review_host_vocabulary.py` | Reviews a frozen vocabulary/metadata pair without editing columns. Publishes `token_review.csv`, canonical-alias/dynamic-literal counts and rare-lexical review flags; optionally compares a newly fitted vocabulary on the same split and exports added/removed token strings. The canonical projection is not a replacement fitted vocabulary. |
 | `extract_failed_events.py` | CLI utility that retrieves raw Host JSON for diagnostics’ failed events and writes an audit JSON plus human-readable Markdown report. |
 | `explain_sample_tokenization.py` | Renders a Vietnamese Markdown walkthrough of tokenizer output for a sample record, optionally checking the matching frozen vocabulary; it does not fit a vocabulary. |
+| `graph_vs_ml_complementarity.py` | Post-run complementarity audit between the learned GraphSAGE ego-graph model and all three Host ML models (RF/XGB/LGBM). Joins the 2,000-event graph test sample with ML `test_errors.json` via `(source_id, source_line)`, classifies joint outcomes (graph corrects FP/FN, graph breaks TN/TP, both wrong, both correct), annotates casebook case patterns (vector_collision / generalization / near_threshold / context_loss), reports cross-model events where all three ML models are wrong but graph is right, and writes JSON + Markdown reports. Metadata-only mode if no model weights; supply `--model-weights` for NumPy inference. Output: `code/output/provenace_graph/graph_vs_ml_complementarity.{json,md}`. |
+| `gating_fusion_evaluation.py` | Two-stage context-aware gating fusion audit: Tree ML (fast linear triage filter) + Relational GraphSAGE (two-hop causal arbiter). Evaluates Gating Policies (FP Veto, FN Boost, Dual Gating, Soft Blend) on the 2,000-event uniform sample, queries and scores ALL 7,390 unique ML errors across the entire 1,249,689-event test set directly from `graph.sqlite` target table, and projects full-corpus F1, Precision, and Recall improvements. Output: `code/output/provenace_graph/gating_fusion_report.{json,md}`. |
 
 ## `code/test/` — regression and reproducibility checks
 
@@ -159,13 +161,19 @@ is untouched. Read `code/provenace_graph/README.md` and `docs/DESIGN.md`.
 | `preprocess/audit_graph.py`, `explain_event.py` | Earlier bounded index diagnostics; not a learned-model evaluator. |
 | `model/ego.py` | Actual typed causal ego graphs, capped at 64 nodes and two hops. |
 | `model/relational_sage.py` | Two learned message-passing layers, 16-dimensional embeddings and optional neural risk head; 9,041 parameters. |
-| `model/train.py` | TRAIN-only graph-model fitting, validation threshold, explicit sampled/full evaluation and resumable epoch checkpoints. Resolves relocated baseline shard volumes from Kaggle mounts using manifest-relative shard paths. |
+| `model/train.py` | TRAIN-only graph-model fitting, validation threshold, explicit sampled/full evaluation and resumable epoch checkpoints. Its sampled mode selects globally from compact shard labels, looks up graph identities only for selected rows, and materializes each two-hop graph once; it resolves relocated baseline shard volumes from Kaggle mounts. |
 | `model/score_event.py` | Learned risk, embeddings, source-line evidence and ancestry-edge ablations. |
+| `model/ego_cache.py` | Portable no-pickle NPZ cache schema, integrity checks and graph-part reader; node identities/raw telemetry are excluded. |
+| `model/train_gpu.py` | PyTorch CUDA two-layer relational mean GraphSAGE over precomputed cache shards; it never opens SQLite or raw telemetry. At the end of training, automatically calls `export_numpy_weights()` to write `model_numpy.npz` alongside `checkpoint.pt` — a relational_sage-compatible NumPy weight file for local inference without PyTorch. Also supports `--export-only` to convert an existing `checkpoint.pt` to `model_numpy.npz` without retraining. |
 | `model/resume_index.py` | Verifies the existing 200,000-line checkpoint against active source and the archived retired-adapter fingerprint before resuming the unchanged scanner. |
-| `notebook/provenance_graph.ipynb` | Graph-only Kaggle workflow; extracts the code ZIP, selects the complete Host shard manifest by format, and verifies relocated shards in the trainer. |
+| `preprocess/build_ego_cache.py` | Local SSD, label-blind, strict-past two-hop ego-graph cache builder with deterministic seed02 sample selection, part-level checksum resume and atomic publication. |
+| `preprocess/package_ego_cache.py` | Packages a complete cache, GPU trainer and GPU notebook into a verified Kaggle USTAR archive without copying graph.sqlite or raw telemetry. |
+| `notebook/provenance_graph.ipynb` | Earlier SQLite-query Kaggle workflow for debugging only; not suitable for an experiment-sized cache. |
+| `notebook/provenance_graph_gpu.ipynb` | Kaggle GPU workflow; securely extracts the static cache and trains the batched PyTorch relational GraphSAGE. |
 | `test/test_graph.py`, `test/test_learned_graph.py` | Index safety/causality and neural gradients/message-passing/learning/resume tests. |
 | `test/test_relocated_shards.py` | Relocated shard-volume discovery from conventional and nested Kaggle package layouts. |
-| `code/output/provenace_graph/` | Index checkpoint, pilot, research extracts, synthetic validation reports, and `learned_graph_code.zip`. No full OpTC graph-model results yet. |
+| `test/test_ego_cache.py` | Static cache encoding/decoding, source-line provenance, relation IDs and manifest self-digest test. |
+| `code/output/provenace_graph/` | Complete index, local ego-graph caches, Kaggle cache packages, pilot/research extracts and synthetic validation reports. `kaggle_upload_seed02_ego_cache_v2/` is the current upload-ready archive (includes updated `train_gpu.py` with numpy weight export and updated notebook with result packaging cell). The older `kaggle_upload_seed02_ego_cache/` is superseded. |
 
 The unwanted tree-column augmentation script and RF/XGB/LGBM notebooks were removed
 from this branch. The retired adapter's exact bytes are stored only beside the old

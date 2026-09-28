@@ -26,12 +26,11 @@ is unchanged. The raw SQLite graph index remains useful and is preserved.
 
 [Design, research evidence and limitations](docs/DESIGN.md).
 
-## Current running-job status
+## Current index status
 
-The last inspected full-index checkpoint contains **200,000 lines from source 1
-of 106**. No builder process was running at inspection. `Ctrl+Z` on `tail -f`
-suspends the viewer, not normally the background builder; the log does not establish
-why the builder exited. The completed bounded pilot is not the full graph.
+The full graph index is published at `code/output/provenace_graph/graph/`: its
+manifest records all 106 configured baseline sources and a complete SQLite graph.
+The completed bounded pilot remains only a prior indexing diagnostic.
 
 The original scanner files are unchanged. Its checkpoint recorded the fingerprint
 of the unused, now-retired adapter too. An exact copy of that adapter is retained
@@ -85,17 +84,20 @@ the scanner-fingerprint files `preprocess/graph.py`, `preprocess/build_graph.py`
 three. The notebook extracts the archive automatically and remaps shard volumes from
 manifest-relative paths beneath the Kaggle input mounts. The trainer refuses
 prefix-limited graphs.
-Its default TRAIN cap is 20,000 balanced rows, validation/test caps 5,000 uniform
-rows. These are graph-model smoke/initial-experiment budgets, not the full baseline
-sample. Set `--val-limit 0 --test-limit 0` for full-partition evaluation after the
-pipeline is ready. The saved metrics explicitly distinguish sampled from full scope.
+Its default CPU budget is 4,000 balanced TRAIN rows and 2,000 uniform rows for
+each validation/test sample. The sampler reads every shard's compact label array to
+obtain a reproducible global reservoir, but performs SQLite graph lookup only for
+selected rows. Each two-hop graph is materialized once and reused across epochs.
+These are smoke/initial-experiment budgets, not the full baseline sample. Set
+`--val-limit 0 --test-limit 0` only for a separately budgeted full-partition
+evaluation. The saved metrics explicitly distinguish sampled from full scope.
 
 ```bash
 python3 code/provenace_graph/model/train.py \
   --graph code/output/provenace_graph/graph \
   --baseline code/output/host_ml_seed02/model_input/manifest.json \
   --output code/output/provenace_graph/learned_model \
-  --epochs 10 --evaluate-test
+  --epochs 5 --train-limit 4000 --val-limit 2000 --test-limit 2000 --evaluate-test
 ```
 
 Use matching arguments plus `--resume` to continue from the last complete epoch.
@@ -126,3 +128,60 @@ resume. The tiny end-to-end training/resume test uses synthetic rows only. Full
 OpTC accuracy, FP/FN improvement, and production throughput remain unmeasured.
 Reports: `code/output/provenace_graph/learned_graph_tests.log`, `index_tests.log`,
 and `learned_smoke_test.json`.
+
+
+## Cached GPU workflow
+
+The direct SQLite lookup notebook is retained as a small debugging path only. It
+is not suitable for Kaggle-scale graph extraction: the GPU model is fast, while
+random SQLite reads and per-event causal graph construction are slow. The
+recommended experiment has two stages:
+
+```text
+complete label-blind graph.sqlite + frozen seed02 masks
+  -> local CPU and SSD: static strict-past ego-graph cache (one time, resumable)
+  -> Kaggle GPU: sequential cache reads + batched relational GraphSAGE
+```
+
+`preprocess/build_ego_cache.py` preserves the current graph semantics: a
+maximum-two-hop CREATE ancestry, observed Host communication, 40 finite node
+attributes, no raw telemetry/node IDs as features, no ancestor labels, and only
+evidence strictly before the target timestamp. It first selects the same global
+seeded samples from the frozen seed02 shard labels, then persists only source
+line provenance and graph tensors. The default cache contains 4,000 balanced
+TRAIN graphs plus 2,000 uniform validation and 2,000 uniform test graphs.
+
+The static tensor format is compressed NPZ rather than a Torch pickle so a
+CPU-only local workstation can build and verify it. `model/train_gpu.py` turns
+those arrays into CUDA tensors and performs relation-specific mean GraphSAGE
+batching with PyTorch; PyTorch Geometric is not required.
+
+Build locally from the repository root. The command can be interrupted and
+restarted with identical arguments; completed parts are checksum-validated and
+resumed.
+
+```bash
+nohup python3 code/provenace_graph/preprocess/build_ego_cache.py \
+  --graph code/output/provenace_graph/graph \
+  --baseline code/output/host_ml_seed02/model_input/manifest.json \
+  --output code/output/provenace_graph/seed02_ego_cache \
+  --train-limit 4000 --val-limit 2000 --test-limit 2000 \
+  --graphs-per-shard 250 --sqlite-cache-mib 256 \
+  > code/output/provenace_graph/build_ego_cache.log 2>&1 &
+
+tail -f code/output/provenace_graph/build_ego_cache.log
+```
+
+After the final manifest is published, package it without rebuilding:
+
+```bash
+python3 code/provenace_graph/preprocess/package_ego_cache.py \
+  --cache code/output/provenace_graph/seed02_ego_cache
+```
+
+This publishes
+`code/output/provenace_graph/kaggle_upload_seed02_ego_cache/provenance-ego-cache.tar`.
+Upload that one TAR as a Kaggle Dataset. Attach it and import
+`notebook/provenance_graph_gpu.ipynb`; enable a GPU accelerator. The GPU notebook
+extracts the archive safely and needs neither the 1.8 GiB SQLite graph nor the
+Host ML shard package.
