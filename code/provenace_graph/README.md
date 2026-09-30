@@ -185,3 +185,27 @@ Upload that one TAR as a Kaggle Dataset. Attach it and import
 `notebook/provenance_graph_gpu.ipynb`; enable a GPU accelerator. The GPU notebook
 extracts the archive safely and needs neither the 1.8 GiB SQLite graph nor the
 Host ML shard package.
+
+## Frozen RF/XGBoost/LightGBM cascades (v3)
+
+The active Kaggle cascade bundle is
+`code/output/provenace_graph/kaggle_upload_cascade_v3/provenance-cascade-bundle-v3.tar.gz`.
+It contains the approved seed02 checkpoints and metrics for all three Host models,
+plus the frozen learned GraphSAGE weights, graph index, and shared runtime.
+Attach the existing `optc-host-ml-full-input` dataset and the new v3 bundle. Import
+one of `notebook/host_two_stage_cascade.ipynb` (LightGBM),
+`notebook/host_rf_two_stage_cascade.ipynb`, or
+`notebook/host_xgb_two_stage_cascade.ipynb`. The notebook discovers Kaggle's
+already-extracted dataset directories at the configured user paths, or extracts a
+single attached archive. RF requires the saved scikit-learn 1.6.1 environment.
+
+Each notebook uses its own approved Host model and threshold, selects a cascade
+policy using measured full validation F1, then verifies the frozen model's full
+validation and test confusion before publishing the full-test cascade result.
+The result ZIP includes exact `test_errors.jsonl` source-line IDs and ML/graph
+scores for future raw telemetry analysis, plus the notebook's confusion and
+metric/routing plots. The existing 98.48% measurement applies to LightGBM only;
+RF/XGBoost cascade results are unmeasured until those notebooks run.
+
+The matched raw-event analysis of the existing LightGBM cascade is in
+`analyst/cascade_fn_fp_raw_comparisons.md`.

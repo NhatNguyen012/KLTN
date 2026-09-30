@@ -29,6 +29,7 @@ records. Do not regenerate or overwrite the approved artifacts.
 | `code/output/` | Generated indexes, splits, vocabulary, shards, packages, logs, reviews, and audits. It is deliberately excluded from the source-file inventory below. |
 | `paper-general/`, `paper-token/` | Research references; do not edit as part of pipeline work. |
 | `Temp/` | Temporary workspace material, not a pipeline input or publication location. |
+| `analyst/cascade_fn_fp_raw_comparisons.md` | Matched raw-event FP/FN analysis for the measured LightGBM cascade, including exact-vector opposite-label TRAIN controls, route/score evidence and limits of the aggregate result export. |
 
 ## Historical pipeline entry points
 
@@ -170,11 +171,14 @@ is untouched. Read `code/provenace_graph/README.md` and `docs/DESIGN.md`.
 | `preprocess/build_ego_cache.py` | Local SSD, label-blind, strict-past two-hop ego-graph cache builder with deterministic seed02 sample selection, part-level checksum resume and atomic publication. |
 | `preprocess/package_ego_cache.py` | Packages a complete cache, GPU trainer and GPU notebook into a verified Kaggle USTAR archive without copying graph.sqlite or raw telemetry. |
 | `preprocess/package_cascade_input.py` | Packages frozen approved LightGBM and GraphSAGE checkpoints, SQLite, baseline metrics and integrity-checked inference runtime as `kaggle_upload_cascade_v2/provenance-cascade-bundle-v2.tar.gz`; excludes obsolete projected thresholds and training cache. |
-| `model/cascade_runtime.py` | Verifies frozen assets, scores all validation candidates for measured F1 policy selection (baseline wins ties), evaluates full test with the selected policy, reports baseline/direct/graph confusion and missing lookups, and saves resumable shard scores plus a correct result ZIP. |
-| `test/test_cascade_runtime.py` | Protects validation policy choice, tie-to-baseline rule and missing graph fallback. |
+| `model/cascade_runtime.py` | Shared RF/XGB/LGBM frozen-model cascade inference. Verifies v3 bundle/model identity, selects a policy from full validation, checks each approved full-test baseline, reports branch confusion, saves per-shard scores and every final FP/FN with source-line IDs, and packages metrics/error rows. |
+| `test/test_cascade_runtime.py` | Protects validation policy choice, tie-to-baseline rule, missing graph fallback, and sparse RF/XGB checkpoint scoring. |
 | `notebook/provenance_graph.ipynb` | Earlier SQLite-query Kaggle workflow for debugging only; not suitable for an experiment-sized cache. |
 | `notebook/provenance_graph_gpu.ipynb` | Kaggle GPU workflow; securely extracts the static cache and trains the batched PyTorch relational GraphSAGE. |
-| `notebook/host_two_stage_cascade.ipynb`, `code/kaggle/notebooks/host_two_stage_cascade.ipynb` | V2 Kaggle notebook for the frozen-model measured validation sweep and full-test cascade. Uses the v2 bundle and existing seed02 shard dataset; no retraining or projected F1. |
+| `notebook/host_two_stage_cascade.ipynb`, `code/kaggle/notebooks/host_two_stage_cascade.ipynb` | LightGBM + GraphSAGE v3 Kaggle notebook with measured validation/full-test cascade and post-run confusion/metric/routing plots and source-ID→raw-gzip mapping. |
+| `notebook/host_rf_two_stage_cascade.ipynb`, `code/kaggle/notebooks/host_rf_two_stage_cascade.ipynb` | RF equivalent using the approved frozen RF checkpoint and its own validation threshold; exports the same plots and source mapping. |
+| `notebook/host_xgb_two_stage_cascade.ipynb`, `code/kaggle/notebooks/host_xgb_two_stage_cascade.ipynb` | XGBoost equivalent using the approved frozen XGB checkpoint and its own validation threshold; exports the same plots and source mapping. |
+| `preprocess/package_cascade_trio.py` | Publishes the integrity-checked v3 Kaggle bundle with all three approved Host checkpoints/metrics, graph index/weights and shared runtime; leaves v2 intact. |
 | `test/test_graph.py`, `test/test_learned_graph.py` | Index safety/causality and neural gradients/message-passing/learning/resume tests. |
 | `test/test_relocated_shards.py` | Relocated shard-volume discovery from conventional and nested Kaggle package layouts. |
 | `test/test_ego_cache.py` | Static cache encoding/decoding, source-line provenance, relation IDs and manifest self-digest test. |

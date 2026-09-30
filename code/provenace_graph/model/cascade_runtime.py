@@ -67,8 +67,32 @@ def verify_bundle(bundle):
             raise ValueError('Bundle integrity mismatch: ' + rel)
     return data
 
-def run(manifest_path, bundle, output):
-    import lightgbm as lgb
+def load_host_model(bundle, model_name):
+    """Load a frozen, hash-verified Host ML checkpoint from the trusted bundle."""
+    if model_name == 'lgbm':
+        import lightgbm as lgb
+        model = lgb.Booster(model_file=str(bundle / 'models/lgbm_model.txt'))
+        return model.predict, lgb.__version__
+    if model_name == 'xgb':
+        import xgboost as xgb
+        model = xgb.Booster()
+        model.load_model(str(bundle / 'models/xgb_model.ubj'))
+        model.set_param({'device': 'cpu'})
+        return model.inplace_predict, xgb.__version__
+    if model_name == 'rf':
+        import pickle
+        import sklearn
+        manifest = json.loads((bundle / 'bundle_manifest.json').read_text())
+        trained_version = manifest.get('model_identities', {}).get('rf', {}).get('library_version')
+        if trained_version and sklearn.__version__ != trained_version:
+            raise RuntimeError(f'RF checkpoint requires scikit-learn {trained_version}; Kaggle has {sklearn.__version__}')
+        with (bundle / 'models/rf_model.pkl').open('rb') as stream:
+            model = pickle.load(stream)
+        return lambda x: model.predict_proba(x)[:, 1], sklearn.__version__
+    raise ValueError(f'Unknown Host ML model: {model_name}')
+
+
+def run(manifest_path, bundle, output, model_name='lgbm'):
     from host_shards import decode_shard
     from ego import EgoGraphs
     from relational_sage import RelationalSAGE
@@ -79,21 +103,26 @@ def run(manifest_path, bundle, output):
     output.mkdir(parents=True, exist_ok=True)
     bm = verify_bundle(bundle)
     meta = json.loads(manifest_path.read_text())
-    expected = json.loads((bundle / 'models/baseline_metrics.json').read_text())
+    if model_name not in ('lgbm', 'rf', 'xgb'):
+        raise ValueError(f'Unknown Host ML model: {model_name}')
+    metrics_path = bundle / f'models/{model_name}_metrics.json'
+    if not metrics_path.is_file() and model_name == 'lgbm':
+        metrics_path = bundle / 'models/baseline_metrics.json'  # v2 bundle
+    expected = json.loads(metrics_path.read_text())
     # Match the immutable vocabulary and split assets, rather than relocated manifest paths.
     for name, key in [('vocab.json', 'vocabulary_sha256'), ('split_manifest.json', 'split_sha256')]:
         if sha(manifest_path.parent / 'assets' / name) != expected[key]:
             raise ValueError('Frozen baseline asset mismatch: ' + name)
+    predict_host, library_version = load_host_model(bundle, model_name)
     identity = dict(manifest_sha256=sha(manifest_path), bundle_sha256=sha(bundle / 'bundle_manifest.json'),
                     runtime_sha256=sha(__file__), baseline_threshold=expected['validation']['threshold'],
                     low=LOW, high=HIGH, graph=GRAPH, missing_policy='frozen ML fallback',
-                    lightgbm_version=lgb.__version__, numpy_version=np.__version__)
+                    model=model_name, model_library_version=library_version, numpy_version=np.__version__)
     identity = json.loads(json.dumps(identity))
     config = output / 'config.json'
     if config.exists() and json.loads(config.read_text()) != identity:
         raise ValueError('Resume identity mismatch; use a fresh output directory')
     atomic_json(config, identity)
-    booster = lgb.Booster(model_file=str(bundle / 'models/lgbm_model.txt'))
     model = RelationalSAGE.load(bundle / 'provenance/model_numpy.npz')
     db = sqlite3.connect((bundle / 'provenance/graph.sqlite').as_uri() + '?mode=ro', uri=True)
     db.execute('PRAGMA cache_size=-262144')
@@ -109,7 +138,7 @@ def run(manifest_path, bundle, output):
         if sha(path) != s['sha256']: raise ValueError('Shard hash mismatch')
         decoded = decode_shard(path, int(meta['vocab_size']))
         X, y, lines = decoded
-        ml = booster.predict(X)
+        ml = predict_host(X)
         graph = np.full(len(y), np.nan, dtype=np.float64)
         found = np.zeros(len(y), dtype=bool)
         missing_identity = np.zeros(len(y), dtype=bool)
@@ -122,7 +151,7 @@ def run(manifest_path, bundle, output):
                 missing_identity[idx] = not row[0] or not row[1] or row[2] is None
                 graph[idx] = model.predict(ego.build(*row))['probability']
             if (j + 1) % 2000 == 0: print(f"shard {index}: graph {j+1}/{len(routed)}", flush=True)
-        data = dict(y=y, ml=ml, graph=graph, found=found, missing_identity=missing_identity)
+        data = dict(y=y, ml=ml, graph=graph, found=found, missing_identity=missing_identity, lines=lines)
         tmp = cache.with_suffix('.tmp')
         with tmp.open('wb') as f:
             np.savez_compressed(f, **data); f.flush(); os.fsync(f.fileno())
@@ -139,7 +168,7 @@ def run(manifest_path, bundle, output):
         print(f'Validation shard {i} complete', flush=True)
     if int(totals[0].sum()) != expected['validation']['rows']: raise ValueError('Validation scope mismatch')
     if metrics(totals[0])['confusion'] != expected['validation']['confusion']:
-        raise ValueError('Frozen LightGBM validation confusion does not reproduce baseline')
+        raise ValueError(f'Frozen {model_name} validation confusion does not reproduce baseline')
     selected = choose(options, totals)
     calibration = dict(selection_split='val', selection='measured F1; baseline wins ties',
         selected=selected, identity=identity,
@@ -148,6 +177,7 @@ def run(manifest_path, bundle, output):
     print('Frozen policy:', selected, flush=True)
     base = np.zeros(4, dtype=np.int64); unified = base.copy(); direct = base.copy(); arbiter = base.copy()
     routed_n = missing_n = missing_id_n = 0
+    error_parts = []
     for i, s in enumerate(meta['shards']):
         if s['split'] != 'test': continue
         d = score(s, i); y, ml, graph = d['y'], d['ml'], d['graph']
@@ -157,18 +187,42 @@ def run(manifest_path, bundle, output):
         direct += counts(y[~band], pred[~band]); arbiter += counts(y[band], pred[band])
         routed_n += int(band.sum()); missing_n += int((band & ~d['found']).sum())
         missing_id_n += int((band & d['missing_identity']).sum())
+        part_errors = output / f'test-errors-{i:04d}.jsonl'
+        tmp_errors = part_errors.with_suffix('.jsonl.tmp')
+        with tmp_errors.open('w') as stream:
+            for row_idx in np.flatnonzero(pred != y):
+                item = {'source_id': str(s['source_id']), 'source_line': int(d['lines'][row_idx]),
+                        'shard': s['path'], 'label': int(y[row_idx]), 'prediction': int(pred[row_idx]),
+                        'baseline_prediction': int(ml[row_idx] >= threshold),
+                        'ml_score': float(ml[row_idx]),
+                        'graph_score': float(graph[row_idx]) if np.isfinite(graph[row_idx]) else None,
+                        'route': 'graph' if band[row_idx] else 'direct',
+                        'error': 'FP' if y[row_idx] == 0 else 'FN'}
+                stream.write(json.dumps(item) + '\n')
+            stream.flush(); os.fsync(stream.fileno())
+        os.replace(tmp_errors, part_errors)
+        error_parts.append(part_errors)
         print(f'Test shard {i} complete; F1={metrics(unified)["f1"]:.6f}', flush=True)
     if metrics(base)['rows'] != expected['test']['rows'] or metrics(base)['confusion'] != expected['test']['confusion']:
-        raise ValueError('Frozen LightGBM test baseline mismatch')
+        raise ValueError(f'Frozen {model_name} test baseline mismatch')
     results = dict(identity=identity, selected_policy=selected, baseline=metrics(base), cascade=metrics(unified),
                    direct_branch=metrics(direct), graph_branch=metrics(arbiter), routed=routed_n,
-                   missing_lookup=missing_n, missing_identity=missing_id_n,
+                   missing_lookup=missing_n, missing_identity=missing_id_n, host_model=model_name,
                    scope='full frozen seed02 validation and test; random event generalization only')
     atomic_json(output / 'two_stage_cascade_metrics.json', results)
+    errors_path = output / 'test_errors.jsonl'
+    errors_tmp = errors_path.with_suffix('.jsonl.tmp')
+    with errors_tmp.open('w') as dest:
+        for part in error_parts:
+            with part.open() as source:
+                for line in source:
+                    dest.write(line)
+        dest.flush(); os.fsync(dest.fileno())
+    os.replace(errors_tmp, errors_path)
     archive = output / 'optc-two-stage-cascade-results.zip'
     tmp = archive.with_suffix('.tmp')
     with zipfile.ZipFile(tmp, 'w', zipfile.ZIP_DEFLATED) as z:
-        for name in ('config.json', 'validation_calibration.json', 'two_stage_cascade_metrics.json'):
+        for name in ('config.json', 'validation_calibration.json', 'two_stage_cascade_metrics.json', 'test_errors.jsonl'):
             z.write(output / name, arcname=name)
     os.replace(tmp, archive)
     db.close()
