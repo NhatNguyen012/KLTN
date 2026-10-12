@@ -62,5 +62,25 @@ class LearnedTests(unittest.TestCase):
             self.assertFalse(any('label' in a or 'uuid' in a for a in ATTRIBUTES))
             db.close()
 
+    def test_same_second_create_is_visible_only_when_strictly_earlier(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db=connect(Path(tmp)/'graph.sqlite')
+            def create(at, actor, child, line):
+                observe(db, dict(hostname='h', actorID=actor, objectID=child,
+                    object='PROCESS', action='CREATE', timestamp=at,
+                    properties=dict(image_path='powershell.exe')), 's', line)
+            create('2019-09-23T00:00:56.100000+00:00', 'grand', 'parent', 1)
+            create('2019-09-23T00:00:56.169000+00:00', 'parent', 'child', 2)
+            create('2019-09-23T00:00:56.190000+00:00', 'future', 'child', 3)
+            db.commit()
+            at_parent=EgoGraphs(db).build('h','child',timestamp('2019-09-23T00:00:56.169000+00:00'))
+            self.assertFalse(any(edge[2]=='creates' for edge in at_parent['edges']))
+            graph=EgoGraphs(db).build('h','child',timestamp('2019-09-23T00:00:56.189000+00:00'))
+            self.assertEqual(graph['cutoff_us'],timestamp('2019-09-23T00:00:56.189000+00:00'))
+            self.assertEqual(sum(edge[2]=='creates' for edge in graph['edges']),2)
+            self.assertNotIn(('h','future'),graph['node_keys'])
+            self.assertTrue(all(e['timestamp_us']<graph['cutoff_us'] for e in graph['evidence']))
+            db.close()
+
 
 if __name__=='__main__':unittest.main()

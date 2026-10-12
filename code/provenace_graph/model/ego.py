@@ -13,7 +13,7 @@ ATTRIBUTE_INDEX={name:i for i,name in enumerate(ATTRIBUTES)}
 
 
 class EgoGraphs:
-    def __init__(self, db, fanout=8, max_nodes=64, quantum_us=1000000):
+    def __init__(self, db, fanout=8, max_nodes=64, quantum_us=1):
         if min(fanout,quantum_us)<1 or max_nodes<4:raise ValueError('invalid graph limits')
         self.db,self.fanout,self.max_nodes,self.quantum=db,fanout,max_nodes,quantum_us
         self.lineage=Encoder(db,fanout,quantum_us)
@@ -33,6 +33,8 @@ class EgoGraphs:
             x[0,0]=1;x[1,1]=1;x[:,2:4]=1;x.setflags(write=False)
             return dict(x=x,edges=(),root=0,host_root=1,node_keys=((host,actor),(host,None)),
                         cutoff_us=None,evidence=(),flags=('missing_identity_or_time',))
+        # Keep the event's microsecond timestamp: rounding to the start of a
+        # second hides genuinely earlier CREATE edges in that same second.
         return self.sample(host,actor,t//self.quantum*self.quantum)
 
     def _sample(self,host,actor,cutoff):

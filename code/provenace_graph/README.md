@@ -32,16 +32,18 @@ The full graph index is published at `code/output/provenace_graph/graph/`: its
 manifest records all 106 configured baseline sources and a complete SQLite graph.
 The completed bounded pilot remains only a prior indexing diagnostic.
 
-The original scanner files are unchanged. Its checkpoint recorded the fingerprint
-of the unused, now-retired adapter too. An exact copy of that adapter is retained
-only in `.graph.work/source_snapshot/` for provenance validation. The compatibility
-entry point verifies every recorded implementation hash before resuming the scanner:
+The original scanner checkpoint recorded the fingerprint of the unused,
+now-retired adapter too. An exact copy of that adapter is retained only in
+`.graph.work/source_snapshot/` for provenance validation. The completed graph
+index must not be rebuilt for v4. The exact-time update changed `graph.py`'s
+source hash, so the old checkpoint cannot be resumed with the current source;
+the compatibility entry point checks every recorded implementation hash:
 
 ```bash
 # From the repository root; first check without starting a scan:
 python3 code/provenace_graph/model/resume_index.py --dry-run
 
-# Resume the existing full-index checkpoint if desired:
+# Historical resume command; use only with the verified original source snapshot:
 nohup python3 code/provenace_graph/model/resume_index.py \
   > code/output/build_graph_prov.log 2>&1 &
 tail -f code/output/build_graph_prov.log
@@ -204,8 +206,29 @@ policy using measured full validation F1, then verifies the frozen model's full
 validation and test confusion before publishing the full-test cascade result.
 The result ZIP includes exact `test_errors.jsonl` source-line IDs and ML/graph
 scores for future raw telemetry analysis, plus the notebook's confusion and
-metric/routing plots. The existing 98.48% measurement applies to LightGBM only;
-RF/XGBoost cascade results are unmeasured until those notebooks run.
+metric/routing plots. The v3 measured LightGBM F1 is 98.48%; XGB's measured F1
+is 98.03%. These results use the one-second causal snapshot, not the v4 input.
+
+## Exact-time LightGBM cascade input (v4)
+
+`preprocess/package_cascade_v4.py` publishes
+`code/output/provenace_graph/kaggle_upload_cascade_v4/provenance-cascade-bundle-v4.tar.gz`.
+The graph database and frozen model checkpoints are unchanged from v3; the bundled
+ego-graph code uses the event's full microsecond timestamp and admits only evidence
+strictly earlier than that event. This restores earlier CREATE events inside the
+same second. The existing GraphSAGE checkpoint was trained with the old one-second
+snapshot, so v4 changes its inference input distribution without retraining. Its
+F1 is unknown until validation/test evaluation is run.
+
+Upload v4 as the `optc-cascade-bundle` Kaggle dataset (or attach an extracted v4
+bundle), keep `optc-host-ml-full-input` unchanged, and run
+`code/kaggle/notebooks/lgbm_two_stage_cascade.ipynb`. This notebook uses the
+previous LightGBM cascade policy search, not the later joint-decision experiment.
+It selects thresholds on validation only, evaluates all test events, and verifies
+that the downloadable ZIP includes every final FP/FN with scores, route and raw
+source-line mapping. `test_errors_full_scores.jsonl` also supplies a diagnostic
+GraphSAGE score for direct-route errors; those scores are computed after the
+decision and do not change predictions.
 
 The matched raw-event analysis of the existing LightGBM cascade is in
 `analyst/cascade_fn_fp_raw_comparisons.md`.

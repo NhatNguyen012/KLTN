@@ -163,11 +163,11 @@ def bucket(n):
 
 
 class Encoder:
-    """Strictly earlier evidence; 1-second snapshots bound cache reuse and lookup cost.
+    """Strictly earlier evidence; exact timestamps retain same-second ancestry.
 
     Max two ancestry edges, max fanout peers per host per hop. No label or split queries.
     """
-    def __init__(self, db, fanout=16, quantum_us=1000000):
+    def __init__(self, db, fanout=16, quantum_us=1):
         if fanout < 1 or quantum_us < 1:
             raise ValueError('positive fanout and time quantum required')
         self.db, self.fanout, self.quantum = db, fanout, quantum_us

@@ -290,7 +290,7 @@ def main():
     parser.add_argument('--graphs-per-shard', type=int, default=250)
     parser.add_argument('--fanout', type=int, default=8)
     parser.add_argument('--max-nodes', type=int, default=64)
-    parser.add_argument('--quantum-us', type=int, default=1000000)
+    parser.add_argument('--quantum-us', type=int, default=1)
     parser.add_argument('--sqlite-cache-mib', type=int, default=256)
     parser.add_argument('--dry-run', action='store_true')
     build(parser.parse_args())
