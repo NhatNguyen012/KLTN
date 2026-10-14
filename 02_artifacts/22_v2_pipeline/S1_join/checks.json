@@ -1,0 +1,115 @@
+{
+  "rows": 92045755,
+  "distinct_uid": 92045755,
+  "hosts": 743,
+  "null_hostname": 0,
+  "ts_min": 1568678975.916733,
+  "ts_max": 1569434365.289039,
+  "positive_flows": 24721,
+  "bad_label": 0,
+  "empty_app_family": 33947,
+  "rows_by_date_utc": {
+    "2019-09-17": 16967170,
+    "2019-09-18": 10196895,
+    "2019-09-19": 17806191,
+    "2019-09-20": 671570,
+    "2019-09-21": 14748161,
+    "2019-09-22": 14723407,
+    "2019-09-23": 12652599,
+    "2019-09-24": 4264026,
+    "2019-09-25": 15736
+  },
+  "positive_by_date_utc": {
+    "2019-09-17": 0,
+    "2019-09-18": 0,
+    "2019-09-19": 0,
+    "2019-09-20": 0,
+    "2019-09-21": 0,
+    "2019-09-22": 0,
+    "2019-09-23": 9030,
+    "2019-09-24": 5527,
+    "2019-09-25": 10164
+  },
+  "top_app_family": {
+    "firefox.exe": 91841864,
+    "null": 33947,
+    "cmd.exe": 33434,
+    "conhost.exe": 32744,
+    "powershell.exe": 24503,
+    "ping.exe": 22136,
+    "schtasks.exe": 7770,
+    "appidcertstorecheck.exe": 5699
+  },
+  "ecar": null,
+  "days": [
+    {
+      "date": "2019-09-17",
+      "conn_files": 24,
+      "conn_rows": 29201419,
+      "joined_rows": 16965823,
+      "seconds": 251.3
+    },
+    {
+      "date": "2019-09-18",
+      "conn_files": 24,
+      "conn_rows": 30161280,
+      "joined_rows": 10198242,
+      "seconds": 420.1
+    },
+    {
+      "date": "2019-09-19",
+      "conn_files": 24,
+      "conn_rows": 31757451,
+      "joined_rows": 17806180,
+      "seconds": 1044.0
+    },
+    {
+      "date": "2019-09-20",
+      "conn_files": 24,
+      "conn_rows": 21695847,
+      "joined_rows": 670704,
+      "seconds": 449.1
+    },
+    {
+      "date": "2019-09-21",
+      "conn_files": 24,
+      "conn_rows": 41090585,
+      "joined_rows": 14748316,
+      "seconds": 1818.4
+    },
+    {
+      "date": "2019-09-22",
+      "conn_files": 24,
+      "conn_rows": 40291166,
+      "joined_rows": 14722876,
+      "seconds": 2052.3
+    },
+    {
+      "date": "2019-09-23",
+      "conn_files": 24,
+      "conn_rows": 38348207,
+      "joined_rows": 12653852,
+      "seconds": 800.2
+    },
+    {
+      "date": "2019-09-25",
+      "conn_files": 18,
+      "conn_rows": 23135463,
+      "joined_rows": 15738,
+      "seconds": 224.1
+    }
+  ],
+  "PASS": true,
+  "unmatched_positive_flows": 4509,
+  "unmatched_positive_by_host": {
+    "(không suy ra được)": 4117,
+    "sysclient0051": 317,
+    "sysclient0351": 41,
+    "sysclient0501": 28,
+    "sysclient0005": 2,
+    "sysclient0203": 1,
+    "sysclient0618": 1,
+    "sysclient0010": 1,
+    "sysclient0955": 1
+  }
+}

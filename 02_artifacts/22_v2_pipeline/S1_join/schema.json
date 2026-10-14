@@ -1,0 +1,279 @@
+{
+  "table": "flows_joined.parquet",
+  "grain": "1 dòng = 1 flow (uid duy nhất)",
+  "n_fields": 34,
+  "fields": [
+    {
+      "field": "uid",
+      "type": "string",
+      "role": "khóa",
+      "source": "Bro conn.uid (= eCAR-Bro properties.bro_uid)",
+      "meaning_vi": "Mã kết nối duy nhất; khóa nối hai nguồn.",
+      "example": "CaYeyw4Odk0qg3aek6"
+    },
+    {
+      "field": "ts",
+      "type": "double",
+      "role": "khóa",
+      "source": "Bro conn.ts",
+      "meaning_vi": "Thời điểm bắt đầu kết nối, epoch giây (UTC).",
+      "example": 1569266153.143904
+    },
+    {
+      "field": "ts_utc",
+      "type": "string",
+      "role": "audit",
+      "source": "dẫn xuất từ ts",
+      "meaning_vi": "ts dạng đọc được, UTC, 'YYYY-MM-DD HH:MM:SS.ffffff'.",
+      "example": "2019-09-23 19:15:53.143904"
+    },
+    {
+      "field": "date_utc",
+      "type": "string",
+      "role": "audit",
+      "source": "dẫn xuất từ ts",
+      "meaning_vi": "Ngày UTC của ts.",
+      "example": "2019-09-23"
+    },
+    {
+      "field": "window_start_epoch",
+      "type": "int64",
+      "role": "khóa",
+      "source": "floor(ts/900)*900",
+      "meaning_vi": "Đầu cửa sổ 15 phút chứa flow (epoch UTC).",
+      "example": 1569266100
+    },
+    {
+      "field": "hostname",
+      "type": "string",
+      "role": "khóa",
+      "source": "eCAR-Bro hostname, chữ thường, rút 'sysclientNNNN' khỏi tên miền",
+      "meaning_vi": "Máy sinh ra flow.",
+      "example": "sysclient0255"
+    },
+    {
+      "field": "label",
+      "type": "int8",
+      "role": "nhãn",
+      "source": "Bro conn.label (A New Hope)",
+      "meaning_vi": "0 = benign, 1 = flow thuộc hoạt động tấn công (IP máy bị chiếm + IP C2 + thời gian, kiểm tay).",
+      "example": 1
+    },
+    {
+      "field": "app_family",
+      "type": "string",
+      "role": "feature",
+      "source": "tên file của eCAR-Bro properties.image_path, chữ thường",
+      "meaning_vi": "Tiến trình (ứng dụng) tạo ra flow.",
+      "example": "powershell.exe"
+    },
+    {
+      "field": "image_path",
+      "type": "string",
+      "role": "audit",
+      "source": "eCAR-Bro properties.image_path (nguyên văn)",
+      "meaning_vi": "Đường dẫn file thực thi đầy đủ.",
+      "example": "powershell.exe"
+    },
+    {
+      "field": "direction",
+      "type": "string",
+      "role": "audit",
+      "source": "eCAR-Bro properties.direction (chữ thường)",
+      "meaning_vi": "outbound / inbound.",
+      "example": "outbound"
+    },
+    {
+      "field": "ecar_l4protocol",
+      "type": "string",
+      "role": "audit",
+      "source": "eCAR-Bro properties.l4protocol (chữ thường)",
+      "meaning_vi": "Số hiệu giao thức IP theo eCAR (6 = TCP, 17 = UDP); chỉ để đối chiếu với proto.",
+      "example": "6"
+    },
+    {
+      "field": "orig_h",
+      "type": "string",
+      "role": "audit",
+      "source": "Bro id.orig_h",
+      "meaning_vi": "IP nguồn (máy khởi tạo).",
+      "example": "142.20.57.0"
+    },
+    {
+      "field": "orig_p",
+      "type": "int32",
+      "role": "audit",
+      "source": "Bro id.orig_p",
+      "meaning_vi": "Cổng nguồn.",
+      "example": 61867
+    },
+    {
+      "field": "resp_h",
+      "type": "string",
+      "role": "audit",
+      "source": "Bro id.resp_h",
+      "meaning_vi": "IP đích.",
+      "example": "132.197.158.98"
+    },
+    {
+      "field": "resp_p",
+      "type": "int32",
+      "role": "feature",
+      "source": "Bro id.resp_p",
+      "meaning_vi": "Cổng đích (mã hóa thành resp_port_class ở S3).",
+      "example": 80
+    },
+    {
+      "field": "proto",
+      "type": "string",
+      "role": "feature",
+      "source": "Bro proto (chữ thường)",
+      "meaning_vi": "tcp / udp / icmp.",
+      "example": "tcp"
+    },
+    {
+      "field": "service",
+      "type": "string",
+      "role": "feature",
+      "source": "Bro service (chữ thường)",
+      "meaning_vi": "Dịch vụ Zeek nhận diện; '-' trong raw -> NULL.",
+      "example": "http"
+    },
+    {
+      "field": "duration",
+      "type": "double",
+      "role": "feature",
+      "source": "Bro duration",
+      "meaning_vi": "Thời lượng kết nối (giây); NULL nếu thiếu.",
+      "example": 0.052996
+    },
+    {
+      "field": "orig_bytes",
+      "type": "int64",
+      "role": "feature",
+      "source": "Bro orig_bytes",
+      "meaning_vi": "Byte ứng dụng nguồn gửi.",
+      "example": 199
+    },
+    {
+      "field": "resp_bytes",
+      "type": "int64",
+      "role": "feature",
+      "source": "Bro resp_bytes",
+      "meaning_vi": "Byte ứng dụng đích gửi.",
+      "example": 1443
+    },
+    {
+      "field": "conn_state",
+      "type": "string",
+      "role": "feature",
+      "source": "Bro conn_state",
+      "meaning_vi": "SF, S0, REJ, RSTO, ...",
+      "example": "SF"
+    },
+    {
+      "field": "local_orig",
+      "type": "string",
+      "role": "audit",
+      "source": "Bro local_orig",
+      "meaning_vi": "T/F.",
+      "example": "F"
+    },
+    {
+      "field": "local_resp",
+      "type": "string",
+      "role": "audit",
+      "source": "Bro local_resp",
+      "meaning_vi": "T/F.",
+      "example": "F"
+    },
+    {
+      "field": "missed_bytes",
+      "type": "int64",
+      "role": "feature",
+      "source": "Bro missed_bytes",
+      "meaning_vi": "Byte bị lỡ (thành cờ has_missed_bytes ở S3).",
+      "example": 0
+    },
+    {
+      "field": "history",
+      "type": "string",
+      "role": "audit",
+      "source": "Bro history",
+      "meaning_vi": "Chuỗi cờ TCP.",
+      "example": "ShADadfF"
+    },
+    {
+      "field": "orig_pkts",
+      "type": "int64",
+      "role": "feature",
+      "source": "Bro orig_pkts",
+      "meaning_vi": "Gói nguồn gửi.",
+      "example": 5
+    },
+    {
+      "field": "orig_ip_bytes",
+      "type": "int64",
+      "role": "feature",
+      "source": "Bro orig_ip_bytes",
+      "meaning_vi": "Byte tầng IP nguồn.",
+      "example": 411
+    },
+    {
+      "field": "resp_pkts",
+      "type": "int64",
+      "role": "feature",
+      "source": "Bro resp_pkts",
+      "meaning_vi": "Gói đích gửi.",
+      "example": 6
+    },
+    {
+      "field": "resp_ip_bytes",
+      "type": "int64",
+      "role": "feature",
+      "source": "Bro resp_ip_bytes",
+      "meaning_vi": "Byte tầng IP đích.",
+      "example": 1695
+    },
+    {
+      "field": "actor_id",
+      "type": "string",
+      "role": "audit",
+      "source": "eCAR-Bro actorID",
+      "meaning_vi": "UUID tiến trình tạo flow (chỉ để audit; KHÔNG vào feature/shards).",
+      "example": "b5a0a459-229f-4e49-9783-e39a150804e6"
+    },
+    {
+      "field": "pid",
+      "type": "int64",
+      "role": "audit",
+      "source": "eCAR-Bro pid",
+      "meaning_vi": "Process ID (chỉ là số; KHÔNG vào feature/shards).",
+      "example": 3472
+    },
+    {
+      "field": "ppid",
+      "type": "int64",
+      "role": "audit",
+      "source": "eCAR-Bro ppid",
+      "meaning_vi": "Process ID cha (chỉ là số; KHÔNG vào feature/shards).",
+      "example": 2684
+    },
+    {
+      "field": "principal",
+      "type": "string",
+      "role": "audit",
+      "source": "eCAR-Bro principal",
+      "meaning_vi": "Tài khoản chạy tiến trình (KHÔNG vào feature/shards).",
+      "example": "SYSTEMIACOM\\zleazer"
+    },
+    {
+      "field": "ecar_occurrence_count",
+      "type": "int64",
+      "role": "audit",
+      "source": "đếm số bản ghi eCAR-Bro cùng uid trước khi khử trùng",
+      "meaning_vi": "1 = không trùng.",
+      "example": 1
+    }
+  ]
+}

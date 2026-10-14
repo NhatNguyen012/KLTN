@@ -1,8 +1,0 @@
-# Same environment on all EC2 model instances preserves shared sample identity.
-numpy==2.2.6
-scipy==1.15.3
-scikit-learn==1.6.1
-joblib==1.5.1
-threadpoolctl==3.6.0
-lightgbm==4.6.0
-xgboost-cpu==3.0.5

@@ -1,0 +1,7 @@
+﻿model,scenario,test_positive_samples,detected,recall,median_score
+bilstm_v2,scenario_1,9,9,1.0,1.0
+bilstm_v2,scenario_2,72,70,0.9722,1.0
+bilstm_v2,scenario_3,1,1,1.0,1.0
+mixed_v2,scenario_1,9,9,1.0,1.0
+mixed_v2,scenario_2,72,72,1.0,1.0
+mixed_v2,scenario_3,1,0,0.0,2.1457672119140625e-06

@@ -1,0 +1,51 @@
+{
+  "positive_windows_by_scenario_and_split": {
+    "scenario_1": {
+      "train": 43,
+      "val": 9,
+      "test": 9
+    },
+    "scenario_2": {
+      "train": 332,
+      "val": 71,
+      "test": 71
+    },
+    "scenario_3": {
+      "train": 4,
+      "val": 1,
+      "test": 1
+    }
+  },
+  "totals_by_split": {
+    "test": {
+      "windows": 16560,
+      "positive_windows": 81,
+      "flows": 12887298,
+      "positive_flows": 3544,
+      "samples": 34413
+    },
+    "train": {
+      "windows": 77281,
+      "positive_windows": 379,
+      "flows": 59902514,
+      "positive_flows": 17682,
+      "samples": 160210
+    },
+    "val": {
+      "windows": 16561,
+      "positive_windows": 81,
+      "flows": 12836373,
+      "positive_flows": 3495,
+      "samples": 34361
+    }
+  },
+  "hosts_present_in_n_splits": {
+    "2": 7,
+    "3": 613
+  },
+  "benign_windows_by_split": {
+    "train": 76902,
+    "val": 16480,
+    "test": 16479
+  }
+}

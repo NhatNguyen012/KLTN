@@ -1,0 +1,1442 @@
+[
+ {
+  "scenario": "scenario_2",
+  "sample": {
+   "sample_id": "d54eb97632b0af70c3b89bad",
+   "split": "test",
+   "date": "2019-09-25",
+   "hostname": "sysclient0010",
+   "window_start_epoch": 1569374100,
+   "window_start_utc": "2019-09-25T01:15:00+00:00",
+   "chunk_index": 0,
+   "label": 1,
+   "event_count": 30,
+   "positive_event_count": 30,
+   "app_node_count": 1,
+   "remote_node_count": 1,
+   "shard_file": "shards/test/test_0001.npz",
+   "shard_sample_index": 43
+  },
+  "first_flows": [
+   {
+    "raw_flow": {
+     "uid": "CegJNX2zzDbgek5gll",
+     "ts": 1569374112.351172,
+     "ts_utc": "2019-09-25 01:15:12.351172",
+     "date_utc": "2019-09-25",
+     "window_start_epoch": 1569374100,
+     "hostname": "sysclient0010",
+     "label": 1,
+     "app_family": "powershell.exe",
+     "image_path": "powershell.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.56.11",
+     "orig_p": 51455,
+     "resp_h": "202.6.172.98",
+     "resp_p": 443,
+     "proto": "tcp",
+     "service": "ssl",
+     "duration": 0.071376,
+     "orig_bytes": 667,
+     "resp_bytes": 2277,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADadfF",
+     "orig_pkts": 7,
+     "orig_ip_bytes": 959,
+     "resp_pkts": 8,
+     "resp_ip_bytes": 2609,
+     "actor_id": "3a3de01b-44d0-4a13-95fb-d6c2c318ec3d",
+     "pid": 3584,
+     "ppid": 3032,
+     "principal": "SYSTEMIACOM\\Administrator",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 5,
+      "proto": 2,
+      "service": 2,
+      "conn_state": 2,
+      "resp_port_class": 2,
+      "image_dir_class": 3,
+      "principal_class": 5
+     },
+     "x_num": {
+      "duration": -0.037353,
+      "orig_bytes": -0.583608,
+      "resp_bytes": -0.093128,
+      "orig_pkts": -0.420008,
+      "orig_ip_bytes": -0.850214,
+      "resp_pkts": -0.486012,
+      "resp_ip_bytes": -0.169421
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 0.0
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "powershell.exe",
+       "id": 5
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "ssl",
+       "id": 2
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_443_HTTPS",
+       "id": 2
+      },
+      "image_dir_class": {
+       "raw_value": "BARE_NAME",
+       "id": 3
+      },
+      "principal_class": {
+       "raw_value": "ADMINISTRATOR",
+       "id": 5
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 0.071376,
+       "log1p": 0.0689438036164765,
+       "z": -0.03735339336408015,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 667,
+       "log1p": 6.504288173536645,
+       "z": -0.5836083796300429,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 2277,
+       "log1p": 7.731053144007127,
+       "z": -0.09312820274370408,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 7,
+       "log1p": 2.0794415416798357,
+       "z": -0.42000805787285395,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 959,
+       "log1p": 6.866933284461882,
+       "z": -0.8502144253890318,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 8,
+       "log1p": 2.1972245773362196,
+       "z": -0.48601185439141065,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 2609,
+       "log1p": 7.867105500316739,
+       "z": -0.16942140227893354,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   },
+   {
+    "raw_flow": {
+     "uid": "CQDqPV1fTmEuQ0fNId",
+     "ts": 1569374142.475624,
+     "ts_utc": "2019-09-25 01:15:42.475624",
+     "date_utc": "2019-09-25",
+     "window_start_epoch": 1569374100,
+     "hostname": "sysclient0010",
+     "label": 1,
+     "app_family": "powershell.exe",
+     "image_path": "powershell.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.56.11",
+     "orig_p": 51456,
+     "resp_h": "202.6.172.98",
+     "resp_p": 443,
+     "proto": "tcp",
+     "service": "ssl",
+     "duration": 0.074765,
+     "orig_bytes": 667,
+     "resp_bytes": 2277,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADadfF",
+     "orig_pkts": 7,
+     "orig_ip_bytes": 959,
+     "resp_pkts": 8,
+     "resp_ip_bytes": 2609,
+     "actor_id": "3a3de01b-44d0-4a13-95fb-d6c2c318ec3d",
+     "pid": 3584,
+     "ppid": 3032,
+     "principal": "SYSTEMIACOM\\Administrator",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 5,
+      "proto": 2,
+      "service": 2,
+      "conn_state": 2,
+      "resp_port_class": 2,
+      "image_dir_class": 3,
+      "principal_class": 5
+     },
+     "x_num": {
+      "duration": -0.029753,
+      "orig_bytes": -0.583608,
+      "resp_bytes": -0.093128,
+      "orig_pkts": -0.420008,
+      "orig_ip_bytes": -0.850214,
+      "resp_pkts": -0.486012,
+      "resp_ip_bytes": -0.169421
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 3.437994
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "powershell.exe",
+       "id": 5
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "ssl",
+       "id": 2
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_443_HTTPS",
+       "id": 2
+      },
+      "image_dir_class": {
+       "raw_value": "BARE_NAME",
+       "id": 3
+      },
+      "principal_class": {
+       "raw_value": "ADMINISTRATOR",
+       "id": 5
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 0.074765,
+       "log1p": 0.07210203303098378,
+       "z": -0.029753037990547817,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 667,
+       "log1p": 6.504288173536645,
+       "z": -0.5836083796300429,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 2277,
+       "log1p": 7.731053144007127,
+       "z": -0.09312820274370408,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 7,
+       "log1p": 2.0794415416798357,
+       "z": -0.42000805787285395,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 959,
+       "log1p": 6.866933284461882,
+       "z": -0.8502144253890318,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 8,
+       "log1p": 2.1972245773362196,
+       "z": -0.48601185439141065,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 2609,
+       "log1p": 7.867105500316739,
+       "z": -0.16942140227893354,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   },
+   {
+    "raw_flow": {
+     "uid": "CZY3lnu302ZXWaKUa",
+     "ts": 1569374172.613193,
+     "ts_utc": "2019-09-25 01:16:12.613193",
+     "date_utc": "2019-09-25",
+     "window_start_epoch": 1569374100,
+     "hostname": "sysclient0010",
+     "label": 1,
+     "app_family": "powershell.exe",
+     "image_path": "powershell.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.56.11",
+     "orig_p": 51460,
+     "resp_h": "202.6.172.98",
+     "resp_p": 443,
+     "proto": "tcp",
+     "service": "ssl",
+     "duration": 0.074489,
+     "orig_bytes": 667,
+     "resp_bytes": 2277,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADadfF",
+     "orig_pkts": 6,
+     "orig_ip_bytes": 919,
+     "resp_pkts": 8,
+     "resp_ip_bytes": 2609,
+     "actor_id": "3a3de01b-44d0-4a13-95fb-d6c2c318ec3d",
+     "pid": 3584,
+     "ppid": 3032,
+     "principal": "SYSTEMIACOM\\Administrator",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 5,
+      "proto": 2,
+      "service": 2,
+      "conn_state": 2,
+      "resp_port_class": 2,
+      "image_dir_class": 3,
+      "principal_class": 5
+     },
+     "x_num": {
+      "duration": -0.030371,
+      "orig_bytes": -0.583608,
+      "resp_bytes": -0.093128,
+      "orig_pkts": -0.775039,
+      "orig_ip_bytes": -0.969421,
+      "resp_pkts": -0.486012,
+      "resp_ip_bytes": -0.169421
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 3.438415
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "powershell.exe",
+       "id": 5
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "ssl",
+       "id": 2
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_443_HTTPS",
+       "id": 2
+      },
+      "image_dir_class": {
+       "raw_value": "BARE_NAME",
+       "id": 3
+      },
+      "principal_class": {
+       "raw_value": "ADMINISTRATOR",
+       "id": 5
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 0.074489,
+       "log1p": 0.0718451997283428,
+       "z": -0.03037111353720153,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 667,
+       "log1p": 6.504288173536645,
+       "z": -0.5836083796300429,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 2277,
+       "log1p": 7.731053144007127,
+       "z": -0.09312820274370408,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 6,
+       "log1p": 1.9459101490553132,
+       "z": -0.7750390151776265,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 919,
+       "log1p": 6.824373670043086,
+       "z": -0.9694205458504281,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 8,
+       "log1p": 2.1972245773362196,
+       "z": -0.48601185439141065,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 2609,
+       "log1p": 7.867105500316739,
+       "z": -0.16942140227893354,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "scenario": "scenario_1",
+  "sample": {
+   "sample_id": "d6e014c44bd39d47b658c8ae",
+   "split": "test",
+   "date": "2019-09-23",
+   "hostname": "sysclient0104",
+   "window_start_epoch": 1569266100,
+   "window_start_utc": "2019-09-23T19:15:00+00:00",
+   "chunk_index": 0,
+   "label": 1,
+   "event_count": 105,
+   "positive_event_count": 105,
+   "app_node_count": 1,
+   "remote_node_count": 1,
+   "shard_file": "shards/test/test_0010.npz",
+   "shard_sample_index": 2649
+  },
+  "first_flows": [
+   {
+    "raw_flow": {
+     "uid": "Cxk2ru1uDrQSYfWqjl",
+     "ts": 1569266102.749342,
+     "ts_utc": "2019-09-23 19:15:02.749342",
+     "date_utc": "2019-09-23",
+     "window_start_epoch": 1569266100,
+     "hostname": "sysclient0104",
+     "label": 1,
+     "app_family": "powershell.exe",
+     "image_path": "powershell.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.56.105",
+     "orig_p": 59064,
+     "resp_h": "132.197.158.98",
+     "resp_p": 80,
+     "proto": "tcp",
+     "service": "http",
+     "duration": 0.067832,
+     "orig_bytes": 199,
+     "resp_bytes": 1443,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADadfF",
+     "orig_pkts": 5,
+     "orig_ip_bytes": 411,
+     "resp_pkts": 6,
+     "resp_ip_bytes": 1695,
+     "actor_id": "70ba4f9c-e27b-4a34-8dce-303c00c227c2",
+     "pid": 3160,
+     "ppid": 2296,
+     "principal": "SYSTEMIACOM\\zleazer",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 5,
+      "proto": 2,
+      "service": 3,
+      "conn_state": 2,
+      "resp_port_class": 3,
+      "image_dir_class": 3,
+      "principal_class": 2
+     },
+     "x_num": {
+      "duration": -0.045327,
+      "orig_bytes": -2.768426,
+      "resp_bytes": -0.350325,
+      "orig_pkts": -1.184892,
+      "orig_ip_bytes": -3.219541,
+      "resp_pkts": -0.803089,
+      "resp_ip_bytes": -0.440042
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 0.0
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "powershell.exe",
+       "id": 5
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "http",
+       "id": 3
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_80_HTTP",
+       "id": 3
+      },
+      "image_dir_class": {
+       "raw_value": "BARE_NAME",
+       "id": 3
+      },
+      "principal_class": {
+       "raw_value": "DOMAIN_USER",
+       "id": 2
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 0.067832,
+       "log1p": 0.06563042479374374,
+       "z": -0.04532711953616509,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 199,
+       "log1p": 5.298317366548036,
+       "z": -2.76842585129837,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 1443,
+       "log1p": 7.275172319452771,
+       "z": -0.35032504378494633,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 5,
+       "log1p": 1.791759469228055,
+       "z": -1.1848921766895688,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 411,
+       "log1p": 6.021023349349527,
+       "z": -3.219541380098527,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 6,
+       "log1p": 1.9459101490553132,
+       "z": -0.8030892005085616,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 1695,
+       "log1p": 7.4360278163518485,
+       "z": -0.4400424049248372,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   },
+   {
+    "raw_flow": {
+     "uid": "CvxbrP14InjKd3JJUc",
+     "ts": 1569266107.873105,
+     "ts_utc": "2019-09-23 19:15:07.873105",
+     "date_utc": "2019-09-23",
+     "window_start_epoch": 1569266100,
+     "hostname": "sysclient0104",
+     "label": 1,
+     "app_family": "powershell.exe",
+     "image_path": "powershell.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.56.105",
+     "orig_p": 59065,
+     "resp_h": "132.197.158.98",
+     "resp_p": 80,
+     "proto": "tcp",
+     "service": "http",
+     "duration": 0.088039,
+     "orig_bytes": 199,
+     "resp_bytes": 1443,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADadfF",
+     "orig_pkts": 6,
+     "orig_ip_bytes": 451,
+     "resp_pkts": 6,
+     "resp_ip_bytes": 1695,
+     "actor_id": "70ba4f9c-e27b-4a34-8dce-303c00c227c2",
+     "pid": 3160,
+     "ppid": 2296,
+     "principal": "SYSTEMIACOM\\zleazer",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 5,
+      "proto": 2,
+      "service": 3,
+      "conn_state": 2,
+      "resp_port_class": 3,
+      "image_dir_class": 3,
+      "principal_class": 2
+     },
+     "x_num": {
+      "duration": -0.000213,
+      "orig_bytes": -2.768426,
+      "resp_bytes": -0.350325,
+      "orig_pkts": -0.775039,
+      "orig_ip_bytes": -2.960011,
+      "resp_pkts": -0.803089,
+      "resp_ip_bytes": -0.440042
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 1.812177
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "powershell.exe",
+       "id": 5
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "http",
+       "id": 3
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_80_HTTP",
+       "id": 3
+      },
+      "image_dir_class": {
+       "raw_value": "BARE_NAME",
+       "id": 3
+      },
+      "principal_class": {
+       "raw_value": "DOMAIN_USER",
+       "id": 2
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 0.088039,
+       "log1p": 0.08437699337954845,
+       "z": -0.00021304940815890843,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 199,
+       "log1p": 5.298317366548036,
+       "z": -2.76842585129837,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 1443,
+       "log1p": 7.275172319452771,
+       "z": -0.35032504378494633,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 6,
+       "log1p": 1.9459101490553132,
+       "z": -0.7750390151776265,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 451,
+       "log1p": 6.113682179832232,
+       "z": -2.9600113101208394,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 6,
+       "log1p": 1.9459101490553132,
+       "z": -0.8030892005085616,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 1695,
+       "log1p": 7.4360278163518485,
+       "z": -0.4400424049248372,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   },
+   {
+    "raw_flow": {
+     "uid": "CVEjxL2w3J43KYuiR1",
+     "ts": 1569266113.034402,
+     "ts_utc": "2019-09-23 19:15:13.034402",
+     "date_utc": "2019-09-23",
+     "window_start_epoch": 1569266100,
+     "hostname": "sysclient0104",
+     "label": 1,
+     "app_family": "powershell.exe",
+     "image_path": "powershell.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.56.105",
+     "orig_p": 59066,
+     "resp_h": "132.197.158.98",
+     "resp_p": 80,
+     "proto": "tcp",
+     "service": "http",
+     "duration": 0.082822,
+     "orig_bytes": 203,
+     "resp_bytes": 1443,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADadfF",
+     "orig_pkts": 5,
+     "orig_ip_bytes": 415,
+     "resp_pkts": 6,
+     "resp_ip_bytes": 1695,
+     "actor_id": "70ba4f9c-e27b-4a34-8dce-303c00c227c2",
+     "pid": 3160,
+     "ppid": 2296,
+     "principal": "SYSTEMIACOM\\zleazer",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 5,
+      "proto": 2,
+      "service": 3,
+      "conn_state": 2,
+      "resp_port_class": 3,
+      "image_dir_class": 3,
+      "principal_class": 2
+     },
+     "x_num": {
+      "duration": -0.01178,
+      "orig_bytes": -2.73255,
+      "resp_bytes": -0.350325,
+      "orig_pkts": -1.184892,
+      "orig_ip_bytes": -3.192479,
+      "resp_pkts": -0.803089,
+      "resp_ip_bytes": -0.440042
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 1.818287
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "powershell.exe",
+       "id": 5
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "http",
+       "id": 3
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_80_HTTP",
+       "id": 3
+      },
+      "image_dir_class": {
+       "raw_value": "BARE_NAME",
+       "id": 3
+      },
+      "principal_class": {
+       "raw_value": "DOMAIN_USER",
+       "id": 2
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 0.082822,
+       "log1p": 0.07957059624647267,
+       "z": -0.011779760208172804,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 203,
+       "log1p": 5.318119993844216,
+       "z": -2.7325500856074365,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 1443,
+       "log1p": 7.275172319452771,
+       "z": -0.35032504378494633,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 5,
+       "log1p": 1.791759469228055,
+       "z": -1.1848921766895688,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 415,
+       "log1p": 6.030685260261263,
+       "z": -3.1924791303164164,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 6,
+       "log1p": 1.9459101490553132,
+       "z": -0.8030892005085616,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 1695,
+       "log1p": 7.4360278163518485,
+       "z": -0.4400424049248372,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   }
+  ]
+ },
+ {
+  "scenario": "scenario_3",
+  "sample": {
+   "sample_id": "ac4b3a5133d1e2b8cac7bcfb",
+   "split": "test",
+   "date": "2019-09-25",
+   "hostname": "sysclient0351",
+   "window_start_epoch": 1569424500,
+   "window_start_utc": "2019-09-25T15:15:00+00:00",
+   "chunk_index": 0,
+   "label": 1,
+   "event_count": 18,
+   "positive_event_count": 18,
+   "app_node_count": 1,
+   "remote_node_count": 1,
+   "shard_file": "shards/test/test_0002.npz",
+   "shard_sample_index": 1458
+  },
+  "first_flows": [
+   {
+    "raw_flow": {
+     "uid": "C8Fjd73l0l3ioRTGsl",
+     "ts": 1569424716.206339,
+     "ts_utc": "2019-09-25 15:18:36.206339",
+     "date_utc": "2019-09-25",
+     "window_start_epoch": 1569424500,
+     "hostname": "sysclient0351",
+     "label": 1,
+     "app_family": "notepad++.exe",
+     "image_path": "\\Device\\HarddiskVolume1\\Program Files (x86)\\Notepad++\\notepad++.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.57.96",
+     "orig_p": 49813,
+     "resp_h": "53.192.68.50",
+     "resp_p": 80,
+     "proto": "tcp",
+     "service": "http",
+     "duration": 7.560098,
+     "orig_bytes": 150,
+     "resp_bytes": 0,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADafF",
+     "orig_pkts": 5,
+     "orig_ip_bytes": 362,
+     "resp_pkts": 4,
+     "resp_ip_bytes": 172,
+     "actor_id": "d7669486-4abf-4e88-b941-6936cb230a0c",
+     "pid": 2544,
+     "ppid": 3140,
+     "principal": "SYSTEMIACOM\\bbateman",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 0,
+      "proto": 2,
+      "service": 3,
+      "conn_state": 2,
+      "resp_port_class": 3,
+      "image_dir_class": 2,
+      "principal_class": 2
+     },
+     "x_num": {
+      "duration": 4.963808,
+      "orig_bytes": -3.277572,
+      "resp_bytes": -4.4548,
+      "orig_pkts": -1.184892,
+      "orig_ip_bytes": -3.574195,
+      "resp_pkts": -1.227608,
+      "resp_ip_bytes": -1.873093
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 0.0
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "notepad++.exe",
+       "id": 0
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "http",
+       "id": 3
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_80_HTTP",
+       "id": 3
+      },
+      "image_dir_class": {
+       "raw_value": "PROGRAM_FILES",
+       "id": 2
+      },
+      "principal_class": {
+       "raw_value": "DOMAIN_USER",
+       "id": 2
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 7.560098,
+       "log1p": 2.1471116386862468,
+       "z": 4.96380770019719,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 150,
+       "log1p": 5.017279836814924,
+       "z": -3.2775722598160435,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 0,
+       "log1p": 0.0,
+       "z": -4.45479980519452,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 5,
+       "log1p": 1.791759469228055,
+       "z": -1.1848921766895688,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 362,
+       "log1p": 5.8944028342648505,
+       "z": -3.57419544781494,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 4,
+       "log1p": 1.6094379124341003,
+       "z": -1.2276080972537426,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 172,
+       "log1p": 5.153291594497779,
+       "z": -1.8730935419087325,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   },
+   {
+    "raw_flow": {
+     "uid": "Cql2C8sgWv3ywgrj6",
+     "ts": 1569424720.565275,
+     "ts_utc": "2019-09-25 15:18:40.565275",
+     "date_utc": "2019-09-25",
+     "window_start_epoch": 1569424500,
+     "hostname": "sysclient0351",
+     "label": 1,
+     "app_family": "gup.exe",
+     "image_path": "\\Device\\HarddiskVolume1\\Program Files (x86)\\Notepad++\\updater\\gup.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.57.96",
+     "orig_p": 49814,
+     "resp_h": "53.192.68.50",
+     "resp_p": 80,
+     "proto": "tcp",
+     "service": "http",
+     "duration": 11.148283,
+     "orig_bytes": 112,
+     "resp_bytes": 275,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADadfF",
+     "orig_pkts": 5,
+     "orig_ip_bytes": 324,
+     "resp_pkts": 5,
+     "resp_ip_bytes": 487,
+     "actor_id": "45b923f4-4f3a-4f07-acfb-2ec36e889afe",
+     "pid": 4836,
+     "ppid": 2544,
+     "principal": "SYSTEMIACOM\\bbateman",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 0,
+      "proto": 2,
+      "service": 3,
+      "conn_state": 2,
+      "resp_port_class": 3,
+      "image_dir_class": 2,
+      "principal_class": 2
+     },
+     "x_num": {
+      "duration": 5.806274,
+      "orig_bytes": -3.80276,
+      "resp_bytes": -1.283907,
+      "orig_pkts": -1.184892,
+      "orig_ip_bytes": -3.883915,
+      "resp_pkts": -0.997577,
+      "resp_ip_bytes": -1.222073
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 1.678765
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "gup.exe",
+       "id": 0
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "http",
+       "id": 3
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_80_HTTP",
+       "id": 3
+      },
+      "image_dir_class": {
+       "raw_value": "PROGRAM_FILES",
+       "id": 2
+      },
+      "principal_class": {
+       "raw_value": "DOMAIN_USER",
+       "id": 2
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 11.148283,
+       "log1p": 2.4971878429279593,
+       "z": 5.806274541849795,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 112,
+       "log1p": 4.727387818712341,
+       "z": -3.8027600524038765,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 275,
+       "log1p": 5.62040086571715,
+       "z": -1.2839067336094112,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 5,
+       "log1p": 1.791759469228055,
+       "z": -1.1848921766895688,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 324,
+       "log1p": 5.783825182329737,
+       "z": -3.8839147222239223,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 5,
+       "log1p": 1.791759469228055,
+       "z": -0.9975773912428745,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 487,
+       "log1p": 6.1903154058531475,
+       "z": -1.2220730088682807,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   },
+   {
+    "raw_flow": {
+     "uid": "Cc2W664tCAERa4tBif",
+     "ts": 1569424734.51805,
+     "ts_utc": "2019-09-25 15:18:54.518050",
+     "date_utc": "2019-09-25",
+     "window_start_epoch": 1569424500,
+     "hostname": "sysclient0351",
+     "label": 1,
+     "app_family": "gup.exe",
+     "image_path": "\\Device\\HarddiskVolume1\\Program Files (x86)\\Notepad++\\updater\\gup.exe",
+     "direction": "outbound",
+     "ecar_l4protocol": "6",
+     "orig_h": "142.20.57.96",
+     "orig_p": 49815,
+     "resp_h": "53.192.68.50",
+     "resp_p": 80,
+     "proto": "tcp",
+     "service": "http",
+     "duration": 9.213576,
+     "orig_bytes": 76,
+     "resp_bytes": 73909,
+     "conn_state": "SF",
+     "local_orig": "F",
+     "local_resp": "F",
+     "missed_bytes": 0,
+     "history": "ShADadFf",
+     "orig_pkts": 10,
+     "orig_ip_bytes": 488,
+     "resp_pkts": 64,
+     "resp_ip_bytes": 76481,
+     "actor_id": "45b923f4-4f3a-4f07-acfb-2ec36e889afe",
+     "pid": 4836,
+     "ppid": 2544,
+     "principal": "SYSTEMIACOM\\bbateman",
+     "ecar_occurrence_count": 1
+    },
+    "encoded_in_shard": {
+     "x_cat": {
+      "app_family": 0,
+      "proto": 2,
+      "service": 3,
+      "conn_state": 2,
+      "resp_port_class": 3,
+      "image_dir_class": 2,
+      "principal_class": 2
+     },
+     "x_num": {
+      "duration": 5.388815,
+      "orig_bytes": -4.497684,
+      "resp_bytes": 1.869949,
+      "orig_pkts": 0.426691,
+      "orig_ip_bytes": -2.739634,
+      "resp_pkts": 2.008527,
+      "resp_ip_bytes": 1.951027
+     },
+     "x_num_missing": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "x_bin": [
+      0
+     ],
+     "delta_t_log1p": 2.704897
+    },
+    "encoded_by_python_from_spec": {
+     "x_cat": {
+      "app_family": {
+       "raw_value": "gup.exe",
+       "id": 0
+      },
+      "proto": {
+       "raw_value": "tcp",
+       "id": 2
+      },
+      "service": {
+       "raw_value": "http",
+       "id": 3
+      },
+      "conn_state": {
+       "raw_value": "sf",
+       "id": 2
+      },
+      "resp_port_class": {
+       "raw_value": "PORT_80_HTTP",
+       "id": 3
+      },
+      "image_dir_class": {
+       "raw_value": "PROGRAM_FILES",
+       "id": 2
+      },
+      "principal_class": {
+       "raw_value": "DOMAIN_USER",
+       "id": 2
+      }
+     },
+     "x_num": {
+      "duration": {
+       "raw": 9.213576,
+       "log1p": 2.3237178157131444,
+       "z": 5.388814731161974,
+       "missing": 0
+      },
+      "orig_bytes": {
+       "raw": 76,
+       "log1p": 4.343805421853684,
+       "z": -4.4976836091140875,
+       "missing": 0
+      },
+      "resp_bytes": {
+       "raw": 73909,
+       "log1p": 11.210603415778932,
+       "z": 1.8699491849019332,
+       "missing": 0
+      },
+      "orig_pkts": {
+       "raw": 10,
+       "log1p": 2.3978952727983707,
+       "z": 0.42669121481582845,
+       "missing": 0
+      },
+      "orig_ip_bytes": {
+       "raw": 488,
+       "log1p": 6.192362489474872,
+       "z": -2.739633973594537,
+       "missing": 0
+      },
+      "resp_pkts": {
+       "raw": 64,
+       "log1p": 4.174387269895637,
+       "z": 2.0085265757613096,
+       "missing": 0
+      },
+      "resp_ip_bytes": {
+       "raw": 76481,
+       "log1p": 11.244810698010976,
+       "z": 1.9510269559727624,
+       "missing": 0
+      }
+     },
+     "x_bin": {
+      "has_missed_bytes": {
+       "raw": 0,
+       "value": 0
+      }
+     }
+    }
+   }
+  ]
+ }
+]

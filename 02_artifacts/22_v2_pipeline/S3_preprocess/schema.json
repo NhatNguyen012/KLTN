@@ -1,0 +1,18 @@
+{
+ "file": "preprocess_spec.json",
+ "sections": {
+  "fit": "phạm vi dữ liệu dùng để fit (chỉ TRAIN) và cam kết không dùng nhãn/VAL/TEST",
+  "categorical": "reserved ids, quy tắc giá trị, và từng trường: active/lý do, đếm, vocab [{value, id, train_count}]",
+  "numeric": "biến đổi, clip, và từng trường: active/lý do, log1p_mean, log1p_std, số quan sát/thiếu, min/max thô",
+  "binary": "cờ nhị phân dẫn xuất",
+  "time": "cách tính delta_t_log1p",
+  "derived_rules": "quy tắc port_class và ip_scope",
+  "model_input_layout": "thứ tự cột x_cat / x_num / x_bin mà mô hình nhận",
+  "fingerprint_sha256": "sha256 của toàn bộ spec (trừ chính nó)"
+ },
+ "companion": {
+  "vocab.csv": "từ điển dạng bảng (field, value, id, train_count)",
+  "preview.csv": "thống kê numeric dạng bảng",
+  "preview_record.json": "ví dụ mã hóa từng bước một flow thật"
+ }
+}
