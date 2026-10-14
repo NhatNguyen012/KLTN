@@ -1,0 +1,289 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="main" name="Main ontology architecture">
+    <mxGraphModel page="1" pageWidth="2400" pageHeight="2130" grid="1" gridSize="10">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="hosts" value="END HOST  ·  LOGICAL MODULES" style="rounded=1;verticalAlign=top;spacingTop=15;fontSize=20;fontStyle=1;fillColor=#F4F7FA;strokeColor=#C5D1DC;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="1025" width="480" height="675" />
+        </mxCell>
+        <mxCell id="vm" value="ONE CENTRAL VM  ·  MULTIPLE SERVICES / CONTAINERS" style="rounded=1;verticalAlign=top;spacingTop=15;fontSize=20;fontStyle=1;fillColor=#F4F7FA;strokeColor=#C5D1DC;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="620" y="1025" width="1480" height="675" />
+        </mxCell>
+        <mxCell id="storage" value="PERSISTENT STORAGE / MOUNTED VOLUME  ·  LOGICAL STORES" style="rounded=1;verticalAlign=top;spacingTop=15;fontSize=20;fontStyle=1;fillColor=#EDF3F8;strokeColor=#C5D1DC;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="620" y="1785" width="1480" height="215" />
+        </mxCell>
+        <mxCell id="conform_t" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.31958762886597936;exitY=0.0;entryX=0.5;entryY=1.0;" edge="1" parent="1" source="telemetry" target="meta_event">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="conform_a" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.17525773195876287;exitY=0.0;entryX=0.5;entryY=1.0;" edge="1" parent="1" source="analysis" target="meta_detection">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1300" y="375" />
+              <mxPoint x="1090" y="375" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="conform_l" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.6804123711340206;exitY=0.0;entryX=0.5;entryY=1.0;" edge="1" parent="1" source="analysis" target="meta_ops">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="import_h" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.5;exitY=0.0;entryX=0.31958762886597936;entryY=1.0;" edge="1" parent="1" source="host_domain" target="telemetry">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="import_s" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.5;exitY=0.0;entryX=0.8350515463917526;entryY=1.0;" edge="1" parent="1" source="log_domain" target="telemetry">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1090" y="600" />
+              <mxPoint x="890" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="import_w" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.5;exitY=0.0;entryX=0.6804123711340206;entryY=1.0;" edge="1" parent="1" source="target_domain" target="analysis">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="realize_h" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.5;exitY=0.0;entryX=0.3870967741935484;entryY=1.0;" edge="1" parent="1" source="hosts" target="host_domain">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="realize_l" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;" edge="1" parent="1" source="ingest" target="log_domain">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="860" y="989" />
+              <mxPoint x="1090" y="989" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="realize_p" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#64778C;exitX=0.5;exitY=0.0;entryX=0.5;entryY=1.0;" edge="1" parent="1" source="fusion" target="target_domain">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1345" y="989" />
+              <mxPoint x="1790" y="989" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="collect_m" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=0.23255813953488372;exitY=1.0;entryX=0.4878048780487805;entryY=0.0;dashed=1;" edge="1" parent="1" source="collector" target="ml">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="collect_o" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=0.7674418604651163;exitY=1.0;entryX=0.5121951219512195;entryY=0.0;dashed=1;" edge="1" parent="1" source="collector" target="ood">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="score_m" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=0.4878048780487805;exitY=1.0;entryX=0.23255813953488372;entryY=0.0;dashed=1;" edge="1" parent="1" source="ml" target="agent">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="score_o" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=0.5121951219512195;exitY=1.0;entryX=0.7674418604651163;entryY=0.0;dashed=1;" edge="1" parent="1" source="ood" target="agent">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uplink" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;dashed=1;" edge="1" parent="1" source="agent" target="ingest">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="590" y="1500" />
+              <mxPoint x="590" y="1150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="infer" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;dashed=1;" edge="1" parent="1" source="ingest" target="fusion">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="review" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;dashed=1;" edge="1" parent="1" source="fusion" target="soc">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="monitoring" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;dashed=1;" edge="1" parent="1" source="ingest" target="drift">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="feedback" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=0.5;exitY=1.0;entryX=0.872093023255814;entryY=0.0;dashed=1;" edge="1" parent="1" source="soc" target="drift">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1845" y="1245" />
+              <mxPoint x="1020" y="1245" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="train_request" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#C25050;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;" edge="1" parent="1" source="drift" target="trainer">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="promote" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#C25050;exitX=1.0;exitY=0.5;entryX=0.0;entryY=0.5;" edge="1" parent="1" source="trainer" target="registry">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="curation" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=1.0;exitY=0.5714285714285714;entryX=0.0;entryY=0.5348837209302325;dashed=1;" edge="1" parent="1" source="research" target="storage">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="persistence" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#B08536;exitX=0.5;exitY=1.0;entryX=0.5;entryY=0.0;dashed=1;" edge="1" parent="1" source="vm" target="storage">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="rollout" style="edgeStyle=segmentEdgeStyle;endArrow=block;strokeWidth=2;strokeColor=#C25050;exitX=1.0;exitY=0.7142857142857143;entryX=0.5;entryY=1.0;" edge="1" parent="1" source="registry" target="hosts">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="2125" y="1380" />
+              <mxPoint x="2125" y="1730" />
+              <mxPoint x="320" y="1730" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="meta_event" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Telemetry meta-model&lt;/div&gt;&lt;div style=&quot;font-size:22px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Entity • Record • Source • Relation&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Identity • event time • observation time&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Schema and provenance constraints&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FBE4E3;strokeColor=#BF6368;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="185" width="620" height="150" />
+        </mxCell>
+        <mxCell id="meta_detection" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Detection meta-model&lt;/div&gt;&lt;div style=&quot;font-size:22px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Task • Evidence • PredictionTarget • Label&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Prediction ≠ verified ground truth&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Confidence • uncertainty • label provenance&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FBE4E3;strokeColor=#BF6368;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="780" y="185" width="620" height="150" />
+        </mxCell>
+        <mxCell id="meta_ops" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Deployment &amp;amp; learning meta-model&lt;/div&gt;&lt;div style=&quot;font-size:22px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Host • VM • Container • Service • Agent&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Dataset • TrainingJob • ModelVersion&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Validation • promotion • rollback policy&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FBE4E3;strokeColor=#BF6368;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1480" y="185" width="620" height="150" />
+        </mxCell>
+        <mxCell id="telemetry" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Shared entity &amp;amp; observation ontology&lt;/div&gt;&lt;div style=&quot;font-size:22px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Host • Process • Resource • LogSource • LogRecord&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;LogRecord observedBy LogSource; Process runsOn Host&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Record hasEventTime / availableAt / sourceProvenance&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#DDF0E5;strokeColor=#4C9070;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="410" width="970" height="155" />
+        </mxCell>
+        <mxCell id="analysis" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Shared analysis &amp;amp; model-lifecycle ontology&lt;/div&gt;&lt;div style=&quot;font-size:22px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Prediction aboutTarget / usesModel / supportedBy Evidence&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;GroundTruth hasLabelSet / labelUnit / verifiedBy&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;TrainingJob usesDataset / producesCandidateModel&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#DDF0E5;strokeColor=#4C9070;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1130" y="410" width="970" height="155" />
+        </mxCell>
+        <mxCell id="host_domain" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Host activity ontology&lt;/div&gt;&lt;div style=&quot;font-size:22px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Process • File • Registry • User • Service&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Process spawns Process; Event targets Resource&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Event performedBy Process / Principal&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;CommunicationEvent associatedWith Host / Process&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Endpoint observations retain their source origin&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#E8E3FC;strokeColor=#7D71B4;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="655" width="620" height="240" />
+        </mxCell>
+        <mxCell id="log_domain" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Multi-source log ontology&lt;/div&gt;&lt;div style=&quot;font-size:22px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:22px&quot;&gt;OS / Security • Application / Service • Orchestration&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;These source types are subclasses of LogSource&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;LogRecord describes HostEvent / ServiceEvent&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;LogRecord associatedWithHost; hasSourceSchema&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;Adapters map source fields to shared concepts&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#E8E3FC;strokeColor=#7D71B4;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="780" y="655" width="620" height="240" />
+        </mxCell>
+        <mxCell id="target_domain" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Temporal, prediction &amp;amp; learning ontology&lt;/div&gt;&lt;div style=&quot;font-size:22px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:22px&quot;&gt;TemporalWindow associatedWithHost&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;EventSequence containsEvent; belongsTo Window&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;PredictionTarget: Event / Sequence / Window&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;TrainingJob uses VerifiedDataset + ReplayBuffer&lt;/div&gt;&lt;div style=&quot;font-size:22px&quot;&gt;CandidateModel evaluatedBy ValidationReport&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#E8E3FC;strokeColor=#7D71B4;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1480" y="655" width="620" height="240" />
+        </mxCell>
+        <mxCell id="collector" value="&lt;div style=&quot;font-size:22px;font-weight:bold;margin-bottom:12px&quot;&gt;Log collector &amp;amp; source adapters&lt;/div&gt;&lt;div style=&quot;font-size:19px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:19px&quot;&gt;OS / security, application / service logs&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Orchestration / audit logs when available&lt;/div&gt;&lt;div style=&quot;font-size:16px&quot;&gt;Normalize identity, timestamps and provenance&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="105" y="1080" width="430" height="140" />
+        </mxCell>
+        <mxCell id="ml" value="&lt;div style=&quot;font-size:21px;font-weight:bold;margin-bottom:12px&quot;&gt;Lightweight ML&lt;/div&gt;&lt;div style=&quot;font-size:17px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:17px&quot;&gt;RF / XGB / LGBM&lt;/div&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Known-threat score&lt;/div&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Evidence references&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="105" y="1250" width="205" height="140" />
+        </mxCell>
+        <mxCell id="ood" value="&lt;div style=&quot;font-size:23px;font-weight:bold;margin-bottom:12px&quot;&gt;Novelty / OOD&lt;/div&gt;&lt;div style=&quot;font-size:17px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Unknown / suspicious&lt;/div&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Calibrated policy&lt;/div&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Needs validation&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="330" y="1250" width="205" height="140" />
+        </mxCell>
+        <mxCell id="agent" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Agent coordinator&lt;/div&gt;&lt;div style=&quot;font-size:18px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Benign / known malicious / unknown-suspicious&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Collect evidence → send logs and scores&lt;/div&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Agentic investigation is an optional extension&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="105" y="1425" width="430" height="150" />
+        </mxCell>
+        <mxCell id="ingest" value="&lt;div style=&quot;font-size:23px;font-weight:bold;margin-bottom:12px&quot;&gt;Ingestion &amp;amp; contextual analysis&lt;/div&gt;&lt;div style=&quot;font-size:19px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Source adapters • correlation • graph context&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Host/process GraphSAGE + temporal DL&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;BiLSTM OR Mixed-Type Self-Attention&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="645" y="1080" width="430" height="140" />
+        </mxCell>
+        <mxCell id="fusion" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Context-aware fusion&lt;/div&gt;&lt;div style=&quot;font-size:18px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:17px&quot;&gt;Align prediction targets and available evidence&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Gating / cross-attention + source masks&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;APT assessment • confidence • explanation&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1130" y="1080" width="430" height="140" />
+        </mxCell>
+        <mxCell id="soc" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;SOC review &amp;amp; evidence&lt;/div&gt;&lt;div style=&quot;font-size:19px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Investigation • adjudicated labels&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Track false positives / negatives&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Unknown cases → review, not automatic labels&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1615" y="1080" width="460" height="140" />
+        </mxCell>
+        <mxCell id="drift" value="&lt;div style=&quot;font-size:21px;font-weight:bold;margin-bottom:12px&quot;&gt;Drift monitor &amp;amp; learning controller&lt;/div&gt;&lt;div style=&quot;font-size:19px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Monitor drift and reviewed performance&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Check trigger + label / data-quality gates&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Create an eligible training request&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="645" y="1280" width="430" height="140" />
+        </mxCell>
+        <mxCell id="trainer" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Trainer &amp;amp; model validator&lt;/div&gt;&lt;div style=&quot;font-size:18px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:18px&quot;&gt;New verified data + replay → TrainingJob&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Retrain ML / fine-tune DL → CandidateModel&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Evaluate on held-out old and new domains&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1130" y="1280" width="430" height="140" />
+        </mxCell>
+        <mxCell id="registry" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Model registry &amp;amp; deployment&lt;/div&gt;&lt;div style=&quot;font-size:19px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:19px&quot;&gt;ValidationReport → approval → ModelVersion&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Versioned rollout to eligible model services&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Monitor deployment; rollback if needed&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#FFF4C8;strokeColor=#B99A40;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1615" y="1280" width="460" height="140" />
+        </mxCell>
+        <mxCell id="logs" value="&lt;div style=&quot;font-size:23px;font-weight:bold;margin-bottom:12px&quot;&gt;Logs &amp;amp; processed observations&lt;/div&gt;&lt;div style=&quot;font-size:18px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Raw logs • normalized events • sequences&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Evidence and verified label provenance&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Accessed by ingestion / analysis / SOC&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#E8EEF3;strokeColor=#8595A5;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="645" y="1840" width="430" height="130" />
+        </mxCell>
+        <mxCell id="data" value="&lt;div style=&quot;font-size:22px;font-weight:bold;margin-bottom:12px&quot;&gt;Verified datasets &amp;amp; replay buffer&lt;/div&gt;&lt;div style=&quot;font-size:18px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Curated labels • source-aware splits&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Training / validation / held-out evaluation&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Read by trainer and validator&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#E8EEF3;strokeColor=#8595A5;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1130" y="1840" width="430" height="130" />
+        </mxCell>
+        <mxCell id="versions" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Model versions &amp;amp; metadata&lt;/div&gt;&lt;div style=&quot;font-size:18px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Model artifacts • validation reports&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Schema versions • lineage • deployment state&lt;/div&gt;&lt;div style=&quot;font-size:18px&quot;&gt;Managed by registry / deployment&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#E8EEF3;strokeColor=#8595A5;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1615" y="1840" width="460" height="130" />
+        </mxCell>
+        <mxCell id="research" value="&lt;div style=&quot;font-size:24px;font-weight:bold;margin-bottom:12px&quot;&gt;Offline research datasets&lt;/div&gt;&lt;div style=&quot;font-size:19px;line-height:1.35&quot;&gt;&lt;div style=&quot;font-size:19px&quot;&gt;External datasets + OpTC benchmark&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Adapters • label mapping • quality review&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Dataset diversity requires evaluation&lt;/div&gt;&lt;div style=&quot;font-size:19px&quot;&gt;Separate from live endpoint telemetry&lt;/div&gt;&lt;/div&gt;" style="rounded=1;html=1;whiteSpace=wrap;spacing=10;fillColor=#E8EEF3;strokeColor=#8595A5;strokeWidth=2;fontColor=#183047;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="1800" width="480" height="175" />
+        </mxCell>
+        <mxCell id="title" value="Ontology-based Architecture for Multi-source Host APT Detection" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=34;fontStyle=1;fontColor=#183047;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="160" y="20" width="2050" height="55" />
+        </mxCell>
+        <mxCell id="subtitle" value="Target conceptual design • semantic relationships and deployment mapping" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=24;fontStyle=0;fontColor=#4E6276;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="160" y="78" width="2050" height="38" />
+        </mxCell>
+        <mxCell id="status" value="Proposed system; ontology specification, endpoint integration and learning lifecycle require implementation." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=19;fontStyle=0;fontColor=#4E6276;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="160" y="119" width="2050" height="30" />
+        </mxCell>
+        <mxCell id="conform_t_label" value="conforms to" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#64778C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="285" y="360" width="210" height="28" />
+        </mxCell>
+        <mxCell id="conform_l_label" value="conforms to" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#64778C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1685" y="360" width="210" height="28" />
+        </mxCell>
+        <mxCell id="import_h_label" value="imports / extends" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#64778C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="265" y="601" width="250" height="28" />
+        </mxCell>
+        <mxCell id="import_w_label" value="imports / extends" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#64778C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1665" y="601" width="250" height="28" />
+        </mxCell>
+        <mxCell id="mapping_note" value="Services instantiate these concepts; source adapters and schema checks enforce the mappings." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=22;fontStyle=1;fontColor=#4E6276;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="920" width="2020" height="45" />
+        </mxCell>
+        <mxCell id="unknown_note" value="Unknown ≠ confirmed malicious&lt;br&gt;Review and evidence are required" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=1;fontColor=#4E6276;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="105" y="1590" width="430" height="85" />
+        </mxCell>
+        <mxCell id="trigger" value="UPDATE TRIGGER: sustained drift OR reviewed degradation OR sufficient confirmed new samples&lt;br&gt;Controller gates the request; drift alone never supplies ground-truth labels." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=21;fontStyle=1;fontColor=#183047;fillColor=#FFF4DE;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="645" y="1460" width="1430" height="85" />
+        </mxCell>
+        <mxCell id="modules" value="Logical responsibilities may share a container. Container placement is a deployment choice.&lt;br&gt;Schema / ontology mappings are versioned with adapters, datasets and model metadata." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=0;fontColor=#4E6276;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="645" y="1580" width="1430" height="65" />
+        </mxCell>
+        <mxCell id="realize_h_label" value="instantiates" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#64778C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="215" y="983" width="210" height="28" />
+        </mxCell>
+        <mxCell id="realize_l_label" value="maps records to" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#64778C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="940" y="973" width="300" height="28" />
+        </mxCell>
+        <mxCell id="realize_p_label" value="uses concepts from" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#64778C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1505" y="973" width="300" height="28" />
+        </mxCell>
+        <mxCell id="persistence_label" value="mounted; services read / write" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#64778C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1070" y="1731" width="580" height="28" />
+        </mxCell>
+        <mxCell id="rollout_label" value="Approved versions → endpoint + central services" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#B44C4C;fillColor=white;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="660" y="1707" width="580" height="27" />
+        </mxCell>
+        <mxCell id="meta_layer" value="META-MODEL" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=1;fontColor=#183047;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2160" y="210" width="225" height="140" />
+        </mxCell>
+        <mxCell id="shared_layer" value="SHARED&lt;br&gt;ONTOLOGY" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=1;fontColor=#183047;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2160" y="440" width="225" height="140" />
+        </mxCell>
+        <mxCell id="domain_layer" value="DOMAIN&lt;br&gt;ONTOLOGIES" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=1;fontColor=#183047;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2160" y="710" width="225" height="140" />
+        </mxCell>
+        <mxCell id="runtime_layer" value="EXECUTABLE&lt;br&gt;MAPPING &amp;amp;&lt;br&gt;DEPLOYMENT" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=1;fontColor=#183047;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="2160" y="1250" width="225" height="140" />
+        </mxCell>
+        <mxCell id="scope_note" value="Current Lam benchmark uses Zeek-derived flow features; endpoint-only inputs need new adapters, retraining and validation." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=20;fontStyle=0;fontColor=#4E6276;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="2020" width="2020" height="40" />
+        </mxCell>
+        <mxCell id="legend" value="Grey: semantic mappings   ·   Amber dashed: proposed data exchange   ·   Red: learning / deployment control   ·   All runtime integration is proposed." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;fontColor=#4E6276;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="80" y="2070" width="2020" height="30" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

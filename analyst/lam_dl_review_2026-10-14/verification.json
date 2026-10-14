@@ -1,0 +1,52 @@
+{
+  "commit": "5e283bc0c707f5cf90029d0a2c407873720d46b7",
+  "branch": "Lam",
+  "date": "2026-10-14",
+  "scope": "Static source/config audit; independent CSV reconciliation; no training or raw-corpus scan",
+  "predictions": {
+    "bilstm_v2": {
+      "n": 34413,
+      "tp": 80,
+      "fp": 0,
+      "fn": 2,
+      "tn": 34331,
+      "f1": 0.9876543209876543
+    },
+    "mixed_v2": {
+      "n": 34413,
+      "tp": 81,
+      "fp": 0,
+      "fn": 1,
+      "tn": 34331,
+      "f1": 0.9938650306748467
+    }
+  },
+  "windows": {
+    "n": 110402,
+    "unique_host_window": 110402,
+    "splits": {
+      "train": 77281,
+      "val": 16561,
+      "test": 16560
+    },
+    "positive_windows": {
+      "train": 379,
+      "val": 81,
+      "test": 81
+    }
+  },
+  "notebook_extraction": [
+    {
+      "notebook": "Temp/Lam-review/04_notebooks/07d_Mixed_Type_Kaggle_v2_final.ipynb",
+      "cell_index": 7,
+      "file": "analyst/lam_dl_review_2026-10-14/extracted/07d_Mixed_Type_Kaggle_v2_final.py.txt",
+      "sha256": "77e9f0003129db31610e8514d6ece3751ccfd56cb8306891e06bae5f2fa08c72"
+    },
+    {
+      "notebook": "Temp/Lam-review/04_notebooks/06d_BiLSTM_Kaggle_v2_final.ipynb",
+      "cell_index": 7,
+      "file": "analyst/lam_dl_review_2026-10-14/extracted/06d_BiLSTM_Kaggle_v2_final.py.txt",
+      "sha256": "39f53e3d96d8056cd5f76d8187dc4949d8b82fafe684248314c84058bee1057b"
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+<title id="title">1  /  Conceptual ontology</title>
+<desc id="desc">Typed entities and relationships • arrows name semantic relations, not execution steps. Proposed cross-source schema. Current learned graph uses Host + Process; labels are separate supervision, never ancestor features.</desc>
+<rect width="1600" height="1000" fill="white"/>
+<rect x="45" y="32" width="1510" height="136" rx="16" fill="#F3F7FB"/>
+<text x="75" y="74" text-anchor="start" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="32" font-weight="700" fill="#15324B">1  /  Conceptual ontology</text>
+<text x="75" y="117" text-anchor="start" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="18" font-weight="400" fill="#15324B">Typed entities and relationships • arrows name semantic relations, not execution steps</text>
+<rect x="75" y="145" width="14" height="14" fill="#EAF8F5" stroke="#008479" stroke-width="2"/>
+<text x="101" y="152" text-anchor="start" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="14" font-weight="400" fill="#526B80">Present in offline core</text>
+<rect x="322" y="145" width="14" height="14" fill="none" stroke="#3F78B8" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="348" y="152" text-anchor="start" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="14" font-weight="400" fill="#526B80">Proposed component / schema</text>
+<polyline points="650,287 355,287" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="355.0,287.0 365.0,292.0 365.0,282.0" fill="#55718A"/>
+<polyline points="217,470 217,355" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="217.0,355.0 212.0,365.0 222.0,365.0" fill="#55718A"/>
+<polyline points="795,470 795,355" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="795.0,355.0 790.0,365.0 800.0,365.0" fill="#55718A"/>
+<polyline points="940,505 1110,505 1110,297 1245,297" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="1245.0,297.0 1235.0,292.0 1235.0,302.0" fill="#55718A"/>
+<polyline points="1245,550 940,550" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="940.0,550.0 950.0,555.0 950.0,545.0" fill="#55718A"/>
+<polyline points="795,730 795,590" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="795.0,590.0 790.0,600.0 800.0,600.0" fill="#55718A"/>
+<polyline points="650,790 355,790" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="355.0,790.0 365.0,795.0 365.0,785.0" fill="#55718A"/>
+<polyline points="650,742 500,742 500,530 355,530" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="355.0,530.0 365.0,535.0 365.0,525.0" fill="#55718A"/>
+<polyline points="940,578 1095,578 1095,790 1245,790" fill="none" stroke="#55718A" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="1245.0,790.0 1235.0,785.0 1235.0,795.0" fill="#55718A"/>
+<rect x="80" y="240" width="275" height="115" rx="12" fill="#EAF8F5" stroke="#008479" stroke-width="2"/>
+<text x="217.5" y="268" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="700" fill="#15324B">Host</text>
+<text x="217.5" y="299" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Endpoint / execution context</text>
+<text x="217.5" y="322" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Observed host identity</text>
+<rect x="650" y="240" width="290" height="115" rx="12" fill="#EAF8F5" stroke="#008479" stroke-width="2"/>
+<text x="795.0" y="268" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="700" fill="#15324B">Process</text>
+<text x="795.0" y="299" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Executable / parent evidence</text>
+<text x="795.0" y="322" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Lifecycle observed on host</text>
+<rect x="1245" y="240" width="275" height="115" rx="12" fill="white" stroke="#3F78B8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1382.5" y="268" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="700" fill="#15324B">Resource</text>
+<text x="1382.5" y="299" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">File • registry • service</text>
+<text x="1382.5" y="322" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Container / application object</text>
+<rect x="80" y="470" width="275" height="120" rx="12" fill="white" stroke="#3F78B8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="217.5" y="498" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="700" fill="#15324B">EndpointAgent</text>
+<text x="217.5" y="529" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Collects host evidence</text>
+<text x="217.5" y="552" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Produces a local detection</text>
+<rect x="650" y="470" width="290" height="120" rx="12" fill="white" stroke="#3F78B8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="795.0" y="498" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="700" fill="#15324B">HostEvent</text>
+<text x="795.0" y="529" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Time • action • actor</text>
+<text x="795.0" y="552" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Source and evidence identity</text>
+<rect x="1245" y="470" width="275" height="140" rx="12" fill="white" stroke="#3F78B8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1382.5" y="498" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="700" fill="#15324B">LogSource</text>
+<text x="1382.5" y="529" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">OS / security logs</text>
+<text x="1382.5" y="552" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Application logs</text>
+<text x="1382.5" y="575" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Orchestration audit logs</text>
+<rect x="80" y="730" width="275" height="120" rx="12" fill="white" stroke="#3F78B8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="217.5" y="758" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="700" fill="#15324B">ModelVersion</text>
+<text x="217.5" y="789" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="15" font-weight="400" fill="#526B80">Schema + weights + thresholds</text>
+<text x="217.5" y="812" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Immutable version identity</text>
+<rect x="650" y="730" width="290" height="120" rx="12" fill="white" stroke="#3F78B8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="795.0" y="758" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="22" font-weight="700" fill="#15324B">Detection</text>
+<text x="795.0" y="789" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Risk / decision / evidence</text>
+<text x="795.0" y="812" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Explicit uncertainty state</text>
+<rect x="1245" y="730" width="275" height="120" rx="12" fill="white" stroke="#3F78B8" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1382.5" y="758" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="21" font-weight="700" fill="#15324B">TechniqueAnnotation</text>
+<text x="1382.5" y="789" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Optional ATT&amp;CK mapping</text>
+<text x="1382.5" y="812" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Evidence, source, confidence</text>
+<rect x="381" y="249" width="240" height="30" rx="6" fill="#FFFFFF"/>
+<text x="501.0" y="264.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">runsOn · many → 1</text>
+<rect x="96" y="395" width="140" height="28" rx="6" fill="#FFFFFF"/>
+<text x="166.0" y="409.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">monitors</text>
+<rect x="600" y="397" width="390" height="28" rx="6" fill="#FFFFFF"/>
+<text x="795.0" y="411.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">performedBy · many → 0..1</text>
+<rect x="1000" y="365" width="220" height="30" rx="6" fill="#FFFFFF"/>
+<text x="1110.0" y="380.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">targets · 0..*</text>
+<rect x="968" y="516" width="247" height="28" rx="6" fill="#FFFFFF"/>
+<text x="1091.5" y="530.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">records · 1 → many</text>
+<rect x="590" y="647" width="410" height="28" rx="6" fill="#FFFFFF"/>
+<text x="795.0" y="661.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">supportedBy · 1..* events</text>
+<rect x="381" y="753" width="240" height="28" rx="6" fill="#FFFFFF"/>
+<text x="501.0" y="767.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">usesModel · many → 1</text>
+<rect x="406" y="633" width="188" height="30" rx="6" fill="#FFFFFF"/>
+<text x="500.0" y="648.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">producedBy</text>
+<rect x="992" y="685" width="230" height="30" rx="6" fill="#FFFFFF"/>
+<text x="1107.0" y="700.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#55718A">annotatedAs · 0..*</text>
+<text x="800.0" y="901.0" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="17" font-weight="400" fill="#526B80">Multiplicities are illustrative schema constraints. A log source may observe many hosts; missing provenance remains explicit.</text>
+<line x1="55" y1="945" x2="1545" y2="945" stroke="#D9E2EB" stroke-width="2"/>
+<text x="800" y="970" text-anchor="middle" dominant-baseline="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="400" fill="#526B80">Proposed cross-source schema. Current learned graph uses Host + Process; labels are separate supervision, never ancestor features.</text>
+</svg>

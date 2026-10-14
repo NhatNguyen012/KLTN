@@ -1,0 +1,21 @@
+Create a polished publication-ready academic framework diagram for the user's APT thesis, inspired by the attached reference's illustrated icons, pastel module groups, database cylinders, rounded enclosing outline, and clear arrow routing. This is a NEW diagram, not MORPH-IDS. Landscape 3:2, high resolution, white background, crisp readable English labels, flat vector-like icon illustration, dark navy text. Title: "Multi-source Host APT Detection Framework". Small subtitle "Proposed target architecture". Use substantial meaningful icons (computer endpoints, log documents, gears, tree classifier, graph nodes, neural sequence, shield agent, analyst, drift chart, model package, storage cylinders), not merely text boxes. Keep text concise and exact, avoid overly dense paragraphs. No ontology layers, no attacker/defender reinforcement learning, no network sensor, no fake measured results.
+
+Composition: top two-thirds has pale-blue END HOST group at left and larger pale-green CENTRAL VM group center/right. Beneath central VM a pale-peach learning-services group explicitly labeled "Learning services on the Central VM". One outer rounded border contains framework.
+END HOST group:
+three stacked log document icons labeled "OS / Security", "Application / Service", "Orchestration / Audit" feeding gear "Collector & normalization".
+Collector branches to tree icon "Lightweight ML" subtitle "RF / XGB / LightGBM", and radar icon "Novelty / OOD".
+Both feed shield/person icon "Agent Coordinator", subtitle "Logs + scores + evidence".
+A nearby compact three-state legend "Benign", "Known malicious", "Unknown / suspicious"; small note "Unknown requires review".
+Agent Coordinator sends evidence arrow to CENTRAL VM ingestion.
+CENTRAL VM group:
+gear/server "Ingestion & correlation" feeds two parallel illustrated model cards:
+graph icon "Provenance branch" with "GraphSAGE + host ML context";
+sequence neural icon "Temporal DL" with "BiLSTM OR Mixed-Type Self-Attention".
+Also a direct local-score arrow from ingestion to fusion if legible.
+Both branches feed "Context-aware fusion", subtitle "Aligned targets • gating / attention • source masks".
+Fusion feeds analyst icon "APT assessment & analyst review", subtitle "Risk • confidence • evidence".
+Keep trained alternatives clear, no sequential BiLSTM then attention.
+LEARNING SERVICES band: analyst feedback and operational metrics arrow enters chart icon "Drift Monitor" then decision/gear "Learning Controller" then neural training icon "Trainer" then checkmark model "Validator" then model package "Registry & Deployment". Can group monitor/controller as one card to fit. Below monitor/controller text: "Drift OR reviewed decline OR confirmed new samples"; beneath trainer: "Verified TRAIN data + replay"; beneath validator: "Old + new domains"; beneath deployment: "Approve • version • rollback". Label gate arrow "Label / quality gate". RED or amber dashed feedback loop from deployment around outer edge back to endpoint ML and central models, label "Approved model updates". This is supervised retraining/fine-tuning, not automatic online learning from predicted labels.
+Bottom/right storage cylinders attached visually to central system, label "Persistent storage": "Logs & evidence", "Verified datasets & replay", "Model versions". Small offline dataset stack label "OpTC + external datasets", arrow "Adapters + label review" to verified data storage. Storage supplies training and stores model versions; use few clear links to avoid spaghetti.
+Footer: "Target integration is proposed. Current Lam benchmark uses Zeek-derived inputs; endpoint adapters require retraining and validation."
+Visual hierarchy, generous spacing, no clipped text, technically accurate arrows, no gratuitous decorations. Reference image only dictates graphic style, NOT its algorithms or labels.

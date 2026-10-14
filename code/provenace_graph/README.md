@@ -1,5 +1,63 @@
 # Lightweight learned provenance graph
 
+## Event-only v5a experiment
+
+The isolated v5a variant adds **one target Event node per ego graph** to the
+existing Process/Host graph. It has a `node=event` bit and one action and one
+object-type bit obtained from the frozen Host binary feature columns. For
+example, a PROCESS/CREATE target has `event::action::create` and
+`event::object::process`. The only new relations are actor Process → Event
+(`performs`) and Event → actor Process (`performs_reverse`); the reverse edge
+lets the two-layer GraphSAGE readout receive Event information. An object-type
+bit does **not** create a File or Module node. No label, source identity, raw
+command, or future event is used as an Event feature.
+
+The cache builder joins target action/object columns to the **same 8,000
+seed02 events** in the frozen baseline graph cache using `(source_id,
+source_line)`, checking split and label identity. It copies every pre-existing
+node, edge, root, cutoff and label unchanged. The sample is 4,000 balanced
+TRAIN, 2,000 validation and 2,000 TEST graphs. The frozen baseline cache uses
+a one-second cutoff (`quantum_us=1000000`); v5a retains that time policy to
+isolate the Event-node change. This is distinct from the later v4 exact-time
+full-cascade inference. The v4 checkpoint cannot score the new 71-attribute,
+six-relation schema, so v5a trains a **separate** GraphSAGE checkpoint on Kaggle
+GPU. LightGBM and all existing v4 artifacts remain unchanged.
+
+Locally, the cache and upload archive are already built:
+
+```text
+code/output/provenace_graph/seed02_event_v5a_cache/
+code/output/provenace_graph/kaggle_upload_event_v5a/provenance-event-v5a-cache.tar
+```
+
+Upload **only** the tar file as a Kaggle Dataset and run
+`code/provenace_graph/notebook/provenance_event_v5a_gpu.ipynb` with GPU enabled.
+The notebook accepts the uploaded tar or its extracted files, verifies the
+cache, trains for 30 epochs, selects the decision threshold from validation,
+then evaluates the sampled TEST and writes
+`/kaggle/working/provenance_event_v5a_results.zip`. The ZIP contains metrics,
+new checkpoint, NumPy weights and the cache manifest. No Host input archive,
+v4 cascade bundle, raw logs or SQLite database is required for this sampled
+training run. A full TEST LightGBM cascade comparison is **not** implied by
+the 2,000-graph GraphSAGE sample; that requires separately scoring the full
+manifest with the new checkpoint.
+
+The Event attributes are deliberately narrow: action and object **type** only.
+They do not encode file/module identity, path, command content or raw endpoint.
+If a future target contains an action/object category outside this frozen
+schema, inference raises an explicit error instead of silently inventing an
+embedding. The builder verifies that all 8,000 selected events have exactly
+one action and one object type. Rebuild commands, if the frozen inputs are
+replaced with an independently approved version, are:
+
+```bash
+python3 code/provenace_graph/preprocess/build_event_ego_cache.py
+python3 code/provenace_graph/preprocess/package_event_ego_cache.py
+python3 code/provenace_graph/test/test_event_v5a.py
+```
+
+Both builders refuse to overwrite their existing outputs.
+
 The corrected implementation is a **two-layer relational mean GraphSAGE model**.
 It learns embeddings by passing messages along explicit Process→Process and
 Host→Host edges. It is not RF, XGBoost, LightGBM, or a manually aggregated graph
