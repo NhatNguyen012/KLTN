@@ -1,0 +1,20 @@
+{
+ "table": "samples.csv",
+ "grain": "1 dòng = 1 sample (hostname, cửa sổ 15 phút, chunk)",
+ "fields": {
+  "sample_id": "sha256(split|hostname|window|chunk)[:24]",
+  "split": "train/val/test (từ S2)",
+  "date": "ngày UTC",
+  "hostname": "máy",
+  "window_start_epoch": "đầu cửa sổ",
+  "window_start_utc": "ISO UTC",
+  "chunk_index": "thứ tự chunk trong cửa sổ",
+  "label": "1 nếu có >= 1 flow dương",
+  "event_count": "số flow (<= 512)",
+  "positive_event_count": "số flow dương",
+  "app_node_count": "số app_family khác nhau",
+  "remote_node_count": "số resp_h khác nhau",
+  "shard_file": "file npz chứa sample",
+  "shard_sample_index": "chỉ số sample trong file"
+ }
+}

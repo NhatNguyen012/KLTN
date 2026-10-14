@@ -1,0 +1,60 @@
+{
+ "bilstm_v2": {
+  "threshold_from_val": 1.0,
+  "test_overall": {
+   "threshold": 1.0,
+   "tp": 80,
+   "fp": 0,
+   "fn": 2,
+   "tn": 34331,
+   "precision": 1.0,
+   "recall": 0.9756,
+   "f1": 0.9877,
+   "fpr": 0.0,
+   "pr_auc": 0.9887,
+   "roc_auc": 0.9996
+  },
+  "val_overall": {
+   "threshold": 1.0,
+   "tp": 83,
+   "fp": 0,
+   "fn": 0,
+   "tn": 34278,
+   "precision": 1.0,
+   "recall": 1.0,
+   "f1": 1.0,
+   "fpr": 0.0,
+   "pr_auc": 1.0,
+   "roc_auc": 1.0
+  }
+ },
+ "mixed_v2": {
+  "threshold_from_val": 1.0,
+  "test_overall": {
+   "threshold": 1.0,
+   "tp": 81,
+   "fp": 0,
+   "fn": 1,
+   "tn": 34331,
+   "precision": 1.0,
+   "recall": 0.9878,
+   "f1": 0.9939,
+   "fpr": 0.0,
+   "pr_auc": 1.0,
+   "roc_auc": 1.0
+  },
+  "val_overall": {
+   "threshold": 1.0,
+   "tp": 82,
+   "fp": 0,
+   "fn": 1,
+   "tn": 34278,
+   "precision": 1.0,
+   "recall": 0.988,
+   "f1": 0.9939,
+   "fpr": 0.0,
+   "pr_auc": 0.9997,
+   "roc_auc": 1.0
+  }
+ }
+}

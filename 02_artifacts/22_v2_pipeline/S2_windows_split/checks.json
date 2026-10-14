@@ -1,0 +1,20 @@
+{
+  "hosts": 620,
+  "windows": 110402,
+  "positive_windows": 541,
+  "flows_in_windows": 85626185,
+  "samples_expected": 228984,
+  "flows_conserved": true,
+  "each_scenario_in_all_splits": true,
+  "proportions_train_val_test_windows": {
+    "test": 0.15,
+    "train": 0.7,
+    "val": 0.15
+  },
+  "no_pos_other": true,
+  "vs_21a_same_window_universe": true,
+  "vs_21a_windows_only_new": 0,
+  "vs_21a_windows_only_old": 0,
+  "vs_21a_split_identical": true,
+  "PASS": true
+}

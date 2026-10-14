@@ -1,39 +1,7 @@
-# Read-only datasets
-/host-begnin/
-/host-malicious/
-/bro/
-/ecar-bro/
-
-# Temporary directories
-/Temp/
-/temp/
-
-# Papers
-/paper*/
-
-# Agent & Codex metadata
-/.agent/
-/.agents/
-/.agent*/
-/.codex/
-
-# Python cache
 __pycache__/
 *.pyc
-
-# Python environments and test/tool caches
-.venv/
-venv/
-env/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-
-# Notebook and runtime by-products
+.venv*/
+*.parquet
+*.npz
+*.zip
 .ipynb_checkpoints/
-*.log
-
-# Local pipeline outputs & checkpoints
-/code/output/

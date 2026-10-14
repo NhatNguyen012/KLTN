@@ -1,0 +1,28 @@
+{
+  "cua_so_duong": {
+    "hostname": "sysclient0005",
+    "window_start_epoch": 1569349800,
+    "window_start_utc": "2019-09-24 18:30:00",
+    "date_utc": "2019-09-24",
+    "scenario": "scenario_2",
+    "n_flows": 7,
+    "n_chunks": 1,
+    "n_positive_flows": 7,
+    "label": 1,
+    "stratum": "scenario_2",
+    "split": "train"
+  },
+  "cua_so_benign": {
+    "hostname": "sysclient0001",
+    "window_start_epoch": 1569244500,
+    "window_start_utc": "2019-09-23 13:15:00",
+    "date_utc": "2019-09-23",
+    "scenario": "",
+    "n_flows": 307,
+    "n_chunks": 1,
+    "n_positive_flows": 0,
+    "label": 0,
+    "stratum": "benign_2019-09-23",
+    "split": "train"
+  }
+}

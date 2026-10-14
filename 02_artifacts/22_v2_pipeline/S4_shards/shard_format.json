@@ -1,0 +1,23 @@
+{
+ "npz_keys": {
+  "x_cat": "uint16 [T, 7] id category theo thứ tự ['app_family', 'proto', 'service', 'conn_state', 'resp_port_class', 'image_dir_class', 'principal_class']; 0=<UNK>, 1=<MISSING>",
+  "x_num": "float32 [T, 7] z-score theo thứ tự ['duration', 'orig_bytes', 'resp_bytes', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']",
+  "x_num_missing": "uint8 [T, 7] 1 nếu giá trị thiếu",
+  "x_bin": "uint8 [T, 1] has_missed_bytes",
+  "delta_t_log1p": "float32 [T] ln(1 + giây từ flow trước trong chunk)",
+  "edge_app_local": "uint16 [T] số thứ tự cục bộ của app_family trong sample",
+  "edge_remote_local": "uint16 [T] số thứ tự cục bộ của resp_h trong sample",
+  "sample_offsets": "int64 [S+1] đầu/cuối của từng sample trong mảng T",
+  "sample_labels": "uint8 [S]",
+  "sample_event_counts": "uint16 [S]",
+  "sample_positive_event_counts": "uint16 [S]",
+  "sample_app_node_counts": "uint16 [S]",
+  "sample_remote_node_counts": "uint16 [S]",
+  "sample_window_start": "int64 [S]",
+  "sample_chunk_index": "uint16 [S]",
+  "*_feature_names": "tên cột (kiểm tra thứ tự)"
+ },
+ "T": "tổng số flow trong file",
+ "S": "số sample trong file",
+ "shuffle": "sample xáo trộn có seed 20261013 trước khi chia file"
+}
