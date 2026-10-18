@@ -38,9 +38,14 @@ htmlcov/
 
 # Local pipeline outputs & checkpoints
 /code/output/
+/ML/code/output/
+code/output/
 
 # Audit results & Archives
 /code/kaggle/mission4_audit_results_final/
+/ML/code/kaggle/mission4_audit_results_final/
+code/kaggle/mission4_audit_results_final/
+/.aws/
 *.parquet
 *.npz
 *.zip
