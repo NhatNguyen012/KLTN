@@ -1,0 +1,83 @@
+{
+  "table": "windows.csv",
+  "grain": "1 dòng = 1 cửa sổ (hostname, 15 phút)",
+  "fields": [
+    {
+      "field": "hostname",
+      "type": "string",
+      "role": "khóa",
+      "meaning_vi": "Máy (sysclientNNNN).",
+      "example": "sysclient0005"
+    },
+    {
+      "field": "window_start_epoch",
+      "type": "int64",
+      "role": "khóa",
+      "meaning_vi": "Đầu cửa sổ 15 phút, epoch UTC = floor(ts/900)*900.",
+      "example": 1569349800
+    },
+    {
+      "field": "window_start_utc",
+      "type": "string",
+      "role": "audit",
+      "meaning_vi": "window_start_epoch dạng đọc được (UTC).",
+      "example": "2019-09-24 18:30:00"
+    },
+    {
+      "field": "date_utc",
+      "type": "string",
+      "role": "audit",
+      "meaning_vi": "Ngày UTC của cửa sổ.",
+      "example": "2019-09-24"
+    },
+    {
+      "field": "scenario",
+      "type": "string",
+      "role": "audit",
+      "meaning_vi": "scenario_1/2/3 nếu máy thuộc 29 máy bị tấn công, ngược lại rỗng.",
+      "example": "scenario_2"
+    },
+    {
+      "field": "n_flows",
+      "type": "int64",
+      "role": "audit",
+      "meaning_vi": "Số flow trong cửa sổ.",
+      "example": 7
+    },
+    {
+      "field": "n_chunks",
+      "type": "int64",
+      "role": "audit",
+      "meaning_vi": "ceil(n_flows / 512) = số sample (chunk) sinh ra ở S4.",
+      "example": 1
+    },
+    {
+      "field": "n_positive_flows",
+      "type": "int64",
+      "role": "audit",
+      "meaning_vi": "Số flow có label = 1.",
+      "example": 7
+    },
+    {
+      "field": "label",
+      "type": "int8",
+      "role": "nhãn",
+      "meaning_vi": "1 nếu cửa sổ có ít nhất một flow dương.",
+      "example": 1
+    },
+    {
+      "field": "stratum",
+      "type": "string",
+      "role": "audit",
+      "meaning_vi": "Tầng chia: tên scenario (cửa sổ dương) hoặc 'benign_<ngày UTC>'.",
+      "example": "scenario_2"
+    },
+    {
+      "field": "split",
+      "type": "string",
+      "role": "khóa",
+      "meaning_vi": "train / val / test.",
+      "example": "train"
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+{
+ "flow_tan_cong_label1": {
+  "x_cat": {
+   "app_family": {
+    "raw_value": "powershell.exe",
+    "id": 5
+   },
+   "proto": {
+    "raw_value": "tcp",
+    "id": 2
+   },
+   "service": {
+    "raw_value": "http",
+    "id": 3
+   },
+   "conn_state": {
+    "raw_value": "sf",
+    "id": 2
+   },
+   "resp_port_class": {
+    "raw_value": "PORT_80_HTTP",
+    "id": 3
+   },
+   "image_dir_class": {
+    "raw_value": "BARE_NAME",
+    "id": 3
+   },
+   "principal_class": {
+    "raw_value": "DOMAIN_USER",
+    "id": 2
+   }
+  },
+  "x_num": {
+   "duration": {
+    "raw": 0.052996,
+    "log1p": 0.05163943447415815,
+    "z": -0.07899677569478555,
+    "missing": 0
+   },
+   "orig_bytes": {
+    "raw": 199,
+    "log1p": 5.298317366548036,
+    "z": -2.76842585129837,
+    "missing": 0
+   },
+   "resp_bytes": {
+    "raw": 1443,
+    "log1p": 7.275172319452771,
+    "z": -0.35032504378494633,
+    "missing": 0
+   },
+   "orig_pkts": {
+    "raw": 5,
+    "log1p": 1.791759469228055,
+    "z": -1.1848921766895688,
+    "missing": 0
+   },
+   "orig_ip_bytes": {
+    "raw": 411,
+    "log1p": 6.021023349349527,
+    "z": -3.219541380098527,
+    "missing": 0
+   },
+   "resp_pkts": {
+    "raw": 6,
+    "log1p": 1.9459101490553132,
+    "z": -0.8030892005085616,
+    "missing": 0
+   },
+   "resp_ip_bytes": {
+    "raw": 1695,
+    "log1p": 7.4360278163518485,
+    "z": -0.4400424049248372,
+    "missing": 0
+   }
+  },
+  "x_bin": {
+   "has_missed_bytes": {
+    "raw": 0,
+    "value": 0
+   }
+  }
+ },
+ "flow_binh_thuong_label0": {
+  "x_cat": {
+   "app_family": {
+    "raw_value": "firefox.exe",
+    "id": 2
+   },
+   "proto": {
+    "raw_value": "tcp",
+    "id": 2
+   },
+   "service": {
+    "raw_value": "ssl",
+    "id": 2
+   },
+   "conn_state": {
+    "raw_value": "sf",
+    "id": 2
+   },
+   "resp_port_class": {
+    "raw_value": "PORT_443_HTTPS",
+    "id": 2
+   },
+   "image_dir_class": {
+    "raw_value": "PROGRAM_FILES",
+    "id": 2
+   },
+   "principal_class": {
+    "raw_value": "DOMAIN_USER",
+    "id": 2
+   }
+  },
+  "x_num": {
+   "duration": {
+    "raw": 0.009565,
+    "log1p": 0.009519545008961884,
+    "z": -0.18035930710523285,
+    "missing": 0
+   },
+   "orig_bytes": {
+    "raw": 949,
+    "log1p": 6.856461984594587,
+    "z": 0.05441327977043905,
+    "missing": 0
+   },
+   "resp_bytes": {
+    "raw": 784,
+    "log1p": 6.665683717782408,
+    "z": -0.6941836457638735,
+    "missing": 0
+   },
+   "orig_pkts": {
+    "raw": 7,
+    "log1p": 2.0794415416798357,
+    "z": -0.42000805787285395,
+    "missing": 0
+   },
+   "orig_ip_bytes": {
+    "raw": 1241,
+    "log1p": 7.124478262493424,
+    "z": -0.12885127173467892,
+    "missing": 0
+   },
+   "resp_pkts": {
+    "raw": 8,
+    "log1p": 2.1972245773362196,
+    "z": -0.48601185439141065,
+    "missing": 0
+   },
+   "resp_ip_bytes": {
+    "raw": 1116,
+    "log1p": 7.018401799069201,
+    "z": -0.7022187497742044,
+    "missing": 0
+   }
+  },
+  "x_bin": {
+   "has_missed_bytes": {
+    "raw": 0,
+    "value": 0
+   }
+  }
+ },
+ "raw_flows": {
+  "flow_tan_cong_label1": {
+   "uid": "CaYeyw4Odk0qg3aek6",
+   "ts": 1569266153.143904,
+   "ts_utc": "2019-09-23 19:15:53.143904",
+   "date_utc": "2019-09-23",
+   "window_start_epoch": 1569266100,
+   "hostname": "sysclient0255",
+   "label": 1,
+   "app_family": "powershell.exe",
+   "image_path": "powershell.exe",
+   "direction": "outbound",
+   "ecar_l4protocol": "6",
+   "orig_h": "142.20.57.0",
+   "orig_p": 61867,
+   "resp_h": "132.197.158.98",
+   "resp_p": 80,
+   "proto": "tcp",
+   "service": "http",
+   "duration": 0.052996,
+   "orig_bytes": 199,
+   "resp_bytes": 1443,
+   "conn_state": "SF",
+   "local_orig": "F",
+   "local_resp": "F",
+   "missed_bytes": 0,
+   "history": "ShADadfF",
+   "orig_pkts": 5,
+   "orig_ip_bytes": 411,
+   "resp_pkts": 6,
+   "resp_ip_bytes": 1695,
+   "actor_id": "b5a0a459-229f-4e49-9783-e39a150804e6",
+   "pid": 3472,
+   "ppid": 2684,
+   "principal": "SYSTEMIACOM\\zleazer",
+   "ecar_occurrence_count": 1
+  },
+  "flow_binh_thuong_label0": {
+   "uid": "CzMdwy4BrLnA72E3ea",
+   "ts": 1568863813.085395,
+   "ts_utc": "2019-09-19 03:30:13.085395",
+   "date_utc": "2019-09-19",
+   "window_start_epoch": 1568863800,
+   "hostname": "sysclient0465",
+   "label": 0,
+   "app_family": "firefox.exe",
+   "image_path": "\\\\?\\C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe",
+   "direction": "outbound",
+   "ecar_l4protocol": "6",
+   "orig_h": "142.20.57.210",
+   "orig_p": 59872,
+   "resp_h": "165.101.35.5",
+   "resp_p": 443,
+   "proto": "tcp",
+   "service": "ssl",
+   "duration": 0.009565,
+   "orig_bytes": 949,
+   "resp_bytes": 784,
+   "conn_state": "SF",
+   "local_orig": "F",
+   "local_resp": "F",
+   "missed_bytes": 0,
+   "history": "ShADadfF",
+   "orig_pkts": 7,
+   "orig_ip_bytes": 1241,
+   "resp_pkts": 8,
+   "resp_ip_bytes": 1116,
+   "actor_id": "53748525-a96b-4418-97d3-44dadf1b2184",
+   "pid": 2548,
+   "ppid": 5428,
+   "principal": "SYSTEMIACOM\\mstedman",
+   "ecar_occurrence_count": 1
+  }
+ }
+}

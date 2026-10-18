@@ -23,6 +23,7 @@ __pycache__/
 
 # Python environments and test/tool caches
 .venv/
+.venv*/
 venv/
 env/
 .pytest_cache/
@@ -40,4 +41,6 @@ htmlcov/
 
 # Audit results & Archives
 /code/kaggle/mission4_audit_results_final/
+*.parquet
+*.npz
 *.zip

@@ -1,0 +1,57 @@
+{
+ "by_split": {
+  "train": {
+   "events_shards": 59902514,
+   "flows_windows_csv": 59902514,
+   "positive_events_shards": 17682,
+   "positive_flows_windows_csv": 17682,
+   "samples_shards": 160210,
+   "samples_windows_csv": 160210,
+   "conserved": true
+  },
+  "val": {
+   "events_shards": 12836373,
+   "flows_windows_csv": 12836373,
+   "positive_events_shards": 3495,
+   "positive_flows_windows_csv": 3495,
+   "samples_shards": 34361,
+   "samples_windows_csv": 34361,
+   "conserved": true
+  },
+  "test": {
+   "events_shards": 12887298,
+   "flows_windows_csv": 12887298,
+   "positive_events_shards": 3544,
+   "positive_flows_windows_csv": 3544,
+   "samples_shards": 34413,
+   "samples_windows_csv": 34413,
+   "conserved": true
+  }
+ },
+ "unique_sample_id": true,
+ "max_event_count": 512,
+ "stats": {
+  "train": {
+   "samples": 160210,
+   "events": 59902514,
+   "positive_events": 17682,
+   "positive_samples": 401,
+   "shards": 60
+  },
+  "val": {
+   "samples": 34361,
+   "events": 12836373,
+   "positive_events": 3495,
+   "positive_samples": 83,
+   "shards": 13
+  },
+  "test": {
+   "samples": 34413,
+   "events": 12887298,
+   "positive_events": 3544,
+   "positive_samples": 82,
+   "shards": 13
+  }
+ },
+ "PASS": true
+}

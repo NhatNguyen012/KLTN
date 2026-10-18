@@ -1,0 +1,39 @@
+{
+ "S1_join_PASS": true,
+ "S2_windows_split_PASS": true,
+ "S3_preprocess_PASS": true,
+ "S4_shards_PASS": true,
+ "fit_windows_equal_train_windows": true,
+ "fit_flows_equal_train_flows": true,
+ "fit_used_label_val_test": false,
+ "window_unique_key": true,
+ "samples_match_windows_split": true,
+ "window_label_equals_max_sample_label": true,
+ "positive_samples_by_scenario_split": {
+  "scenario_1": {
+   "train": 59,
+   "val": 10,
+   "test": 9
+  },
+  "scenario_2": {
+   "train": 338,
+   "val": 72,
+   "test": 72
+  },
+  "scenario_3": {
+   "train": 4,
+   "val": 1,
+   "test": 1
+  }
+ },
+ "each_scenario_in_all_splits": true,
+ "decode_samples_checked": 400,
+ "decode_all_same_length": true,
+ "decode_bad_x_cat_flows": 0,
+ "decode_max_abs_diff_x_num": 4.687786123724891e-07,
+ "decode_bad_missing_flows": 0,
+ "decode_bad_bin_flows": 0,
+ "decode_max_abs_diff_delta_t": 2.380771961796313e-07,
+ "decode_bad_label": 0,
+ "PASS": true
+}

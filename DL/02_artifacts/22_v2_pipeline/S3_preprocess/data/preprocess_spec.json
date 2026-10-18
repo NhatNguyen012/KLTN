@@ -1,0 +1,908 @@
+{
+ "version": "v2-preprocess-spec-1.0",
+ "fit": {
+  "split": "train",
+  "source_flows": "S1_join/data/flows_joined.parquet",
+  "source_windows": "S2_windows_split/data/windows.csv (split = train)",
+  "n_windows": 77281,
+  "n_flows": 59902514,
+  "label_used_for_fit": false,
+  "val_used_for_fit": false,
+  "test_used_for_fit": false
+ },
+ "categorical": {
+  "reserved_ids": {
+   "<UNK>": 0,
+   "<MISSING>": 1
+  },
+  "value_rule": "văn bản: chữ thường, bỏ khoảng trắng; '', '-', '(empty)', 'null', 'none' hoặc NULL -> <MISSING>; ip_scope/port_class theo quy tắc ở dưới",
+  "vocab_order": "số lần xuất hiện trong TRAIN giảm dần, hòa thì theo chữ; id bắt đầu từ 2; giá trị không có trong từ điển -> <UNK>=0 lúc mã hóa",
+  "fields": {
+   "app_family": {
+    "active": true,
+    "reason": "thay đổi trên TRAIN (>= 2 giá trị, mỗi giá trị >= 5 flow, hoặc thiếu/có giá trị đều >= 5 flow)",
+    "min_train_frequency": 5,
+    "max_values_excluding_reserved": 5000,
+    "n_train_flows": 59902514,
+    "n_missing": 20401,
+    "n_distinct_non_missing": 68,
+    "n_distinct_dropped_below_min_freq": 9,
+    "flows_of_dropped_values": 17,
+    "vocab": [
+     {
+      "value": "firefox.exe",
+      "id": 2,
+      "train_count": 59766724
+     },
+     {
+      "value": "cmd.exe",
+      "id": 3,
+      "train_count": 24564
+     },
+     {
+      "value": "conhost.exe",
+      "id": 4,
+      "train_count": 23973
+     },
+     {
+      "value": "powershell.exe",
+      "id": 5,
+      "train_count": 17548
+     },
+     {
+      "value": "ping.exe",
+      "id": 6,
+      "train_count": 15854
+     },
+     {
+      "value": "schtasks.exe",
+      "id": 7,
+      "train_count": 4739
+     },
+     {
+      "value": "appidcertstorecheck.exe",
+      "id": 8,
+      "train_count": 3774
+     },
+     {
+      "value": "reg.exe",
+      "id": 9,
+      "train_count": 2530
+     },
+     {
+      "value": "onedrivesetup.exe",
+      "id": 10,
+      "train_count": 2111
+     },
+     {
+      "value": "taskhostw.exe",
+      "id": 11,
+      "train_count": 1937
+     },
+     {
+      "value": "svchost.exe",
+      "id": 12,
+      "train_count": 1914
+     },
+     {
+      "value": "wscript.exe",
+      "id": 13,
+      "train_count": 1525
+     },
+     {
+      "value": "bcdedit.exe",
+      "id": 14,
+      "train_count": 1367
+     },
+     {
+      "value": "taskkill.exe",
+      "id": 15,
+      "train_count": 1259
+     },
+     {
+      "value": "python.exe",
+      "id": 16,
+      "train_count": 881
+     },
+     {
+      "value": "backgroundtaskhost.exe",
+      "id": 17,
+      "train_count": 831
+     },
+     {
+      "value": "searchprotocolhost.exe",
+      "id": 18,
+      "train_count": 822
+     },
+     {
+      "value": "googleupdate.exe",
+      "id": 19,
+      "train_count": 734
+     },
+     {
+      "value": "winword.exe",
+      "id": 20,
+      "train_count": 674
+     },
+     {
+      "value": "searchfilterhost.exe",
+      "id": 21,
+      "train_count": 642
+     },
+     {
+      "value": "mobsync.exe",
+      "id": 22,
+      "train_count": 571
+     },
+     {
+      "value": "explorer.exe",
+      "id": 23,
+      "train_count": 531
+     },
+     {
+      "value": "geckodriver.exe",
+      "id": 24,
+      "train_count": 501
+     },
+     {
+      "value": "vgauthservice.exe",
+      "id": 25,
+      "train_count": 493
+     },
+     {
+      "value": "adobearm.exe",
+      "id": 26,
+      "train_count": 448
+     },
+     {
+      "value": "mpcmdrun.exe",
+      "id": 27,
+      "train_count": 430
+     },
+     {
+      "value": "sppsvc.exe",
+      "id": 28,
+      "train_count": 413
+     },
+     {
+      "value": "searchui.exe",
+      "id": 29,
+      "train_count": 390
+     },
+     {
+      "value": "vmtoolsd.exe",
+      "id": 30,
+      "train_count": 359
+     },
+     {
+      "value": "msascuil.exe",
+      "id": 31,
+      "train_count": 350
+     },
+     {
+      "value": "runtimebroker.exe",
+      "id": 32,
+      "train_count": 299
+     },
+     {
+      "value": "msoia.exe",
+      "id": 33,
+      "train_count": 261
+     },
+     {
+      "value": "tiworker.exe",
+      "id": 34,
+      "train_count": 258
+     },
+     {
+      "value": "powerpnt.exe",
+      "id": 35,
+      "train_count": 233
+     },
+     {
+      "value": "sc.exe",
+      "id": 36,
+      "train_count": 229
+     },
+     {
+      "value": "logonui.exe",
+      "id": 37,
+      "train_count": 225
+     },
+     {
+      "value": "acrord32.exe",
+      "id": 38,
+      "train_count": 206
+     },
+     {
+      "value": "mscorsvw.exe",
+      "id": 39,
+      "train_count": 129
+     },
+     {
+      "value": "excel.exe",
+      "id": 40,
+      "train_count": 126
+     },
+     {
+      "value": "ngen.exe",
+      "id": 41,
+      "train_count": 116
+     },
+     {
+      "value": "wmiprvse.exe",
+      "id": 42,
+      "train_count": 107
+     },
+     {
+      "value": "qwinsta.exe",
+      "id": 43,
+      "train_count": 100
+     },
+     {
+      "value": "devicecensus.exe",
+      "id": 44,
+      "train_count": 95
+     },
+     {
+      "value": "biguwcmnsucig.exe",
+      "id": 45,
+      "train_count": 89
+     },
+     {
+      "value": "tasklist.exe",
+      "id": 46,
+      "train_count": 84
+     },
+     {
+      "value": "chrome.exe",
+      "id": 47,
+      "train_count": 77
+     },
+     {
+      "value": "onedrive.exe",
+      "id": 48,
+      "train_count": 69
+     },
+     {
+      "value": "applicationframehost.exe",
+      "id": 49,
+      "train_count": 68
+     },
+     {
+      "value": "netstat.exe",
+      "id": 50,
+      "train_count": 64
+     },
+     {
+      "value": "compattelrunner.exe",
+      "id": 51,
+      "train_count": 62
+     },
+     {
+      "value": "searchindexer.exe",
+      "id": 52,
+      "train_count": 62
+     },
+     {
+      "value": "reader_sl.exe",
+      "id": 53,
+      "train_count": 59
+     },
+     {
+      "value": "cliprenew.exe",
+      "id": 54,
+      "train_count": 55
+     },
+     {
+      "value": "trustedinstaller.exe",
+      "id": 55,
+      "train_count": 46
+     },
+     {
+      "value": "shellexperiencehost.exe",
+      "id": 56,
+      "train_count": 38
+     },
+     {
+      "value": "sihost.exe",
+      "id": 57,
+      "train_count": 24
+     },
+     {
+      "value": "dllhost.exe",
+      "id": 58,
+      "train_count": 11
+     },
+     {
+      "value": "gpupdate.exe",
+      "id": 59,
+      "train_count": 8
+     },
+     {
+      "value": "microsoftedgecp.exe",
+      "id": 60,
+      "train_count": 7
+     }
+    ]
+   },
+   "direction": {
+    "active": false,
+    "reason": "coi như hằng số trên TRAIN (chỉ 1 giá trị có >= 5 flow); chỉ giữ để audit",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 2,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "outbound",
+      "id": 2,
+      "train_count": 59902513
+     },
+     {
+      "value": "inbound",
+      "id": 3,
+      "train_count": 1
+     }
+    ]
+   },
+   "proto": {
+    "active": true,
+    "reason": "thay đổi trên TRAIN (>= 2 giá trị, mỗi giá trị >= 5 flow, hoặc thiếu/có giá trị đều >= 5 flow)",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 2,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "tcp",
+      "id": 2,
+      "train_count": 59902442
+     },
+     {
+      "value": "udp",
+      "id": 3,
+      "train_count": 72
+     }
+    ]
+   },
+   "service": {
+    "active": true,
+    "reason": "thay đổi trên TRAIN (>= 2 giá trị, mỗi giá trị >= 5 flow, hoặc thiếu/có giá trị đều >= 5 flow)",
+    "min_train_frequency": 5,
+    "max_values_excluding_reserved": 1000,
+    "n_train_flows": 59902514,
+    "n_missing": 238993,
+    "n_distinct_non_missing": 4,
+    "n_distinct_dropped_below_min_freq": 1,
+    "flows_of_dropped_values": 1,
+    "vocab": [
+     {
+      "value": "ssl",
+      "id": 2,
+      "train_count": 55805833
+     },
+     {
+      "value": "http",
+      "id": 3,
+      "train_count": 3857615
+     },
+     {
+      "value": "dns",
+      "id": 4,
+      "train_count": 72
+     }
+    ]
+   },
+   "conn_state": {
+    "active": true,
+    "reason": "thay đổi trên TRAIN (>= 2 giá trị, mỗi giá trị >= 5 flow, hoặc thiếu/có giá trị đều >= 5 flow)",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 6,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "sf",
+      "id": 2,
+      "train_count": 59296683
+     },
+     {
+      "value": "rsto",
+      "id": 3,
+      "train_count": 585660
+     },
+     {
+      "value": "rstr",
+      "id": 4,
+      "train_count": 10401
+     },
+     {
+      "value": "s0",
+      "id": 5,
+      "train_count": 7779
+     },
+     {
+      "value": "rej",
+      "id": 6,
+      "train_count": 1990
+     },
+     {
+      "value": "s1",
+      "id": 7,
+      "train_count": 1
+     }
+    ]
+   },
+   "local_orig": {
+    "active": false,
+    "reason": "coi như hằng số trên TRAIN (chỉ 1 giá trị có >= 5 flow); chỉ giữ để audit",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 1,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "f",
+      "id": 2,
+      "train_count": 59902514
+     }
+    ]
+   },
+   "local_resp": {
+    "active": false,
+    "reason": "coi như hằng số trên TRAIN (chỉ 1 giá trị có >= 5 flow); chỉ giữ để audit",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 1,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "f",
+      "id": 2,
+      "train_count": 59902514
+     }
+    ]
+   },
+   "orig_ip_scope": {
+    "active": false,
+    "reason": "coi như hằng số trên TRAIN (chỉ 1 giá trị có >= 5 flow); chỉ giữ để audit",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 1,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "PUBLIC_IPV4",
+      "id": 2,
+      "train_count": 59902514
+     }
+    ]
+   },
+   "resp_ip_scope": {
+    "active": false,
+    "reason": "coi như hằng số trên TRAIN (chỉ 1 giá trị có >= 5 flow); chỉ giữ để audit",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 1,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "PUBLIC_IPV4",
+      "id": 2,
+      "train_count": 59902514
+     }
+    ]
+   },
+   "orig_port_class": {
+    "active": false,
+    "reason": "coi như hằng số trên TRAIN (chỉ 1 giá trị có >= 5 flow); chỉ giữ để audit",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 1,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "EPHEMERAL",
+      "id": 2,
+      "train_count": 59902514
+     }
+    ]
+   },
+   "resp_port_class": {
+    "active": true,
+    "reason": "thay đổi trên TRAIN (>= 2 giá trị, mỗi giá trị >= 5 flow, hoặc thiếu/có giá trị đều >= 5 flow)",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 9,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "PORT_443_HTTPS",
+      "id": 2,
+      "train_count": 55997883
+     },
+     {
+      "value": "PORT_80_HTTP",
+      "id": 3,
+      "train_count": 3904259
+     },
+     {
+      "value": "PORT_8080_HTTP_ALT",
+      "id": 4,
+      "train_count": 239
+     },
+     {
+      "value": "PORT_53_DNS",
+      "id": 5,
+      "train_count": 72
+     },
+     {
+      "value": "REGISTERED",
+      "id": 6,
+      "train_count": 45
+     },
+     {
+      "value": "PORT_445_SMB",
+      "id": 7,
+      "train_count": 11
+     },
+     {
+      "value": "WELL_KNOWN_OTHER",
+      "id": 8,
+      "train_count": 3
+     },
+     {
+      "value": "PORT_22_SSH",
+      "id": 9,
+      "train_count": 1
+     },
+     {
+      "value": "PORT_3389_RDP",
+      "id": 10,
+      "train_count": 1
+     }
+    ]
+   },
+   "image_dir_class": {
+    "active": true,
+    "reason": "thay đổi trên TRAIN (>= 2 giá trị, mỗi giá trị >= 5 flow, hoặc thiếu/có giá trị đều >= 5 flow)",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 8,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "PROGRAM_FILES",
+      "id": 2,
+      "train_count": 59721422
+     },
+     {
+      "value": "BARE_NAME",
+      "id": 3,
+      "train_count": 94170
+     },
+     {
+      "value": "SYSTEM32",
+      "id": 4,
+      "train_count": 63870
+     },
+     {
+      "value": "MISSING",
+      "id": 5,
+      "train_count": 20401
+     },
+     {
+      "value": "WINDOWS_OTHER",
+      "id": 6,
+      "train_count": 1619
+     },
+     {
+      "value": "OTHER",
+      "id": 7,
+      "train_count": 882
+     },
+     {
+      "value": "TEMP_OR_APPDATA",
+      "id": 8,
+      "train_count": 148
+     },
+     {
+      "value": "USERS_OTHER",
+      "id": 9,
+      "train_count": 2
+     }
+    ]
+   },
+   "principal_class": {
+    "active": true,
+    "reason": "thay đổi trên TRAIN (>= 2 giá trị, mỗi giá trị >= 5 flow, hoặc thiếu/có giá trị đều >= 5 flow)",
+    "min_train_frequency": 1,
+    "max_values_excluding_reserved": 256,
+    "n_train_flows": 59902514,
+    "n_missing": 0,
+    "n_distinct_non_missing": 5,
+    "n_distinct_dropped_below_min_freq": 0,
+    "flows_of_dropped_values": 0,
+    "vocab": [
+     {
+      "value": "DOMAIN_USER",
+      "id": 2,
+      "train_count": 59678193
+     },
+     {
+      "value": "NONE",
+      "id": 3,
+      "train_count": 151664
+     },
+     {
+      "value": "SYSTEM_ACCOUNT",
+      "id": 4,
+      "train_count": 63318
+     },
+     {
+      "value": "ADMINISTRATOR",
+      "id": 5,
+      "train_count": 9318
+     },
+     {
+      "value": "SYSADMIN",
+      "id": 6,
+      "train_count": 21
+     }
+    ]
+   }
+  }
+ },
+ "numeric": {
+  "transform": "log1p(max(x, 0)) -> (x - log1p_mean) / log1p_std -> clip ±zscore_clip_abs",
+  "zscore_clip_abs": 10.0,
+  "std": "stddev_pop",
+  "missing_policy": "giá trị thiếu -> z = 0.0 và x_num_missing = 1",
+  "fields": {
+   "duration": {
+    "active": true,
+    "reason": "log1p std >= 0.01",
+    "log1p_mean": 0.08446552330670606,
+    "log1p_std": 0.41553707153030944,
+    "n_observed": 59897183,
+    "n_missing": 5331,
+    "raw_min": 0.000678,
+    "raw_max": 10801.14967
+   },
+   "orig_bytes": {
+    "active": true,
+    "reason": "log1p std >= 0.01",
+    "log1p_mean": 6.826427060502944,
+    "log1p_std": 0.5519778300142067,
+    "n_observed": 59897183,
+    "n_missing": 5331,
+    "raw_min": 0.0,
+    "raw_max": 3551160539.0
+   },
+   "resp_bytes": {
+    "active": true,
+    "reason": "log1p std >= 0.01",
+    "log1p_mean": 7.896122674737706,
+    "log1p_std": 1.772497759726583,
+    "n_observed": 59897183,
+    "n_missing": 5331,
+    "raw_min": 0.0,
+    "raw_max": 31471762.0
+   },
+   "missed_bytes": {
+    "active": false,
+    "reason": "log1p std = 0.002260 < 0.01: z-score không ổn định cho giá trị khác 0 hiếm; dùng cờ nhị phân thay thế",
+    "log1p_mean": 7.151279496514874e-07,
+    "log1p_std": 0.0022595951287472803,
+    "n_observed": 59902514,
+    "n_missing": 0,
+    "raw_min": 0.0,
+    "raw_max": 1260.0
+   },
+   "orig_pkts": {
+    "active": true,
+    "reason": "log1p std >= 0.01",
+    "log1p_mean": 2.237411599578585,
+    "log1p_std": 0.3761119696102836,
+    "n_observed": 59902514,
+    "n_missing": 0,
+    "raw_min": 1.0,
+    "raw_max": 3052533.0
+   },
+   "orig_ip_bytes": {
+    "active": true,
+    "reason": "log1p std >= 0.01",
+    "log1p_mean": 7.170481441031352,
+    "log1p_std": 0.35702541324275483,
+    "n_observed": 59902514,
+    "n_missing": 0,
+    "raw_min": 52.0,
+    "raw_max": 3697274608.0
+   },
+   "resp_pkts": {
+    "active": true,
+    "reason": "log1p std >= 0.01",
+    "log1p_mean": 2.582435923463081,
+    "log1p_std": 0.792596605712894,
+    "n_observed": 59902514,
+    "n_missing": 0,
+    "raw_min": 0.0,
+    "raw_max": 437853.0
+   },
+   "resp_ip_bytes": {
+    "active": true,
+    "reason": "log1p std >= 0.01",
+    "log1p_mean": 8.136980288283763,
+    "log1p_std": 1.5929202824251503,
+    "n_observed": 59902514,
+    "n_missing": 0,
+    "raw_min": 0.0,
+    "raw_max": 32471334.0
+   }
+  }
+ },
+ "binary": [
+  {
+   "name": "has_missed_bytes",
+   "source": "missed_bytes",
+   "rule": "1 nếu missed_bytes > 0, ngược lại 0 (thiếu -> 0)",
+   "fit_required": false
+  }
+ ],
+ "time": {
+  "delta_t_log1p": "ln(1 + max(0, ts - ts_flow_trước_trong_cùng_chunk)); flow đầu mỗi chunk = 0"
+ },
+ "derived_rules": {
+  "port_class": {
+   "common_ports": {
+    "20": "FTP_DATA",
+    "21": "FTP",
+    "22": "SSH",
+    "23": "TELNET",
+    "25": "SMTP",
+    "53": "DNS",
+    "80": "HTTP",
+    "110": "POP3",
+    "123": "NTP",
+    "135": "RPC",
+    "139": "NETBIOS",
+    "143": "IMAP",
+    "389": "LDAP",
+    "443": "HTTPS",
+    "445": "SMB",
+    "636": "LDAPS",
+    "1433": "MSSQL",
+    "3306": "MYSQL",
+    "3389": "RDP",
+    "5432": "POSTGRES",
+    "5985": "WINRM_HTTP",
+    "5986": "WINRM_HTTPS",
+    "8080": "HTTP_ALT",
+    "8443": "HTTPS_ALT"
+   },
+   "format_common": "PORT_<port>_<tên>",
+   "ranges": {
+    "WELL_KNOWN_OTHER": "0-1023",
+    "REGISTERED": "1024-49151",
+    "EPHEMERAL": "49152-65535",
+    "OTHER": "còn lại",
+    "<MISSING>": "NULL"
+   }
+  },
+  "ip_scope": [
+   "<MISSING>",
+   "LOOPBACK",
+   "PRIVATE",
+   "PRIVATE_IPV6",
+   "LINK_LOCAL",
+   "MULTICAST",
+   "BROADCAST",
+   "PUBLIC_IPV4",
+   "PUBLIC_IPV6",
+   "OTHER"
+  ],
+  "image_dir_class": {
+   "source": "eCAR-Bro properties.image_path (host)",
+   "values": {
+    "MISSING": "không có image_path",
+    "BARE_NAME": "chỉ có tên file, không có thư mục",
+    "TEMP_OR_APPDATA": "đường dẫn chứa thư mục Temp hoặc AppData",
+    "SYSTEM32": "thư mục Windows/System32 hoặc SysWOW64",
+    "WINDOWS_OTHER": "thư mục Windows khác",
+    "PROGRAM_FILES": "thư mục Program Files",
+    "USERS_OTHER": "thư mục Users (không phải Temp/AppData)",
+    "OTHER": "còn lại"
+   },
+   "order": "xét từ trên xuống theo thứ tự này"
+  },
+  "principal_class": {
+   "source": "eCAR-Bro principal (host)",
+   "values": {
+    "NONE": "rỗng",
+    "SYSTEM_ACCOUNT": "tài khoản hệ thống: NT AUTHORITY, NT SERVICE, Font Driver, Window Manager, DWM",
+    "ADMINISTRATOR": "tài khoản miền tên Administrator",
+    "SYSADMIN": "tài khoản miền tên sysadmin",
+    "DOMAIN_USER": "còn lại (tài khoản người dùng miền)"
+   },
+   "order": "xét từ trên xuống theo thứ tự này"
+  }
+ },
+ "model_input_layout": {
+  "x_cat_columns": [
+   "app_family",
+   "proto",
+   "service",
+   "conn_state",
+   "resp_port_class",
+   "image_dir_class",
+   "principal_class"
+  ],
+  "x_num_columns": [
+   "duration",
+   "orig_bytes",
+   "resp_bytes",
+   "orig_pkts",
+   "orig_ip_bytes",
+   "resp_pkts",
+   "resp_ip_bytes"
+  ],
+  "x_bin_columns": [
+   "has_missed_bytes"
+  ],
+  "extra_per_flow": [
+   "delta_t_log1p"
+  ],
+  "host_derived_columns": [
+   "app_family",
+   "image_dir_class",
+   "principal_class"
+  ],
+  "host_derived_note": "app_family (tên tiến trình), image_dir_class (tiến trình chạy từ thư mục nào) và principal_class (loại tài khoản chạy tiến trình) lấy từ eCAR-Bro, tức telemetry phía host; mọi cột khác là Bro conn",
+  "not_model_input": [
+   "uid",
+   "hostname",
+   "label",
+   "ts",
+   "actor_id",
+   "pid",
+   "ppid",
+   "principal (chỉ dùng qua principal_class)",
+   "image_path (chỉ dùng qua app_family, image_dir_class)",
+   "orig_h",
+   "orig_p",
+   "resp_h (chỉ dùng tạo remote_local_id)"
+  ]
+ },
+ "fingerprint_sha256": "287b07a57dd1b1181249a0169f7882ab4bb04d854792201d21b3c8d451dc2617"
+}
