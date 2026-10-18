@@ -1,5 +1,91 @@
 # Lightweight learned provenance graph
 
+## Generated artifact retention
+
+The 2026-10-17 cleanup retained `kaggle_output/`,
+`conditional_collision_v4_results/`, and `evidence_veto_v4_results/`. The new
+exact-time GraphSAGE experiment adds its own `exact_time_graph/`,
+`exact_time_ego_cache/`, and `kaggle_upload_exact_time_graphsage/` outputs.
+Unrelated old indexes, caches, bundles, temporary runs, and v5a artifacts remain
+removed. Existing conditional-v4 results and baseline outputs are untouched.
+
+## Exact-time GraphSAGE retraining
+
+The v4 inference graph used exact microsecond cutoffs, but its GraphSAGE
+checkpoint had been trained on ego graphs floored to one-second boundaries. This
+separate run keeps the Process/Host nodes, four relations, 40 attributes, two
+GraphSAGE layers and readout unchanged. It rebuilds label-blind graph context
+from the same frozen seed02 sources, then materializes TRAIN/validation/TEST ego
+graphs with `quantum_us=1`. Each cached cutoff is checked against its target
+event's original timestamp; every indexed evidence timestamp must be strictly
+less than that cutoff. The GPU trainer and package builder reject any other
+time policy, and the runtime ego-graph encoder now rejects any request to round
+timestamps (`quantum_us` other than 1).
+
+Build the full graph index, exact-time sampled cache, and upload archive from the
+repository root:
+
+```bash
+python3 code/provenace_graph/preprocess/build_graph.py \
+  --baseline code/output/host_ml_seed02/model_input/manifest.json \
+  --split code/output/host_ml_seed02/split/manifest.json \
+  --output code/output/provenace_graph/exact_time_graph
+
+python3 code/provenace_graph/preprocess/build_ego_cache.py \
+  --baseline code/output/host_ml_seed02/model_input/manifest.json \
+  --graph code/output/provenace_graph/exact_time_graph \
+  --output code/output/provenace_graph/exact_time_ego_cache \
+  --quantum-us 1 --train-limit 4000 --val-limit 2000 --test-limit 2000
+
+python3 code/provenace_graph/preprocess/package_ego_cache.py \
+  --cache code/output/provenace_graph/exact_time_ego_cache \
+  --output-dir code/output/provenace_graph/kaggle_upload_exact_time_graphsage
+```
+
+Attach the prepared dataset in Kaggle so its extracted files are mounted at
+`/kaggle/input/datasets/ngkimngn/provenance-exact-time-graphsage`, then import
+`notebook/provenance_graph_exact_time_gpu.ipynb` from this workspace and enable
+a Kaggle GPU. The notebook reads the mounted manifest and shards directly; it
+does not search for or extract the TAR again. It trains a new checkpoint,
+selects the threshold on validation, reports cached sample TEST metrics, and
+exports `exact_time_graphsage_results.zip`. This is a
+GraphSAGE-only sampled evaluation; a full LightGBM cascade run needs the new
+checkpoint integrated into a separately versioned inference bundle.
+
+## Full cascade with the exact-time checkpoint
+
+The sampled checkpoint passed export compatibility: loading its NumPy weights
+in `RelationalSAGE` reproduced the validation and sample-TEST confusion counts.
+The separate full input is packaged at
+`code/output/provenace_graph/kaggle_upload_cascade_exact_time_graphsage/` as
+`provenance-cascade-exact-time-graphsage.tar.gz`. It contains the complete
+1.81-GB graph SQLite index, the new checkpoint, its training/cache audit, and
+the unchanged seed02 LightGBM checkpoint. Attach it at
+`/kaggle/input/datasets/ngkimngn/optc-cascade-exact-time-graphsage` together
+with the existing `optc-host-ml-full-input`, then run
+`code/kaggle/notebooks/lgbm_conditional_collision_cascade.ipynb`.
+
+That notebook no longer accepts the old v4 graph-score cache. It calculates
+scores with the new checkpoint, builds ego graphs with bounded CPU worker processes, each using its own read-only
+SQLite connection, then batches float64 inference across all visible CUDA GPUs
+with `DataParallel` (verified against the NumPy scorer). SQLite target lookups
+and Host shard decoding also use CPU. The worker queue is bounded to control RAM. The TRAIN collision registry is reused
+when its frozen Host manifest/schema match, and validation plus TEST checkpoints
+are saved after each shard with model/data hashes; they can resume across CPU/GPU
+configurations, including a timeout before validation policy freeze. TPU is not used
+by this irregular graph workload. Enable all available Kaggle GPUs to use the
+multi-GPU scorer.
+For a fresh Kaggle session, attach the prior notebook output and set `RESUME_FROM`
+in the setup cell to the mounted output folder; in the same working session,
+rerunning uses the existing checkpoint directory automatically.
+The 2,000-row sample TEST result is a readiness check, not a replacement for the
+full held-out evaluation. At the validation-selected standalone threshold
+`0.9001769`, the sample TEST GraphSAGE F1 is `0.93694`; at the cascade's fixed
+middle-band threshold `0.95`, graph-only sample F1 is `0.86538` (45 TP, 3 FP,
+11 FN, 1,941 TN). These all-event sample metrics do not predict performance on
+the ML-routed middle-band cohort, so the full validation-selected cascade run
+must decide whether the new checkpoint is useful.
+
 ## Event-only v5a experiment
 
 The isolated v5a variant adds **one target Event node per ego graph** to the
@@ -23,7 +109,9 @@ full-cascade inference. The v4 checkpoint cannot score the new 71-attribute,
 six-relation schema, so v5a trains a **separate** GraphSAGE checkpoint on Kaggle
 GPU. LightGBM and all existing v4 artifacts remain unchanged.
 
-Locally, the cache and upload archive are already built:
+The former local cache and upload archive were removed during the output cleanup.
+The Event-only v5a implementation and build commands remain documented, but its
+generated cache/package are no longer retained:
 
 ```text
 code/output/provenace_graph/seed02_event_v5a_cache/
@@ -79,23 +167,25 @@ is unchanged. The raw SQLite graph index remains useful and is preserved.
 - Size: **9,041 trainable parameters**; approximately 71 KiB of float64 weights,
   excluding optimizer state, sampled graph arrays and the disk index.
 - Limits: 64 nodes per ego graph, eight host peers per direction per hop, strictly
-  past one-second snapshots. Process ancestry and host neighborhoods extend two hops.
+  past exact-microsecond snapshots in the retraining experiment. Process ancestry
+  and host neighborhoods extend two hops.
 - Runtime: NumPy only for neural operations; no PyTorch/PyG installation required.
 
 [Design, research evidence and limitations](docs/DESIGN.md).
 
 ## Current index status
 
-The full graph index is published at `code/output/provenace_graph/graph/`: its
-manifest records all 106 configured baseline sources and a complete SQLite graph.
-The completed bounded pilot remains only a prior indexing diagnostic.
+The former graph index and its pilot artifacts were removed during cleanup. A
+fresh exact-time index has now been built from all **106 frozen seed02 sources**
+at `code/output/provenace_graph/exact_time_graph/` (8,331,257 target events).
+Its 8,000-graph sampled cache and Kaggle archive are published under
+`exact_time_ego_cache/` and `kaggle_upload_exact_time_graphsage/`. The cache
+audit confirms all 8,000 cutoffs equal the target timestamps and all 13,576
+explicit evidence timestamps are strictly earlier.
 
-The original scanner checkpoint recorded the fingerprint of the unused,
-now-retired adapter too. An exact copy of that adapter is retained only in
-`.graph.work/source_snapshot/` for provenance validation. The completed graph
-index must not be rebuilt for v4. The exact-time update changed `graph.py`'s
-source hash, so the old checkpoint cannot be resumed with the current source;
-the compatibility entry point checks every recorded implementation hash:
+Historical scanner-resume instructions below apply only to the deleted earlier
+graph build. This experiment uses a fresh output directory and does not reuse or
+overwrite the old graph checkpoint:
 
 ```bash
 # From the repository root; first check without starting a scan:
@@ -232,26 +322,29 @@ nohup python3 code/provenace_graph/preprocess/build_ego_cache.py \
 tail -f code/output/provenace_graph/build_ego_cache.log
 ```
 
-After the final manifest is published, package it without rebuilding:
+After the final manifest is published, package it without rebuilding. The
+historical package path below is not currently retained:
 
 ```bash
 python3 code/provenace_graph/preprocess/package_ego_cache.py \
   --cache code/output/provenace_graph/seed02_ego_cache
 ```
 
-This publishes
+Historically this published
 `code/output/provenace_graph/kaggle_upload_seed02_ego_cache/provenance-ego-cache.tar`.
-Upload that one TAR as a Kaggle Dataset. Attach it and import
+That generated archive was removed in the 2026-10-17 cleanup. After rebuilding,
+upload the TAR as a Kaggle Dataset. Attach it and import
 `notebook/provenance_graph_gpu.ipynb`; enable a GPU accelerator. The GPU notebook
 extracts the archive safely and needs neither the 1.8 GiB SQLite graph nor the
 Host ML shard package.
 
 ## Frozen RF/XGBoost/LightGBM cascades (v3)
 
-The active Kaggle cascade bundle is
+The former Kaggle cascade bundle was
 `code/output/provenace_graph/kaggle_upload_cascade_v3/provenance-cascade-bundle-v3.tar.gz`.
-It contains the approved seed02 checkpoints and metrics for all three Host models,
-plus the frozen learned GraphSAGE weights, graph index, and shared runtime.
+It contained the approved seed02 checkpoints and metrics for all three Host models,
+plus the frozen learned GraphSAGE weights, graph index, and shared runtime. The
+generated bundle was removed in the 2026-10-17 cleanup; rebuild it before upload.
 Attach the existing `optc-host-ml-full-input` dataset and the new v3 bundle. Import
 one of `notebook/host_two_stage_cascade.ipynb` (LightGBM),
 `notebook/host_rf_two_stage_cascade.ipynb`, or
@@ -271,6 +364,8 @@ is 98.03%. These results use the one-second causal snapshot, not the v4 input.
 
 `preprocess/package_cascade_v4.py` publishes
 `code/output/provenace_graph/kaggle_upload_cascade_v4/provenance-cascade-bundle-v4.tar.gz`.
+This generated bundle was removed in the 2026-10-17 cleanup; the retained v4
+experiment outputs are results only.
 The graph database and frozen model checkpoints are unchanged from v3; the bundled
 ego-graph code uses the event's full microsecond timestamp and admits only evidence
 strictly earlier than that event. This restores earlier CREATE events inside the

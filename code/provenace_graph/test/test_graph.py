@@ -13,8 +13,10 @@ from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE/'preprocess'))
+sys.path.insert(0, str(HERE/'model'))
 from common import sha, digest, safe
 from graph import connect, observe, Encoder, FEATURES, COL, timestamp, identity
+from ego import EgoGraphs
 import build_graph
 from build_graph import build, source_identity, ontology_audit
 from host_shards import ShardBuffer, HostShardDataset, decode_shard, FORMAT, SCHEMA
@@ -78,6 +80,27 @@ class GraphTests(unittest.TestCase):
     def test_future_and_same_timestamp_excluded(self):
         self.insert(event(10,'parent','PROCESS','CREATE','child',image_path='notepad.exe'))
         self.assertIn('graph::parent::missing',self.tokens(10));self.assertIn('graph::parent::present',self.tokens(11))
+
+    def test_exact_microsecond_cutoff_keeps_prior_same_second_event(self):
+        parent_event = event(0, 'parent', 'PROCESS', 'CREATE', 'child', image_path='cmd.exe')
+        parent_event['timestamp'] = '2019-09-23T00:00:00.123456+00:00'
+        self.insert(parent_event)
+        target_time = timestamp('2019-09-23T00:00:00.987654+00:00')
+        exact = EgoGraphs(self.db, quantum_us=1).build('a.example', 'child', target_time)
+        self.assertEqual(exact['cutoff_us'], target_time)
+        self.assertIn('creates', [edge[2] for edge in exact['edges']])
+        self.assertTrue(all(item['timestamp_us'] < exact['cutoff_us'] for item in exact['evidence']))
+        with self.assertRaisesRegex(ValueError, 'quantum_us=1'):
+            EgoGraphs(self.db, quantum_us=1_000_000)
+
+    def test_event_at_exact_target_timestamp_is_excluded(self):
+        parent_event = event(0, 'parent', 'PROCESS', 'CREATE', 'child')
+        parent_event['timestamp'] = '2019-09-23T00:00:00.987654+00:00'
+        self.insert(parent_event)
+        target_time = timestamp(parent_event['timestamp'])
+        exact = EgoGraphs(self.db, quantum_us=1).build('a.example', 'child', target_time)
+        self.assertEqual(exact['cutoff_us'], target_time)
+        self.assertNotIn('creates', [edge[2] for edge in exact['edges']])
     def test_future_grandparent_cannot_retroactively_parent_older_child(self):
         self.insert(event(3,'parent','PROCESS','CREATE','child'),event(8,'root','PROCESS','CREATE','parent'))
         self.assertIn('graph::grandparent::missing',self.tokens())

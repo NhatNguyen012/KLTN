@@ -17,7 +17,7 @@ import time
 
 import numpy as np
 
-from ego_cache import RELATIONS, examples, load_manifest
+from ego_cache import RELATIONS, examples, load_manifest, require_exact_time
 
 
 def json_digest(value):
@@ -164,6 +164,7 @@ def train(args):
     except ModuleNotFoundError as exc:
         raise RuntimeError('PyTorch is required; enable a Kaggle GPU accelerator image with PyTorch installed') from exc
     root, meta = load_manifest(args.cache)
+    require_exact_time(meta)
     if args.device == 'auto':
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     else:
@@ -179,7 +180,8 @@ def train(args):
     if len({item['label'] for item in train_items}) != 2:
         raise ValueError('TRAIN cache must contain both classes')
     output = Path(args.output).resolve()
-    config = dict(cache_manifest_sha256=meta['manifest_sha256'], args={
+    config = dict(cache_manifest_sha256=meta['manifest_sha256'],
+        time_policy=meta['time_policy'], args={
         name: str(value) if isinstance(value, Path) else value for name, value in vars(args).items()
     }, device=str(device), torch=torch.__version__, relations=list(RELATIONS), attributes=len(meta['attributes']))
     if output.exists():
@@ -227,6 +229,7 @@ def train(args):
     threshold = checkpoint['best']['threshold']
     report = dict(model='Two-layer relational mean GraphSAGE (PyTorch GPU)', device=str(device),
                   parameters=sum(value.numel() for value in model.parameters()), cache_manifest_sha256=meta['manifest_sha256'],
+                  time_policy=meta['time_policy'],
                   train_graphs=len(train_items), validation=metrics(y, value, threshold),
                   validation_scope='cached uniform sample', test=None,
                   calibration='Balanced TRAIN sampling makes scores risk rankings, not calibrated event probabilities.',

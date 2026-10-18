@@ -149,6 +149,8 @@ def write_part(path, examples, source_lookup):
 def build(args):
     if min(args.train_limit, args.val_limit, args.test_limit, args.graphs_per_shard, args.sqlite_cache_mib) < 1:
         raise ValueError('all cache limits and SQLite cache size must be positive')
+    if args.quantum_us != 1:
+        raise ValueError('this GraphSAGE training cache requires exact microsecond timestamps (--quantum-us 1)')
     if args.train_limit < 2:
         raise ValueError('balanced TRAIN cache requires at least two rows')
     graph, graph_meta = load_graph(args.graph)
@@ -234,6 +236,8 @@ def build(args):
                 raise ValueError('duplicate cache part checkpoint')
             encoder = EgoGraphs(db, fanout=args.fanout, max_nodes=args.max_nodes, quantum_us=args.quantum_us)
             final_parts = []
+            checked_targets = 0
+            checked_evidence = 0
             started = time.monotonic()
             for split in ('train', 'val', 'test'):
                 rows = restore_rows(db, split, plan)
@@ -244,14 +248,33 @@ def build(args):
                     if previous:
                         if previous.get('split') != split or previous.get('start') != start or previous.get('stop') != stop:
                             raise ValueError('cache checkpoint part range differs')
-                        decode_part(work, previous, len(ATTRIBUTES))
+                        arrays = decode_part(work, previous, len(ATTRIBUTES))
+                        if (previous.get('time_audit_targets') != len(rows[start:stop]) or
+                                previous.get('time_audit_evidence') is None):
+                            raise ValueError('resumed cache part lacks its exact-time audit')
+                        expected_times = np.asarray([row[2] for row in rows[start:stop]], dtype=np.int64)
+                        if not np.array_equal(arrays['cutoff_us'], expected_times):
+                            raise ValueError(f'exact cutoff mismatch in resumed part: {relative}')
+                        checked_targets += previous['time_audit_targets']
+                        checked_evidence += previous['time_audit_evidence']
                         final_parts.append(previous)
                         print(f'resumed {relative}', flush=True)
                         continue
                     print(f'building {split} graphs {start + 1:,}-{stop:,}/{len(rows):,}', flush=True)
                     examples = [(encoder.build(*row[:3]), row) for row in rows[start:stop]]
+                    for graph_item, row in examples:
+                        if row[2] is None or graph_item['cutoff_us'] != int(row[2]):
+                            raise ValueError(f'exact target-time cutoff mismatch: {row[4]}:{row[5]}')
+                        for item in graph_item['evidence']:
+                            if (item['timestamp_us'] >= graph_item['cutoff_us'] or
+                                    item.get('binding_timestamp_us', 0) >= graph_item['cutoff_us']):
+                                raise ValueError(f'non-past graph evidence: {row[4]}:{row[5]}')
+                            checked_evidence += 1
+                        checked_targets += 1
                     part = write_part(work / relative, examples, source_lookup)
-                    part.update(path=relative, split=split, start=start, stop=stop)
+                    part.update(path=relative, split=split, start=start, stop=stop,
+                                time_audit_targets=len(examples),
+                                time_audit_evidence=sum(len(item['evidence']) for item, _ in examples))
                     state['parts'].append(part)
                     atomic_json(state_path, state)
                     final_parts.append(part)
@@ -263,6 +286,13 @@ def build(args):
                                      label_1=sum(row['label'] == 1 for row in selected),
                                      parts=sum(part['split'] == split for part in final_parts))
             meta = dict(format=FORMAT, schema=1, complete=True, config=config,
+                        time_policy=dict(timestamp_unit='microseconds', quantum_us=1,
+                                         cutoff='exact target timestamp in microseconds',
+                                         evidence='evidence_timestamp_us < cutoff_us'),
+                        time_audit=dict(targets_checked=checked_targets,
+                                        explicit_evidence_items_checked=checked_evidence,
+                                        cutoff_equals_target_timestamp=True,
+                                        all_evidence_strictly_before_target=True),
                         selection_sha256=plan['selection_sha256'], attributes=ATTRIBUTES,
                         relations=list(RELATIONS), source_ids=source_ids, splits=counts,
                         parts=final_parts, cache_bytes=sum(part['bytes'] for part in final_parts),

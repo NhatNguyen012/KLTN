@@ -21,7 +21,7 @@ HERE = Path(__file__).resolve().parents[1]
 CODE = HERE.parents[0]
 sys.path.insert(0, str(HERE / 'model'))
 
-from ego_cache import load_manifest, part_path, safe_relative, sha256
+from ego_cache import load_manifest, part_path, safe_relative, sha256, require_exact_time
 from common import DEFAULT_OUTPUT, safe
 from pipeline_contract import sync_directory
 
@@ -72,7 +72,8 @@ def collect(root, meta):
     for part in meta['parts']:
         relative = safe_relative(part['path']).as_posix()
         files.append((relative, part_path(root, part), part['bytes'], part['sha256']))
-    for relative in ('model/ego_cache.py', 'model/train_gpu.py', 'notebook/provenance_graph_gpu.ipynb'):
+    for relative in ('model/ego_cache.py', 'model/train_gpu.py',
+                     'notebook/provenance_graph_exact_time_gpu.ipynb'):
         path = HERE / relative
         archive_path = Path(relative).name if relative.startswith('model/') else relative
         files.append((archive_path, path, path.stat().st_size, sha256(path)))
@@ -92,13 +93,14 @@ def main():
     if args.reserve_free_gib < 0:
         raise ValueError('free-space reserve must be nonnegative')
     root, meta = load_manifest(args.cache)
+    require_exact_time(meta)
     output = safe(args.output_dir or root.parent / f'kaggle_upload_{root.name}', [root])
     if output.exists():
         raise ValueError(f'output already exists; preserving it: {output}')
     files = collect(root, meta)
     estimated = sum(len(header(name, size).tobuf(format=tarfile.USTAR_FORMAT)) + ((size + 511) // 512) * 512
                     for name, _, size, _ in files) + 2**20
-    summary = dict(output_dir=str(output), archive='provenance-ego-cache.tar', archive_format='ustar',
+    summary = dict(output_dir=str(output), archive='provenance-exact-time-graphsage.tar', archive_format='ustar',
                    cache_manifest_sha256=meta['manifest_sha256'], parts=len(meta['parts']),
                    graphs=meta['splits'], payload_bytes=sum(size for _, _, size, _ in files),
                    estimated_archive_bytes=estimated)
@@ -116,23 +118,25 @@ def main():
                 for index, (name, file_path, size, expected) in enumerate(files, 1):
                     add_checked(archive, name, file_path, size, expected)
                     print(f'[{index}/{len(files)}] packaged and SHA256 checked: {name}', flush=True)
-                readme = f"""# OpTC static provenance ego-graph cache
+                readme = f"""# OpTC exact-time static provenance ego-graph cache
 
 Cache format: `{meta['format']}` schema `{meta['schema']}`.
 
 This archive contains {sum(value['graphs'] for value in meta['splits'].values()):,} precomputed,
-label-blind, strict-past two-hop Host/Process ego graphs. It contains no raw
+label-blind, strict-past two-hop Host/Process ego graphs. Every target cutoff
+is its exact microsecond timestamp (`quantum_us=1`); evidence timestamps must be
+strictly less than that cutoff. It contains no raw
 telemetry and does not require graph.sqlite, source datasets, or Host ML shards
 on Kaggle.
 
-Enable a GPU accelerator. Extract `provenance-ego-cache.tar`, then run:
+Enable a GPU accelerator. Extract `provenance-exact-time-graphsage.tar`, then run:
 
 ```bash
 python train_gpu.py --cache . --output /kaggle/working/provenance-gpu-model --evaluate-test
 ```
 
-`train_gpu.py` uses PyTorch CUDA if available and only reads sequential cache
-shards. `notebook/provenance_graph_gpu.ipynb` performs secure extraction and
+`train_gpu.py` verifies the exact-time cache policy, uses PyTorch CUDA, and only
+reads sequential cache shards. `notebook/provenance_graph_exact_time_gpu.ipynb` performs secure extraction and
 runs the same command. Validation selects the threshold; test is evaluated once.
 The split is seed02 contextual random-event, so it is not unseen-host/process
 validation.

@@ -82,9 +82,12 @@ row identities add overhead. Full-corpus scalability has not been measured.
 
 ## Temporal and label boundaries
 
-Graph evidence must precede `floor(event_time / 1 second) * 1 second`. Same-time
-and future events are excluded even though the offline index contains later data.
-The rule adds up to one second of conservative latency. Grandparent creation
+For the exact-time retraining experiment, graph evidence must precede the target's
+full microsecond timestamp: `evidence_timestamp_us < target_timestamp_us`.
+Earlier events in the same second are included; equal-time and future events are
+excluded even though the offline index contains later data. The old v4 checkpoint
+was trained with a one-second-floored cutoff, so the new exact-time cache trains a
+separate checkpoint on the same policy used by v4 inference. Grandparent creation
 cannot postdate its child's creation. Multiple prior parents and cycles are
 explicit unresolved states. IP reassignment remains ambiguous without stronger
 inventory evidence. Missing actor/time returns a marked minimal graph rather than

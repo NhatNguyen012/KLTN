@@ -17,6 +17,7 @@ FORMAT = 'optc_two_hop_ego_npz'
 SCHEMA = 1
 RELATIONS = ('creates', 'communicates', 'communicates_reverse', 'hosts')
 RELATION_ID = {name: index for index, name in enumerate(RELATIONS)}
+EXACT_TIME_QUANTUM_US = 1
 
 
 def sha256(path: Path) -> str:
@@ -53,6 +54,25 @@ def load_manifest(root: Path):
     if manifest_digest(meta) != meta.get('manifest_sha256'):
         raise ValueError('ego-graph cache manifest checksum mismatch')
     return root, meta
+
+
+def require_exact_time(meta: dict) -> None:
+    """Reject caches whose targets were floored to a coarser time snapshot."""
+    quantum = meta.get('config', {}).get('ego', {}).get('quantum_us')
+    policy = meta.get('time_policy', {})
+    if quantum != EXACT_TIME_QUANTUM_US:
+        raise ValueError(f'exact-time GraphSAGE requires quantum_us=1, got {quantum!r}')
+    expected = dict(timestamp_unit='microseconds', quantum_us=1,
+                    cutoff='exact target timestamp in microseconds',
+                    evidence='evidence_timestamp_us < cutoff_us')
+    if policy != expected:
+        raise ValueError(f'exact-time cache policy mismatch: {policy!r}')
+    audit = meta.get('time_audit', {})
+    expected_targets = sum(part.get('graphs', 0) for part in meta.get('splits', {}).values())
+    if (audit.get('targets_checked') != expected_targets or
+            audit.get('cutoff_equals_target_timestamp') is not True or
+            audit.get('all_evidence_strictly_before_target') is not True):
+        raise ValueError('exact-time cache lacks a complete target/evidence audit')
 
 
 def part_path(root: Path, part: dict) -> Path:

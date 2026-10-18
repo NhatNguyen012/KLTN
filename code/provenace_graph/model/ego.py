@@ -14,7 +14,8 @@ ATTRIBUTE_INDEX={name:i for i,name in enumerate(ATTRIBUTES)}
 
 class EgoGraphs:
     def __init__(self, db, fanout=8, max_nodes=64, quantum_us=1):
-        if min(fanout,quantum_us)<1 or max_nodes<4:raise ValueError('invalid graph limits')
+        if fanout < 1 or max_nodes < 4 or quantum_us != 1:
+            raise ValueError('GraphSAGE requires positive graph limits and exact microsecond time (quantum_us=1)')
         self.db,self.fanout,self.max_nodes,self.quantum=db,fanout,max_nodes,quantum_us
         self.lineage=Encoder(db,fanout,quantum_us)
         self.node_facts=lru_cache(maxsize=4096)(self._node_facts)
