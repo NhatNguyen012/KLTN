@@ -1,8 +1,6 @@
 # Read-only datasets
-/host-begnin
-/host-malicious/
-/bro/
-/ecar-bro/
+/DATASET/
+/DATASET*/
 
 # Temporary directories
 /Temp/
