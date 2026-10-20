@@ -2,12 +2,13 @@
 
 ## Generated artifact retention
 
-The 2026-10-17 cleanup retained `kaggle_output/`,
-`conditional_collision_v4_results/`, and `evidence_veto_v4_results/`. The new
-exact-time GraphSAGE experiment adds its own `exact_time_graph/`,
-`exact_time_ego_cache/`, and `kaggle_upload_exact_time_graphsage/` outputs.
-Unrelated old indexes, caches, bundles, temporary runs, and v5a artifacts remain
-removed. Existing conditional-v4 results and baseline outputs are untouched.
+The final LightGBM baseline result is
+`code/output/provenace_graph/kaggle_output/lgbm_exact_time_middle_threshold_sweep_results/`
+(and its ZIP). Older exact-time conditional-collision result artifacts were
+removed on 2026-10-20. The exact-time graph index, ego cache, standalone
+GraphSAGE training result/package, and schema-5 cascade bundle remain as
+supporting provenance and reproduction inputs; they are not alternate final
+baseline results.
 
 ## Exact-time GraphSAGE retraining
 
