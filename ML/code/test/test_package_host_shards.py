@@ -59,6 +59,23 @@ def fixture(base):
 
 
 class PackageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Packaging tests should not depend on historical notebooks being present.
+        from refresh_host_notebooks import notebook
+        cls.notebooks = tempfile.TemporaryDirectory()
+        root = Path(cls.notebooks.name)
+        runtime = (CODE/'kaggle/host_training_runtime.py').read_text()
+        for model in ('rf', 'xgb', 'lgbm'):
+            (root/f'host_{model}_shards.ipynb').write_text(json.dumps(notebook(model, 'kaggle', runtime)))
+        cls.patch_dir = patch('package_host_shards.NOTEBOOK_DIR', root)
+        cls.patch_dir.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.patch_dir.stop()
+        cls.notebooks.cleanup()
+
     def test_optional_split_manifest_is_packaged(self):
         with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()):
             base=Path(tmp);manifest=fixture(base)

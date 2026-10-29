@@ -15,7 +15,7 @@ CODE = Path(__file__).resolve().parents[1]
 ROOT = CODE.parents[1]
 sys.path.insert(0, str(CODE / 'provenace_graph/model'))
 sys.path.insert(0, str(CODE / 'provenace_graph/preprocess'))
-NOTEBOOK = CODE / 'kaggle/notebooks/lgbm.ipynb'
+NOTEBOOK = CODE / 'kaggle/notebooks/lgbm_graphsage_post_sweep_archived.ipynb'
 DOCUMENT = json.loads(NOTEBOOK.read_text())
 SOURCE = next(''.join(c['source']).split('\n', 1)[1] for c in DOCUMENT['cells']
               if ''.join(c['source']).startswith('%%writefile'))

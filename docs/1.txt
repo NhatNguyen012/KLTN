@@ -1,0 +1,311 @@
+┏━━ END HOSTS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                                                                                  ┃
+┃                                                                                                                                  ┃
+┃    ┌───────────────────┐       ┌──────────────────────┐       ┌─────────────────────┐                                            ┃
+┃    │  Host Activities  │       │  Monitoring Service  │       │   Logging Service   │                                            ┃
+┃    │                   │──────▶│                      │──────▶│                     │                                            ┃
+┃    └───────────────────┘       └──────────────────────┘       └─────────────────────┘                                            ┃
+┃                                                                          │                                                       ┃
+┃                                                                          │                                                       ┃
+┃                                              │───────────────────────────│                                                       ┃
+┃                                              │                           │   Raw logs                                            ┃
+┃                                              ▼                           │                                                       ┃
+┃                                 ┌─────────────────────────┐   ┌──────────────────────────────┐                                   ┃
+┃                                 │    Log Processing &     │   │    Local Raw Log Storage     │                                   ┃
+┃                                 │   Feature Extraction    │   │     (Persisted on disk)      │                                   ┃
+┃                                 │ + Actor/Parent Context  │   │      Periodic batches        │                                   ┃
+┃                                 └─────────────────────────┘   └──────────────────────────────┘                                   ┃
+┃                                              │                           │                                                       ┃
+┃                                              │   ML features             │                                                       ┃
+┃                │─────────────────────────────────────────────────────────│─────│                                                 ┃
+┃                │                                                         │     │                                                 ┃
+┃                ▼                                                         ▼     ▼                                                 ┃
+┃   ┌─────────────────────────┐                                  ┌──────────────────────────────┐                                  ┃
+┃   │    Detection Service    │      Result + Score              │    Log Forwarding Service    │   To Central VM [A]              ┃
+┃   │     (ML Tree Model)     │─────────────────────────────────▶│ Raw: periodic batch upload   │───────────────────────────▶      ┃
+┃   │     Per-event score     │                                  │ Alerts now; scores batched   │                                  ┃
+┃   └─────────────────────────┘                                  └──────────────────────────────┘                                  ┃
+┃                                                                                                                                  ┃
+┃     ▲ Model deployment [M]                                        Logs + ML result/score → [A]                                   ┃
+┃                                                                                                                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+┏━━ CENTRAL VM ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[A] Raw logs → Storage━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                                                                                  ┃
+┃   [A]                                                                            ┌──────────────────────────┐  ┌───────────────┐ ┃
+┃  ┌──────────────────────┐      ┌─────────────────────────┐     Processed logs    │         Storage          │  │    Trigger    │ ┃
+┃  │ Log Receive Service  │      │     Normalization &     │──────────────────────▶│   Raw / Processed Logs   │  │   Condition   │ ┃
+┃  │                      │─────▶│   Correlation Service   │                       │    Validated Datasets    │◀─│Drift / Time / │ ┃
+┃  └──────────────────────┘      └─────────────────────────┘                       │     Model Artifacts      │  │  Enough Data  │ ┃
+┃                                              │                                   │         Evidence         │  │               │ ┃
+┃                                              │                                   │                          │  └───────────────┘ ┃
+┃                                              │                                   └──────────────────────────┘          │         ┃
+┃                                              │                                                                         │         ┃
+┃                        │──────────────────────────────────────────────│                                                ▼         ┃
+┃                        │                                              │                                  ┌─────────────────────┐ ┃
+┃                        ▼                                              ▼                                  │     Incremental     │ ┃
+┃          ┌────────────────────────────┐                   ┌─────────────────────────┐                    │  Learning Service   │ ┃
+┃          │    Host ML Result Relay    │                   │     DL Prep + BiLSTM    │                    └─────────────────────┘ ┃
+┃          │  (End-host Result/Score)   │                   │   15-min host windows   │                               │            ┃
+┃          │   Initial ML assessment    │                   │  <=512 events / chunk   │                               ▼            ┃
+┃          └────────────────────────────┘                   └─────────────────────────┘                  ┌───────────────────────┐ ┃
+┃                        │                                              │                                │  Evaluation & Model   │ ┃
+┃                        │                                              │                                │   Registry Service    │ ┃
+┃                        ───────────────────────│────────────────────────                                │          [M]          │ ┃
+┃                                               │                                                        └───────────────────────┘ ┃
+┃                                               ▼                                                                                  ┃
+┃                                ┌─────────────────────────────┐                                                                   ┃
+┃                                │        Context-Aware        │                                           [M] Deploy models       ┃
+┃                                │       Fusion Service        │                                            → Detection            ┃
+┃                                │   Event + chunk context     │                                                                   ┃
+┃                                └─────────────────────────────┘                                            → DL Inference         ┃
+┃                                               │                                                           → Storage              ┃
+┃                                               │                                                                                  ┃
+┃                                               ▼                                                                                  ┃
+┃                               ┌───────────────────────────────┐             ┌──────────────────────┐                             ┃
+┃                               │           Dashboard           │Approved     │   Response Service   │                             ┃
+┃                               │      (SOC Verification)       │────────────▶│                      │                             ┃
+┃                               │                               │             │                      │                             ┃
+┃                               └───────────────────────────────┘             └──────────────────────┘                             ┃
+┃                                                                                         │                                        ┃
+┃                                                                                         ▼                                        ┃
+┃                                                                             ┌────────────────────────┐                           ┃
+┃   [V] Verified logs ────────────────────────────▶ Storage                   │    Infra Controller    │                           ┃
+┃                                                                             │        Service         │                           ┃
+┃                                                                             │                        │                           ┃
+┃   [I] Isolate victim hosts ◀──────────── Infra Controller                   └────────────────────────┘                           ┃
+┃                                                                                                                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  LUỒNG KẾT NỐI / CROSS-SERVICE FLOWS
+  [A] Hai loại thông điệp cùng đi qua Log Forwarding → Central Log Receive:
+      (1) OS telemetry: raw events theo batch định kỳ, gồm cả benign và suspicious.
+      (2) ML results: cảnh báo gửi ngay; kết quả còn lại gửi theo batch.
+      Raw telemetry → Central Raw Storage và Normalization & Correlation.
+      Normalized OS events → DL Prep (window/chunk/encoding) → BiLSTM → Fusion.
+      ML results → Normalization & Correlation → Host ML Result Relay → Fusion.
+      ML features chỉ phục vụ Detection tại End Host; feature snapshot gửi lên là tùy chọn
+      để audit/debug, không phải đầu vào mặc định của DL.
+  [V] Dashboard → Storage: bằng chứng và nhãn được xác minh, có phạm vi event/chunk cụ thể.
+      SOC approval → Response Service → Infra Controller → End Hosts.
+  [M] Trigger → Incremental Learning → Evaluation/Registry → Storage + model deployment.
+      Gói triển khai gồm model và preprocessing tương thích; không chỉ file trọng số.
+  [I] Infra Controller → End Hosts: thực thi cô lập theo luồng phê duyệt hiện có.
+
+  1. PHẠM VI VÀ QUYẾT ĐỊNH ĐÃ THỐNG NHẤT
+  - Đây là kiến trúc mục tiêu dùng các fields trong OS logs. Không có nguồn Bro/Zeek riêng.
+  - ML Tree Model tại End Host đánh giá từng event bằng event features + parent context.
+  - DL tại Central đánh giá chuỗi OS events theo window cố định; không đổi window theo alert.
+  - Giữ đánh giá ML ban đầu; chỉ chạy DL khi window đã đóng và đạt điều kiện đủ dữ liệu.
+  - DL xử lý mọi window hợp lệ, không phụ thuộc có cảnh báo ML hay không.
+  - Cảnh báo ML chỉ tăng ưu tiên truyền dữ liệu/xử lý; không thay đổi membership, nhãn,
+    độ dài window, kích thước chunk hoặc yêu cầu completeness của DL.
+  - Các ô 15 phút và <=512 events/chunk biểu diễn cấu hình mục tiêu đang giữ trên sơ đồ.
+    Phải dùng đúng cấu hình đã train/validate cho model OS-log thực tế; không coi việc sửa
+    sơ đồ là bằng chứng code DL/ hiện hữu đã chuyển sang OS-log input và được train lại.
+  - Fusion và giao thức vận chuyển dưới đây là thiết kế tích hợp, không phải báo cáo triển khai.
+
+  2. PHÂN BIỆT CÁC LOẠI DỮ LIỆU
+  Raw OS event:
+    Bản ghi do Logging Service thu nhận, giữ payload nguồn trong phạm vi collection policy;
+    kèm host_id, event_id, event_timestamp, source/stream identity và sequence/cursor nếu có.
+    Raw ở đây là log gốc do collector thu được, không phải packet capture.
+  Normalized event:
+    Bản ghi parse về schema thống nhất, chuẩn hóa timestamp nhưng giữ timestamp gốc,
+    event reference và các fields cần cho correlation / DL. Không phải sparse ML vector.
+  ML features:
+    Binary sparse features cho Tree Model, gồm event tokens và actor/parent context.
+    IDs phục vụ joins/audit, không biến UUID/PID tùy ý thành feature cột ML.
+  ML result:
+    Prediction, score và metadata nhận diện event/model; không thay thế raw event.
+  DL sample:
+    Chuỗi OS events đã chọn fields, sắp thứ tự, chia chunk và encode theo DL input contract.
+  DL result:
+    Một score cho một chunk; không tự xác định event nào trong chunk là malicious.
+
+  3. END HOST: THU THẬP, LƯU VÀ DETECT
+  Host Activities → Monitoring → Logging tạo event identity ổn định tại nguồn.
+  Logging cung cấp cùng event cho hai nhánh:
+    A. Ghi vào Local Raw Log Storage bền vững.
+    B. Log Processing & Feature Extraction → Tree Model → ML result.
+  Near-real-time detection không phải chờ batch upload hay kết quả DL.
+  Local Raw Log Storage có thể chính là file log do Logging Service ghi, không bắt buộc
+  tạo thêm database hoặc sao chép cùng payload lần nữa.
+  Storage local giữ log ngắn hạn để upload/retry và điều tra; Central giữ bản tập trung
+  phục vụ phân tích, dataset và audit theo retention riêng.
+  Bản local và bản Central không có nghĩa phải gửi hai bản raw độc lập lên Central.
+
+  Parent context trong nhánh ML:
+    Event → actor process (host + UUID) → direct parent từ lịch sử PROCESS CREATE.
+    Chỉ dùng bằng chứng trước timestamp của event; không dùng future events/true labels.
+    Các event cùng timestamp không bổ sung context cho nhau qua thứ tự đọc tùy ý.
+    State giới hạn bởi TTL/process cap; thiếu context được biểu diễn rõ.
+    Tags: ctx::actor / ctx::parent / ctx::relation / ctx::status.
+    Output vẫn là prediction/score từng event, không phải nhãn cả process tree.
+
+  4. END HOST GỬI GÌ LÊN CENTRAL?
+  Luồng kết quả ML:
+    - Alert: gửi ngay event reference + prediction + score + threshold + model version
+      + preprocessing version + thời điểm inference; có thể kèm raw event để xem ngay.
+    - Non-alert: gửi results theo batch nếu thuộc phạm vi inference đã cấu hình, để Central
+      có thể liên kết với DL, theo dõi chất lượng và đánh giá false negatives sau xác minh.
+    - Không gửi model prediction như ground-truth label cho training.
+    - Nếu một event không được ML xử lý, ghi rõ missing/not eligible; không mặc định benign.
+  Luồng raw telemetry định kỳ:
+    - Đọc các record mới chưa được xác nhận tiếp nhận từ local storage bằng cursor/sequence.
+    - Gửi đầy đủ events thuộc collection policy, không lọc theo ML score và không random sample.
+    - Collection policy và DL eligibility policy phải được version hóa, nhất quán train/inference.
+    - Batch có host/source identity, batch_id, sequence range, event-time range, record count,
+      schema version và checksum để kiểm tra nội dung/chống nhầm batch.
+    - Giữ event_id ổn định qua retry; không sinh event_id mới mỗi lần gửi lại.
+  Luồng ưu tiên khi có cảnh báo:
+    - Có thể đẩy sớm phần dữ liệu đã có của window liên quan hoặc yêu cầu gửi bù phần thiếu.
+    - Đây là tăng ưu tiên trên cùng telemetry stream; không tạo cửa sổ mới quanh alert.
+    - Batch định kỳ vẫn tiếp tục cho các window khác; dữ liệu giao nhau phải deduplicate.
+    - Gửi sớm không thể cung cấp events chưa xảy ra và không cho phép chạy DL window thiếu.
+
+  5. CENTRAL RECEIVE, STORAGE VÀ NORMALIZATION
+  Receive kiểm tra identity/schema/checksum, lưu raw bền vững rồi xác nhận tiếp nhận.
+  ACK giao nhận không đồng nghĩa window đã đầy đủ hoặc inference đã hoàn tất.
+  Retry có thể dẫn đến nhận lại cùng event: deduplicate theo identity nguồn ổn định.
+  Hai payload khác nhau dùng cùng event_id phải được ghi nhận là conflict, không âm thầm
+  chọn bản cuối. Không dùng timestamp đơn lẻ làm khóa unique của event.
+  Raw được lưu nguyên bản; normalized events và features là các sản phẩm dẫn xuất có version.
+  Normalization & Correlation thực hiện:
+    - Parse fields và chuẩn hóa thời gian về UTC, giữ event time và ingestion time riêng.
+    - Chuẩn hóa host identity, bảo toàn event/process references để đối chiếu.
+    - Phát hiện duplicate, gap, missing fields, time anomalies và ghi quality status.
+    - Đưa OS events đủ điều kiện sang DL Prep; chuyển ML results sang Host ML Result Relay.
+  DL Prep tạo đầu vào riêng từ normalized OS events; không tái diễn giải sparse ML vector.
+  Không cần upload lại toàn bộ raw đã ACK chỉ vì DL hoặc training muốn đọc lại:
+  Central đọc kho dữ liệu đã lưu; chỉ yêu cầu host gửi bù phần chưa có nếu còn được giữ.
+
+  6. WINDOW CỐ ĐỊNH VÀ QUY TẮC ĐỦ DỮ LIỆU
+  Cấu hình minh họa đang giữ: W = 900 giây (15 phút), UTC, theo từng host.
+    window_start = floor(event_timestamp_epoch / W) * W
+    window_end   = window_start + W
+    membership   = [window_start, window_end)
+  Event đúng mốc window_end thuộc window kế tiếp.
+  Dùng event time để gán window, không dùng thời điểm nhận log hay nhận ML alert.
+  Không dùng alert làm tâm window; không chuyển sang sliding window lúc inference.
+
+  Trạng thái đề xuất:
+    OPEN → WAITING_FOR_COMPLETENESS → READY → QUEUED → INFERRED
+                                └──→ INCOMPLETE / DATA_GAP
+  - OPEN: window chưa kết thúc; tiếp tục tích lũy events, giữ ML assessment ban đầu.
+  - WAITING_FOR_COMPLETENESS: đã qua mốc cuối nhưng còn chờ batch/late arrival.
+  - READY: có bằng chứng stream đã đi qua mốc cuối và các đoạn dữ liệu cần thiết đã nhận,
+    đồng thời đáp ứng chính sách late arrival/quality của model.
+  - Không coi đồng hồ Central vượt window_end, hoặc có một event timestamp lớn hơn,
+    là bằng chứng duy nhất rằng mọi dữ liệu trước đó đã đến đủ.
+  - Cần progress/heartbeat/end-of-window marker từ nguồn cùng sequence coverage để phân biệt
+    host không phát sinh event với host mất kết nối hoặc bị mất log.
+  - Với nhiều stream trên một host, xét coverage của mọi stream bắt buộc theo input contract.
+  - Upload interval, allowed lateness, timeout và clock-skew policy là tham số cần cấu hình;
+    sơ đồ không tự ấn định giá trị chưa đo.
+  - Hết timeout nhưng thiếu log: đánh dấu INCOMPLETE, giữ ML result, yêu cầu backfill nếu có.
+    Không báo window đã đủ và không gán DL score benign khi chưa chạy được.
+  - Window rỗng đã xác nhận là NO_ELIGIBLE_EVENTS; không gọi model với sequence rỗng.
+  - Nếu late event đến sau khi đã inference, giữ bản cũ và áp dụng chính sách revision rõ ràng:
+    tạo input revision mới, dựng lại chunks và recompute khi được policy cho phép.
+    Không âm thầm chèn event vào chunk đã có score mà giữ nguyên score cũ.
+
+  7. DL PREP: TỪ WINDOW ĐẾN CHUNK VÀ TENSOR
+  Khi window READY:
+    (1) Lấy tất cả OS events đủ điều kiện trong host/window theo input contract đã train.
+    (2) Deduplicate, sắp theo event time và tie-breaker ổn định được dùng cả train/inference.
+    (3) Chia thành các chunk liên tiếp, tối đa K=512 events theo cấu hình mục tiêu.
+        Window có 700 events → chunk 0: events 1..512; chunk 1: events 513..700.
+        Không bỏ phần cuối và không chỉ giữ chunk chứa ML alert.
+    (4) Encode fields, missing values, time deltas; padding/mask/lengths theo đúng model contract.
+        Dùng vocabulary/scaler đã fit trên TRAIN; không fit lại từ window inference.
+    (5) BiLSTM trả một score/chunk. Không có mặc định một score/window nếu có nhiều chunk.
+  Model phải được train/validate với cùng OS-log schema, window policy, ordering và chunk policy.
+  Không dùng trực tiếp model train với input khác chỉ vì shape tensor tương thích.
+  Chunk label khi training phải có policy được phê duyệt; không lấy alert ML làm nhãn.
+  Chunk dương không có nghĩa mọi event trong chunk đều dương.
+
+  Lưu ánh xạ sau khi chốt membership:
+    event_id → host_id + window_id + window_revision + chunk_id + event_position
+  Chunk ID cần gắn input revision và preprocessing version để không nhầm sau backfill.
+  Nếu late data làm thay đổi thứ tự, chunk membership cũng có thể thay đổi: cập nhật mapping
+  cùng revision, không nối kết quả mới với mapping cũ.
+  Event không đủ điều kiện DL sẽ không có direct chunk membership; chỉ có thể dùng context
+  cùng host/thời gian nếu Fusion policy cho phép và phải ghi rõ kiểu liên kết này.
+
+  8. DL SCHEDULER: KHÔNG PHỤ THUỘC ML ALERT
+  - Đưa tất cả READY windows hợp lệ vào hàng đợi, kể cả khi ML không phát hiện bất thường.
+  - Window có ML alert được ưu tiên khi đã READY; không được bỏ qua điều kiện completeness.
+  - Mọi chunks của window được xử lý; không lọc bỏ chunks benign theo dự đoán ML.
+  - Có cơ chế fairness/aging để window không có alert không bị chờ vô hạn.
+  - Arrival order của alert và raw log có thể khác nhau; liên kết khi cả hai đã có.
+  - Inference lỗi thì retry theo job identity; tránh tạo nhiều kết quả trùng cho cùng
+    model version + preprocessing version + chunk/input revision.
+  - DL score bất thường trên window không có ML alert vẫn phải đi tới Fusion/SOC.
+
+  9. FUSION: ĐÁNH GIÁ BAN ĐẦU VÀ CẬP NHẬT BẤT ĐỒNG BỘ
+  Giai đoạn đầu:
+    Nhận ML event result → lưu initial assessment; trạng thái DL=PENDING/UNAVAILABLE.
+    Hiển thị và xử lý cảnh báo ML theo policy hiện có, không chờ DL mới phát cảnh báo.
+    Không thay missing DL score bằng 0 và không coi chưa có DL là benign.
+  Khi có DL:
+    Nhận chunk result → tra mapping → liên kết các ML event results tương ứng.
+    Với event ngoài DL input, chỉ liên kết context host/time theo policy tường minh.
+    Ghi assessment revision mới, giữ cả ML score ban đầu và DL score cùng provenance.
+    Không ghi đè score ML bằng score DL hoặc tuyên bố cả hai cùng dự đoán một target.
+  Nếu DL phát hiện nhưng ML không alert:
+    Tạo/cập nhật cảnh báo ở phạm vi chunk/window; nêu rõ các event trong phạm vi bằng chứng.
+    Không tự gán malicious cho mọi event và không tự coi nhãn host event đã được xác minh.
+  Hai score có thể khác calibration và khác đơn vị dự đoán:
+    Công thức fusion/gating/threshold phải được train/validate riêng; chưa chốt phép trung bình.
+    Nếu cần một score cho window nhiều chunk, phải định nghĩa aggregation riêng; không tự
+    gọi mọi chunk score là window score.
+  Correlation keys: host_id, event_id, event_time, window_id, chunk_id, input revision,
+  model/preprocessing versions và thời điểm kết quả được tạo.
+  Dashboard hiển thị phạm vi, độ phủ dữ liệu và trạng thái ML-only / ML+DL / DL-only.
+  Quyết định response vẫn theo luồng SOC approval trong sơ đồ; cập nhật DL không tự động
+  hoàn tác hành động đã duyệt mà không có response policy tương ứng.
+
+  10. VÍ DỤ THỜI GIAN
+  Host H01 có event E123 lúc 10:07:23 UTC.
+    - Event thuộc window [10:00:00, 10:15:00), bất kể alert đến Central lúc nào.
+    - ML đánh giá E123 ngay; nếu alert thì gửi ngay score/result + event reference.
+    - Raw events tiếp tục được ghi local và chuyển theo batch định kỳ.
+    - Alert có thể tăng ưu tiên upload window này, nhưng không chạy DL lúc 10:07 trên
+      window thiếu events 10:07..10:15.
+    - Sau 10:15, Central chờ coverage/late-arrival policy thỏa mãn rồi mới chốt window.
+    - Dựng chunks, lưu mapping của E123, encode và chạy BiLSTM.
+    - Fusion thêm DL chunk context vào assessment của E123 khi có membership tương ứng.
+  H02 không có ML alert trong cùng khoảng thời gian:
+    - Window hợp lệ của H02 vẫn được đóng, đưa vào queue và chạy mọi chunks.
+    - Nếu DL cảnh báo, Fusion/SOC vẫn nhận được kết quả dù không có cảnh báo ML trước đó.
+  Độ trễ DL gồm thời gian chờ đóng window + upload/late arrival + queue + preprocessing/inference;
+  không gọi nhánh DL này là phát hiện tức thời cho từng event.
+
+  11. RETENTION, RETRY VÀ NGUỒN DỮ LIỆU CHO HỌC CẬP NHẬT
+  Local:
+    Giới hạn dung lượng/retention, lưu cursor và ACK state bền vững; chỉ giải phóng phần đã ACK
+    theo policy. Nếu hết dung lượng hoặc mất log, ghi gap rõ ràng, không tuyên bố giao đủ.
+    Không yêu cầu local giữ lịch sử vô hạn hoặc giữ nguyên toàn bộ training corpus.
+  Central:
+    Raw + normalized events + event/chunk mapping + predictions + model/preprocess versions
+    + quality/coverage status + labels đã xác minh theo đúng phạm vi.
+    Có thể tái tạo features/chunks từ raw theo version; parent context cần đủ lịch sử trước
+    event hoặc checkpoint phù hợp, không chỉ log của các event được cảnh báo.
+  Learning:
+    Trigger (drift/time/enough data) → chọn dữ liệu hợp lệ + nhãn được xác minh → tạo dataset
+    có version/split rõ ràng → fit transforms trên TRAIN → cập nhật/retrain → evaluate
+    → registry → deploy model + preprocessing tương thích.
+    Không dùng model prediction làm ground truth; không truyền nhãn chunk sang mọi event.
+    Giữ tách biệt dữ liệu dùng đánh giá; chính sách sampling khi tạo training dataset khác
+    với việc chuyển telemetry đầy đủ để phục vụ inference.
+    Học cập nhật diễn ra tại Central; local storage hỗ trợ thu thập/replay, không tự train.
+
+  12. CONTRACT TỐI THIỂU CẦN CHỐT KHI TRIỂN KHAI
+  - Event identity bền vững, host identity, clock/timezone, source sequence và tie-breaker.
+  - Collection scope, DL eligibility fields/schema, window/chunk policy và label policy.
+  - Batch interval/size, retention, ACK/retry, completeness markers, lateness và timeout.
+  - Input/preprocessing/model versions, dataset lineage và ánh xạ event ↔ chunk theo revision.
+  - DL scheduling fairness, xử lý window thiếu/rỗng, late-data revisions và job deduplication.
+  - Fusion target/aggregation/calibration, missing-source policy và response approval policy.
+  Các mục này là yêu cầu triển khai; không hàm ý hệ thống hiện đã có đủ các cơ chế trên.

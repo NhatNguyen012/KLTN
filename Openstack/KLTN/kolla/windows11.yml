@@ -1,0 +1,5 @@
+---
+# Merge these settings into /etc/kolla/globals.yml. Barbican is the key
+# manager used by Nova to encrypt software-TPM state at rest.
+enable_barbican: true
+enable_nova_swtpm: true

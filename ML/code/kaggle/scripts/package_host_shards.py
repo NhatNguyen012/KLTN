@@ -25,6 +25,7 @@ from host_shards import HostShardDataset, sha256
 from pipeline_contract import sync_directory, validate_output_path
 
 BASE = CODE / 'output/host_ml_seed02'
+NOTEBOOK_DIR = Path(__file__).resolve().parent.parent / 'notebooks'
 NOTEBOOKS = tuple(f'host_{model}_shards.ipynb' for model in ('rf', 'xgb', 'lgbm'))
 
 
@@ -71,7 +72,7 @@ def add_file(archive, name, path, size, expected_sha):
             raise ValueError(f'checksum mismatch or file changed: {path}')
 
 
-def collect(data):
+def collect(data, notebook_names=NOTEBOOKS):
     """Explicit allowlist: no checkpoints, orphan shards or source telemetry."""
     base = data.manifest_path.parent
     files = [('manifest.json', data.manifest_path,
@@ -93,8 +94,10 @@ def collect(data):
         if expected and digest != expected:
             raise ValueError(f'published reader differs from builder identity: {name}')
         files.append((name, path, path.stat().st_size, digest))
-    for name in NOTEBOOKS:
-        path = Path(__file__).resolve().parent.parent / 'notebooks' / name
+    for name in notebook_names:
+        if Path(name).name != name or not name.endswith(".ipynb"):
+            raise ValueError("notebook must be a filename ending in .ipynb")
+        path = NOTEBOOK_DIR / name
         files.append((name, path, path.stat().st_size, sha256(path)))
     for part in data.meta['shards']:
         if not re.fullmatch(r'[A-Za-z0-9_]+', part['volume']):
@@ -115,6 +118,7 @@ def main(argv=None):
     parser.add_argument('--manifest', type=Path, default=BASE/'model_input/manifest.json')
     parser.add_argument('--output-dir', type=Path, default=BASE/'kaggle_upload')
     parser.add_argument('--reserve-free-gib', type=int, default=20)
+    parser.add_argument('--notebook', action='append', help='Notebook filename to package (repeatable); defaults to baseline notebooks')
     parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args(argv)
     if args.reserve_free_gib < 0:
@@ -125,7 +129,7 @@ def main(argv=None):
     output = validate_output_path(args.output_dir, protected)
     if output.exists():
         raise ValueError(f'output already exists; preserving it: {output}')
-    files = collect(data)
+    files = collect(data, args.notebook or NOTEBOOKS)
     if files[0][3] != manifest_sha:
         raise ValueError('manifest changed during package planning')
     total_bytes = sum(f[2] for f in files)

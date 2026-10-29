@@ -1,0 +1,51 @@
+# The defaults already match the OpenStack AIO environment documented in
+# OpenStack_2026.1_Ubuntu_24.04.md and verified on 2026-10-27.
+external_network_name = "public-net"
+ubuntu_image_name     = "Ubuntu-24.04"
+windows_image_name    = "Windows-11-Enterprise-LTSC-2024"
+ubuntu_flavor_name    = "m1.small"
+keypair_name          = "lab-key"
+
+# lab-key already exists, so Terraform should only reference it.
+create_keypair      = false
+ssh_public_key_path = "~/.ssh/openstack_ed25519.pub"
+
+# This is convenient for the isolated AIO lab. Restrict it to your management
+# source CIDR before using the configuration in a shared environment.
+ssh_source_cidr = "0.0.0.0/0"
+rdp_source_cidr = "0.0.0.0/0"
+
+create_floating_ips = true
+
+# Uncomment and edit this whole map to change names or address ranges.
+# Keep exactly three entries with non-overlapping CIDRs.
+# nodes = {
+#   ubuntu1 = {
+#     instance_name         = "kltn-ubuntu-1"
+#     os_type               = "ubuntu"
+#     network_name          = "kltn-net-1"
+#     subnet_name           = "kltn-subnet-1"
+#     cidr                  = "10.30.1.0/24"
+#     allocation_pool_start = "10.30.1.100"
+#     allocation_pool_end   = "10.30.1.200"
+#   }
+#   ubuntu2 = {
+#     instance_name         = "kltn-ubuntu-2"
+#     os_type               = "ubuntu"
+#     network_name          = "kltn-net-2"
+#     subnet_name           = "kltn-subnet-2"
+#     cidr                  = "10.30.2.0/24"
+#     allocation_pool_start = "10.30.2.100"
+#     allocation_pool_end   = "10.30.2.200"
+#   }
+#   windows1 = {
+#     instance_name         = "kltn-windows-1"
+#     os_type               = "windows"
+#     network_name          = "kltn-net-3"
+#     subnet_name           = "kltn-subnet-3"
+#     cidr                  = "10.30.3.0/24"
+#     allocation_pool_start = "10.30.3.100"
+#     allocation_pool_end   = "10.30.3.200"
+#   }
+# }
+
