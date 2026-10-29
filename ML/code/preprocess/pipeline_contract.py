@@ -24,6 +24,10 @@ V5_SPLIT_TOKENIZER = {
     "ecar_tokenizer.py": "4d41f40c165853939b3cb9b441adccabcb4c7184fe3f613f36092654d0944fd0",
     "command_syntax.py": V4_SPLIT_TOKENIZER["command_syntax.py"],
 }
+V5_RELOCATED_TOKENIZER = {
+    "ecar_tokenizer.py": "dc9bc813eca6a60f910359651baa6f2accd01e8c4a9ddafef09d51d796a33170",
+    "command_syntax.py": V4_SPLIT_TOKENIZER["command_syntax.py"],
+}
 
 
 def split_tokenizer_compatibility(recorded: dict) -> str:
@@ -31,7 +35,7 @@ def split_tokenizer_compatibility(recorded: dict) -> str:
     current = code_hashes()
     if recorded == current:
         return "exact_tokenizer"
-    if recorded == V4_SPLIT_TOKENIZER and current == V5_SPLIT_TOKENIZER:
+    if recorded == V4_SPLIT_TOKENIZER and current in (V5_SPLIT_TOKENIZER, V5_RELOCATED_TOKENIZER):
         return "reviewed_v4_to_v5_feature_only; unchanged eligibility and labels"
     raise ValueError("manifest tokenizer mismatch; no reviewed eligibility-compatible migration")
 
@@ -58,13 +62,43 @@ def sync_directory(path: Path) -> None:
         os.close(descriptor)
 
 
-def validate_output_path(path: Path, input_roots: Iterable[Path] = ()) -> Path:
-    """Reject all protected roots (also through symlinks) before any write."""
+def get_protected_dataset_roots() -> list[Path]:
+    """Discover all historical, relocated and symlinked dataset root paths."""
+    roots: list[Path] = []
+    bases = [
+        PROJECT_ROOT,
+        PROJECT_ROOT / "DATASET" / "DARPA-OPTC",
+        Path("/mnt/HDD_Data"),
+    ]
+    for b in bases:
+        for name in DATA_ROOT_NAMES:
+            cand = b / name
+            roots.append(cand)
+            try:
+                roots.append(cand.resolve())
+            except OSError:
+                pass
+    return list(dict.fromkeys(roots))
+
+
+def validate_output_path(path: Path, input_roots: Iterable[Path] = (), protect_baseline: bool = False) -> Path:
+    """Reject all protected roots (also through symlinks) and optionally baseline outputs before any write."""
     resolved = path.resolve()
-    roots = [PROJECT_ROOT / name for name in DATA_ROOT_NAMES] + list(input_roots)
+    roots = get_protected_dataset_roots() + [Path(r) for r in input_roots]
+    if protect_baseline:
+        for b in (PROJECT_ROOT / "code/output/host_ml_seed02", PROJECT_ROOT / "ML/code/output/host_ml_seed02"):
+            roots.append(b)
+            try:
+                roots.append(b.resolve())
+            except OSError:
+                pass
     for root in roots:
-        if resolved.is_relative_to(root.resolve()):
-            raise ValueError(f"outputs must be outside source dataset roots: {resolved} is under {root.resolve()}")
+        try:
+            r_res = root.resolve()
+            if resolved == r_res or resolved.is_relative_to(r_res):
+                raise ValueError(f"outputs must be outside source dataset roots: {resolved} is under {r_res}")
+        except OSError:
+            continue
     return resolved
 
 
@@ -87,7 +121,13 @@ def load_vocabulary(vocab_path: Path, metadata_path: Path,
     if hashlib.sha256(raw).hexdigest() != meta.get("vocabulary_sha256"):
         raise ValueError("vocabulary checksum does not match metadata; use a complete publication")
     recorded = meta.get("source_sha256", {})
-    if any(recorded.get(name) != digest for name, digest in code_hashes().items()):
+    current_hashes = code_hashes()
+    for name, digest in current_hashes.items():
+        rec = recorded.get(name)
+        if rec == digest:
+            continue
+        if name == "ecar_tokenizer.py" and {rec, digest} <= {V5_SPLIT_TOKENIZER["ecar_tokenizer.py"], V5_RELOCATED_TOKENIZER["ecar_tokenizer.py"]}:
+            continue
         raise ValueError("vocabulary tokenizer is incompatible; rebuild vocabulary with current code")
     if split_sha256 is not None:
         if (meta.get('split_sha256') != split_sha256 or meta.get('fit_classes') != [0, 1]

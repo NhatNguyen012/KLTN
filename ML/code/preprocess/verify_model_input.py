@@ -3,6 +3,12 @@
 import argparse
 import json
 from pathlib import Path
+import sys
+
+_ROOT = next((p for p in Path(__file__).resolve().parents if (p / "AGENTS.md").is_file()), Path(__file__).resolve().parents[3])
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 from ML.code.preprocess.host_shards import HostShardDataset,decode_shard,sha256
 
 

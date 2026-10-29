@@ -21,7 +21,7 @@ import tempfile
 
 import numpy as np
 from ML.code.preprocess.ecar_tokenizer import GROUPS, HOST_OBJECT_FIELDS, TOKENIZER_POLICY, flatten_tokens, token_layers, tokenize_record
-from ML.code.preprocess.pipeline_contract import PROJECT_ROOT, code_hashes, load_vocabulary, sync_directory, validate_output_path, split_tokenizer_compatibility
+from ML.code.preprocess.pipeline_contract import PROJECT_ROOT, code_hashes, load_vocabulary, sync_directory, validate_output_path, split_tokenizer_compatibility, DATA_ROOT_NAMES
 
 BASE = PROJECT_ROOT / 'code/output/host_ml_seed02'
 SPLITS = ('train', 'val', 'test')
@@ -37,9 +37,24 @@ def file_hash(path):
         return hashlib.file_digest(handle, 'sha256').hexdigest()
 
 
+def resolve_source_path(path):
+    p = Path(path)
+    if p.exists():
+        return p
+    rel = Path(path)
+    for root_name in DATA_ROOT_NAMES:
+        if root_name in rel.parts:
+            idx = rel.parts.index(root_name)
+            for candidate_base in (PROJECT_ROOT / "DATASET" / "DARPA-OPTC", Path("/mnt/SSD_Data/optc/DATASET/DARPA-OPTC")):
+                candidate = candidate_base / Path(*rel.parts[idx:])
+                if candidate.exists():
+                    return candidate
+    return p
+
+
 def identity(path):
-    path = Path(path).resolve()
-    stat = path.stat()
+    resolved = resolve_source_path(path)
+    stat = resolved.stat()
     return dict(path=str(path), size=stat.st_size, mtime_ns=stat.st_mtime_ns)
 
 
@@ -47,8 +62,11 @@ def stamp():
     return datetime.now(timezone.utc).isoformat()
 
 
+from ML.code.preprocess.process_context_tracker import parse_timestamp, HostProcessContextTracker, ProcessContextConfig, canonical_host
+
+
 def implementation():
-    return {**code_hashes(('stratified_pipeline.py', 'build_matrix.py', 'build_vocab.py', 'pipeline_contract.py')),
+    return {**code_hashes(('stratified_pipeline.py', 'build_matrix.py', 'build_vocab.py', 'pipeline_contract.py', 'process_context_tracker.py')),
             **code_hashes(), 'numpy': np.__version__, 'python': sys.version.split()[0]}
 
 
@@ -369,69 +387,180 @@ def split_main(argv=None):
     return 0
 
 
-def split_rows(entry, split_dir):
+def _flush_timestamp_batch(batch, batch_t, tracker):
+    for code, num, record in batch:
+        if code in (1, 2, 3):
+            ctx_tokens = tracker.get_context_tokens(record, query_t=batch_t)
+            record['_context_tokens'] = ctx_tokens
+    for code, num, record in batch:
+        tracker.observe(record, event_t=batch_t)
+    for code, num, record in batch:
+        if code in (1, 2, 3):
+            yield code, num, record
+
+
+def split_rows(entry, split_dir, tracker=None):
     from ML.code.preprocess.build_matrix import _parse_file_meta
-    path = Path(entry['source']['path'])
-    _, host = _parse_file_meta(path)
+    path = resolve_source_path(entry['source']['path'])
+    try:
+        _, file_host = _parse_file_meta(path)
+    except ValueError:
+        file_host = None
+    host = entry.get('host') or file_host
+    canonical_h = canonical_host(host) if host else ""
     stats = Counter()
+    tracker_active = tracker is not None and getattr(tracker, 'config', None) and tracker.config.enabled
     with gzip.open(path,'rt',encoding='utf-8') as src, gzip.open(relative_artifact(split_dir,entry['artifact']),'rb') as mask:
         number = 0
+        batch = []
+        batch_t = None
+        batch_bytes = 0
+        last_t = None
+        last_host_t = tracker.get_watermark(canonical_h) if (tracker_active and canonical_h) else None
+        is_first_event = True
         while codes := mask.read(BLOCK):
             for code in codes:
                 number += 1
                 line = src.readline()
                 if not line:
                     raise ValueError('source shorter than split mask')
-                if code not in (0,1,2,3):
+                if code not in (0, 1, 2, 3):
                     raise ValueError('invalid split code')
-                if not code:
-                    continue
-                record = json.loads(line)
-                label = label_of(record,entry['benign'],host)-1
-                if label not in (0,1):
-                    raise ValueError('split mask selects excluded event')
-                stats[(label,code-1)] += 1
-                record['label'] = label
-                yield code, number, record
+                if not tracker_active:
+                    if not code:
+                        continue
+                    record = json.loads(line)
+                    label = label_of(record, entry['benign'], host) - 1
+                    if label not in (0, 1):
+                        raise ValueError('split mask selects excluded event')
+                    stats[(label, code - 1)] += 1
+                    record['label'] = label
+                    yield code, number, record
+                else:
+                    rec = json.loads(line) if line.strip() else {}
+                    t = parse_timestamp(rec.get('timestamp'))
+                    if t is None:
+                        raise ValueError(f"Missing or unparseable timestamp at line {number} in {path}")
+                    if is_first_event:
+                        if not canonical_h:
+                            canonical_h = canonical_host(rec.get('hostname'))
+                            if canonical_h and tracker:
+                                last_host_t = tracker.get_watermark(canonical_h)
+                        if last_host_t is not None and t <= last_host_t:
+                            raise ValueError(
+                                f"Cross-file timestamp regression/overlap for host {canonical_h}: "
+                                f"previous watermark {last_host_t} >= next file timestamp {t} in {path}"
+                            )
+                        is_first_event = False
+
+                    if last_t is not None and t < last_t:
+                        raise ValueError(f"Out-of-order timestamp in {path} at line {number}: {last_t} -> {t}")
+                    last_t = t
+                    if code:
+                        label = label_of(rec, entry['benign'], host) - 1
+                        if label not in (0, 1):
+                            raise ValueError('split mask selects excluded event')
+                        stats[(label, code - 1)] += 1
+                        rec['label'] = label
+                    if batch_t is not None and t != batch_t:
+                        yield from _flush_timestamp_batch(batch, batch_t, tracker)
+                        batch = []
+                        batch_bytes = 0
+                    batch_t = t
+                    line_len = len(line.encode('utf-8'))
+                    if len(batch) >= 50_000 or (batch_bytes + line_len) > 50 * 1024 * 1024:
+                        raise ValueError(f"timestamp tie batch in {path} exceeds safe limit (50,000 events / 50MB raw UTF-8) at t={batch_t}")
+                    batch.append((code, number, rec))
+                    batch_bytes += line_len
+        if tracker_active and batch:
+            yield from _flush_timestamp_batch(batch, batch_t, tracker)
+            batch = []
+            batch_bytes = 0
+        if tracker_active and canonical_h and last_t is not None:
+            tracker.set_watermark(canonical_h, last_t)
         if src.read(1) or number != entry['counts'].get('lines', 0):
             raise ValueError('split/source line count mismatch')
-    for c in (1,2):
-        if [stats[(c-1,s)] for s in range(3)] != entry['allocation'][str(c)]:
+    for c in (1, 2):
+        if [stats[(c - 1, s)] for s in range(3)] != entry['allocation'][str(c)]:
             raise ValueError('split class counts mismatch')
     checked_sources([entry])
 
 
-def vocab_file(entry, split_dir, work):
-    key = digest(entry)
-    cache = work/f'{key}.json.gz'
-    receipt = work/f'{key}.json'
+def vocab_file(entry, split_dir, work, context_config=None, tracker=None):
+    key = digest(dict(entry=entry, context_config=context_config))
+    cache = work / f'{key}.json.gz'
+    receipt = work / f'{key}.json'
+    is_context = bool(context_config and context_config.get('enabled'))
+    host = entry.get('host')
+    day = entry.get('day')
+    source_id = digest(entry['source'])
+    chk_path = work / f"tracker_{host}_{day}_{source_id[:16]}.json" if (is_context and host and day) else None
+
     if receipt.exists():
         try:
-            if file_hash(cache) == json.loads(receipt.read_text())['sha256']:
-                with gzip.open(cache,'rt') as handle:
+            rcpt = json.loads(receipt.read_text())
+            if file_hash(cache) == rcpt.get('sha256'):
+                if is_context and tracker is not None and chk_path is not None:
+                    expected_chk_sha = rcpt.get('checkpoint_sha256')
+                    if not chk_path.is_file() or file_hash(chk_path) != expected_chk_sha:
+                        raise ValueError(f"checkpoint missing or checksum mismatch for {chk_path}")
+                    tracker.load_checkpoint(chk_path)
+                with gzip.open(cache, 'rt') as handle:
                     return json.load(handle)
         except (OSError, ValueError, KeyError):
             pass
-    tf,df = {g:Counter() for g in GROUPS},{g:Counter() for g in GROUPS}
+
+    tf, df = {g: Counter() for g in GROUPS}, {g: Counter() for g in GROUPS}
     counts = Counter()
-    for split, _,record in split_rows(entry,split_dir):
+    if is_context and tracker is None:
+        tracker = HostProcessContextTracker(ProcessContextConfig.from_dict(context_config))
+
+    prev_stats = dict(tracker.stats) if tracker else {}
+    for split, _, record in split_rows(entry, split_dir, tracker=tracker):
         if split != 1:
             continue
-        grouped,audit = tokenize_record(record)
+        grouped, audit = tokenize_record(record)
         if not audit['eligible']:
             raise ValueError('tokenizer eligibility changed')
+        if '_context_tokens' in record:
+            grouped["structure_semantic"].extend(record['_context_tokens'])
         counts[f'label_{record["label"]}'] += 1
-        for g,tokens in grouped.items():
+        for g, tokens in grouped.items():
             tf[g].update(tokens)
             df[g].update(set(tokens))
-    result = dict(tf=tf,df=df,counts=dict(counts))
-    temporary = validate_output_path(cache.with_suffix('.tmp'))
-    with gzip.open(temporary,'wt') as handle:
-        json.dump(result,handle)
+
+    chk_sha = None
+    if is_context and tracker is not None and chk_path is not None:
+        tracker.save_checkpoint(chk_path)
+        chk_sha = file_hash(chk_path)
+
+    curr_stats = dict(tracker.stats) if tracker else {}
+    file_stats = {k: curr_stats[k] - prev_stats.get(k, 0) for k in curr_stats}
+    result = dict(tf=tf, df=df, counts=dict(counts), stats=file_stats)
+    temporary = validate_output_path(cache.with_suffix('.tmp'), protect_baseline=is_context)
+    with gzip.open(temporary, 'wt') as handle:
+        json.dump(result, handle)
     durable(temporary)
-    os.replace(temporary,cache)
-    atomic_json(receipt,dict(sha256=file_hash(cache)))
+    os.replace(temporary, cache)
+    receipt_data = dict(sha256=file_hash(cache))
+    if chk_sha is not None:
+        receipt_data['checkpoint_file'] = chk_path.name
+        receipt_data['checkpoint_sha256'] = chk_sha
+    atomic_json(receipt, receipt_data)
     return result
+
+
+def vocab_host(entries, split_dir=None, work=None, context_config=None):
+    if split_dir is None and isinstance(entries, (tuple, list)) and len(entries) == 4:
+        entries, split_dir, work, context_config = entries
+    tracker = None
+    if context_config and context_config.get('enabled'):
+        tracker = HostProcessContextTracker(ProcessContextConfig.from_dict(context_config))
+    results = []
+    for entry in entries:
+        res = vocab_file(entry, split_dir, work, context_config=context_config, tracker=tracker)
+        results.append(res)
+    return results
 
 
 def vocab_main(args):
@@ -439,26 +568,64 @@ def vocab_main(args):
     if args.workers < 1:
         raise ValueError('positive workers required')
     manifest, split_sha = load_manifest(args.split,'host_random_split')
-    output = validate_output_path(args.output)
-    metadata_output = validate_output_path(args.metadata_output)
+    context_config = None
+    if getattr(args, 'enable_parent_context', False):
+        context_config = dict(
+            enabled=True,
+            max_processes_per_host=getattr(args, 'context_max_processes', 10000),
+            ttl_seconds=getattr(args, 'context_ttl_seconds', 86400.0),
+            enable_pid_fallback=getattr(args, 'enable_pid_fallback', False),
+            time_policy='strictly_before_t',
+            identity_policy='canonical_hostname_plus_uuid',
+            field_ownership={
+                'process_create': {
+                    'actorID': 'parent_process',
+                    'objectID': 'newly_created_child_process',
+                    'parent_image_path': 'parent_executable',
+                    'image_path': 'child_executable_not_parent',
+                    'command_line': 'child_launch_command_not_parent',
+                },
+                'regular_events': {
+                    'actorID': 'executing_process',
+                    'objectID': 'target_object_not_process',
+                    'image_path': 'executing_process_image_when_present',
+                }
+            }
+        )
+        # Validate config via ProcessContextConfig
+        from dataclasses import asdict
+        context_config = asdict(ProcessContextConfig.from_dict(context_config))
+    output = validate_output_path(args.output, protect_baseline=bool(context_config))
+    metadata_output = validate_output_path(args.metadata_output, protect_baseline=bool(context_config))
     if output == metadata_output:
         raise ValueError('vocab and metadata outputs must differ')
     if any(p.is_relative_to(args.split.resolve().parent) for p in (output,metadata_output)):
         raise ValueError('vocabulary outputs must be outside the immutable split directory')
-    config = dict(split_sha256=split_sha, implementation=implementation())
-    work = validate_output_path(args.checkpoint_dir or output.parent/f'.{output.name}.checkpoints') / digest(config)
-    validate_output_path(work, [args.split.resolve().parent])
+    config = dict(split_sha256=split_sha, implementation=implementation(), context_config=context_config)
+    work = validate_output_path(args.checkpoint_dir or output.parent/f'.{output.name}.checkpoints', protect_baseline=bool(context_config)) / digest(config)
+    validate_output_path(work, [args.split.resolve().parent], protect_baseline=bool(context_config))
     if args.dry_run:
-        print(json.dumps(dict(split_sha256=split_sha,train=manifest['counts']['train'],files=len(manifest['entries'])),indent=2))
+        print(json.dumps(dict(split_sha256=split_sha,train=manifest['counts']['train'],files=len(manifest['entries']),context_config=context_config),indent=2))
         return 0
     work.mkdir(parents=True,exist_ok=True)
     tf,df = {g:Counter() for g in GROUPS},{g:Counter() for g in GROUPS}
     counts=Counter()
-    for i,result in enumerate(bounded_map(vocab_file,[(e,args.split.resolve().parent,work) for e in manifest['entries']],args.workers),1):
-        for g in GROUPS:
-            tf[g].update(result['tf'][g]); df[g].update(result['df'][g])
-        counts.update(result['counts'])
-        print(f'[{i}/{len(manifest["entries"])}] TRAIN vocabulary: {dict(counts)}',flush=True)
+    total_stats=Counter()
+    host_map = {}
+    for e in manifest['entries']:
+        host_map.setdefault(e['host'], []).append(e)
+    for host in host_map:
+        host_map[host].sort(key=lambda e: e['day'])
+    host_tasks = [(entries, args.split.resolve().parent, work, context_config) for entries in host_map.values()]
+    for i, host_results in enumerate(bounded_map(vocab_host, host_tasks, args.workers), 1):
+        for result in host_results:
+            for g in GROUPS:
+                tf[g].update(result['tf'][g])
+                df[g].update(result['df'][g])
+            counts.update(result['counts'])
+            if 'stats' in result:
+                total_stats.update(result['stats'])
+        print(f'[{i}/{len(host_tasks)}] TRAIN vocabulary hosts: {dict(counts)}', flush=True)
     if dict(counts) != manifest['counts']['train']:
         raise ValueError('fit counts differ from TRAIN split')
     checked_manifest(args.split,split_sha,manifest)
@@ -480,6 +647,8 @@ def vocab_main(args):
         split_counts=manifest['counts'],fit_counts=dict(counts),vocab_size=len(vocabulary),
         split_tokenizer_compatibility=split_tokenizer_compatibility(manifest['tokenizer_sha256']),
         split_tokenizer_sha256=manifest['tokenizer_sha256'],
+        context_policy=context_config,
+        context_stats=dict(total_stats) if context_config else None,
         scan=dict(read_to_eof=True,days=dict(Counter(e['day'] for e in manifest['entries'])),sources=[e['source'] for e in manifest['entries']]),
         frequency_policy=dict(
             min_term_frequency=args.min_frequency,

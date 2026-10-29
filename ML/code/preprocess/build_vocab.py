@@ -26,6 +26,10 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
+_PROJECT_ROOT = next((p for p in Path(__file__).resolve().parents if (p / "AGENTS.md").is_file()), Path(__file__).resolve().parents[3])
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
 from ML.code.preprocess.ecar_tokenizer import GROUPS, HOST_OBJECTS, TOKENIZER_POLICY, token_layers, tokenize_record
 from ML.code.preprocess.pipeline_contract import TRAIN_BENIGN_DAYS, code_hashes, sync_directory, validate_fit_input_path, validate_output_path
 
@@ -689,6 +693,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--reuse-existing", action="store_true",
                         help="skip corpus re-scan; only enrich existing metadata with "
                              "weird_token_hints and token_provenance")
+    parser.add_argument("--enable-parent-context", action="store_true",
+                        help="enrich events with actor process and parent process causal context tokens")
+    parser.add_argument("--context-max-processes", type=int, default=10_000,
+                        help="maximum active processes tracked per host before deterministic LRU eviction")
+    parser.add_argument("--context-ttl-seconds", type=float, default=86_400.0,
+                        help="TTL in seconds for process activity before expiration")
+    parser.add_argument("--enable-pid-fallback", action="store_true",
+                        help="opt-in PID lifecycle fallback when UUID is missing, with reuse conflict detection")
     return parser
 
 
@@ -698,6 +710,8 @@ def main(argv: list[str] | None = None) -> int:
     if (args.min_frequency < 1 or args.min_document_frequency < 1
             or (args.max_vocab_size is not None and args.max_vocab_size < 1)):
         raise ValueError('term/document frequency and maximum vocabulary size must be positive')
+    if getattr(args, 'enable_pid_fallback', False):
+        raise ValueError("PID fallback is not supported under strict UUID policy; omit flag or pass False")
     if args.split is not None:
         if args.days or args.reuse_existing or args.no_checkpoint or args.no_resume:
             raise ValueError('--split uses the immutable TRAIN assignment with automatic checkpoints; legacy options cannot override it')

@@ -16,6 +16,12 @@ import shutil
 import sys
 import time
 
+import numpy as np
+
+_PROJECT_ROOT = next((p for p in Path(__file__).resolve().parents if (p / "AGENTS.md").is_file()), Path(__file__).resolve().parents[3])
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
 from ML.code.preprocess.ecar_tokenizer import flatten_tokens,token_layers,tokenize_record
 from ML.code.preprocess.pipeline_contract import PROJECT_ROOT,load_vocabulary,validate_output_path,code_hashes,sync_directory
 from ML.code.preprocess.stratified_pipeline import (BASE,load_manifest,checked_manifest,checked_sources,split_rows,
@@ -25,7 +31,14 @@ from ML.code.preprocess.host_shards import FORMAT,SCHEMA,SPLITS,ShardBuffer
 
 
 def builder_identity():
-    return code_hashes(('build_model_input.py','host_shards.py','shard_storage.py'))
+    from ML.code.preprocess import stratified_pipeline, process_context_tracker
+    return {
+        **code_hashes(('build_model_input.py', 'host_shards.py', 'shard_storage.py',
+                       'process_context_tracker.py', 'stratified_pipeline.py', 'pipeline_contract.py')),
+        **code_hashes(),
+        'python': sys.version.split()[0],
+        'numpy': np.__version__
+    }
 
 
 def receipt_valid(receipt,entry,run_id,volumes):
@@ -57,52 +70,109 @@ def receipt_valid(receipt,entry,run_id,volumes):
     return True
 
 
-def process_source(entry,split_dir,vocab,control,run_id,volumes,rows_per_shard,buffer_bytes):
+def process_source(entry,split_dir,vocab,control,run_id,volumes,rows_per_shard,buffer_bytes,context_config=None,tracker=None):
     source_id=digest(entry['source'])
     receipt_path=control/'checkpoints'/run_id/f'{source_id}.json'
-    checked_sources([entry])
+    is_context = bool(context_config and context_config.get('enabled'))
+    host = entry.get('host')
+    day = entry.get('day')
+    chk_dir = control / 'checkpoints' / run_id
+    chk_path = chk_dir / f"tracker_{host}_{day}_{source_id[:16]}.json" if (is_context and host and day) else None
+
     if receipt_path.exists():
         try:
-            receipt=json.loads(receipt_path.read_text())
-            if receipt_valid(receipt,entry,run_id,volumes):
-                return dict(receipt,resumed=True)
-        except (OSError,ValueError,KeyError,TypeError):
+            receipt = json.loads(receipt_path.read_text())
+            if receipt_valid(receipt, entry, run_id, volumes):
+                if is_context and tracker is not None and chk_path is not None:
+                    expected_chk_sha = receipt.get('checkpoint_sha256')
+                    if not chk_path.is_file() or file_hash(chk_path) != expected_chk_sha:
+                        raise ValueError(f"checkpoint missing or checksum mismatch for {chk_path}")
+                    tracker.load_checkpoint(chk_path)
+                return dict(receipt, resumed=True)
+        except (OSError, ValueError, KeyError, TypeError):
             pass
-    buffers={s:ShardBuffer(len(vocab)) for s in SPLITS}
-    numbers=Counter();stats=Counter();parts=[]
-    started=time.monotonic()
+
+    buffers = {s: ShardBuffer(len(vocab)) for s in SPLITS}
+    numbers = Counter()
+    stats = Counter()
+    parts = []
+    started = time.monotonic()
+
     def flush(s):
-        buffer=buffers[s]
-        if not len(buffer):return
-        payload,info=buffer.encode()
-        relative=f'{run_id}/{source_id}/{s}_{numbers[s]:06d}.npz'
-        location=write_shard(control,relative,payload)
-        parts.append(dict(info,**location,split=s,source_id=source_id))
-        numbers[s]+=1
-        buffers[s]=ShardBuffer(len(vocab))
-    for code,line,record in split_rows(entry,split_dir):
-        split=SPLITS[code-1]
-        grouped,audit=tokenize_record(record)
-        if not audit['eligible']:raise ValueError('split/tokenizer eligibility mismatch')
-        tokens=set(flatten_tokens(grouped))
-        columns=[]
+        buffer = buffers[s]
+        if not len(buffer):
+            return
+        payload, info = buffer.encode()
+        relative = f'{run_id}/{source_id}/{s}_{numbers[s]:06d}.npz'
+        location = write_shard(control, relative, payload)
+        parts.append(dict(info, **location, split=s, source_id=source_id))
+        numbers[s] += 1
+        buffers[s] = ShardBuffer(len(vocab))
+
+    if is_context and tracker is None:
+        from ML.code.preprocess.process_context_tracker import HostProcessContextTracker, ProcessContextConfig
+        tracker = HostProcessContextTracker(ProcessContextConfig.from_dict(context_config))
+
+    for code, line, record in split_rows(entry, split_dir, tracker=tracker):
+        split = SPLITS[code - 1]
+        grouped, audit = tokenize_record(record)
+        if not audit['eligible']:
+            raise ValueError('split/tokenizer eligibility mismatch')
+        if '_context_tokens' in record:
+            grouped["structure_semantic"].extend(record['_context_tokens'])
+        tokens = set(flatten_tokens(grouped))
+        columns = []
         for token in tokens:
-            if token in vocab:columns.append(vocab[token])
+            if token in vocab:
+                columns.append(vocab[token])
             for layer in token_layers(token):
-                stats[f'candidate_unique_{layer}']+=1
-                if token not in vocab:stats[f'oov_unique_{layer}']+=1
-        if not columns:stats['empty_vectors']+=1
-        buffers[split].append(columns,record['label'],line)
-        stats['rows']+=1
-        if len(buffers[split])>=rows_per_shard or buffers[split].nbytes>=buffer_bytes:flush(split)
-    for s in SPLITS:flush(s)
+                stats[f'candidate_unique_{layer}'] += 1
+                if token not in vocab:
+                    stats[f'oov_unique_{layer}'] += 1
+        if not columns:
+            stats['empty_vectors'] += 1
+        buffers[split].append(columns, record['label'], line)
+        stats['rows'] += 1
+        if len(buffers[split]) >= rows_per_shard or buffers[split].nbytes >= buffer_bytes:
+            flush(split)
+
+    for s in SPLITS:
+        flush(s)
+
     checked_sources([entry])
-    receipt=dict(run_id=run_id,entry_sha256=digest(entry),source_id=source_id,
-                 shards=parts,stats=dict(stats),elapsed_seconds=time.monotonic()-started)
-    if not receipt_valid(receipt,entry,run_id,volumes):
+
+    chk_sha = None
+    if is_context and tracker is not None and chk_path is not None:
+        chk_dir.mkdir(parents=True, exist_ok=True)
+        tracker.save_checkpoint(chk_path)
+        chk_sha = file_hash(chk_path)
+
+    receipt = dict(run_id=run_id, entry_sha256=digest(entry), source_id=source_id,
+                   shards=parts, stats=dict(stats), elapsed_seconds=time.monotonic() - started,
+                   tracker_stats=dict(tracker.stats) if tracker else None)
+    if chk_sha is not None:
+        receipt['checkpoint_file'] = chk_path.name
+        receipt['checkpoint_sha256'] = chk_sha
+
+    if not receipt_valid(receipt, entry, run_id, volumes):
         raise ValueError('new shard receipt failed count/checksum validation')
-    atomic_json(receipt_path,receipt)
-    return dict(receipt,resumed=False)
+    atomic_json(receipt_path, receipt)
+    return dict(receipt, resumed=False)
+
+
+def process_host(entries, split_dir=None, vocab=None, control=None, run_id=None, volumes=None, rows_per_shard=None, buffer_bytes=None, context_config=None):
+    if split_dir is None and isinstance(entries, (tuple, list)) and len(entries) == 9:
+        entries, split_dir, vocab, control, run_id, volumes, rows_per_shard, buffer_bytes, context_config = entries
+    tracker = None
+    if context_config and context_config.get('enabled'):
+        from ML.code.preprocess.process_context_tracker import HostProcessContextTracker, ProcessContextConfig
+        tracker = HostProcessContextTracker(ProcessContextConfig.from_dict(context_config))
+    results = []
+    for entry in entries:
+        res = process_source(entry, split_dir, vocab, control, run_id, volumes, rows_per_shard, buffer_bytes,
+                             context_config=context_config, tracker=tracker)
+        results.append(res)
+    return results
 
 
 def copy_asset(source,target):
@@ -128,20 +198,69 @@ def main(argv=None):
     parser.add_argument('--workers',type=int,default=4)
     parser.add_argument('--rows-per-shard',type=int,default=100000)
     parser.add_argument('--buffer-mib',type=int,default=32)
+    parser.add_argument('--enable-parent-context', action='store_true',
+                        help='enrich events with actor process and parent process causal context tokens')
+    parser.add_argument('--context-max-processes', type=int, default=10000,
+                        help='maximum active processes tracked per host before deterministic LRU eviction')
+    parser.add_argument('--context-ttl-seconds', type=float, default=86400.0,
+                        help='TTL in seconds for process activity before expiration')
+    parser.add_argument('--enable-pid-fallback', action='store_true',
+                        help='opt-in PID lifecycle fallback when UUID is missing')
     parser.add_argument('--dry-run',action='store_true')
     args=parser.parse_args(argv)
     if min(args.workers,args.rows_per_shard,args.buffer_mib)<1:raise ValueError('positive worker/buffer sizes required')
     split,split_sha=load_manifest(args.split,'host_random_split')
     vocab,vm=load_vocabulary(args.vocab,args.vocab_metadata,split_sha256=split_sha)
+    vocab_has_context = bool(vm.get('context_policy') and vm['context_policy'].get('enabled'))
+    if args.enable_parent_context and not vocab_has_context:
+        raise ValueError(
+            "Cannot build context shards with a baseline vocabulary. "
+            "The vocabulary at --vocab was fitted without parent context. "
+            "Rebuild vocabulary with --enable-parent-context first."
+        )
+    if not args.enable_parent_context and vocab_has_context:
+        raise ValueError(
+            "Vocabulary was fitted with parent context, but --enable-parent-context was not provided. "
+            "Supply --enable-parent-context or use a baseline vocabulary."
+        )
+    context_config = None
+    if args.enable_parent_context:
+        vp = vm.get('context_policy') or {}
+        if args.context_max_processes != vp.get('max_processes_per_host', 10000):
+            raise ValueError(f"context-max-processes mismatch: vocab fitted with {vp.get('max_processes_per_host')}, builder received {args.context_max_processes}")
+        if args.context_ttl_seconds != vp.get('ttl_seconds', 86400.0):
+            raise ValueError(f"context-ttl-seconds mismatch: vocab fitted with {vp.get('ttl_seconds')}, builder received {args.context_ttl_seconds}")
+        if getattr(args, 'enable_pid_fallback', False) or vp.get('enable_pid_fallback', False):
+            raise ValueError("PID fallback is not supported under strict UUID policy; omit flag or pass False")
+
+        # Validate context implementation compatibility
+        rec_impl = vm.get('implementation', {})
+        from ML.code.preprocess.pipeline_contract import code_hashes
+        expected_context_hashes = code_hashes(('process_context_tracker.py', 'stratified_pipeline.py', 'pipeline_contract.py'))
+        for f, exp_h in expected_context_hashes.items():
+            if rec_impl.get(f) != exp_h:
+                raise ValueError(
+                    f"Vocabulary context implementation mismatch for {f}: "
+                    f"fitted with {rec_impl.get(f)}, current is {exp_h}. "
+                    "Rebuild vocabulary with current implementation."
+                )
+
+        from ML.code.preprocess.process_context_tracker import ProcessContextConfig
+        context_config = dict(vp)
+        ProcessContextConfig.from_dict(context_config)
+
     protected=[args.split.resolve().parent]+[Path(e['source']['path']).parent for e in split['entries']]
-    control=validate_output_path(args.output_dir,protected)
+    control=validate_output_path(args.output_dir,protected,protect_baseline=bool(context_config))
     volumes=load_volumes(args.storage_config,protected,create=False)
+    for v in volumes:
+        validate_output_path(Path(v['path']), protect_baseline=bool(context_config))
     config=dict(format=FORMAT,schema=SCHEMA,split_sha256=split_sha,vocabulary_sha256=vm['vocabulary_sha256'],
-                builder_sha256=builder_identity(),rows_per_shard=args.rows_per_shard,buffer_bytes=args.buffer_mib*2**20)
+                builder_sha256=builder_identity(),rows_per_shard=args.rows_per_shard,buffer_bytes=args.buffer_mib*2**20,
+                context_config=context_config)
     run_id=digest(config)
     if args.dry_run:
         print(json.dumps(dict(run_id=run_id,sources=len(split['entries']),counts=split['counts'],
-            vocab_size=len(vocab),output_dir=str(control),volumes=volumes,
+            vocab_size=len(vocab),output_dir=str(control),volumes=volumes,context_config=context_config,
             note='Full corpus; compression size is unknown until shards are measured. No output writes.'),indent=2))
         return 0
     control.mkdir(parents=True,exist_ok=True)
@@ -162,15 +281,24 @@ def main(argv=None):
         copy_asset(args.vocab_metadata,control/'assets/vocab_metadata.json')
         copy_asset(Path(__file__).with_name('host_shards.py'),control/'host_shards.py')
         copy_asset(Path(__file__).with_name('shard_metrics.py'),control/'shard_metrics.py')
+        copy_asset(Path(__file__).with_name('process_context_tracker.py'),control/'process_context_tracker.py')
         notebook_dir=Path(__file__).resolve().parents[1]/'kaggle/notebooks'
         for p in sorted(notebook_dir.glob('host_*_shards.ipynb')):copy_asset(p,control/p.name)
         parts=[];stats=Counter();resumed=0
-        tasks=[(e,args.split.resolve().parent,vocab,control,run_id,volumes,args.rows_per_shard,args.buffer_mib*2**20) for e in split['entries']]
-        for i,result in enumerate(bounded_map(process_source,tasks,args.workers),1):
-            parts.extend(result['shards']);stats.update(result['stats']);resumed+=int(result['resumed'])
-            saved=sum(p['bytes'] for p in result['shards'])
-            print(f'[{i}/{len(tasks)}] {"RESUME" if result["resumed"] else "WROTE"} {result["source_id"][:12]}: '
-                  f'{result["stats"].get("rows",0):,} rows, {saved/2**20:.1f} MiB; total {stats.get("rows",0):,} rows',flush=True)
+        host_entries = {}
+        for e in split['entries']:
+            host_entries.setdefault(e['host'], []).append(e)
+        for host in host_entries:
+            host_entries[host].sort(key=lambda e: e['day'])
+        host_tasks = [(entries, args.split.resolve().parent, vocab, control, run_id, volumes,
+                       args.rows_per_shard, args.buffer_mib*2**20, context_config)
+                      for entries in host_entries.values()]
+        for i, host_results in enumerate(bounded_map(process_host, host_tasks, args.workers), 1):
+            for result in host_results:
+                parts.extend(result['shards']);stats.update(result['stats']);resumed+=int(result['resumed'])
+                saved=sum(p['bytes'] for p in result['shards'])
+                print(f'[{len(parts)} shards] {"RESUME" if result["resumed"] else "WROTE"} {result["source_id"][:12]}: '
+                      f'{result["stats"].get("rows",0):,} rows, {saved/2**20:.1f} MiB; total {stats.get("rows",0):,} rows',flush=True)
         checked_manifest(args.split,split_sha,split)
         totals={s:{k:sum(p[k] for p in parts if p['split']==s) for k in ('rows','nnz','label_0','label_1','bytes')} for s in SPLITS}
         for s in SPLITS:
@@ -184,7 +312,8 @@ def main(argv=None):
             shards=parts,assets_sha256={p.name:file_hash(p) for p in (control/'assets').iterdir()},
             statistics=dict(stats),resumed_files=resumed,representation='binary sparse presence; no row aggregation or sampling',
             row_identity='source_id + source_line; raw provenance remains in read-only source records',
-            stage_compatibility='original split/tokenizer/vocabulary checked without modifying upstream artifacts')
+            stage_compatibility='original split/tokenizer/vocabulary checked without modifying upstream artifacts',
+            context_policy=context_config)
         atomic_json(final,manifest)
         print(json.dumps(dict(manifest=str(final),splits=totals,total_shard_bytes=sum(p['bytes'] for p in parts)),indent=2))
     return 0

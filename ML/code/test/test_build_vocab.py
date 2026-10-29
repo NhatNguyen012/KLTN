@@ -62,7 +62,7 @@ class BuildVocabTests(unittest.TestCase):
             self.assertFalse((base / 'bad/vocab.json').exists())
 
     def test_other_protected_roots_and_reuse_are_rejected_before_writes(self):
-        with tempfile.TemporaryDirectory() as tmp, patch('pipeline_contract.PROJECT_ROOT', Path(tmp)):
+        with tempfile.TemporaryDirectory() as tmp, patch('ML.code.preprocess.pipeline_contract.PROJECT_ROOT', Path(tmp)):
             base = Path(tmp)
             for name in ('host-begnin', 'host-malicious', 'ecar-bro', 'bro'):
                 output = base / name / 'vocab_metadata.json'
