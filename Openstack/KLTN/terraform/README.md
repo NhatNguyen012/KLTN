@@ -77,8 +77,11 @@ terraform output -json ssh_commands
 - Cloudbase-Init nhận metadata và `windows-user-data.ps1` qua config drive. Script
   first-boot được thiết kế để bật `TermService`, Windows Firewall cho RDP và
   ICMP echo.
-- Cloudbase-Init tạo mật khẩu ngẫu nhiên và mã hóa nó bằng public key của
-  `lab-key`. Không commit mật khẩu Administrator vào tfvars.
+- Tài khoản Cloudbase-Init hiện tại là `Admin`, không phải `Administrator`.
+  Với image/config drive đã kiểm tra, plugin dùng `admin_pass` do Nova đưa vào
+  config drive; mật khẩu này không được đăng ngược lên API password của Nova.
+  `lab-key` là Ed25519: không coi đây là khóa RSA dùng để giải mã mật khẩu
+  Windows. Không commit mật khẩu hoặc nội dung config drive vào tfvars/log/git.
 - Đặt `create_floating_ips = false` nếu chỉ cần IP private/SNAT outbound.
 - State nằm cục bộ trong thư mục này. Không commit `*.tfstate` vì state có thể
   chứa dữ liệu nhạy cảm.
@@ -90,10 +93,65 @@ toàn bộ 24 resource. Hai Ubuntu đạt `ACTIVE`, hoàn tất cloud-init và S
 Windows đạt `ACTIVE`, nhận đúng fixed IP, QEMU Guest Agent phản hồi; libvirt xác
 nhận Q35/UEFI Secure Boot và TPM 2.0 CRB có secret mã hóa trong Barbican.
 
-Giới hạn còn lại: trong image Glance hiện tại, Cloudbase-Init chưa thực thi
-PowerShell user-data trước khi hết thời gian smoke test, nên `TermService` vẫn
-`STOPPED` và TCP/3389 chưa mở. Việc tạo/schedule/boot Windows đã qua kiểm thử,
-nhưng cần sửa hoặc rebuild image Cloudbase-Init trước khi coi RDP là sẵn sàng.
+Lần kiểm tra này kết thúc khi `TermService` còn `STOPPED`. Đây chưa phải bằng
+chứng Cloudbase-Init bị lỗi hoặc image cần rebuild; xem lần kiểm tra tiếp bên dưới.
+
+## Chẩn đoán trực tiếp 2026-10-29
+
+Đã tạo lại Windows từ nguyên image Glance
+`8916e3cb-025e-45d8-81ba-4c4be7881f97`, dùng nguyên user-data 654 byte.
+Không đổi ISO, không sửa guest để bật RDP. Các mốc giờ guest (UTC+7):
+
+| Mốc | Bằng chứng |
+|---|---|
+| 13:17:49 | Windows bắt đầu specialize/OOBE |
+| 13:18:33 | Hai tiến trình Cloudbase-Init dừng lâu tại import `WindowsUtils` |
+| 13:22:50 | Service nạp ConfigDrive; có lỗi tài khoản/WMI trong lúc Setup chưa hoàn tất |
+| Sau reboot tự động | Plugin tạo `Admin` và cấu hình mạng thành công |
+| 13:23:18 | `Executing plugin 'UserDataPlugin'` |
+| 13:23:26 | `User_data script ended with return code: 0` |
+| 13:23:27 | `Plugins execution done` |
+
+Phép thử import độc lập ghi nhận chờ tại `win32security`; chưa xác định nguyên
+nhân sâu hơn của thời gian chờ native này. Nó tự kết thúc, không phải bằng
+chứng deadlock vĩnh viễn. Sau first-boot, `TermService` là Running/Automatic,
+TCP/3389 kết nối được qua floating IP, và Windows `LogonUserW` xác thực `Admin`
+thành công. Chưa kiểm tra phiên desktop RDP tương tác.
+
+`cloudbase-init` chuyển sang Stopped sau khi hoàn tất là bình thường. Không dùng
+riêng trạng thái service hoặc trạng thái Nova `ACTIVE` để kết luận first-boot xong.
+Chờ tối đa 15 phút và kiểm tra cổng từ máy có route tới floating IP:
+
+```bash
+python3 wait-windows-rdp.py "$(terraform output -json floating_ipv4 | python3 -c 'import json,sys; print(json.load(sys.stdin)["windows1"])')"
+```
+
+Helper kiểm tra TCP ba lần cách nhau 5 giây; nó không kiểm tra mật khẩu hay bảo
+đảm mọi plugin đã hoàn tất. Khi timeout, đọc cả `cloudbase-init.log`,
+`cloudbase-init-unattend.log` và `C:\Windows\Panther\UnattendGC\setupact.log`.
+Nếu QEMU `guest-file-open` báo file log đang bị dùng, đọc qua PowerShell
+`Get-Content`; trong specialize, PowerShell cũng có thể chờ lâu.
+
+Lỗi tài liệu mật khẩu đã được xác nhận: log báo
+`Cannot set the password in the metadata as it is not supported by this service`,
+và API Nova trả mật khẩu mã hóa rỗng. ConfigDrive không có khả năng post password
+như [HTTP metadata service](https://cloudbase-init.readthedocs.io/en/latest/services.html).
+Trong lab hiện tại, quản trị viên có thể đọc `openstack/latest/meta_data.json`
+trên ổ `config-2` bằng QEMU Guest Agent và giữ riêng trường `admin_pass` trong
+file quyền 0600. Không in toàn bộ metadata ra log. Nếu muốn quy trình lấy mật
+khẩu mã hóa qua Nova, cần thiết kế và kiểm thử riêng HTTP metadata + khóa RSA;
+chỉ thay keypair không đủ.
+
+Đã dọn tài nguyên kiểm thử ngày 2026-10-29 theo yêu cầu người dùng. Khi refresh,
+VM chẩn đoán đã không còn trên Nova; Terraform đã xóa 18 resource phụ thuộc còn
+lại. State hiện rỗng, không còn VM; `nova-compute` đã được đưa về disabled với
+lý do `KLTN lab idle`. File mật khẩu tạm đã xóa. Image, ISO và mã nguồn được giữ
+để tạo lại sau. Khi cần chạy lại, enable compute và tạo plan mới theo phần trên.
+
+Hai ISO mới có tên Evaluation; chưa dùng chúng để build hay kiểm tra first-boot.
+Builder hiện chọn LTSC bằng KMS client setup key. Không chỉ thay `WINDOWS_ISO`
+sang Evaluation mà giữ nguyên lựa chọn edition/key rồi coi là tương thích.
+Chưa có bằng chứng nguồn ISO cũ là nguyên nhân của triệu chứng RDP này.
 
 Chỉ khi muốn xóa toàn bộ tài nguyên do cấu hình này quản lý:
 
