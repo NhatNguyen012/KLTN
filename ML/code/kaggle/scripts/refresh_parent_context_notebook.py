@@ -29,10 +29,12 @@ state but are not vocabulary features. This frozen random-event split does not
 establish generalization to unseen processes, hosts or campaigns.
 ''']
     setup = ''.join(n['cells'][1]['source'])
-    setup = setup.replace("roots = [Path('/kaggle/input')] if Path('/kaggle/input').exists() else [Path.cwd() / 'code/output/host_ml_seed02/model_input']", "roots = ([Path('/kaggle/input'), Path('/kaggle/working/parent_context_input')] if Path('/kaggle/input').exists() else [Path.cwd() / 'ML/code/output/host_ml_parent_context_seed02/model_input'])")
+    setup = setup.replace("roots = [Path('/kaggle/input')] if Path('/kaggle/input').exists() else [Path.cwd() / 'code/output/host_ml_seed02/model_input']", "roots = ([Path('/kaggle/input'), Path('/kaggle/working/parent_context_input')] if Path('/kaggle/input').exists() else [Path.cwd() / 'ML/code/output/host_ml_parent_incoming_seed02/model_input'])")
     setup = setup.replace("candidate.get('format') == 'host_binary_delta_npz':", "candidate.get('format') == 'host_binary_delta_npz' and (candidate.get('context_policy') or {}).get('enabled'):")
     guard = f'''\n# Require the new experiment, even when OPTC_MANIFEST is explicitly supplied.
 _input_meta = json.loads(MANIFEST.read_text())
+if not (_input_meta.get('context_policy') or {{}}).get('incoming_enabled'):
+    raise ValueError('Rebuild required: typed incoming context shards expected')
 if not (_input_meta.get('context_policy') or {{}}).get('enabled'):
     raise ValueError('Parent-context shards required; baseline shards are not compatible')
 if _input_meta.get('split_sha256') != {split_sha!r}:

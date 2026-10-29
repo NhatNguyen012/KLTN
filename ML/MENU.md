@@ -239,3 +239,17 @@ checkpoint to validate its original implementation fingerprint, not as active co
 - `code/test/test_parent_context_notebook.py`: compilation, experiment input guards and validation threshold contract.
 - `code/kaggle/scripts/package_host_shards.py`: optional repeatable `--notebook` selects notebook filenames for a new package; default baseline packaging remains unchanged.
 - `code/kaggle/docs/PARENT_CONTEXT_RUNBOOK.md`: build, resume, upload and train instructions for the new experiment.
+
+### Typed incoming extension (2026-10-29)
+
+- `code/preprocess/process_context_tracker.py`: schema 4 actor/parent plus bounded,
+  typed incoming PROCESS OPEN and THREAD REMOTE_CREATE snapshots; strict UUID,
+  strict earlier-time queries, independent per-kind capacity/TTL, no extra hop.
+- `code/preprocess/stratified_pipeline.py`: publishes complete context config,
+  including incoming policy defaults, in vocabulary/shard provenance.
+- `code/preprocess/run_parent_context_seed02.py`: new default output namespace
+  `code/output/host_ml_parent_incoming_seed02`; retains frozen seed02 and old outputs.
+- `code/test/test_incoming_context.py`: causal direction, field ownership, UUID,
+  TTL/capacity, label independence, native resume and background timestamp-batch tests.
+- `code/kaggle/notebooks/lgbm.ipynb` and its refresh generator: require incoming-enabled
+  input policy. Rebuild instructions in `code/kaggle/docs/PARENT_CONTEXT_RUNBOOK.md`.

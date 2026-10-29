@@ -114,6 +114,7 @@ class ProcessNode:
     recent_actions: list[tuple[str, int]] = field(default_factory=list)
     parent_edges: list[tuple[str, int]] = field(default_factory=list)
     pid: int | None = None
+    incoming: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -130,10 +131,13 @@ class ProcessNode:
             "recent_actions": list(self.recent_actions),
             "parent_edges": list(self.parent_edges),
             "pid": self.pid,
+            "incoming": self.incoming,
         }
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> ProcessNode:
+        if not isinstance(data.get("incoming"), list):
+            raise ValueError("checkpoint missing incoming history")
         edges = data.get("parent_edges")
         if edges is None:
             edges = []
@@ -153,6 +157,7 @@ class ProcessNode:
             recent_actions=[(item[0], item[1]) for item in data.get("recent_actions", [])],
             parent_edges=[(item[0], item[1]) for item in edges],
             pid=data.get("pid"),
+            incoming=list(data["incoming"]),
         )
 
 
@@ -163,6 +168,9 @@ class ProcessContextConfig:
     ttl_seconds: float = 86_400.0
     enable_pid_fallback: bool = False
     max_recent_actions: int = 8
+    incoming_enabled: bool = True
+    incoming_per_kind: int = 8
+    incoming_ttl_seconds: float = 86400.0
     time_policy: str = "strictly_before_t"
     identity_policy: str = "canonical_hostname_plus_uuid"
     field_ownership: dict[str, Any] = field(default_factory=dict)
@@ -174,6 +182,10 @@ class ProcessContextConfig:
             raise ValueError("ttl_seconds must be a finite positive number")
         if self.max_recent_actions < 1:
             raise ValueError("max_recent_actions must be positive")
+        if not 1 <= self.incoming_per_kind <= 32:
+            raise ValueError("incoming_per_kind must be between 1 and 32")
+        if not math.isfinite(self.incoming_ttl_seconds) or self.incoming_ttl_seconds <= 0:
+            raise ValueError("incoming_ttl_seconds must be finite and positive")
         if self.enable_pid_fallback:
             raise ValueError("PID fallback is not supported under strict UUID policy; omit flag or pass False")
 
@@ -440,6 +452,8 @@ class HostProcessContextTracker:
             tokens.append("ctx::status::actor_metadata_missing")
             self.stats["actor_metadata_missing"] += 1
 
+        tokens.extend(self._incoming_tokens(actor_node, query_t))
+
         # 2. Resolve Parent Process of Actor strictly before query_t
         valid_parent_edges = [(p_uuid, edge_t) for p_uuid, edge_t in actor_node.parent_edges if edge_t < query_t]
         unique_parents = sorted(set(p_uuid for p_uuid, edge_t in valid_parent_edges))
@@ -551,6 +565,83 @@ class HostProcessContextTracker:
             tokens.append("ctx::relation::actor_is_parent_of_target=true")
 
         return self._finalize_tokens(tokens)
+
+    def _incoming_tokens(self, node: ProcessNode, query_t: int) -> list[str]:
+        if not self.config.incoming_enabled:
+            return []
+        tokens = []
+        ttl = int(self.config.incoming_ttl_seconds * 1_000_000)
+        for edge in node.incoming:
+            if not query_t - ttl <= edge["t"] < query_t:
+                continue
+            prefix = "ctx::incoming::" + edge["kind"] + "::"
+            tokens.extend([prefix + "present=true", prefix + "direction=incoming",
+                           prefix + "age=" + age_bucket((query_t-edge["t"])/1e6)])
+            tokens.extend(prefix + item for item in edge["source_features"])
+            if edge.get("prior_open_t") is not None:
+                tokens.append(prefix + "prior_process_open=true")
+                tokens.append(prefix + "open_gap=" + age_bucket((edge["t"]-edge["prior_open_t"])/1e6))
+        return sorted(set(tokens))
+
+    def _observe_incoming(self, record, host, actor_uuid, event_t, object_type, action, props):
+        """Snapshot directed evidence; never copy target command_line from PROCESS OPEN.
+
+        Two independently capped queues keep frequent OPENs from evicting remote
+        thread evidence. UUIDs are join keys only. No ancestry traversal or labels.
+        """
+        if not self.config.incoming_enabled or not UUID_PATTERN.fullmatch(actor_uuid):
+            return
+        if (object_type, action) == ("process", "open"):
+            target = canonical_uuid(record.get("objectID"))
+            kind = "process_open"
+        elif (object_type, action) == ("thread", "remote_create"):
+            target = canonical_uuid(props.get("tgt_pid_uuid"))
+            kind = "thread_remote_create"
+        else:
+            return
+        if not UUID_PATTERN.fullmatch(target) or target == actor_uuid:
+            return
+        procs = self._get_host_processes(host)
+        node = procs.get(target)
+        if node is None:
+            node = ProcessNode(uuid=target, host=host, last_seen_t=event_t)
+            procs[target] = node
+        node.last_seen_t = max(node.last_seen_t, event_t)
+        ttl = int(self.config.incoming_ttl_seconds * 1_000_000)
+        node.incoming = [e for e in node.incoming if e["t"] >= event_t-ttl]
+        # Raw image_path and top-level principal belong to the source on these
+        # event types. Missing metadata stays explicit, not inferred from labels.
+        features = []
+        img = props.get("image_path")
+        if isinstance(img, str) and img.strip():
+            img = img.strip()[:MAX_IMAGE_PATH_LEN]
+            for tok in _compact_path_tokens("image_path", img, True):
+                if "::basename=" in tok:
+                    features.append("source_exe=" + tok.split("::basename=", 1)[1])
+                elif "::category=" in tok:
+                    features.append("source_path_role=" + tok.split("::category=", 1)[1])
+            base = normalize_literals(_basename_windows(img))
+            features.append("source_family=" + next((f for f in COMMAND_FAMILIES if f in base), "native"))
+        else:
+            features.append("source_image_missing=true")
+        principal = record.get("principal")
+        if isinstance(principal, str) and principal.strip():
+            features.extend("source_principal=" + t.split("principal::", 1)[1]
+                            for t in tokenize_principal(principal[:MAX_PRINCIPAL_LEN])
+                            if t.startswith("principal::"))
+        else:
+            features.append("source_principal=missing")
+        prior = [e["t"] for e in node.incoming if e["kind"] == "process_open"
+                 and e["source_uuid"] == actor_uuid and e["t"] < event_t]
+        edge = dict(kind=kind, t=event_t, source_uuid=actor_uuid,
+                    source_features=sorted(set(features)),
+                    prior_open_t=max(prior) if prior and kind == "thread_remote_create" else None)
+        # Duplicate records at the same timestamp do not consume all slots.
+        if edge not in node.incoming:
+            node.incoming.append(edge)
+        same = [e for e in node.incoming if e["kind"] == kind]
+        other = [e for e in node.incoming if e["kind"] != kind]
+        node.incoming = other + same[-self.config.incoming_per_kind:]
 
     def observe(self, record: Mapping[str, Any], event_t: int | None = None) -> None:
         """Update tracker state with evidence from the current event, strictly after feature generation."""
@@ -712,6 +803,8 @@ class HostProcessContextTracker:
             if len(actor_node.recent_actions) > self.config.max_recent_actions * 2:
                 actor_node.recent_actions.pop(0)
 
+        self._observe_incoming(record, host, actor_uuid, event_t, object_type, action, props)
+
         # Any newly inserted timestamp is >= event_t (touches use max). Keeping an
         # earlier deadline is safe; exact expiry and original eviction order are preserved.
         floor = self._expiry_floor.get(host)
@@ -726,7 +819,7 @@ class HostProcessContextTracker:
         from ML.code.preprocess.pipeline_contract import code_hashes
         from dataclasses import asdict
         data = {
-            "schema_version": 3,
+            "schema_version": 4,
             "config": asdict(self.config),
             "code_hashes": code_hashes(CONTEXT_PIPELINE_FILES),
             "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -758,10 +851,10 @@ class HostProcessContextTracker:
             raise FileNotFoundError(f"checkpoint file not found: {p}")
         data = json.loads(p.read_text(encoding="utf-8"))
         schema_v = data.get("schema_version")
-        if schema_v != 3:
+        if schema_v != 4:
             raise ValueError(
-                f"unsupported checkpoint schema version: {schema_v}; expected 3 (PID audit tracking). "
-                "Schema v2 lacks PID tracking history; migration/rebuild required."
+                f"unsupported checkpoint schema version: {schema_v}; expected 4 (typed incoming history). "
+                "Older schemas lack incoming history; rebuild in a new namespace required."
             )
 
         from ML.code.preprocess.pipeline_contract import code_hashes
@@ -794,6 +887,25 @@ class HostProcessContextTracker:
                 uuid: ProcessNode.from_dict(node_dict)
                 for uuid, node_dict in procs_data.items()
             }
+        for procs in self.hosts.values():
+            for node in procs.values():
+                counts = {}
+                for edge in node.incoming:
+                    kind = edge.get("kind")
+                    if kind not in {"process_open", "thread_remote_create"}:
+                        raise ValueError("invalid incoming edge kind")
+                    counts[kind] = counts.get(kind, 0) + 1
+                    if counts[kind] > self.config.incoming_per_kind:
+                        raise ValueError("incoming checkpoint capacity exceeded")
+                    if not isinstance(edge.get("t"), int) or not UUID_PATTERN.fullmatch(edge.get("source_uuid", "")):
+                        raise ValueError("invalid incoming edge identity/time")
+                    if not isinstance(edge.get("source_features"), list) or len(edge["source_features"]) > 16:
+                        raise ValueError("invalid incoming source snapshot")
+                    if any(not isinstance(f, str) or len(f) > MAX_IMAGE_PATH_LEN for f in edge["source_features"]):
+                        raise ValueError("invalid incoming source feature")
+                    prior = edge.get("prior_open_t")
+                    if prior is not None and (not isinstance(prior, int) or prior >= edge["t"]):
+                        raise ValueError("noncausal incoming OPEN sequence")
         self.evicted_uuids = {}
         for host, evicted_list in data.get("evicted_uuids", {}).items():
             self.evicted_uuids[host] = deque(evicted_list, maxlen=2000)

@@ -94,7 +94,7 @@ class ProductionCheckpointResumeTests(unittest.TestCase):
 
         # Verify checkpoint has schema_version 3 and pid_tracker
         saved_data = json.loads(chk_path.read_text())
-        self.assertEqual(saved_data.get("schema_version"), 3)
+        self.assertEqual(saved_data.get("schema_version"), 4)
         self.assertIn("pid_tracker", saved_data)
         self.assertIn(host, saved_data["pid_tracker"])
         self.assertIn("1002", saved_data["pid_tracker"][host])
@@ -408,7 +408,7 @@ class ProductionCheckpointResumeTests(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             tr_test.load_checkpoint(chk_v2)
         self.assertIn("unsupported checkpoint schema version: 2", str(cm.exception))
-        self.assertIn("expected 3", str(cm.exception))
+        self.assertIn("expected 4", str(cm.exception))
 
         # 2. Strict rejection of tampered code hash
         chk_tampered_hash = self.b / "chk_tampered_hash.json"

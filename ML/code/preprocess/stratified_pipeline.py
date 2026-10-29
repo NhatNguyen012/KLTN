@@ -593,7 +593,8 @@ def vocab_main(args):
             }
         )
         # Validate config via ProcessContextConfig
-        ProcessContextConfig.from_dict(context_config)
+        from dataclasses import asdict
+        context_config = asdict(ProcessContextConfig.from_dict(context_config))
     output = validate_output_path(args.output, protect_baseline=bool(context_config))
     metadata_output = validate_output_path(args.metadata_output, protect_baseline=bool(context_config))
     if output == metadata_output:

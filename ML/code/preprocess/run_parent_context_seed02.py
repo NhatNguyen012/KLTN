@@ -74,7 +74,7 @@ def verify_frozen_labels(manifest, split_path, index_path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output-dir', type=Path, default=ROOT/'ML/code/output/host_ml_parent_context_seed02')
+    parser.add_argument('--output-dir', type=Path, default=ROOT/'ML/code/output/host_ml_parent_incoming_seed02')
     parser.add_argument('--workers', type=int, default=6)
     args = parser.parse_args()
     if args.workers < 1: raise ValueError('positive workers required')
