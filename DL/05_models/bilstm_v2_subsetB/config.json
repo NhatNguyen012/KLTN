@@ -23,29 +23,15 @@
   "categorical_fields": [
     "app_family",
     "proto",
-    "service",
-    "conn_state",
     "resp_port_class",
-    "image_dir_class",
-    "principal_class"
+    "image_dir_class"
   ],
   "categorical_cardinalities": [
     61,
     4,
-    5,
-    8,
     11,
-    10,
-    7
+    10
   ],
-  "numerical_fields": [
-    "duration",
-    "orig_bytes",
-    "resp_bytes",
-    "orig_pkts",
-    "orig_ip_bytes",
-    "resp_pkts",
-    "resp_ip_bytes"
-  ],
-  "trainable_parameters": 80657
+  "numerical_fields": [],
+  "trainable_parameters": 78698
 }

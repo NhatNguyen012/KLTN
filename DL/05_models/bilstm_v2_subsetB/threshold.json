@@ -1,11 +1,11 @@
 {
   "selected_on": "val",
   "policy": "maximize F1",
-  "threshold": 1.0,
+  "threshold": 0.99560546875,
   "best_epoch": 2,
   "best_val_pr_auc": 1.0,
   "val_metrics_at_threshold": {
-    "threshold": 1.0,
+    "threshold": 0.99560546875,
     "precision": 1.0,
     "recall": 1.0,
     "f1": 1.0,

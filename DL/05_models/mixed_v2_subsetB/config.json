@@ -26,35 +26,21 @@
   "categorical_fields": [
     "app_family",
     "proto",
-    "service",
-    "conn_state",
     "resp_port_class",
-    "image_dir_class",
-    "principal_class"
+    "image_dir_class"
   ],
   "categorical_cardinalities": [
     61,
     4,
-    5,
-    8,
     11,
-    10,
-    7
+    10
   ],
-  "numerical_fields": [
-    "duration",
-    "orig_bytes",
-    "resp_bytes",
-    "orig_pkts",
-    "orig_ip_bytes",
-    "resp_pkts",
-    "resp_ip_bytes"
-  ],
+  "numerical_fields": [],
   "binary_fields": [
     "has_missed_bytes"
   ],
   "delta_time_field": "delta_t_log1p",
-  "feature_token_count": 16,
+  "feature_token_count": 6,
   "event_pooling": "mean over feature-token outputs",
   "temporal_position": "learned absolute position embedding",
   "window_pooling": "masked mean over event outputs",
@@ -62,5 +48,5 @@
   "early_stopping_metric": "VAL PR-AUC",
   "threshold_policy": "maximize F1 on VAL only",
   "test_policy": "evaluate once after best checkpoint + VAL threshold freeze",
-  "trainable_parameters": 147329
+  "trainable_parameters": 144065
 }
