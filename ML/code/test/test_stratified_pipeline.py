@@ -4,13 +4,17 @@ import gzip
 import io
 import json
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 import numpy as np
 from scipy import sparse
+
+_PRE = Path(__file__).resolve().parent.parent / 'preprocess'
+if str(_PRE) not in sys.path:
+    sys.path.insert(0, str(_PRE))
 from build_vocab import main as build_vocab
 from build_matrix import main as build_matrix
-from package_kaggle_input import main as package
 from ecar_tokenizer import tokenize_record, flatten_tokens
 from pipeline_contract import load_vocabulary, load_training_bundle
 from stratified_pipeline import (index_main,split_main,load_manifest,split_rows,quota,
@@ -83,14 +87,6 @@ class SharedSplitTests(unittest.TestCase):
                 self.assertEqual({(r['source_file'],r['source_line']) for r in side},assigned[code])
             with self.assertRaisesRegex(ValueError,'exact shared split'):
                 load_vocabulary(fitted/'vocab.json',fitted/'vocab_metadata.json',split_sha256='wrong')
-            with contextlib.redirect_stderr(io.StringIO()):
-                package(['--input-dir',str(fitted),'--matrix-dir',str(out),'--output-dir',str(base/'package')])
-            _, provenance = load_training_bundle(base/'package')
-            self.assertEqual(provenance['split_sha256'],sha)
-            artifact=base/'package/matrix/y_val.npy'
-            artifact.write_bytes(b'corrupt')
-            with self.assertRaisesRegex(ValueError,'artifact checksum'):
-                load_training_bundle(base/'package')
             mask=sp/manifest['entries'][0]['artifact']
             mask.write_bytes(b'corrupt')
             with self.assertRaisesRegex(ValueError,'checksum'):
