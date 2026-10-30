@@ -12,8 +12,8 @@ ssh_public_key_path = "~/.ssh/openstack_ed25519.pub"
 
 # This is convenient for the isolated AIO lab. Restrict it to your management
 # source CIDR before using the configuration in a shared environment.
-ssh_source_cidr = "0.0.0.0/0"
-rdp_source_cidr = "0.0.0.0/0"
+ssh_source_cidr = "172.31.250.1/32"
+rdp_source_cidr = "172.31.250.1/32"
 
 create_floating_ips = true
 
@@ -49,3 +49,5 @@ create_floating_ips = true
 #   }
 # }
 
+
+management_source_cidr = "172.31.250.1/32"

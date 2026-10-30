@@ -1,0 +1,102 @@
+---
+- name: Create telemetry directories
+  ansible.windows.win_file:
+    path: '{{ item }}'
+    state: directory
+  loop: ['C:\KLTN', 'C:\KLTN\buffer', 'C:\KLTN\workload', 'C:\KLTN\packages']
+- name: Restrict telemetry directory to SYSTEM and Administrators
+  ansible.windows.win_powershell:
+    script: |
+      $path='C:\KLTN'
+      $acl=Get-Acl $path
+      if (-not $acl.AreAccessRulesProtected) {
+        $acl.SetAccessRuleProtection($true,$false)
+        foreach ($sid in @('S-1-5-18','S-1-5-32-544')) {
+          $identity=New-Object System.Security.Principal.SecurityIdentifier($sid)
+          $rule=New-Object System.Security.AccessControl.FileSystemAccessRule($identity,'FullControl','ContainerInherit,ObjectInherit','None','Allow')
+          $acl.AddAccessRule($rule)
+        }
+        Set-Acl $path $acl
+      } else { $Ansible.Changed=$false }
+- name: Copy verified packages from controller cache
+  ansible.windows.win_copy:
+    src: '{{ runtime_dir }}/assets/{{ item }}'
+    dest: 'C:\KLTN\packages\{{ item }}'
+  loop: [fluent-bit.zip, Sysmon.zip]
+- name: Expand packages once
+  ansible.windows.win_powershell:
+    script: |
+      $changed=$false
+      foreach ($name in @('fluent-bit','Sysmon')) {
+        if (-not (Test-Path "C:\KLTN\packages\$name")) {
+          Expand-Archive "C:\KLTN\packages\$name.zip" "C:\KLTN\packages\$name"
+          $changed=$true
+        }
+      }
+      $Ansible.Changed=$changed
+- name: Install ingest TLS trust
+  ansible.windows.win_copy:
+    src: '{{ runtime_dir }}/tls/server.crt'
+    dest: 'C:\KLTN\ca.crt'
+  notify: Restart Windows Fluent Bit
+- name: Install Sysmon policy
+  ansible.windows.win_copy:
+    src: sysmon.xml
+    dest: 'C:\KLTN\sysmon.xml'
+  register: sysmon_config
+- name: Verify Microsoft signature and configure Sysmon
+  ansible.windows.win_powershell:
+    script: |
+      $exe='C:\KLTN\packages\Sysmon\Sysmon64.exe'
+      $sig=Get-AuthenticodeSignature $exe
+      if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'Microsoft Corporation') { throw 'Sysmon signature validation failed' }
+      $svc=Get-Service Sysmon64 -ErrorAction SilentlyContinue
+      if (-not $svc) {
+        & $exe -accepteula -i C:\KLTN\sysmon.xml
+      } elseif ({{ sysmon_config.changed | ternary('$true', '$false') }}) {
+        & $exe -c C:\KLTN\sysmon.xml
+      } else { $Ansible.Changed=$false; return }
+      if ($LASTEXITCODE -ne 0) { throw "Sysmon configuration exit=$LASTEXITCODE" }
+- name: Enable process and logon audit subcategories
+  ansible.windows.win_powershell:
+    script: |
+      $Ansible.Changed=$false
+      foreach ($guid in @('{0CCE922B-69AE-11D9-BED3-505054503030}','{0CCE9215-69AE-11D9-BED3-505054503030}')) {
+        $before=(& auditpol.exe /get /subcategory:$guid /r | Out-String)
+        if ($before -notmatch 'Success and Failure') {
+          & auditpol.exe /set /subcategory:$guid /success:enable /failure:enable | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'auditpol failed' }
+          $Ansible.Changed=$true
+        }
+      }
+- name: Enable command-line and PowerShell script-block logging
+  ansible.windows.win_regedit:
+    path: '{{ item.path }}'
+    name: '{{ item.name }}'
+    data: 1
+    type: dword
+  loop:
+    - {path: 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit', name: ProcessCreationIncludeCmdLine_Enabled}
+    - {path: 'HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging', name: EnableScriptBlockLogging}
+- name: Configure Fluent Bit
+  ansible.windows.win_template:
+    src: fluent-bit.conf.j2
+    dest: 'C:\KLTN\fluent-bit.conf'
+  no_log: true
+  notify: Restart Windows Fluent Bit
+- name: Locate collector binary
+  ansible.windows.win_powershell:
+    script: |
+      $Ansible.Changed=$false
+      (Get-ChildItem C:\KLTN\packages\fluent-bit -Filter fluent-bit.exe -Recurse | Select-Object -First 1).FullName
+  register: fluent_binary
+- name: Register Fluent Bit native service
+  ansible.windows.win_service:
+    name: kltn-fluent-bit
+    display_name: KLTN Fluent Bit
+    path: '"{{ fluent_binary.output[0] }}" -c "C:\KLTN\fluent-bit.conf"'
+    start_mode: auto
+    state: started
+    failure_actions:
+      - type: restart
+        delay_ms: 5000

@@ -1,0 +1,105 @@
+name: kltn-central
+x-app: &app
+  image: kltn-central:pilot
+  build:
+    context: .
+    network: host
+  network_mode: host
+  restart: unless-stopped
+  mem_limit: 256m
+  cpus: 0.5
+  read_only: true
+  tmpfs: [/tmp]
+  volumes:
+    - ../runtime/secrets.json:/run/kltn/secrets.json:ro
+  logging:
+    driver: json-file
+    options: {max-size: 10m, max-file: '3'}
+services:
+  nats:
+    image: nats:2.11-alpine
+    network_mode: host
+    command: ['-c', '/etc/nats/nats.conf']
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.5
+    volumes:
+      - ../runtime/nats.conf:/etc/nats/nats.conf:ro
+      - nats-data:/data
+    logging:
+      options: {max-size: 10m, max-file: '3'}
+  postgres:
+    image: postgres:17-alpine
+    network_mode: host
+    command: ['postgres', '-c', 'listen_addresses=127.0.0.1', '-p', '15432', '-c', 'shared_buffers=64MB', '-c', 'max_connections=30']
+    environment:
+      POSTGRES_USER: kltn
+      POSTGRES_DB: kltn
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    volumes:
+      - ../runtime/postgres-password:/run/secrets/postgres_password:ro
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -p 15432 -U kltn -d kltn']
+      interval: 5s
+      retries: 20
+    restart: unless-stopped
+    mem_limit: 384m
+    cpus: 0.5
+    logging:
+      options: {max-size: 10m, max-file: '3'}
+  api:
+    <<: *app
+    depends_on:
+      postgres: {condition: service_healthy}
+      nats: {condition: service_started}
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://127.0.0.1:18080/healthz',timeout=3)"]
+      interval: 5s
+      retries: 20
+  worker:
+    <<: *app
+    command: ['python', 'worker.py']
+    depends_on:
+      api: {condition: service_healthy}
+  dl-prep:
+    profiles: [model-prep]
+    image: kltn-dl:prepared
+    build:
+      context: ../serving/central
+      network: host
+    network_mode: host
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    mem_limit: 1g
+    cpus: 2
+    volumes:
+      - ../runtime/dl.json:/run/kltn/dl.json:ro
+      - ../runtime/models/dl:/models:ro
+    depends_on:
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import json,time; d=json.load(open('/tmp/dl-health.json')); assert time.time()-d['updated_at'] < 60"]
+      interval: 20s
+      timeout: 5s
+      start_period: 90s
+      retries: 3
+    logging:
+      options: {max-size: 10m, max-file: '3'}
+  caddy:
+    image: caddy:2.10-alpine
+    network_mode: host
+    volumes:
+      - ../runtime/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../runtime/tls:/tls:ro
+    restart: unless-stopped
+    mem_limit: 96m
+    cpus: 0.25
+    logging:
+      options: {max-size: 10m, max-file: '3'}
+    depends_on:
+      api: {condition: service_healthy}
+volumes:
+  nats-data:
+  postgres-data:

@@ -1,0 +1,42 @@
+---
+- name: Prepare Ubuntu endpoint inbox and ML runtime
+  hosts: linux
+  become: true
+  gather_facts: true
+  vars:
+    endpoint_agent_enabled: true
+  roles:
+    - endpoint_agent
+  tasks:
+    - name: Add independent local Fluent Bit output
+      ansible.builtin.template:
+        src: roles/linux_sensor/templates/fluent-bit.conf.j2
+        dest: /etc/fluent-bit/fluent-bit.conf
+        mode: '0600'
+      no_log: true
+      notify: Restart prepared Linux collector
+  handlers:
+    - name: Restart prepared Linux collector
+      ansible.builtin.systemd_service:
+        name: fluent-bit
+        state: restarted
+
+- name: Prepare Windows endpoint inbox and ML runtime
+  hosts: windows
+  gather_facts: false
+  vars:
+    endpoint_agent_enabled: true
+  roles:
+    - endpoint_agent
+  tasks:
+    - name: Add independent local Fluent Bit output
+      ansible.windows.win_template:
+        src: roles/windows_sensor/templates/fluent-bit.conf.j2
+        dest: C:\KLTN\fluent-bit.conf
+      no_log: true
+      notify: Restart prepared Windows collector
+  handlers:
+    - name: Restart prepared Windows collector
+      ansible.windows.win_service:
+        name: kltn-fluent-bit
+        state: restarted

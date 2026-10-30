@@ -32,7 +32,7 @@ variable "windows_flavor" {
   })
   default = {
     name    = "kltn.windows11"
-    ram_mb  = 8192
+    ram_mb  = 6144
     vcpus   = 4
     disk_gb = 80
   }
@@ -80,7 +80,7 @@ variable "security_group_name" {
 variable "ssh_source_cidr" {
   description = "IPv4 CIDR allowed to SSH to the instances. Restrict this outside a lab."
   type        = string
-  default     = "0.0.0.0/0"
+  default     = "172.31.250.1/32"
 
   validation {
     condition     = can(cidrnetmask(var.ssh_source_cidr))
@@ -91,7 +91,7 @@ variable "ssh_source_cidr" {
 variable "rdp_source_cidr" {
   description = "IPv4 CIDR allowed to connect to Windows Remote Desktop. Restrict this outside a lab."
   type        = string
-  default     = "0.0.0.0/0"
+  default     = "172.31.250.1/32"
 
   validation {
     condition     = can(cidrnetmask(var.rdp_source_cidr))
@@ -193,3 +193,13 @@ variable "nodes" {
   }
 }
 
+
+variable "management_source_cidr" {
+  description = "Controller source IPv4 CIDR for WinRM HTTPS (host br-exnat in this lab)."
+  type        = string
+  default     = "172.31.250.1/32"
+  validation {
+    condition     = can(cidrnetmask(var.management_source_cidr))
+    error_message = "management_source_cidr must be an IPv4 CIDR."
+  }
+}

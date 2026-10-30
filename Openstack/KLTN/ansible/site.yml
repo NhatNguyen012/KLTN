@@ -1,0 +1,21 @@
+---
+- name: Configure Ubuntu host telemetry
+  hosts: linux
+  become: true
+  gather_facts: true
+  pre_tasks:
+    - name: Wait for cloud-init to finish
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+  roles:
+    - role: endpoint_agent
+      when: endpoint_agent_enabled | default(false)
+    - linux_sensor
+
+- name: Configure Windows host telemetry
+  hosts: windows
+  gather_facts: false
+  roles:
+    - role: endpoint_agent
+      when: endpoint_agent_enabled | default(false)
+    - windows_sensor

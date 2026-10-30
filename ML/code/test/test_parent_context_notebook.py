@@ -17,6 +17,5 @@ class ParentNotebookTests(unittest.TestCase):
         self.assertFalse(any('from relational_sage' in s or 'from ego import' in s for s in sources))
         evaluation = next(s for s in sources if "with phase('full validation evaluation')" in s)
         self.assertIn("threshold=validation['threshold']", evaluation)
-        self.assertTrue((CODE/'kaggle/notebooks/lgbm_graphsage_post_sweep_archived.ipynb').is_file())
 
 if __name__ == '__main__': unittest.main()

@@ -1,0 +1,36 @@
+---
+- name: Verify Ubuntu sensor delivery into local agent inbox
+  hosts: linux
+  become: true
+  gather_facts: false
+  tasks:
+    - ansible.builtin.copy:
+        src: '{{ playbook_dir }}/../serving/endpoint/verify_marker.py'
+        dest: /opt/kltn-agent/verify_marker.py
+        mode: '0644'
+    - ansible.builtin.command:
+        argv: [/opt/kltn-agent/venv/bin/python, /opt/kltn-agent/verify_marker.py, --database, /var/lib/kltn-agent/inbox.sqlite, --marker, '{{ smoke_marker }}', --sources, audit, journal]
+      register: marker_result
+      until: marker_result.rc == 0
+      retries: 12
+      delay: 5
+      changed_when: false
+    - ansible.builtin.debug:
+        var: marker_result.stdout
+
+- name: Verify Windows sensor delivery into local agent inbox
+  hosts: windows
+  gather_facts: false
+  tasks:
+    - ansible.windows.win_copy:
+        src: '{{ playbook_dir }}/../serving/endpoint/verify_marker.py'
+        dest: C:\KLTN\agent\verify_marker.py
+    - ansible.windows.win_command:
+        argv: ['C:\KLTN\agent\venv\Scripts\python.exe', 'C:\KLTN\agent\verify_marker.py', --database, 'C:\KLTN\agent\state\inbox.sqlite', --marker, '{{ smoke_marker }}', --sources, sysmon, security, powershell]
+      register: marker_result
+      until: marker_result.rc == 0
+      retries: 12
+      delay: 5
+      changed_when: false
+    - ansible.builtin.debug:
+        var: marker_result.stdout

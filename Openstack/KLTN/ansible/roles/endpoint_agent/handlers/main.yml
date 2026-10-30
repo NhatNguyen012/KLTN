@@ -1,0 +1,10 @@
+---
+- name: Restart Linux agent
+  ansible.builtin.systemd_service:
+    name: kltn-agent
+    state: restarted
+    daemon_reload: true
+- name: Restart Windows agent
+  ansible.windows.win_service:
+    name: kltn-agent
+    state: restarted

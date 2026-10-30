@@ -1,18 +1,54 @@
-.terraform/
-*.tfstate
-*.tfstate.*
-*.tfplan
-crash.log
-crash.*.log
-terraform.tfvars
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
+# Runtime and execution state
+runtime/
+.venv/
+venv/
+
+# Ansible dependencies and temporary artifacts
+ansible/collections/
+ansible/.ansible/
+*.retry
+
+# Terraform configuration, state, and plans
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfplan
+**/*.tfvars
+**/*.tfvars.json
+**/crash.log
+**/crash.*.log
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
 
 # Windows image build outputs and temporary media
 windows-image/build/
 windows-image/*.qcow2
 windows-image/*.iso
 windows-image/*.msi
+windows-image/*.exe
+windows-image/*.img
+windows-image/*.vmdk
 
+# Python cache & test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Local databases and runtime stores
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+
+# Serving models and large binary bundles
+serving/models/
+*.pt
+*.pth
+*.onnx
+
+# Local debug and operational logs
+*.log

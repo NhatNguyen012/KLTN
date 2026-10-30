@@ -1,0 +1,56 @@
+[SERVICE]
+    Flush 2
+    Log_Level info
+    Log_File C:\KLTN\fluent-bit.log
+    storage.path C:\KLTN\buffer
+    storage.sync full
+    storage.checksum on
+    storage.backlog.mem_limit 16M
+    storage.max_chunks_up 16
+    HTTP_Server On
+    HTTP_Listen 127.0.0.1
+    HTTP_Port 2020
+
+{% for source, channel in [('sysmon', 'Microsoft-Windows-Sysmon/Operational'), ('security', 'Security'), ('powershell', 'Microsoft-Windows-PowerShell/Operational')] %}
+[INPUT]
+    Name winevtlog
+    Tag {{ source }}
+    Channels {{ channel }}
+    DB C:\KLTN\{{ source }}.db
+    Read_Existing_Events True
+    Render_Event_As_XML True
+    storage.type filesystem
+{% if source == 'security' %}
+    Event_Query *[System[(EventID=4624 or EventID=4634 or EventID=4672 or EventID=4688)]]
+{% endif %}
+
+[OUTPUT]
+    Name http
+    Match {{ source }}
+    Host {{ central_ip }}
+    Port {{ central_port }}
+    URI /v1/events/{{ host_id }}/{{ source }}
+    Format json
+    Header Authorization Bearer {{ ingest_token }}
+    tls On
+    tls.verify On
+    tls.verify_hostname On
+    tls.ca_file C:\KLTN\ca.crt
+    Retry_Limit no_limits
+    storage.total_limit_size 256M
+{% if endpoint_agent_enabled | default(false) %}
+
+[OUTPUT]
+    Name http
+    Match {{ source }}
+    Host 127.0.0.1
+    net.keepalive Off
+    Workers 1
+    Port 18081
+    URI /v1/raw/{{ source }}
+    Format json
+    Header Authorization Bearer {{ ingest_token | hash('sha256') }}
+    Retry_Limit no_limits
+    storage.total_limit_size 128M
+{% endif %}
+{% endfor %}

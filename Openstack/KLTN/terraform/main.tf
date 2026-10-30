@@ -139,7 +139,10 @@ resource "openstack_compute_instance_v2" "node" {
   config_drive = each.value.os_type == "windows"
   user_data = (
     each.value.os_type == "windows"
-    ? file("${path.module}/windows-user-data.ps1")
+    ? templatefile("${path.module}/windows-user-data.ps1", {
+      management_cidr = var.management_source_cidr
+      management_ip   = var.create_floating_ips ? openstack_networking_floatingip_v2.node[each.key].address : openstack_networking_port_v2.instance[each.key].all_fixed_ips[0]
+    })
     : null
   )
 
@@ -162,3 +165,13 @@ resource "openstack_networking_floatingip_v2" "node" {
   depends_on = [openstack_networking_router_interface_v2.node]
 }
 
+
+resource "openstack_networking_secgroup_rule_v2" "winrm_https" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 5986
+  port_range_max    = 5986
+  remote_ip_prefix  = var.management_source_cidr
+  security_group_id = openstack_networking_secgroup_v2.instance.id
+}

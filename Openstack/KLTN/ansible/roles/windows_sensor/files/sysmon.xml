@@ -1,0 +1,28 @@
+<Sysmon schemaversion="4.90">
+  <HashAlgorithms>SHA256</HashAlgorithms>
+  <EventFiltering>
+    <RuleGroup name="Process lifecycle" groupRelation="or">
+      <ProcessCreate onmatch="exclude" />
+      <ProcessTerminate onmatch="exclude" />
+    </RuleGroup>
+    <RuleGroup name="Selected filesystem" groupRelation="or">
+      <FileCreate onmatch="include">
+        <TargetFilename condition="begin with">C:\KLTN\workload\</TargetFilename>
+        <TargetFilename condition="contains">\Start Menu\Programs\Startup\</TargetFilename>
+      </FileCreate>
+      <FileDeleteDetected onmatch="include">
+        <TargetFilename condition="begin with">C:\KLTN\workload\</TargetFilename>
+      </FileDeleteDetected>
+    </RuleGroup>
+    <RuleGroup name="Selected persistence" groupRelation="or">
+      <RegistryEvent onmatch="include">
+        <TargetObject condition="contains">\CurrentVersion\Run</TargetObject>
+        <TargetObject condition="contains">\Services\</TargetObject>
+      </RegistryEvent>
+    </RuleGroup>
+    <RuleGroup name="No network collection" groupRelation="or">
+      <NetworkConnect onmatch="include" />
+      <DnsQuery onmatch="include" />
+    </RuleGroup>
+  </EventFiltering>
+</Sysmon>

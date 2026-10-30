@@ -1,0 +1,11 @@
+---
+- name: Load audit rules
+  ansible.builtin.command: augenrules --load
+  changed_when: true
+- name: Reload audit daemon
+  ansible.builtin.command: service auditd reload
+  changed_when: true
+- name: Restart Fluent Bit
+  ansible.builtin.systemd_service:
+    name: fluent-bit
+    state: restarted
