@@ -83,54 +83,105 @@ Bảng đối chiếu giữa kiến trúc mục tiêu tổng thể và hiện tr
 
 ---
 
-## 5. Quy trình Triển khai Hạ tầng từ Host openstack-aio
+## 5. Quy trình Từng Bước Tái Tạo Lại Hệ Thống (Recreation Runbook)
+
+Khi bạn tiếp tục làm việc và muốn dựng lại toàn bộ trạng thái hệ thống (tạo lại 3 máy ảo, bật lại container Central, nạp cấu hình cảm biến và runtime serving), thực hiện tuần tự theo các bước chuẩn mực sau:
 
 ### Điều kiện tiên quyết:
-- Môi trường chạy từ máy chủ `openstack-aio` (nơi vận hành OpenStack Kolla-Ansible).
-- Đã cài đặt: Docker Compose, Terraform, Python 3 / venv, OpenSSL, curl.
-- Quyền truy cập: file `admin-openrc.sh`, Docker socket, SSH key `~/.ssh/openstack_ed25519`.
-- Image Ubuntu 24.04 và Windows 11 LTSC đã được import vào Glance.
+- Chạy từ máy chủ `openstack-aio` (nơi vận hành OpenStack Kolla-Ansible).
+- Đã có file xác thực `/etc/kolla/admin-openrc.sh`, Docker socket, SSH key `~/.ssh/openstack_ed25519`.
+- Thư mục làm việc: `cd /mnt/SSD_Data/optc`.
 
-### Các bước thực hiện:
+---
+
+### Bước 1: Kích hoạt lại Compute Service trên OpenStack
+Compute host trước đó được đặt ở trạng thái nghỉ (`disabled`). Kích hoạt lại trước khi chạy Terraform:
 
 ```bash
 cd /mnt/SSD_Data/optc
 source "$HOME/venvs/kolla-2026.1/bin/activate"
 source /etc/kolla/admin-openrc.sh
-export PYTHONWARNINGS=ignore
+export PYTHONWARNINGS="ignore"
+
+# Bật lại nova-compute
 openstack compute service set --enable openstack-aio nova-compute
+```
 
-# 1. Khởi tạo hạ tầng mạng và máy ảo bằng Terraform
-cp -n Openstack/KLTN/terraform/terraform.tfvars.example Openstack/KLTN/terraform/terraform.tfvars
-terraform -chdir=Openstack/KLTN/terraform init
-terraform -chdir=Openstack/KLTN/terraform validate
-terraform -chdir=Openstack/KLTN/terraform plan -out=kltn.tfplan
-terraform -chdir=Openstack/KLTN/terraform apply kltn.tfplan
+---
 
-# 2. Chuẩn bị môi trường điều khiển Ansible
-mkdir -p Openstack/KLTN/runtime
-chmod 700 Openstack/KLTN/runtime
-python3 -m venv Openstack/KLTN/runtime/venv
-Openstack/KLTN/runtime/venv/bin/pip install -r Openstack/KLTN/scripts/controller-requirements.txt
-Openstack/KLTN/runtime/venv/bin/ansible-galaxy collection install -r Openstack/KLTN/ansible/requirements.yml -p Openstack/KLTN/ansible/collections
+### Bước 2: Dựng lại Hạ tầng Mạng và 3 Máy ảo bằng Terraform
+Lệnh này sẽ tạo lại 3 máy ảo (`kltn-ubuntu-1`, `kltn-ubuntu-2`, `kltn-windows-1`), 3 subnet riêng biệt, router, security groups và cấp phát 3 floating IPs:
 
-# 3. Khởi chạy Central Ingestion Containers
-bash Openstack/KLTN/scripts/central_up.sh
+```bash
+cd /mnt/SSD_Data/optc/Openstack/KLTN/terraform
+terraform plan -out=kltn.tfplan
+terraform apply kltn.tfplan
+```
+*Sau khi apply thành công, bạn có thể kiểm tra danh sách máy ảo bằng lệnh `openstack server list`.*
 
-# 4. Trích xuất thông tin máy ảo, cấu hình WinRM SAN cert và tắt sleep Windows
-# (Windows first boot / Sysprep thường cần vài phút; script sẽ đợi QGA và WinRM sẵn sàng)
+---
+
+### Bước 3: Khởi động lại các Central Containers
+Khởi động lại 6 container kiến trúc (NATS JetStream, PostgreSQL 16, Ingest API, Worker, DL Preparation, Caddy). Dữ liệu database cũ trong Docker volumes vẫn được bảo toàn nguyên vẹn:
+
+```bash
+cd /mnt/SSD_Data/optc/Openstack/KLTN/central
+docker compose --profile model-prep start
+```
+*(Hoặc nếu muốn khởi động mới hoàn toàn/rebuild code API: `bash /mnt/SSD_Data/optc/Openstack/KLTN/scripts/central_up.sh`)*.
+
+---
+
+### Bước 4: Đồng bộ Inventory, Cấu hình WinRM SAN và Tắt Sleep Windows
+Sau khi máy ảo Windows khởi động (đợi khoảng 2-3 phút để QEMU Guest Agent và Sysprep hoàn tất), chạy script tự động để:
+- Đọc UUID, IP từ Terraform state.
+- Lấy password Windows qua QGA.
+- Tự động tạo chứng thư WinRM HTTPS có IP SAN thay vì hostname.
+- Tắt chế độ ngủ đông (`powercfg /hibernate off`) và cấu hình UAC remote policy:
+
+```bash
+cd /mnt/SSD_Data/optc
 Openstack/KLTN/runtime/venv/bin/python Openstack/KLTN/scripts/prepare_inventory.py
 python3 Openstack/KLTN/scripts/fetch_assets.py
+```
 
-# 5. Cấu hình máy ảo, cài đặt Sensor & Endpoint Agents
+---
+
+### Bước 5: Cấu hình Sensor và Endpoint Agent bằng Ansible
+Triển khai Fluent Bit, Sysmon (Windows), auditd (Linux), SQLite Inbox và service endpoint agent (`kltn-agent`):
+
+```bash
 export ANSIBLE_CONFIG="$PWD/Openstack/KLTN/ansible/ansible.cfg"
 Openstack/KLTN/runtime/venv/bin/ansible-playbook Openstack/KLTN/ansible/site.yml
 ```
 
-### Điểm kỹ thuật quan trọng trong triển khai:
-- `prepare_inventory.py` tự động đọc UUID và IP từ Terraform state, lấy mật khẩu Windows qua QGA (`nova_libvirt`), và cập nhật chứng thư WinRM có IP SAN thay vì hostname-only.
-- Bật `LocalAccountTokenFilterPolicy=1` để WinRM NTLM hoạt động ổn định và tắt chế độ ngủ đông (`powercfg /hibernate off`) giúp máy ảo Windows không bị rơi vào trạng thái `pmsuspended`.
-- Toàn bộ token, mật khẩu DB, khóa TLS được lưu trong `Openstack/KLTN/runtime/` (phân quyền `700/600`, đã được gitignore).
+---
+
+### Bước 6: Kích hoạt Model Serving Runtime (Tùy chọn)
+Kích hoạt framework phục vụ mô hình trên cả 3 endpoint và container central DL prep worker:
+
+```bash
+bash Openstack/KLTN/scripts/prepare_serving.sh
+```
+
+---
+
+### Bước 7: Kiểm thử Xác nhận Toàn Trình (Verification & Smoke Test)
+Xác nhận toàn bộ luồng thu thập và serving đã hoạt động ổn định:
+
+```bash
+# 1. Kiểm tra trạng thái endpoint và central
+python3 Openstack/KLTN/scripts/status.py
+python3 Openstack/KLTN/scripts/serving_status.py
+
+# 2. Bắn sự kiện test (smoke marker) vào cả 3 máy ảo
+Openstack/KLTN/runtime/venv/bin/ansible-playbook Openstack/KLTN/ansible/smoke.yml -e smoke_marker=kltn-smoke-resume-001
+
+# 3. Kiểm tra sự kiện marker xuất hiện trong PostgreSQL trung tâm
+docker compose -f Openstack/KLTN/central/compose.yaml exec -T postgres \
+  psql -U kltn -p 15432 -d kltn \
+  -c "SELECT host_id, source, count(*) FROM events WHERE payload::text LIKE '%kltn-smoke-resume-001%' GROUP BY host_id, source;"
+```
 
 ---
 
@@ -178,22 +229,25 @@ Hệ thống đã chuẩn bị sẵn runtime để phục vụ mô hình sau khi
 
 ---
 
-## 8. Quản trị: Dừng, Khôi phục và Thu hồi Hạ tầng
+## 8. Quản trị: Dừng Hệ thống (Tear Down) & Trạng thái Nghỉ (Standby)
+
+Để giải phóng CPU/RAM máy chủ vật lý khi không sử dụng mà vẫn giữ nguyên vẹn hệ thống OpenStack nền tảng:
 
 ```bash
-# Dừng Central Containers (giữ nguyên dữ liệu volume PostgreSQL và NATS)
-docker compose -f Openstack/KLTN/central/compose.yaml down
+# 1. Dừng các Central Containers của kiến trúc (giữ nguyên dữ liệu volumes)
+docker compose -f /mnt/SSD_Data/optc/Openstack/KLTN/central/compose.yaml --profile model-prep stop
 
-# Tạm dừng các máy ảo để tiết kiệm tài nguyên
-openstack server stop kltn-ubuntu-1 kltn-ubuntu-2 kltn-windows-1
+# 2. Xóa 3 máy ảo và toàn bộ tài nguyên mạng Terraform (Router, Subnet, SecGroup, Floating IP)
+cd /mnt/SSD_Data/optc/Openstack/KLTN/terraform
+source "$HOME/venvs/kolla-2026.1/bin/activate"
+source /etc/kolla/admin-openrc.sh
+terraform plan -destroy -out=destroy.tfplan
+terraform apply destroy.tfplan
 
-# Bật lại máy ảo
-openstack server start kltn-ubuntu-1 kltn-ubuntu-2 kltn-windows-1
-
-# Thu hồi toàn bộ hạ tầng máy ảo và mạng (KHÔNG xóa image Glance hoặc Kolla host)
-terraform -chdir=Openstack/KLTN/terraform plan -destroy
-terraform -chdir=Openstack/KLTN/terraform destroy
+# 3. Đặt Compute Host OpenStack vào trạng thái nghỉ
+openstack compute service set --disable --disable-reason "KLTN lab idle" openstack-aio nova-compute
 ```
+*(Toàn bộ hệ thống OpenStack Kolla gốc gồm Keystone, Glance, Horizon, OVN, MariaDB, RabbitMQ vẫn tiếp tục chạy bình thường ở trạng thái không tải).*
 
 ---
 
