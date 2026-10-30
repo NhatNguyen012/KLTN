@@ -1,0 +1,5 @@
+---
+- name: Restart Windows Fluent Bit
+  ansible.windows.win_service:
+    name: kltn-fluent-bit
+    state: restarted

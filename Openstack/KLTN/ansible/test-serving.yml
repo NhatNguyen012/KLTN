@@ -1,0 +1,56 @@
+---
+- name: Test Linux agent persistence and authentication
+  hosts: linux
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Copy runtime test
+      ansible.builtin.copy:
+        src: '{{ playbook_dir }}/../serving/endpoint/check_runtime.py'
+        dest: /opt/kltn-agent/check_runtime.py
+        mode: '0644'
+    - name: Verify token rejection, unready inference and deduplication
+      ansible.builtin.command:
+        argv: [/opt/kltn-agent/venv/bin/python, /opt/kltn-agent/check_runtime.py, --config, /etc/kltn-agent/config.json, --marker, '{{ smoke_marker }}', --phase, before]
+      changed_when: false
+    - name: Restart endpoint process
+      ansible.builtin.systemd_service:
+        name: kltn-agent
+        state: restarted
+    - name: Verify persisted record after restart
+      ansible.builtin.command:
+        argv: [/opt/kltn-agent/venv/bin/python, /opt/kltn-agent/check_runtime.py, --config, /etc/kltn-agent/config.json, --marker, '{{ smoke_marker }}', --phase, after]
+      register: persistence
+      until: persistence.rc == 0
+      retries: 12
+      delay: 3
+      changed_when: false
+    - ansible.builtin.debug:
+        var: persistence.stdout
+
+- name: Test Windows agent persistence and authentication
+  hosts: windows
+  gather_facts: false
+  tasks:
+    - name: Copy runtime test
+      ansible.windows.win_copy:
+        src: '{{ playbook_dir }}/../serving/endpoint/check_runtime.py'
+        dest: C:\KLTN\agent\check_runtime.py
+    - name: Verify token rejection, unready inference and deduplication
+      ansible.windows.win_command:
+        argv: ['C:\KLTN\agent\venv\Scripts\python.exe', 'C:\KLTN\agent\check_runtime.py', --config, 'C:\KLTN\agent\config.json', --marker, '{{ smoke_marker }}', --phase, before]
+      changed_when: false
+    - name: Restart Windows endpoint
+      ansible.windows.win_service:
+        name: kltn-agent
+        state: restarted
+    - name: Verify Windows persisted record after restart
+      ansible.windows.win_command:
+        argv: ['C:\KLTN\agent\venv\Scripts\python.exe', 'C:\KLTN\agent\check_runtime.py', --config, 'C:\KLTN\agent\config.json', --marker, '{{ smoke_marker }}', --phase, after]
+      register: persistence
+      until: persistence.rc == 0
+      retries: 12
+      delay: 3
+      changed_when: false
+    - ansible.builtin.debug:
+        var: persistence.stdout

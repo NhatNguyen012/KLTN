@@ -1,0 +1,11 @@
+---
+- name: Run the isolated central stack on the physical controller
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Build and reconcile KLTN Compose services
+      ansible.builtin.command:
+        argv: [bash, '{{ playbook_dir }}/../scripts/central_up.sh']
+      register: central_up
+      changed_when: "'Created' in central_up.stderr or 'Recreated' in central_up.stderr or 'Started' in central_up.stderr"

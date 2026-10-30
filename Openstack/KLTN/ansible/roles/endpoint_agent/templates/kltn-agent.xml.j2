@@ -1,0 +1,17 @@
+<service>
+  <id>kltn-agent</id>
+  <name>KLTN Endpoint Agent</name>
+  <description>Model-free durable inbox; inference waits for a compatible bundle.</description>
+  <executable>C:\KLTN\agent\venv\Scripts\python.exe</executable>
+  <arguments>-m uvicorn agent:app --host 127.0.0.1 --port 18081 --no-access-log --limit-concurrency 8 --timeout-keep-alive 5</arguments>
+  <workingdirectory>C:\KLTN\agent</workingdirectory>
+  <env name="KLTN_AGENT_CONFIG" value="C:\KLTN\agent\config.json"/>
+  <env name="OMP_NUM_THREADS" value="1"/>
+  <env name="OPENBLAS_NUM_THREADS" value="1"/>
+  <env name="PYTHONDONTWRITEBYTECODE" value="1"/>
+  <serviceaccount><username>NT AUTHORITY\LocalService</username></serviceaccount>
+  <startmode>Automatic</startmode>
+  <onfailure action="restart" delay="5 sec"/>
+  <logpath>C:\KLTN\agent\state</logpath>
+  <log mode="roll-by-size"><sizeThreshold>10240</sizeThreshold><keepFiles>3</keepFiles></log>
+</service>

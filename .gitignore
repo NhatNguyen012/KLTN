@@ -4,6 +4,7 @@
 # Temporary directories
 /Temp/
 /temp/
+Openstack/Sample
 
 # Papers
 /paper*/

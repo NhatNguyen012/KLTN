@@ -1,0 +1,75 @@
+---
+- name: Install isolated Python and LightGBM native dependency
+  ansible.builtin.apt:
+    name: [python3-venv, libgomp1]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+    lock_timeout: 600
+- name: Create unprivileged agent user
+  ansible.builtin.user:
+    name: kltn-agent
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+- name: Create agent directories
+  ansible.builtin.file:
+    path: '{{ item.path }}'
+    state: directory
+    owner: '{{ item.owner }}'
+    group: kltn-agent
+    mode: '{{ item.mode }}'
+  loop:
+    - {path: /opt/kltn-agent, owner: root, mode: '0755'}
+    - {path: /opt/kltn-agent/models, owner: root, mode: '0750'}
+    - {path: /etc/kltn-agent, owner: root, mode: '0750'}
+    - {path: /var/lib/kltn-agent, owner: kltn-agent, mode: '0700'}
+- name: Copy agent and dependency lock
+  ansible.builtin.copy:
+    src: '{{ playbook_dir }}/../serving/endpoint/{{ item }}'
+    dest: '/opt/kltn-agent/{{ item }}'
+    mode: '0644'
+  loop: [agent.py, requirements.txt]
+  notify: Restart Linux agent
+- name: Install pinned ML runtime in dedicated venv
+  ansible.builtin.pip:
+    requirements: /opt/kltn-agent/requirements.txt
+    virtualenv: /opt/kltn-agent/venv
+    virtualenv_command: python3 -m venv
+  notify: Restart Linux agent
+- name: Install agent private configuration
+  ansible.builtin.template:
+    src: agent.json.j2
+    dest: /etc/kltn-agent/config.json
+    owner: root
+    group: kltn-agent
+    mode: '0640'
+  vars:
+    agent_database: /var/lib/kltn-agent/inbox.sqlite
+  no_log: true
+  notify: Restart Linux agent
+- name: Install systemd supervision
+  ansible.builtin.template:
+    src: kltn-agent.service.j2
+    dest: /etc/systemd/system/kltn-agent.service
+    mode: '0644'
+  notify: Restart Linux agent
+- name: Enable endpoint agent
+  ansible.builtin.systemd_service:
+    name: kltn-agent
+    enabled: true
+    state: started
+    daemon_reload: true
+- name: Apply agent changes before enabling log delivery
+  ansible.builtin.meta: flush_handlers
+- name: Verify loopback runtime health
+  ansible.builtin.uri:
+    url: http://127.0.0.1:18081/healthz
+    return_content: true
+  register: agent_health
+  until: agent_health.status == 200
+  retries: 12
+  delay: 5
+- name: Assert model-free mode
+  ansible.builtin.assert:
+    that: agent_health.json.inference == 'waiting_for_model'

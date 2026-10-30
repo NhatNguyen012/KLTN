@@ -1,0 +1,120 @@
+---
+- name: Create Windows serving directories
+  ansible.windows.win_file:
+    path: '{{ item }}'
+    state: directory
+  loop: ['C:\KLTN\agent', 'C:\KLTN\agent\state', 'C:\KLTN\agent\models', 'C:\KLTN\agent\wheels']
+- name: Grant LocalService traversal through protected KLTN parent
+  ansible.windows.win_acl:
+    path: 'C:\KLTN'
+    user: S-1-5-19
+    rights: ReadAndExecute
+    type: allow
+    inherit: None
+    propagation: None
+- name: Grant LocalService read-only access to code and configuration
+  ansible.windows.win_acl:
+    path: 'C:\KLTN\agent'
+    user: S-1-5-19
+    rights: ReadAndExecute
+    type: allow
+    inherit: ContainerInherit,ObjectInherit
+- name: Grant LocalService write access to state only
+  ansible.windows.win_acl:
+    path: 'C:\KLTN\agent\state'
+    user: S-1-5-19
+    rights: Modify
+    type: allow
+    inherit: ContainerInherit,ObjectInherit
+- name: Copy verified service and Python installers
+  ansible.windows.win_copy:
+    src: '{{ runtime_dir }}/assets/{{ item.src }}'
+    dest: '{{ item.dest }}'
+  loop:
+    - {src: python-3.12.10-amd64.exe, dest: 'C:\KLTN\packages\python-3.12.10-amd64.exe'}
+    - {src: vc_redist.x64.exe, dest: 'C:\KLTN\packages\vc_redist.x64.exe'}
+    - {src: WinSW-x64.exe, dest: 'C:\KLTN\agent\kltn-agent.exe'}
+- name: Verify Python Software Foundation signature
+  ansible.windows.win_powershell:
+    script: |
+      $Ansible.Changed=$false
+      $sig=Get-AuthenticodeSignature C:\KLTN\packages\python-3.12.10-amd64.exe
+      if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'Python Software Foundation') { throw 'Python installer signature invalid' }
+- name: Verify Microsoft runtime signature
+  ansible.windows.win_powershell:
+    script: |
+      $Ansible.Changed=$false
+      $sig=Get-AuthenticodeSignature C:\KLTN\packages\vc_redist.x64.exe
+      if ($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'Microsoft Corporation') { throw 'VC runtime signature invalid' }
+- name: Install LightGBM Visual C++ native dependency
+  ansible.windows.win_package:
+    path: C:\KLTN\packages\vc_redist.x64.exe
+    arguments: /install /quiet /norestart
+    creates_path: C:\Windows\System32\vcomp140.dll
+    state: present
+  notify: Restart Windows agent
+- name: Install dedicated Python runtime
+  ansible.windows.win_package:
+    path: C:\KLTN\packages\python-3.12.10-amd64.exe
+    arguments: '/quiet InstallAllUsers=1 TargetDir=C:\KLTN\agent\Python Include_test=0 Include_launcher=0 PrependPath=0 Include_doc=0'
+    creates_path: C:\KLTN\agent\Python\python.exe
+    state: present
+- name: Create dedicated agent venv
+  ansible.windows.win_command:
+    cmd: 'C:\KLTN\agent\Python\python.exe -m venv C:\KLTN\agent\venv'
+    creates: C:\KLTN\agent\venv\Scripts\python.exe
+- name: Copy offline runtime wheels
+  ansible.windows.win_copy:
+    src: '{{ runtime_dir }}/assets/agent-wheels/'
+    dest: C:\KLTN\agent\wheels\
+- name: Copy endpoint source and requirements
+  ansible.windows.win_copy:
+    src: '{{ playbook_dir }}/../serving/endpoint/{{ item }}'
+    dest: 'C:\KLTN\agent\{{ item }}'
+  loop: [agent.py, requirements.txt]
+  notify: Restart Windows agent
+- name: Install pinned Windows ML runtime offline
+  ansible.windows.win_command:
+    cmd: 'C:\KLTN\agent\venv\Scripts\python.exe -m pip install --no-index --find-links C:\KLTN\agent\wheels -r C:\KLTN\agent\requirements.txt'
+  register: pip_install
+  changed_when: "'Successfully installed' in pip_install.stdout"
+  notify: Restart Windows agent
+- name: Install private endpoint configuration
+  ansible.windows.win_template:
+    src: agent.json.j2
+    dest: C:\KLTN\agent\config.json
+  vars:
+    agent_database: 'C:\KLTN\agent\state\inbox.sqlite'
+  no_log: true
+  notify: Restart Windows agent
+- name: Install WinSW service configuration
+  ansible.windows.win_template:
+    src: kltn-agent.xml.j2
+    dest: C:\KLTN\agent\kltn-agent.xml
+  notify: Restart Windows agent
+- name: Register endpoint service once
+  ansible.windows.win_powershell:
+    script: |
+      if (Get-Service kltn-agent -ErrorAction SilentlyContinue) { $Ansible.Changed=$false; return }
+      & C:\KLTN\agent\kltn-agent.exe install
+      if ($LASTEXITCODE -ne 0) { throw 'WinSW installation failed' }
+- name: Start endpoint service
+  ansible.windows.win_service:
+    name: kltn-agent
+    state: started
+    start_mode: auto
+- name: Apply changes before enabling loopback delivery
+  ansible.builtin.meta: flush_handlers
+- name: Verify Windows runtime health
+  ansible.windows.win_uri:
+    url: http://127.0.0.1:18081/healthz
+    return_content: true
+    url_timeout: 15
+    use_proxy: false
+  register: agent_health
+  until: agent_health.status_code == 200
+  retries: 12
+  delay: 5
+- name: Assert Windows model-free mode
+  ansible.builtin.assert:
+    that: (agent_health.content | from_json).inference == 'waiting_for_model'

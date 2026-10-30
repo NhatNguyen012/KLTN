@@ -1,0 +1,21 @@
+---
+- name: Generate identifiable benign Linux telemetry
+  hosts: linux
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Run harmless process and file operation
+      ansible.builtin.shell: |
+        printf '%s\n' '{{ smoke_marker }}' > /var/lib/kltn/workload/{{ smoke_marker }}.txt
+        /usr/bin/logger -t kltn-smoke '{{ smoke_marker }}'
+        /usr/bin/stat /var/lib/kltn/workload/{{ smoke_marker }}.txt >/dev/null
+      changed_when: true
+- name: Generate identifiable benign Windows telemetry
+  hosts: windows
+  gather_facts: false
+  tasks:
+    - name: Run harmless process and file operation
+      ansible.windows.win_powershell:
+        script: |
+          Set-Content -Path 'C:\KLTN\workload\{{ smoke_marker }}.txt' -Value '{{ smoke_marker }}'
+          & cmd.exe /c 'echo {{ smoke_marker }} > nul'

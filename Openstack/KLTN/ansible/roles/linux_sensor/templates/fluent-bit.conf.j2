@@ -1,0 +1,62 @@
+[SERVICE]
+    Flush 2
+    Log_Level info
+    storage.path /var/lib/kltn/buffer
+    storage.sync full
+    storage.checksum on
+    storage.backlog.mem_limit 16M
+    storage.max_chunks_up 16
+    HTTP_Server On
+    HTTP_Listen 127.0.0.1
+    HTTP_Port 2020
+
+[INPUT]
+    Name tail
+    Tag audit
+    Path /var/log/audit/audit.log
+    DB /var/lib/kltn/audit.db
+    Read_from_Head On
+    Rotate_Wait 30
+    Buffer_Max_Size 1M
+    storage.type filesystem
+
+[INPUT]
+    Name systemd
+    Tag journal
+    DB /var/lib/kltn/journal.db
+    Systemd_Filter _SYSTEMD_UNIT=ssh.service
+    Systemd_Filter SYSLOG_IDENTIFIER=kltn-smoke
+    Systemd_Filter_Type Or
+    storage.type filesystem
+
+{% for source in ['audit', 'journal'] %}
+[OUTPUT]
+    Name http
+    Match {{ source }}
+    Host {{ central_ip }}
+    Port {{ central_port }}
+    URI /v1/events/{{ host_id }}/{{ source }}
+    Format json
+    Header Authorization Bearer {{ ingest_token }}
+    tls On
+    tls.verify On
+    tls.verify_hostname On
+    tls.ca_file /etc/fluent-bit/kltn-ca.crt
+    Retry_Limit no_limits
+    storage.total_limit_size 256M
+{% if endpoint_agent_enabled | default(false) %}
+
+[OUTPUT]
+    Name http
+    Match {{ source }}
+    Host 127.0.0.1
+    net.keepalive Off
+    Workers 1
+    Port 18081
+    URI /v1/raw/{{ source }}
+    Format json
+    Header Authorization Bearer {{ ingest_token | hash('sha256') }}
+    Retry_Limit no_limits
+    storage.total_limit_size 128M
+{% endif %}
+{% endfor %}

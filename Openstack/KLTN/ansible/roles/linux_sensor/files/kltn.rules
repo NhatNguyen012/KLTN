@@ -1,0 +1,6 @@
+# Pilot coverage: exec and selected persistence/workload writes. No L3/L4 rules.
+-b 8192
+-a always,exit -F arch=b64 -S execve,execveat -k kltn_exec
+-w /etc/systemd/system -p wa -k kltn_persistence
+-w /etc/cron.d -p wa -k kltn_persistence
+-w /var/lib/kltn/workload -p wa -k kltn_workload

@@ -50,3 +50,14 @@ output "rdp_endpoints" {
   }
 }
 
+
+output "ansible_hosts" {
+  description = "Non-secret inventory input for scripts/prepare_inventory.py."
+  value = {
+    for key, node in var.nodes : key => {
+      os_type = node.os_type
+      host_id = openstack_compute_instance_v2.node[key].id
+      address = var.create_floating_ips ? openstack_networking_floatingip_v2.node[key].address : openstack_networking_port_v2.instance[key].all_fixed_ips[0]
+    }
+  }
+}

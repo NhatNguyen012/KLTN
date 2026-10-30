@@ -13,7 +13,7 @@ một floating IP.
 
 Ubuntu dùng image `Ubuntu-24.04` và flavor `m1.small`. Windows dùng image
 `Windows-11-Enterprise-LTSC-2024`; Terraform tạo flavor `kltn.windows11` gồm
-4 vCPU, 8192 MiB RAM, disk 80 GiB và yêu cầu TPM 2.0/CRB. External network là
+4 vCPU, 6144 MiB RAM, disk 80 GiB và yêu cầu TPM 2.0/CRB. External network là
 `public-net`, keypair có sẵn là `lab-key`.
 
 ## Chuẩn bị
@@ -142,23 +142,61 @@ file quyền 0600. Không in toàn bộ metadata ra log. Nếu muốn quy trình
 khẩu mã hóa qua Nova, cần thiết kế và kiểm thử riêng HTTP metadata + khóa RSA;
 chỉ thay keypair không đủ.
 
-Đã dọn tài nguyên kiểm thử ngày 2026-10-29 theo yêu cầu người dùng. Khi refresh,
-VM chẩn đoán đã không còn trên Nova; Terraform đã xóa 18 resource phụ thuộc còn
-lại. State hiện rỗng, không còn VM; `nova-compute` đã được đưa về disabled với
-lý do `KLTN lab idle`. File mật khẩu tạm đã xóa. Image, ISO và mã nguồn được giữ
-để tạo lại sau. Khi cần chạy lại, enable compute và tạo plan mới theo phần trên.
+## Kết quả triển khai và khắc phục Windows 11 (2026-10-29)
 
-Hai ISO mới có tên Evaluation; chưa dùng chúng để build hay kiểm tra first-boot.
-Builder hiện chọn LTSC bằng KMS client setup key. Không chỉ thay `WINDOWS_ISO`
-sang Evaluation mà giữ nguyên lựa chọn edition/key rồi coi là tương thích.
-Chưa có bằng chứng nguồn ISO cũ là nguyên nhân của triệu chứng RDP này.
+Hiện tại, cả 3 máy ảo (`kltn-ubuntu-1`, `kltn-ubuntu-2`, `kltn-windows-1`) đang chạy ở trạng thái **ACTIVE** và đang gửi telemetry thật về central pipeline.
 
-Chỉ khi muốn xóa toàn bộ tài nguyên do cấu hình này quản lý:
+### Các vấn đề đã xác định và giải pháp xử lý
+
+1. **Windows tự động Hibernate/Sleep (`pmsuspended` / `shut off`)**:
+   - *Triệu chứng:* Sau một thời gian không tương tác, Windows 11 tự động chuyển sang trạng thái `pmsuspended` trong libvirt hoặc tắt hẳn.
+   - *Khắc phục:* Đã bổ sung cấu hình tắt sleep/hibernate vào [windows-user-data.ps1](windows-user-data.ps1) và hàm reconcile trong `prepare_inventory.py`:
+     ```powershell
+     powercfg /change standby-timeout-ac 0
+     powercfg /change hibernate-timeout-ac 0
+     powercfg /hibernate off
+     ```
+
+2. **WinRM HTTPS Certificate thiếu IP SAN**:
+   - *Triệu chứng:* Listener mặc định của Cloudbase-Init chỉ gán Subject `CN=<hostname>`, gây lỗi xác thực TLS khi Ansible kết nối qua IP (5986).
+   - *Khắc phục:* [prepare_inventory.py](../scripts/prepare_inventory.py) tự động reconcile chứng thư tự ký có SAN `IPAddress=<management_ip>`, gán thumbprint vào HTTPS listener và export chứng thư `.pem` sang `runtime/` để Ansible xác thực an toàn (không dùng `server_cert_validation: ignore`).
+
+3. **UAC Remote Restrictions (`LocalAccountTokenFilterPolicy`)**:
+   - *Triệu chứng:* Ansible báo lỗi `Task failed: ntlm: the specified credentials were rejected by the server` khi dùng tài khoản local `Admin`.
+   - *Khắc phục:* Bật chính sách cho phép local administrator remote qua NTLM:
+     ```powershell
+     Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System' -Name LocalAccountTokenFilterPolicy -Type DWord -Value 1 -Force
+     ```
+
+4. **Tình trạng file ISO Windows**:
+   - Thư mục `/etc/kolla/images/` hiện có:
+     - `windows_11_enterprise_ltsc_2024.iso` (ISO ban đầu dùng để build image hiện tại)
+     - `26100.1742...CLIENT_LTSC_EVAL_x64FRE_en-us.iso` (bản Evaluation chính thức)
+     - `26300.9457...CLIENTENTERPRISEEVAL_OEMRET_x64FRE_en-us.iso` (bản Enterprise Eval 26H2)
+   - *Kết luận:* Image hiện tại (`Windows-11-Enterprise-LTSC-2024`, ID `8916e3cb-025e-45d8-81ba-4c4be7881f97`) đã được cấu hình và kiểm chứng hoạt động hoàn toàn ổn định (WinRM, Sysmon, Fluent Bit, RDP). **Không cần phải rebuild lại image** từ các file Evaluation trừ khi có yêu cầu chuyển đổi sang phiên bản đánh giá 90 ngày.
+
+### Kết quả kiểm chứng thực tế
+
+- **Ansible WinRM**: `ansible.windows.win_ping` trả về `pong` thành công.
+- **Sensor Deployment**: Role `windows_sensor` cài đặt và khởi động thành công Sysmon (chữ ký số Microsoft hợp lệ) và Fluent Bit native service.
+- **Telemetry Streaming**: Central PostgreSQL đã nhận đầy đủ sự kiện từ cả 7 luồng:
+  - Windows: `sysmon`, `security`, `powershell`
+  - Ubuntu: `audit`, `journal`
+- **Smoke test**: `ansible-playbook smoke.yml -e smoke_marker=...` hoàn thành 100% trên cả 3 VM và được xác thực tồn tại trong DB.
+
+## Dọn dẹp tài nguyên
+
+Chỉ khi muốn xóa toàn bộ tài nguyên lab:
 
 ```bash
 terraform destroy
 
-# Tùy chọn: khôi phục trạng thái nghỉ của lab sau khi destroy.
+# Khôi phục trạng thái nghỉ của lab sau khi destroy:
 openstack compute service set --disable \
   --disable-reason "KLTN lab idle" openstack-aio nova-compute
 ```
+
+## Collector pilot
+
+Triển khai Ansible và central Docker theo [runbook KLTN](../README.md).
+WinRM HTTPS 5986 chỉ mở cho `management_source_cidr`; inventory pin cert qua QGA.

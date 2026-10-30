@@ -1,0 +1,8 @@
+{
+  "host_id": {{ host_id | to_json }},
+  "database": {{ agent_database | to_json }},
+  "local_token": {{ (ingest_token | hash('sha256')) | to_json }},
+  "max_rows": 50000,
+  "max_bytes": 134217728,
+  "mode": "prepare"
+}
