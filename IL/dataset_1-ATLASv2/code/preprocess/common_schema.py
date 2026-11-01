@@ -39,6 +39,7 @@ KNOWN_IOCS: dict[str, Any] = {
         9999,   # Meterpreter reverse shell port
         8443,   # HTTPS exfiltration channel
         8000,   # SimpleHTTP server on h1 (phishing portal download)
+        8080,   # HTTP staging / download cradle port
     },
     "c2_domains": {
         "ortrta.net",
@@ -51,6 +52,8 @@ KNOWN_IOCS: dict[str, Any] = {
         "m5-2.zip",
         "m6.zip",
         "msf.doc",
+        "fygpgmir5j.sct",
+        "fygpgmir5j",
     },
     "attack_processes": {
         "payload.exe",

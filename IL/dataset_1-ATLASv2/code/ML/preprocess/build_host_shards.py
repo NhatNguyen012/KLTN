@@ -16,6 +16,7 @@ import csv
 from datetime import datetime, timezone
 import hashlib
 import io
+import ipaddress
 import json
 import math
 from pathlib import Path
@@ -67,53 +68,96 @@ PREDEFINED_DOMAIN_TOKENS = [
     "file_ext::type=other",
     # Office Temporary / AutoSave
     "file_ext::office_autosave_tmp",
-    # Windows 7 Explorer Registry Noise vs Persistence
-    "reg_path::category=autorun_persistence",
-    "reg_path::category=ui_shell_state",
-    # Module Load Distinction
-    "module_load::suspicious_net_or_script",
-    "module_load::office_sys_dll",
-    # Process Session Context
-    "proc_context::has_child_exploit_target",
+    # Process Context (active network socket)
     "proc_context::has_netconn",
+    # Parent Process Basenames (Atomic Lineage)
+    "parent_image::basename=regsvr32.exe",
+    "parent_image::basename=mshta.exe",
+    "parent_image::basename=winword.exe",
+    "parent_image::basename=excel.exe",
+    "parent_image::basename=eqnedt32.exe",
+    "parent_image::basename=cmd.exe",
+    "parent_image::basename=powershell.exe",
+    "parent_image::basename=svchost.exe",
+    "parent_image::basename=explorer.exe",
+    "parent_image::basename=firefox.exe",
+    "parent_image::basename=services.exe",
+    "parent_image::basename=payload.exe",
+    # Network Flow Tokens (RFC 1340 / RFC 1918 Standard)
+    "net::direction=outbound",
+    "net::direction=inbound",
+    "net::proto=tcp",
+    "net::proto=udp",
+    "port::range=well_known",
+    "port::range=registered",
+    "port::range=dynamic_ephemeral",
+    "port::service=http",
+    "port::service=https",
+    "port::service=dns",
+    "port::service=smb",
+    "port::service=other_well_known",
+    "net::ip_scope=rfc1918_private",
+    "net::ip_scope=loopback",
+    "net::ip_scope=public",
 ]
 
-SUSPICIOUS_MODULES = frozenset({
-    "urlmon.dll", "wininet.dll", "vbscript.dll", "jscript.dll",
-    "eqnedt32.exe", "mshta.exe", "wscript.exe", "cscript.exe", "rundll32.exe",
-})
 
-OFFICE_SYS_MODULES = frozenset({
-    "mso.dll", "wwlib.dll", "kernel32.dll", "ntdll.dll", "user32.dll", "gdi32.dll",
-    "advapi32.dll", "ole32.dll", "rpcrt4.dll", "msvcrt.dll", "shell32.dll", "shlwapi.dll",
-    "imm32.dll", "usp10.dll", "comctl32.dll", "riched20.dll", "mscoree.dll", "msi.dll",
-    "kernelbase.dll", "mso20win32client.dll", "mso40uiwin32client.dll",
-})
-
-EXPLOIT_CHILD_PROCS = frozenset({
-    "cmd.exe", "powershell.exe", "eqnedt32.exe", "mshta.exe", "cscript.exe", "wscript.exe", "rundll32.exe"
-})
+def get_ip_scope(ip_str: str) -> str:
+    """Classify IP address according to RFC 1918 private / loopback / public scopes."""
+    if not ip_str:
+        return "unknown"
+    try:
+        ip = ipaddress.ip_address(ip_str.strip())
+        if ip.is_loopback:
+            return "loopback"
+        elif ip.is_private:
+            return "rfc1918_private"
+        else:
+            return "public"
+    except Exception:
+        return "unknown"
 
 
 class FileSessionIndex:
-    """Indexes process session activities (child spawns and netconns) for rolling-window context."""
+    """Indexes process session activities (child spawns, netconns, and parent lineage) for rolling-window context."""
     def __init__(self) -> None:
         self.child_spawns: dict[str, list[tuple[int, str]]] = defaultdict(list)
         self.netconns: dict[str, list[int]] = defaultdict(list)
+        self.parent_map: dict[str, tuple[str, str]] = {}  # guid -> (parent_guid, parent_basename)
 
     def add_event(self, event: CanonicalEvent) -> None:
         et = event.event_type
         guid = event.process_guid
         ts = event.timestamp
+        if guid and event.parent_path:
+            p_base = extract_basename(event.parent_path).lower()
+            if p_base:
+                self.parent_map[guid] = (event.parent_guid, p_base)
         if et == "PROCESS_START":
             child = extract_basename(event.target_path).lower()
             self.child_spawns[guid].append((ts, child))
             if event.parent_guid:
                 self.child_spawns[event.parent_guid].append((ts, child))
+            if event.target_guid and child:
+                self.parent_map[event.target_guid] = (guid, extract_basename(event.process_path).lower())
         elif et == "FLOW_START":
             self.netconns[guid].append(ts)
             if event.parent_guid:
                 self.netconns[event.parent_guid].append(ts)
+
+    def get_ancestors(self, guid: str, max_depth: int = 5) -> list[str]:
+        ancestors = []
+        curr = guid
+        depth = 0
+        while curr in self.parent_map and depth < max_depth:
+            p_guid, p_base = self.parent_map[curr]
+            if p_base:
+                ancestors.append(p_base)
+            if not p_guid or p_guid == curr:
+                break
+            curr = p_guid
+            depth += 1
+        return ancestors
 
     def has_child_exploit(self, guid: str, ts: int, window_micros: int = 30_000_000) -> bool:
         if not guid:
@@ -140,11 +184,11 @@ def extract_domain_shift_tokens(event: CanonicalEvent, session: FileSessionIndex
     target_base = extract_basename(target_raw).lower()
     et = event.event_type
 
-    # 1. Firefox & App Cache
+    # 1. Firefox & App Cache (Browser writing to its own local cache)
     if proc_base == "firefox.exe" and ("mozilla" in target_norm or "firefox" in target_norm):
         tokens.append("temp_context::app_own_cache")
 
-    # 2. File extension & temp classification
+    # 2. File extension classification
     if et in ("FILE_CREATE", "FILE_WRITE", "FILE_DELETE"):
         if "." in target_base:
             ext = "." + target_base.rsplit(".", 1)[-1]
@@ -177,39 +221,49 @@ def extract_domain_shift_tokens(event: CanonicalEvent, session: FileSessionIndex
             if "~" in target_base or ext in (".tmp", ".asd", ".wbk"):
                 tokens.append("file_ext::office_autosave_tmp")
 
-    # 3. Windows 7 Explorer Registry Noise vs Autorun Persistence
-    if et == "REGISTRY_WRITE":
-        if any(k in target_norm for k in (r"\currentversion\run", r"\currentversion\runonce", r"\winlogon", r"\services")):
-            tokens.append("reg_path::category=autorun_persistence")
-        if any(k in target_norm for k in (
-            r"\currentversion\explorer\shell folders",
-            r"\currentversion\explorer\user shell folders",
-            r"\shell folders",
-            r"\bagmru",
-            r"\streams",
-            r"\recentdocs",
-            r"\userassist",
-            r"\fileexts",
-            r"\startpage",
-            r"\muicache",
-            r"\action center",
-        )):
-            tokens.append("reg_path::category=ui_shell_state")
+    # 3. Module Load: emit atomic module basename
+    if et == "MODULE_LOAD" and target_base:
+        tokens.append(f"module_name::{target_base}")
 
-    # 4. Module Load Distinction
-    if et == "MODULE_LOAD":
-        if target_base in SUSPICIOUS_MODULES:
-            tokens.append("module_load::suspicious_net_or_script")
-            tokens.append(f"module_name::{target_base}")
-        elif target_base in OFFICE_SYS_MODULES:
-            tokens.append("module_load::office_sys_dll")
-            tokens.append(f"module_name::{target_base}")
+    # 4. Atomic Parent Process Basename
+    parent_base = extract_basename(event.parent_path).lower()
+    if parent_base:
+        tokens.append(f"parent_image::basename={parent_base}")
 
-    # 5. Process Session Rolling Window (30s) Context
-    if session.has_child_exploit(event.process_guid, event.timestamp, window_micros=30_000_000):
-        tokens.append("proc_context::has_child_exploit_target")
+    # 5. Process Session Rolling Window Context (active network socket)
     if session.has_netconn(event.process_guid, event.timestamp, window_micros=30_000_000):
         tokens.append("proc_context::has_netconn")
+
+    # 6. Network Flow Attributes (RFC 1340 / RFC 1918 Standard)
+    if et == "FLOW_START":
+        tokens.append("net::direction=inbound" if event.inbound else "net::direction=outbound")
+        if event.proto:
+            proto_clean = event.proto.lower().strip()
+            if proto_clean in ("tcp", "udp"):
+                tokens.append(f"net::proto={proto_clean}")
+
+        port = event.remote_port
+        if 0 <= port <= 65535:
+            if port < 1024:
+                tokens.append("port::range=well_known")
+                if port == 80:
+                    tokens.append("port::service=http")
+                elif port == 443:
+                    tokens.append("port::service=https")
+                elif port == 53:
+                    tokens.append("port::service=dns")
+                elif port == 445:
+                    tokens.append("port::service=smb")
+                else:
+                    tokens.append("port::service=other_well_known")
+            elif port <= 49151:
+                tokens.append("port::range=registered")
+            else:
+                tokens.append("port::range=dynamic_ephemeral")
+
+        scope = get_ip_scope(event.remote_ip)
+        if scope != "unknown":
+            tokens.append(f"net::ip_scope={scope}")
 
     return tokens
 
@@ -220,6 +274,9 @@ def canonical_ecar_record(event: CanonicalEvent) -> dict[str, Any]:
     props = {}
     obj = "process"
     act = "start"
+
+    if event.parent_path:
+        props["parent_image_path"] = event.parent_path
 
     if et == "PROCESS_START":
         obj = "process"
@@ -259,8 +316,8 @@ def canonical_ecar_record(event: CanonicalEvent) -> dict[str, Any]:
         props = {"image_path": event.process_path}
     elif et == "FLOW_START":
         # Network flow events on host
-        obj = "file"  # fallback or process access
-        act = "open"
+        obj = "flow"
+        act = "start"
         props = {"image_path": event.process_path}
 
     return {

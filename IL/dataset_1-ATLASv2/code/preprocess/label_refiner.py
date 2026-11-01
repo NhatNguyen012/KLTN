@@ -30,6 +30,24 @@ except ImportError:
     )
 
 
+SUSPICIOUS_MODULES = frozenset({
+    "urlmon.dll", "wininet.dll", "vbscript.dll", "jscript.dll",
+    "eqnedt32.exe", "mshta.exe", "wscript.exe", "cscript.exe", "rundll32.exe", "scrobj.dll",
+})
+
+OFFICE_SYS_MODULES = frozenset({
+    "mso.dll", "wwlib.dll", "kernel32.dll", "ntdll.dll", "user32.dll", "gdi32.dll",
+    "advapi32.dll", "ole32.dll", "rpcrt4.dll", "msvcrt.dll", "shell32.dll", "shlwapi.dll",
+    "imm32.dll", "usp10.dll", "comctl32.dll", "riched20.dll", "mscoree.dll", "msi.dll",
+    "kernelbase.dll", "mso20win32client.dll", "mso40uiwin32client.dll", "mssvp.dll",
+})
+
+EXPLOIT_CHILD_PROCS = frozenset({
+    "cmd.exe", "powershell.exe", "eqnedt32.exe", "mshta.exe", "cscript.exe", "wscript.exe",
+    "rundll32.exe", "regsvr32.exe", "payload.exe", "plugin-container.exe",
+})
+
+
 class LabelRefiner:
     """Manages ground-truth loading from REAPr and deterministic 2-tier event labeling."""
 
@@ -83,9 +101,9 @@ class LabelRefiner:
                         self.scenario_seeds[sc_key].add(name)
 
     def is_event_malicious(self, event: CanonicalEvent) -> bool:
-        """Evaluate two-tier labeling policy on a canonical event.
+        """Evaluate two-tier event-level labeling policy on a canonical event.
         
-        Returns True (1) if event is part of verified attack chain, False (0) otherwise.
+        Returns True (1) if event is part of verified attack behavior, False (0) otherwise.
         """
         sc = event.scenario.lower().strip()
         # 1. Benign background days are 100% benign
@@ -103,15 +121,17 @@ class LabelRefiner:
             return False
 
         proc_base = extract_basename(event.process_path)
+        target_path = event.target_path or ""
+        target_norm = target_path.strip().strip('"\'').replace("/", "\\").lower()
+        target_base = extract_basename(target_path)
+        et = event.event_type
 
         # 4. Handle Dual-Use Process: Firefox.exe (Solve Firefox Paradox)
         if proc_base == "firefox.exe":
-            if event.event_type == "FLOW_START":
-                # Check destination against known C2 IPs, ports, and domains
+            if et == "FLOW_START":
                 is_c2_ip = event.remote_ip in KNOWN_IOCS["c2_ips"]
                 is_c2_port = event.remote_port in KNOWN_IOCS["c2_ports"]
-                is_c2_domain = any(d in (event.target_path or "").lower() for d in KNOWN_IOCS["c2_domains"])
-                # Also check against scenario-specific seeds (e.g. 10.193.66.115:8080)
+                is_c2_domain = any(d in target_norm for d in KNOWN_IOCS["c2_domains"])
                 is_seed = False
                 seeds = self.scenario_seeds.get(sc, set())
                 for s in seeds:
@@ -120,21 +140,72 @@ class LabelRefiner:
                         break
                 return is_c2_ip or is_c2_port or is_c2_domain or is_seed
 
-            elif event.event_type in {"FILE_WRITE", "FILE_CREATE"}:
-                target_base = extract_basename(event.target_path)
-                return any(mal in target_base for mal in KNOWN_IOCS["malicious_files"])
+            elif et in {"FILE_WRITE", "FILE_CREATE"}:
+                return any(mal in target_base for mal in KNOWN_IOCS["malicious_files"]) or target_base.endswith((".exe", ".zip"))
 
-            elif event.event_type == "PROCESS_START":
-                # Child process spawned by Firefox
-                target_base = extract_basename(event.target_path)
+            elif et == "PROCESS_START":
                 return target_base in {"cmd.exe", "powershell.exe", "payload.exe", "plugin-container.exe"}
 
-            # Any other background event from Firefox is marked Benign
+            # Any other background event from Firefox is marked Benign (0)
             return False
 
-        # 5. Pure attack payloads
-        if proc_base in KNOWN_IOCS["attack_processes"]:
+        # 5. Handle Dual-Use Process: Office (Word, Excel, PowerPoint)
+        if proc_base in ("winword.exe", "excel.exe", "powerpnt.exe"):
+            if et == "PROCESS_START":
+                return target_base in EXPLOIT_CHILD_PROCS
+            elif et == "FLOW_START":
+                is_c2_ip = event.remote_ip in KNOWN_IOCS["c2_ips"]
+                is_c2_port = event.remote_port in KNOWN_IOCS["c2_ports"]
+                is_c2_domain = any(d in target_norm for d in KNOWN_IOCS["c2_domains"])
+                return is_c2_ip or is_c2_port or is_c2_domain
+            elif et in {"FILE_WRITE", "FILE_CREATE"}:
+                # Font loading or Office autosave draft (~*.tmp, .asd, .wbk) -> 0
+                if any(target_base.endswith(ext) for ext in (".ttf", ".fon", ".tmp", ".asd", ".wbk")) or "~" in target_base or "\\fonts\\" in target_norm:
+                    return False
+                # Malicious payload / script write -> 1
+                if any(mal in target_base for mal in KNOWN_IOCS["malicious_files"]) or target_base.endswith((".exe", ".zip", ".sct", ".vbs", ".hta", ".ps1")):
+                    return True
+                return False
+            elif et == "MODULE_LOAD":
+                if target_base in SUSPICIOUS_MODULES:
+                    return True
+                # Standard system / Office DLLs -> 0
+                if target_base in OFFICE_SYS_MODULES or "\\system32\\" in target_norm or "\\syswow64\\" in target_norm or "\\microsoft shared\\" in target_norm:
+                    return False
+                return False
+            elif et == "REGISTRY_WRITE":
+                return any(k in target_norm for k in (r"\currentversion\run", r"\winlogon", r"\services"))
+            return False
+
+        # 6. Handle Dual-Use Process: Windows Explorer
+        if proc_base == "explorer.exe":
+            if et == "PROCESS_START":
+                return target_base in EXPLOIT_CHILD_PROCS
+            elif et == "FLOW_START":
+                return event.remote_ip in KNOWN_IOCS["c2_ips"]
+            elif et in {"FILE_WRITE", "FILE_CREATE"}:
+                return any(mal in target_base for mal in KNOWN_IOCS["malicious_files"]) or target_base.endswith((".exe", ".zip", ".sct", ".vbs", ".hta", ".ps1"))
+            elif et == "MODULE_LOAD":
+                return target_base in SUSPICIOUS_MODULES
+            elif et == "REGISTRY_WRITE":
+                return any(k in target_norm for k in (r"\currentversion\run", r"\winlogon", r"\services"))
+            return False
+
+        # 7. Handle Background System Services (lsass, taskhost, dllhost, osppsvc, audiodg)
+        if proc_base in ("lsass.exe", "taskhost.exe", "dllhost.exe", "osppsvc.exe", "audiodg.exe"):
+            if et == "PROCESS_START":
+                return target_base in EXPLOIT_CHILD_PROCS
+            elif et == "FLOW_START":
+                return event.remote_ip in KNOWN_IOCS["c2_ips"]
+            elif et in {"FILE_WRITE", "FILE_CREATE"}:
+                return any(mal in target_base for mal in KNOWN_IOCS["malicious_files"])
+            elif et == "CROSS_PROCESS":
+                return target_base in EXPLOIT_CHILD_PROCS or event.target_guid in attack_guids
+            return False
+
+        # 8. Pure attack and shell execution tools (payload.exe, powershell.exe, cmd.exe, mshta.exe, etc.)
+        if proc_base in ("payload.exe", "powershell.exe", "cmd.exe", "eqnedt32.exe", "mshta.exe", "regsvr32.exe", "python.exe") or proc_base in KNOWN_IOCS["attack_processes"]:
             return True
 
-        # 6. Attacker-controlled processes in REAPr graph (cmd, powershell, excel during attack)
+        # Default for other attacker-flagged processes
         return True
