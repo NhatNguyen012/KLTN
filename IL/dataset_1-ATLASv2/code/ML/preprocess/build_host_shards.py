@@ -83,39 +83,7 @@ PREDEFINED_DOMAIN_TOKENS = [
     "parent_image::basename=firefox.exe",
     "parent_image::basename=services.exe",
     "parent_image::basename=payload.exe",
-    # Network Flow Tokens (RFC 1340 / RFC 1918 Standard)
-    "net::direction=outbound",
-    "net::direction=inbound",
-    "net::proto=tcp",
-    "net::proto=udp",
-    "port::range=well_known",
-    "port::range=registered",
-    "port::range=dynamic_ephemeral",
-    "port::service=http",
-    "port::service=https",
-    "port::service=dns",
-    "port::service=smb",
-    "port::service=other_well_known",
-    "net::ip_scope=rfc1918_private",
-    "net::ip_scope=loopback",
-    "net::ip_scope=public",
 ]
-
-
-def get_ip_scope(ip_str: str) -> str:
-    """Classify IP address according to RFC 1918 private / loopback / public scopes."""
-    if not ip_str:
-        return "unknown"
-    try:
-        ip = ipaddress.ip_address(ip_str.strip())
-        if ip.is_loopback:
-            return "loopback"
-        elif ip.is_private:
-            return "rfc1918_private"
-        else:
-            return "public"
-    except Exception:
-        return "unknown"
 
 
 class FileSessionIndex:
@@ -221,49 +189,14 @@ def extract_domain_shift_tokens(event: CanonicalEvent, session: FileSessionIndex
             if "~" in target_base or ext in (".tmp", ".asd", ".wbk"):
                 tokens.append("file_ext::office_autosave_tmp")
 
-    # 3. Module Load: emit atomic module basename
-    if et == "MODULE_LOAD" and target_base:
-        tokens.append(f"module_name::{target_base}")
-
-    # 4. Atomic Parent Process Basename
+    # 3. Atomic Parent Process Basename
     parent_base = extract_basename(event.parent_path).lower()
     if parent_base:
         tokens.append(f"parent_image::basename={parent_base}")
 
-    # 5. Process Session Rolling Window Context (active network socket)
+    # 4. Process Session Rolling Window Context (active network socket)
     if session.has_netconn(event.process_guid, event.timestamp, window_micros=30_000_000):
         tokens.append("proc_context::has_netconn")
-
-    # 6. Network Flow Attributes (RFC 1340 / RFC 1918 Standard)
-    if et == "FLOW_START":
-        tokens.append("net::direction=inbound" if event.inbound else "net::direction=outbound")
-        if event.proto:
-            proto_clean = event.proto.lower().strip()
-            if proto_clean in ("tcp", "udp"):
-                tokens.append(f"net::proto={proto_clean}")
-
-        port = event.remote_port
-        if 0 <= port <= 65535:
-            if port < 1024:
-                tokens.append("port::range=well_known")
-                if port == 80:
-                    tokens.append("port::service=http")
-                elif port == 443:
-                    tokens.append("port::service=https")
-                elif port == 53:
-                    tokens.append("port::service=dns")
-                elif port == 445:
-                    tokens.append("port::service=smb")
-                else:
-                    tokens.append("port::service=other_well_known")
-            elif port <= 49151:
-                tokens.append("port::range=registered")
-            else:
-                tokens.append("port::range=dynamic_ephemeral")
-
-        scope = get_ip_scope(event.remote_ip)
-        if scope != "unknown":
-            tokens.append(f"net::ip_scope={scope}")
 
     return tokens
 
@@ -448,6 +381,11 @@ def main():
         line_idx = 0
         for event in adapter.stream_file(f, sc):
             session.add_event(event)
+            # OpTC Contract: Host ML evaluates Host telemetry only.
+            # Network FLOW events are tracked in session for host context (proc_context::has_netconn),
+            # but excluded from Host ML shards (delegated to Network DL Agent).
+            if event.event_type == "FLOW_START":
+                continue
             line_idx += 1
             if is_bg and (line_idx % sample_stride != 0):
                 continue

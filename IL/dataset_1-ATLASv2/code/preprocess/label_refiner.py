@@ -204,8 +204,61 @@ class LabelRefiner:
             return False
 
         # 8. Pure attack and shell execution tools (payload.exe, powershell.exe, cmd.exe, mshta.exe, etc.)
+        # Aligns with Causal Edge Theorem (atlas.pdf Fig 1a & DEEPDIST Fig 1):
+        # OS loader mapping standard system DLLs and shell UI initialization are benign background (0).
+        # Real execution (PROCESS_START), injection (CROSS_PROCESS), file drops (FILE_WRITE/CREATE),
+        # and system registry persistence/manipulation remain attack (1).
         if proc_base in ("payload.exe", "powershell.exe", "cmd.exe", "eqnedt32.exe", "mshta.exe", "regsvr32.exe", "python.exe") or proc_base in KNOWN_IOCS["attack_processes"]:
+            if et == "MODULE_LOAD":
+                if target_base in SUSPICIOUS_MODULES:
+                    return True
+                # Standard system DLL loads from system32, syswow64, microsoft.net, etc. -> 0
+                if (
+                    target_base in OFFICE_SYS_MODULES
+                    or "\\system32\\" in target_norm
+                    or "\\syswow64\\" in target_norm
+                    or "\\microsoft.net\\" in target_norm
+                    or "\\assembly\\" in target_norm
+                    or "\\microsoft shared\\" in target_norm
+                ):
+                    return False
+                return False
+            elif et in ("REGISTRY_WRITE", "REGISTRY_READ"):
+                # Harmless OS shell interface & user environment queries/initialization -> 0
+                if any(s in target_norm for s in (
+                    r"\explorer\shell folders",
+                    r"\user shell folders",
+                    r"\muicache",
+                    r"\internet settings\wpad",
+                    r"\internet settings\connections",
+                    r"\session manager\environment",
+                )):
+                    return False
+                return True
             return True
 
         # Default for other attacker-flagged processes
+        if et == "MODULE_LOAD":
+            if target_base in SUSPICIOUS_MODULES:
+                return True
+            if (
+                target_base in OFFICE_SYS_MODULES
+                or "\\system32\\" in target_norm
+                or "\\syswow64\\" in target_norm
+                or "\\microsoft.net\\" in target_norm
+                or "\\assembly\\" in target_norm
+                or "\\microsoft shared\\" in target_norm
+            ):
+                return False
+            return False
+        elif et in ("REGISTRY_WRITE", "REGISTRY_READ"):
+            if any(s in target_norm for s in (
+                r"\explorer\shell folders",
+                r"\user shell folders",
+                r"\muicache",
+                r"\internet settings\wpad",
+                r"\internet settings\connections",
+                r"\session manager\environment",
+            )):
+                return False
         return True
