@@ -167,12 +167,14 @@ class ReplayBufferDataset(Dataset):
             "delta_t_log1p": self.delta_t_log1p[start:end],
         }
 
-    def sample_batch(self, n_samples: int, pos_ratio: float = 0.5) -> list[dict[str, Any]]:
-        """Stratified sample with specified positive ratio (default 50/50 balance)."""
+    def sample_batch(self, n_samples: int, pos_ratio: float = 0.30, max_pos: int = 3) -> list[dict[str, Any]]:
+        """Stratified sample with bounded positive ratio to prevent few-shot domain gradient dominance (MalFSCIL 2024)."""
         if n_samples <= 0:
             return []
-        n_pos = int(round(n_samples * pos_ratio))
-        n_neg = n_samples - n_pos
+        n_pos = min(max_pos, int(round(n_samples * pos_ratio)))
+        if n_pos == 0 and np.random.rand() < pos_ratio:
+            n_pos = 1
+        n_neg = max(0, n_samples - n_pos)
 
         chosen_indices = []
         if len(self.pos_indices) > 0 and n_pos > 0:

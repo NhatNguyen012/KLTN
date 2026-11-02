@@ -210,10 +210,14 @@ cmd_parts = [
     '--dataset-root', f"'{DATASET_ROOT}'",
     '--output-dir', f"'{OUTPUT_DIR}'",
     '--epochs', '10',
+    '--min-epochs', '3',
+    '--loss', 'focal',
+    '--t-min', '0.25',
+    '--t-max', '0.75',
     '--batch-size', '32',
     '--lr', '0.0002',
     '--weight-decay', '0.0001',
-    '--patience', '3',
+    '--patience', '4',
     '--seed', '42',
     '--run-benchmark',
 ]
@@ -223,8 +227,8 @@ if INIT_MODEL is not None and INIT_MODEL.exists():
     print(f'[PRETRAINED CHECKPOINT] Using OpTC base weights: {INIT_MODEL}')
 
 if REPLAY_BUFFER.exists():
-    cmd_parts.extend(['--replay-buffer', f"'{REPLAY_BUFFER}'", '--replay-ratio', '0.20'])
-    print(f'[EXPERIENCE REPLAY] Using OpTC buffer: {REPLAY_BUFFER} (ratio: 20%)')
+    cmd_parts.extend(['--replay-buffer', f"'{REPLAY_BUFFER}'", '--replay-ratio', '0.05'])
+    print(f'[EXPERIENCE REPLAY] Using OpTC buffer: {REPLAY_BUFFER} (ratio: 5% - MalFSCIL 2024)')
 
 if OPTC_TEST_DIR.exists():
     cmd_parts.extend(['--optc-test-root', f"'{OPTC_TEST_DIR}'"])
@@ -242,6 +246,38 @@ if ret != 0:
     raise RuntimeError(f'Training failed with exit code {ret}')
 """
 nb["cells"][14]["source"] = [line + "\n" for line in cell_14_src.split("\n")[:-1]] + [cell_14_src.split("\n")[-1]]
+
+# 4. Update Cell 16 (Safe access to BWT metrics)
+cell_16_src = """import pandas as pd
+from IPython.display import display
+
+comp_file = OUTPUT_DIR / 'results' / 'comparison_metrics.csv'
+bwt_file = OUTPUT_DIR / 'results' / 'bwt_metrics.json'
+
+print('=' * 80)
+print('BILSTM BENCHMARK COMPARISON ON ATLASv2 (DOMAIN-INCREMENTAL LEARNING)')
+print('=' * 80)
+
+if comp_file.exists():
+    df_comp = pd.read_csv(comp_file)
+    display(df_comp)
+else:
+    print('Warning: comparison_metrics.csv not found.')
+
+if bwt_file.exists():
+    bwt = json.loads(bwt_file.read_text())
+    print('\\n' + '=' * 80)
+    print('BACKWARD TRANSFER (BWT) ON OPTC TEST BENCHMARK')
+    print('=' * 80)
+    after_il = bwt.get('optc_after_il', bwt.get('optc_after_il_unified', {}))
+    bwt_f1 = bwt.get('bwt_f1', bwt.get('bwt_f1_unified', 0.0))
+    bwt_ap = bwt.get('bwt_ap', 0.0)
+    print(f"OpTC Test Before IL : F1={bwt['optc_before_il']['f1']:.4f} | Prec={bwt['optc_before_il']['precision']:.4f} | Rec={bwt['optc_before_il']['recall']:.4f} | TP={bwt['optc_before_il']['tp']}, FP={bwt['optc_before_il']['fp']}")
+    print(f"OpTC Test After IL  : F1={after_il.get('f1', 0.0):.4f} | Prec={after_il.get('precision', 0.0):.4f} | Rec={after_il.get('recall', 0.0):.4f} | TP={after_il.get('tp', 0)}, FP={after_il.get('fp', 0)}")
+    print(f"Backward Transfer (BWT F1): {bwt_f1:+.4f} ({bwt_f1*100:+.2f}%)")
+    print(f"Backward Transfer (BWT AP): {bwt_ap:+.4f}")
+"""
+nb["cells"][16]["source"] = [line + "\n" for line in cell_16_src.split("\n")[:-1]] + [cell_16_src.split("\n")[-1]]
 
 with open(NB_PATH, "w", encoding="utf-8") as f:
     json.dump(nb, f, indent=1, ensure_ascii=False)

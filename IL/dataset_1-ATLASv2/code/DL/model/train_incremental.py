@@ -27,16 +27,21 @@ from typing import Any
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 def get_autocast(device: torch.device, enabled: bool):
     if device.type == "cuda":
+        if hasattr(torch, "amp") and hasattr(torch.amp, "autocast"):
+            return torch.amp.autocast(device_type="cuda", enabled=enabled)
         return torch.cuda.amp.autocast(enabled=enabled)
     return nullcontext()
 
 
 def get_scaler(device: torch.device, enabled: bool):
     if device.type == "cuda" and enabled:
+        if hasattr(torch, "amp") and hasattr(torch.amp, "GradScaler"):
+            return torch.amp.GradScaler(device="cuda", enabled=True)
         return torch.cuda.amp.GradScaler(enabled=True)
 
     class _DummyScaler:
@@ -81,7 +86,7 @@ except ImportError:
         collate_sequence_batch,
     )
 
-SCRIPT_VERSION = "atlasv2-bilstm-incremental-v2.0"
+SCRIPT_VERSION = "atlasv2-bilstm-incremental-v5.0"
 
 
 def load_json(path: Path) -> Any:
@@ -174,40 +179,324 @@ def binary_metrics(y_true: np.ndarray, y_prob: np.ndarray, threshold: float) -> 
     }
 
 
-def find_best_f1_threshold(y_true: np.ndarray, y_prob: np.ndarray) -> tuple[float, dict[str, Any]]:
-    y_true = np.asarray(y_true, dtype=np.int32)
-    y_prob = np.asarray(y_prob, dtype=np.float64)
+def make_smoothed_class_weights(y: np.ndarray, device: torch.device, pos_multiplier: float = 2.0) -> torch.Tensor:
+    """Calculate square-root smoothed class weights (Task 3.md Section 1).
 
-    precisions, recalls, thresholds = precision_recall_curve(y_true, y_prob)
-    best_f1 = -1.0
-    best_thr = 0.5
-    best_metrics = binary_metrics(y_true, y_prob, best_thr)
-
-    for p, r, t in zip(precisions, recalls, thresholds):
-        denom = p + r
-        f1 = (2.0 * p * r / denom) if denom > 0 else 0.0
-        if f1 > best_f1:
-            best_f1 = f1
-            best_thr = float(t)
-            best_metrics = binary_metrics(y_true, y_prob, best_thr)
-
-    # Secondary grid search between 0.01 and 0.99
-    grid = np.linspace(0.01, 0.99, 99)
-    for t in grid:
-        m = binary_metrics(y_true, y_prob, float(t))
-        if m["f1"] > best_f1 or (abs(m["f1"] - best_f1) < 1e-6 and m["fpr"] < best_metrics["fpr"]):
-            best_f1 = m["f1"]
-            best_thr = float(t)
-            best_metrics = m
-
-    return best_thr, best_metrics
+    Prevents over-magnification of positive loss when combined with controlled sampling
+    (sample_batch) and Experience Replay.
+    For 1470 neg / 49 pos: sqrt(30) * 2.0 ≈ 10.95 -> clamped into [2.5, 6.0].
+    """
+    n_neg = float(np.sum(y == 0))
+    n_pos = max(float(np.sum(y == 1)), 1.0)
+    raw_ratio = np.sqrt(n_neg / n_pos)
+    w0 = 1.0
+    w1 = min(max(raw_ratio * pos_multiplier, 2.5), 6.0)
+    return torch.tensor([w0, w1], dtype=torch.float32, device=device)
 
 
-def load_pretrained_checkpoint(model: nn.Module, ckpt_path: str | Path, device: torch.device) -> None:
+class BinaryFocalLossWithWeights(nn.Module):
+    """Focal Loss with exterior class weights for binary classification (Task 3.md Section 1).
+
+    Computes unweighted BCE to preserve exact pt probability, modulates by (1 - pt)^gamma,
+    and applies smoothed alpha_t externally to avoid MORPH-IDS double-weighting and pt distortion.
+    """
+
+    def __init__(self, alpha: torch.Tensor | None = None, gamma: float = 2.0):
+        super().__init__()
+        self.alpha = alpha  # Tensor [w0, w1] from make_smoothed_class_weights
+        self.gamma = float(gamma)
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        targets = targets.float().view_as(logits)
+        # 1. Compute unweighted BCE to preserve exact probability pt
+        bce_raw = F.binary_cross_entropy_with_logits(logits, targets, reduction="none")
+        pt = torch.exp(-bce_raw)  # pt = p when y=1, and (1 - p) when y=0
+
+        # 2. Modulate with focal factor (1 - pt)^gamma
+        focal_term = (1.0 - pt) ** self.gamma
+
+        # 3. Apply class weights alpha_t externally
+        if self.alpha is not None:
+            alpha_t = targets * self.alpha[1] + (1.0 - targets) * self.alpha[0]
+            loss = alpha_t * focal_term * bce_raw
+        else:
+            loss = focal_term * bce_raw
+
+        return loss.mean()
+
+
+class AsymmetricFocalLoss(nn.Module):
+    """Asymmetric Focal Loss (ASL) for hard-negative suppression and extreme class imbalance."""
+
+    def __init__(self, gamma_neg: float = 4.0, gamma_pos: float = 1.0, clip: float = 0.05, eps: float = 1e-8):
+        super().__init__()
+        self.gamma_neg = float(gamma_neg)
+        self.gamma_pos = float(gamma_pos)
+        self.clip = float(clip)
+        self.eps = float(eps)
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        probs = torch.sigmoid(logits)
+        probs_neg = probs
+        if self.clip > 0:
+            probs_neg = (probs_neg - self.clip).clamp(min=0.0)
+        loss_neg = (1.0 - targets) * torch.pow(probs_neg, self.gamma_neg) * torch.log((1.0 - probs).clamp(min=self.eps))
+        loss_pos = targets * torch.pow(1.0 - probs, self.gamma_pos) * torch.log(probs.clamp(min=self.eps))
+        return -(loss_pos + loss_neg).mean()
+
+
+class SupConWithHardNegativeRepulsion(nn.Module):
+    """Supervised Contrastive Loss with Hard Negative Repulsion (Run 8 / Task 5.md Thay đổi 2).
+
+    Combines standard SupCon (Khosla et al., 2020) with active cosine repulsion for hard negatives:
+    penalizes negative samples whose cosine similarity with any positive sample exceeds margin (default 0.15).
+    This actively forces benign background traffic (e.g. firefox.exe HTTPS windows and VM startup footprints)
+    away from the attack cluster into the low-probability zone (< 0.25).
+    """
+
+    def __init__(self, temperature: float = 0.1, margin: float = 0.15, repulsion_weight: float = 0.5):
+        super().__init__()
+        self.temperature = float(temperature)
+        self.margin = float(margin)
+        self.repulsion_weight = float(repulsion_weight)
+
+    def forward(self, features: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        device = features.device
+        batch_size = features.shape[0]
+        if batch_size <= 1:
+            return torch.tensor(0.0, device=device)
+
+        targets = targets.view(-1, 1)
+        # mask[i, j] = 1 if sample i and sample j share the same label
+        mask = torch.eq(targets, targets.T).float().to(device)
+
+        # L2-normalize feature representations
+        features_norm = F.normalize(features, p=2, dim=1)
+        cos_sim = torch.matmul(features_norm, features_norm.T)
+        sim_matrix = cos_sim / self.temperature
+
+        # Subtract max for numerical stability
+        sim_max, _ = torch.max(sim_matrix, dim=1, keepdim=True)
+        sim_matrix = sim_matrix - sim_max.detach()
+
+        # Mask out self-contrast (diagonal entries)
+        logits_mask = torch.scatter(
+            torch.ones_like(mask),
+            1,
+            torch.arange(batch_size, device=device).view(-1, 1),
+            0.0,
+        )
+        pos_mask = mask * logits_mask
+
+        exp_sim = torch.exp(sim_matrix) * logits_mask
+        log_prob = sim_matrix - torch.log(exp_sim.sum(dim=1, keepdim=True) + 1e-8)
+
+        denom = pos_mask.sum(dim=1).clamp(min=1e-8)
+        mean_log_prob_pos = (pos_mask * log_prob).sum(dim=1) / denom
+
+        valid_anchors = (pos_mask.sum(dim=1) > 0)
+        supcon_loss = -mean_log_prob_pos[valid_anchors].mean() if valid_anchors.any() else torch.tensor(0.0, device=device)
+
+        # Hard Negative Repulsion:
+        # For all pairs where target_i == 1 (positive) and target_j == 0 (negative),
+        # penalize any cosine similarity that exceeds margin (0.15)
+        is_pos = (targets == 1).view(-1, 1)
+        is_neg = (targets == 0).view(1, -1)
+        pos_neg_mask = (is_pos & is_neg)
+        if pos_neg_mask.any():
+            pos_neg_sim = cos_sim[pos_neg_mask]
+            repulsion_loss = F.relu(pos_neg_sim - self.margin).pow(2).mean()
+        else:
+            repulsion_loss = torch.tensor(0.0, device=device)
+
+        return supcon_loss + self.repulsion_weight * repulsion_loss
+
+
+SupervisedContrastiveLoss = SupConWithHardNegativeRepulsion  # Alias for backward compatibility
+
+
+def find_optimal_threshold(
+    y_val_true: np.ndarray,
+    y_val_probs: np.ndarray,
+    *,
+    t_min: float = 0.20,
+    t_max: float = 0.50,
+    beta: float = 1.0,
+    soft_max_fpr: float = 0.08,
+    num_points: int = 71,
+) -> tuple[float, dict[str, Any]]:
+    """Controlled threshold sweep in [t_min, t_max] with balanced F_beta (default beta=1.0) and soft FPR penalty.
+
+    - Clamps lower bound at t_min = 0.20 to eliminate background noise causing false alarms.
+    - Default beta = 1.0 seeks the true harmonic mean between Precision and Recall.
+    - Soft exponential penalty if validation FPR exceeds soft_max_fpr (8%).
+    - Moving average smoothing (kernel=3) for plateau threshold stability.
+    """
+    y_val_true = np.asarray(y_val_true, dtype=np.int32)
+    y_val_probs = np.asarray(y_val_probs, dtype=np.float64)
+
+    thresholds = np.linspace(t_min, t_max, num_points)
+    scores = []
+    n_neg = max(int(np.sum(y_val_true == 0)), 1)
+
+    for t in thresholds:
+        preds = (y_val_probs >= t).astype(np.int32)
+        tp = int(np.sum((preds == 1) & (y_val_true == 1)))
+        fp = int(np.sum((preds == 1) & (y_val_true == 0)))
+        fn = int(np.sum((preds == 0) & (y_val_true == 1)))
+
+        if tp == 0:
+            scores.append(0.0)
+            continue
+
+        prec = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        rec = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        denom = (beta**2 * prec) + rec + 1e-8
+        f_beta = ((1.0 + beta**2) * (prec * rec)) / denom
+
+        fpr = fp / n_neg
+        if fpr > soft_max_fpr:
+            f_beta *= float(np.exp(-5.0 * (fpr - soft_max_fpr)))
+
+        scores.append(float(f_beta))
+
+    scores = np.array(scores, dtype=np.float64)
+
+    if np.max(scores) <= 0.0:
+        best_t = float((t_min + t_max) / 2.0)
+        return best_t, binary_metrics(y_val_true, y_val_probs, best_t)
+
+    smoothed_scores = np.convolve(scores, np.ones(3) / 3.0, mode="same")
+    best_idx = int(np.argmax(smoothed_scores))
+    best_t = float(thresholds[best_idx])
+    return best_t, binary_metrics(y_val_true, y_val_probs, best_t)
+
+
+def find_optimal_threshold_run6(y_val_true, y_val_probs, **kwargs):
+    """Alias pointing to find_optimal_threshold."""
+    return find_optimal_threshold(y_val_true, y_val_probs, **kwargs)
+
+
+def find_best_f1_threshold(y_true, y_prob, **kwargs):
+    """Legacy alias routing to controlled threshold search for backward compatibility."""
+    return find_optimal_threshold(y_true, y_prob, t_min=0.20, t_max=0.50)
+
+
+def find_harmonic_domain_threshold(
+    y_atlas_true: np.ndarray,
+    y_atlas_probs: np.ndarray,
+    y_optc_true: np.ndarray | None = None,
+    y_optc_probs: np.ndarray | None = None,
+    *,
+    t_min: float = 0.25,
+    t_max: float = 0.75,
+    num_points: int = 101,
+) -> tuple[float, dict[str, Any]]:
+    """Harmonic Domain-Balanced Validation Threshold Search (Run 8 / Task 5.md Thay đổi 4).
+
+    Maximizes the Harmonic Mean of F1 between ATLASv2 and OpTC domains across candidate thresholds:
+        H_F1(t) = 2 * F1_atlas(t) * F1_optc(t) / (F1_atlas(t) + F1_optc(t) + 1e-8)
+    Prevents OpTC positive dominance while guaranteeing an optimal operating point for both domains.
+    """
+    thresholds = np.linspace(t_min, t_max, num_points)
+    scores = []
+
+    for t in thresholds:
+        m_atlas = binary_metrics(y_atlas_true, y_atlas_probs, t)
+        f1_atlas = m_atlas["f1"]
+
+        if y_optc_true is not None and y_optc_probs is not None:
+            m_optc = binary_metrics(y_optc_true, y_optc_probs, t)
+            f1_optc = m_optc["f1"]
+            denom = f1_atlas + f1_optc + 1e-8
+            harmonic_f1 = (2.0 * f1_atlas * f1_optc) / denom
+            scores.append(float(harmonic_f1))
+        else:
+            scores.append(float(f1_atlas))
+
+    scores = np.array(scores, dtype=np.float64)
+    if np.max(scores) <= 0.0:
+        best_t = float((t_min + t_max) / 2.0)
+    else:
+        smoothed = np.convolve(scores, np.ones(3) / 3.0, mode="same")
+        best_idx = int(np.argmax(smoothed))
+        best_t = float(thresholds[best_idx])
+
+    if y_optc_true is not None and y_optc_probs is not None:
+        y_comb_true = np.concatenate([y_atlas_true, y_optc_true])
+        y_comb_probs = np.concatenate([y_atlas_probs, y_optc_probs])
+        combined_m = binary_metrics(y_comb_true, y_comb_probs, best_t)
+        m_atlas = binary_metrics(y_atlas_true, y_atlas_probs, best_t)
+        m_optc = binary_metrics(y_optc_true, y_optc_probs, best_t)
+        combined_m["f1_atlas"] = m_atlas["f1"]
+        combined_m["f1_optc"] = m_optc["f1"]
+        denom = m_atlas["f1"] + m_optc["f1"] + 1e-8
+        combined_m["harmonic_f1"] = (2.0 * m_atlas["f1"] * m_optc["f1"]) / denom
+        return best_t, combined_m
+    else:
+        return best_t, binary_metrics(y_atlas_true, y_atlas_probs, best_t)
+
+
+def evaluate_domain_validation(
+    model: nn.Module,
+    val_loader: DataLoader,
+    replay_ds: ReplayBufferDataset | None,
+    device: torch.device,
+    amp: bool,
+    max_replay_val: int = 150,
+) -> tuple[np.ndarray, np.ndarray, list[str], np.ndarray | None, np.ndarray | None, list[str] | None]:
+    """Action 1 & Task 5.md Thay đổi 4: Evaluates ATLASv2 validation and OpTC replay buffer separately."""
+    atlas_true, atlas_prob, atlas_ids = predict(model, val_loader, device=device, amp=amp)
+    rep_labels, rep_probs, rep_ids = None, None, None
+    if replay_ds is not None and len(replay_ds) > 0:
+        n_rep = min(max_replay_val, len(replay_ds))
+        rep_indices = np.linspace(0, len(replay_ds) - 1, n_rep, dtype=int)
+        rep_items = [replay_ds[i] for i in rep_indices]
+        rep_batch = collate_sequence_batch(rep_items)
+        model.eval()
+        with torch.no_grad():
+            with get_autocast(device, amp):
+                rep_logits = model(
+                    x_cat=rep_batch["x_cat"].to(device),
+                    x_num=rep_batch["x_num"].to(device),
+                    x_num_missing=rep_batch["x_num_missing"].to(device),
+                    x_bin=rep_batch["x_bin"].to(device),
+                    delta_t_log1p=rep_batch["delta_t_log1p"].to(device),
+                    lengths=rep_batch["lengths"].to(device),
+                )
+                rep_probs = torch.sigmoid(rep_logits).cpu().numpy()
+        rep_labels = rep_batch["labels"].numpy()
+        rep_ids = rep_batch["sample_ids"]
+    return atlas_true, atlas_prob, atlas_ids, rep_labels, rep_probs, rep_ids
+
+
+def evaluate_combined_validation(
+    model: nn.Module,
+    val_loader: DataLoader,
+    replay_ds: ReplayBufferDataset | None,
+    device: torch.device,
+    amp: bool,
+    max_replay_val: int = 150,
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """Legacy helper combining both domains into a single flat array."""
+    atlas_true, atlas_prob, atlas_ids, rep_labels, rep_probs, rep_ids = evaluate_domain_validation(
+        model, val_loader, replay_ds, device, amp, max_replay_val
+    )
+    if rep_labels is not None and rep_probs is not None:
+        val_true = np.concatenate([atlas_true, rep_labels])
+        val_prob = np.concatenate([atlas_prob, rep_probs])
+        val_ids = atlas_ids + (rep_ids or [])
+        return val_true, val_prob, val_ids
+    return atlas_true, atlas_prob, atlas_ids
+
+
+
+def load_pretrained_checkpoint(model: nn.Module, ckpt_path: str | Path, device: torch.device) -> dict[int, int]:
     """Load pretrained model weights, adapting embedding layers when vocabulary is expanded."""
     ckpt = torch.load(ckpt_path, map_location=device, weights_only=False)
     state_dict = ckpt.get("model_state_dict", ckpt)
     model_state = model.state_dict()
+    old_vocab_sizes: dict[int, int] = {}
 
     for key, val in state_dict.items():
         if key not in model_state:
@@ -215,10 +504,15 @@ def load_pretrained_checkpoint(model: nn.Module, ckpt_path: str | Path, device: 
         if model_state[key].shape == val.shape:
             model_state[key] = val
         elif "embeddings" in key and model_state[key].dim() == 2 and val.dim() == 2:
-            # Vocabulary expansion handling: copy old embeddings, initialize new rows with <UNK> vector (row 0)
+            try:
+                emb_idx = int(key.split(".")[1])
+            except Exception:
+                emb_idx = -1
             n_old = min(val.shape[0], model_state[key].shape[0])
             d = min(val.shape[1], model_state[key].shape[1])
             model_state[key][:n_old, :d] = val[:n_old, :d]
+            if emb_idx >= 0:
+                old_vocab_sizes[emb_idx] = n_old
             if model_state[key].shape[0] > n_old:
                 unk_vec = val[0:1, :d]  # row 0 is <UNK>
                 model_state[key][n_old:, :d] = unk_vec
@@ -228,6 +522,25 @@ def load_pretrained_checkpoint(model: nn.Module, ckpt_path: str | Path, device: 
 
     model.load_state_dict(model_state)
     print(f"Loaded pretrained weights from {ckpt_path}")
+    return old_vocab_sizes
+
+
+def apply_optc_gradient_shield(model: nn.Module, old_sizes: dict[int, int], old_scale: float = 0.35) -> None:
+    """Shield shared OpTC vocabulary from rapid drift during incremental training (Run 8 / Task 5.md Thay đổi 3)."""
+    if not old_sizes:
+        return
+    for i, emb in enumerate(model.embeddings):
+        n_old = old_sizes.get(i, 0)
+        if n_old > 0 and emb.weight.shape[0] > n_old:
+            def _make_hook(cutoff: int, scale: float):
+                def _hook(grad: torch.Tensor) -> torch.Tensor:
+                    g = grad.clone()
+                    g[:cutoff] *= scale
+                    return g
+                return _hook
+            emb.weight.register_hook(_make_hook(n_old, old_scale))
+            print(f"  [Gradient Shield] Protected {n_old} OpTC rows in embeddings[{i}] (grad_scale={old_scale}x); {emb.weight.shape[0] - n_old} new ATLASv2 rows train at full speed (1.0x).")
+
 
 
 def predict(model: nn.Module, loader: DataLoader, device: torch.device, amp: bool = False) -> tuple[np.ndarray, np.ndarray, list[str]]:
@@ -273,31 +586,74 @@ def train_single_model(
     device: torch.device,
     output_dir: Path,
     epochs: int = 10,
+    min_epochs: int = 3,
     batch_size: int = 32,
     lr: float = 2e-4,
     weight_decay: float = 1e-4,
     grad_clip: float = 1.0,
-    patience: int = 3,
+    patience: int = 4,
     amp: bool = False,
     seed: int = 42,
     replay_ds: ReplayBufferDataset | None = None,
-    replay_ratio: float = 0.20,
+    replay_ratio: float = 0.05,
     model_tag: str = "model",
+    freeze_epochs: int = 0,
+    loss_type: str = "focal",
+    t_min: float = 0.20,
+    t_max: float = 0.55,
 ) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     best_path = output_dir / f"{model_tag}_best.pt"
 
-    # Compute loss weighting
-    train_labels = [row["label"] for row in train_ds.rows]
-    train_pos = sum(train_labels)
-    train_neg = len(train_labels) - train_pos
-    pos_weight = torch.tensor([float(train_neg / max(1, train_pos))], device=device)
-    criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    train_labels = np.array([row["label"] for row in train_ds.rows], dtype=np.int32)
+    train_pos = int(np.sum(train_labels == 1))
+    train_neg = int(np.sum(train_labels == 0))
 
-    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+    # Loss Criterion Setup (Task 3.md Section 1: BinaryFocalLossWithWeights with smoothed weights)
+    if loss_type == "focal":
+        alpha = make_smoothed_class_weights(train_labels, device=device, pos_multiplier=2.0)
+        criterion = BinaryFocalLossWithWeights(alpha=alpha, gamma=2.0)
+        print(f"  [Loss] Configured BinaryFocalLossWithWeights (gamma=2.0, alpha=[{alpha[0]:.2f}, {alpha[1]:.2f}])")
+    elif loss_type == "asl":
+        criterion = AsymmetricFocalLoss(gamma_neg=4.0, gamma_pos=1.0, clip=0.05)
+        print("  [Loss] Configured Asymmetric Focal Loss (ASL: gamma_neg=4.0, gamma_pos=1.0, clip=0.05)")
+    else:
+        raw_ratio = float(train_neg / max(1, train_pos))
+        clamped_pos_weight = min(10.0, max(2.0, raw_ratio * 0.25))
+        pos_weight = torch.tensor([clamped_pos_weight], device=device)
+        criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+        print(f"  [Loss] Configured BCEWithLogitsLoss (pos_weight={clamped_pos_weight:.2f})")
+
+    # Supervised Contrastive Loss with Hard Negative Repulsion (Run 8 / Task 5.md Thay đổi 2)
+    contrastive_criterion = SupConWithHardNegativeRepulsion(
+        temperature=0.1, margin=0.15, repulsion_weight=0.5
+    ) if (model_tag == "incremental") else None
+    if contrastive_criterion is not None:
+        print("  [Loss] Configured SupConWithHardNegativeRepulsion (tau=0.1, margin=0.15, repulsion_wt=0.5, total_wt=0.25).")
+
+    # Mở khóa toàn bộ tham số mô hình (Task 3.md Section 2)
+    for param in model.parameters():
+        param.requires_grad = True
+
+    # 3-Tier Decoupled Learning Rate Setup (Task 3.md Section 2)
+    if model_tag == "incremental":
+        lr_emb = lr * 2.5       # 5e-4 when lr=2e-4: allows 80 new ATLASv2 binaries to escape <UNK>
+        lr_backbone = lr * 0.5  # 1e-4 when lr=2e-4: preserves temporal sequence patterns from OpTC
+        lr_head = lr * 5.0      # 1e-3 when lr=2e-4: rapidly shifts logit scale from +5.4 to balanced range
+
+        backbone_params = list(model.event_encoder.parameters()) + list(model.lstm.parameters())
+        optimizer = torch.optim.AdamW([
+            {"params": model.embeddings.parameters(), "lr": lr_emb, "weight_decay": weight_decay},
+            {"params": backbone_params, "lr": lr_backbone, "weight_decay": weight_decay},
+            {"params": model.classifier.parameters(), "lr": lr_head, "weight_decay": weight_decay},
+        ])
+        print(f"  [3-Tier Decoupled LR] Embeddings: {lr_emb:.2e} | Backbone (Encoder+LSTM): {lr_backbone:.2e} | Classifier Head: {lr_head:.2e}")
+    else:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+
     scaler = get_scaler(device, amp)
 
-    best_val_pr_auc = -1.0
+    best_val_score = -1.0
     best_epoch = 0
     stale_epochs = 0
     history = []
@@ -316,11 +672,11 @@ def train_single_model(
         for raw_batch_items in sampler:
             batch_items = [train_ds[i] for i in raw_batch_items]
 
-            # Interleave Experience Replay buffer samples if available
+            # Interleave Experience Replay buffer samples if available (Adaptive Replay Scheduling - MalFSCIL 2024)
             if replay_ds is not None and len(replay_ds) > 0 and replay_ratio > 0:
-                n_replay = max(1, int(len(batch_items) * replay_ratio))
+                n_replay = max(1, min(2, int(round(len(batch_items) * replay_ratio))))
                 if hasattr(replay_ds, "sample_batch"):
-                    batch_items.extend(replay_ds.sample_batch(n_replay, pos_ratio=0.5))
+                    batch_items.extend(replay_ds.sample_batch(n_replay, pos_ratio=0.30, max_pos=3))
                 else:
                     replay_indices = np.random.choice(len(replay_ds), size=n_replay, replace=False)
                     for repl_idx in replay_indices:
@@ -333,21 +689,34 @@ def train_single_model(
             x_num_missing = batch["x_num_missing"].to(device)
             x_bin = batch["x_bin"].to(device)
             delta = batch["delta_t_log1p"].to(device)
-            mask = batch["attention_mask"].to(device)
             lengths = batch["lengths"].to(device)
             targets = batch["labels"].to(device)
 
             optimizer.zero_grad(set_to_none=True)
             with get_autocast(device, amp):
-                logits = model(
-                    x_cat=x_cat,
-                    x_num=x_num,
-                    x_num_missing=x_num_missing,
-                    x_bin=x_bin,
-                    delta_t_log1p=delta,
-                    lengths=lengths,
-                )
-                loss = criterion(logits, targets)
+                if contrastive_criterion is not None:
+                    logits, pooled = model(
+                        x_cat=x_cat,
+                        x_num=x_num,
+                        x_num_missing=x_num_missing,
+                        x_bin=x_bin,
+                        delta_t_log1p=delta,
+                        lengths=lengths,
+                        return_features=True,
+                    )
+                    loss_focal = criterion(logits, targets)
+                    loss_con = contrastive_criterion(pooled, targets)
+                    loss = loss_focal + 0.25 * loss_con
+                else:
+                    logits = model(
+                        x_cat=x_cat,
+                        x_num=x_num,
+                        x_num_missing=x_num_missing,
+                        x_bin=x_bin,
+                        delta_t_log1p=delta,
+                        lengths=lengths,
+                    )
+                    loss = criterion(logits, targets)
 
             scaler.scale(loss).backward()
             scaler.unscale_(optimizer)
@@ -359,9 +728,26 @@ def train_single_model(
             seen_batches += 1
 
         train_loss = running_loss / max(1, seen_batches)
-        val_true, val_prob, _ = predict(model, val_loader, device=device, amp=amp)
-        val_pr_auc = float(average_precision_score(val_true, val_prob))
-        val_thr, val_metrics = find_best_f1_threshold(val_true, val_prob)
+
+        # Harmonic Domain-Balanced Validation (Run 8 / Task 5.md Thay đổi 4)
+        if model_tag == "incremental" and replay_ds is not None:
+            atlas_true, atlas_prob, _, rep_true, rep_prob, _ = evaluate_domain_validation(
+                model, val_loader, replay_ds, device=device, amp=amp
+            )
+            val_thr, val_metrics = find_harmonic_domain_threshold(
+                atlas_true, atlas_prob, rep_true, rep_prob, t_min=t_min, t_max=t_max
+            )
+            val_comb_true = np.concatenate([atlas_true, rep_true])
+            val_comb_prob = np.concatenate([atlas_prob, rep_prob])
+            val_pr_auc = float(average_precision_score(val_comb_true, val_comb_prob))
+            # Checkpoint selection prioritizes Harmonic F1 across both domains
+            val_score = val_metrics.get("harmonic_f1", val_metrics["f1"]) + 0.1 * val_pr_auc
+        else:
+            val_true, val_prob, _ = predict(model, val_loader, device=device, amp=amp)
+            val_pr_auc = float(average_precision_score(val_true, val_prob))
+            val_thr, val_metrics = find_optimal_threshold(val_true, val_prob, t_min=t_min, t_max=t_max, beta=1.0)
+            val_score = val_pr_auc + 0.1 * val_metrics["f1"]
+
         elapsed = time.time() - t_start
 
         row = {
@@ -378,29 +764,40 @@ def train_single_model(
         history.append(row)
         print(f"  [{model_tag} Ep {epoch:2d}/{epochs:2d}] Loss: {train_loss:.4f} | Val PR-AUC: {val_pr_auc:.4f} | Val F1: {val_metrics['f1']:.4f} | Thr: {val_thr:.4f} ({elapsed:.1f}s)")
 
-        if val_pr_auc > best_val_pr_auc + 1e-6:
-            best_val_pr_auc = val_pr_auc
+        # Warm-up Checkpoint & Early Stopping Policy (Task 3.md Section 3)
+        if val_score > best_val_score + 1e-6:
+            best_val_score = val_score
             best_epoch = epoch
             stale_epochs = 0
             torch.save({
                 "model_state_dict": model.state_dict(),
                 "best_epoch": best_epoch,
-                "best_val_pr_auc": best_val_pr_auc,
+                "best_val_pr_auc": val_pr_auc,
+                "best_val_score": best_val_score,
             }, best_path)
         else:
-            stale_epochs += 1
+            if epoch >= min_epochs:
+                stale_epochs += 1
 
         if stale_epochs >= patience:
-            print(f"  [{model_tag} Early Stopping] No improvement in Val PR-AUC for {stale_epochs} epochs.")
+            print(f"  [{model_tag} Early Stopping] No improvement in Val score for {stale_epochs} epochs (after epoch {min_epochs}).")
             break
 
     # Load best checkpoint
     best_ckpt = torch.load(best_path, map_location=device, weights_only=False)
     model.load_state_dict(best_ckpt["model_state_dict"])
 
-    # Optimize threshold on VAL
-    val_true, val_prob, val_ids = predict(model, val_loader, device=device, amp=amp)
-    final_thr, final_val_m = find_best_f1_threshold(val_true, val_prob)
+    # Optimize threshold on VAL (Harmonic Domain-Balanced Validation for Run 8)
+    if model_tag == "incremental" and replay_ds is not None:
+        atlas_true, atlas_prob, atlas_ids, rep_true, rep_prob, rep_ids = evaluate_domain_validation(
+            model, val_loader, replay_ds, device=device, amp=amp
+        )
+        final_thr, final_val_m = find_harmonic_domain_threshold(
+            atlas_true, atlas_prob, rep_true, rep_prob, t_min=t_min, t_max=t_max
+        )
+    else:
+        val_true, val_prob, val_ids = predict(model, val_loader, device=device, amp=amp)
+        final_thr, final_val_m = find_optimal_threshold(val_true, val_prob, t_min=t_min, t_max=t_max, beta=1.0)
 
     # Evaluate on TEST (frozen threshold)
     test_true, test_prob, test_ids = predict(model, test_loader, device=device, amp=amp)
@@ -416,7 +813,7 @@ def train_single_model(
 
     return {
         "best_epoch": best_epoch,
-        "best_val_pr_auc": best_val_pr_auc,
+        "best_val_pr_auc": best_ckpt.get("best_val_pr_auc", final_val_m["pr_auc"]),
         "threshold": final_thr,
         "val": final_val_m,
         "test": final_test_m,
@@ -511,15 +908,21 @@ def main():
     p.add_argument("--output-dir", required=True, help="Directory to save model checkpoints and logs")
     p.add_argument("--init-model", default=None, help="Path to OpTC pretrained checkpoint (best_model.pt)")
     p.add_argument("--replay-buffer", default=None, help="Path to OpTC Experience Replay buffer (optc_replay_buffer.npz)")
-    p.add_argument("--replay-ratio", type=float, default=0.20, help="Fraction of replay samples per mini-batch (default 0.20)")
+    p.add_argument("--replay-ratio", type=float, default=0.05, help="Fraction of replay samples per mini-batch (default 0.05 - MalFSCIL 2024)")
     p.add_argument("--optc-test-root", default=None, help="Path to optc_test/ directory for Backward Transfer evaluation")
     p.add_argument("--run-benchmark", action="store_true", help="Run full 4-experiment benchmark suite (Scratch, Zero-shot, IL, BWT)")
     p.add_argument("--epochs", type=int, default=10, help="Number of training epochs")
+    p.add_argument("--min-epochs", type=int, default=3, help="Minimum warmup epochs before allowing early stopping (default: 3)")
+    p.add_argument("--freeze-epochs", type=int, default=0, help="Legacy parameter, kept for compatibility (default: 0)")
+    p.add_argument("--loss", default="focal", choices=["focal", "asl", "bce"], help="Loss function for training (default: focal - MORPH-IDS BinaryFocalLossWithWeights)")
+    p.add_argument("--t-min", type=float, default=0.25, help="Minimum threshold for controlled search (default: 0.25 - Run 8)")
+    p.add_argument("--t-max", type=float, default=0.75, help="Maximum threshold for controlled search (default: 0.75 - Run 8)")
+    p.add_argument("--max-fpr", type=float, default=0.03, help="Maximum validation FPR constraint (legacy)")
     p.add_argument("--batch-size", type=int, default=32, help="Mini-batch size")
     p.add_argument("--lr", type=float, default=2e-4, help="Learning rate for incremental fine-tuning")
     p.add_argument("--weight-decay", type=float, default=1e-4)
     p.add_argument("--grad-clip", type=float, default=1.0)
-    p.add_argument("--patience", type=int, default=3, help="Early stopping patience")
+    p.add_argument("--patience", type=int, default=4, help="Early stopping patience")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--no-amp", action="store_true")
     args = p.parse_args()
@@ -600,6 +1003,7 @@ def main():
         device=device,
         output_dir=results_dir / "scratch",
         epochs=args.epochs,
+        min_epochs=args.min_epochs,
         batch_size=args.batch_size,
         lr=args.lr * 2,  # scratch typically trains with higher lr
         patience=args.patience,
@@ -607,6 +1011,10 @@ def main():
         seed=args.seed,
         replay_ds=None,  # No replay for scratch baseline
         model_tag="scratch",
+        freeze_epochs=0,
+        loss_type="focal",
+        t_min=args.t_min,
+        t_max=args.t_max,
     )
     scratch_test_m = scratch_res["test"]
     scratch_val_m = scratch_res["val"]
@@ -619,8 +1027,10 @@ def main():
     print("EXPERIMENT 3: OpTC -> ATLASv2 Continual Learning (Domain-IL with ER)")
     print("=" * 60)
     il_model = create_model()
+    old_vocab_sizes: dict[int, int] = {}
     if args.init_model and Path(args.init_model).exists():
-        load_pretrained_checkpoint(il_model, args.init_model, device)
+        old_vocab_sizes = load_pretrained_checkpoint(il_model, args.init_model, device)
+        apply_optc_gradient_shield(il_model, old_vocab_sizes, old_scale=0.35)
 
     il_res = train_single_model(
         il_model,
@@ -630,6 +1040,7 @@ def main():
         device=device,
         output_dir=results_dir / "incremental",
         epochs=args.epochs,
+        min_epochs=args.min_epochs,
         batch_size=args.batch_size,
         lr=args.lr,
         patience=args.patience,
@@ -638,6 +1049,10 @@ def main():
         replay_ds=replay_ds,
         replay_ratio=args.replay_ratio,
         model_tag="incremental",
+        freeze_epochs=args.freeze_epochs,
+        loss_type=args.loss,
+        t_min=args.t_min,
+        t_max=args.t_max,
     )
     il_test_m = il_res["test"]
     il_val_m = il_res["val"]
@@ -654,28 +1069,39 @@ def main():
         optc_test_ds = PackedNetworkDataset(args.optc_test_root, "test")
         optc_loader, _ = make_loader(optc_test_ds, batch_size=args.batch_size, shuffle=False, seed=args.seed)
 
-        # Before IL (Base OpTC model)
+        # Before IL (Base OpTC model) at frozen base threshold (0.9956)
         b_true, b_prob, _ = predict(zs_model, optc_loader, device=device, amp=amp)
         before_m = binary_metrics(b_true, b_prob, optc_frozen_thr)
 
-        # After IL (Continual Learning model)
+        # After IL (Continual Learning model) evaluated at Unified Threshold (Task 4.md Action 1)
+        # Note: In Domain-IL, the single calibrated threshold from combined validation is used without test leakage!
+        unified_thr = il_res["threshold"]
         a_true, a_prob, _ = predict(il_model, optc_loader, device=device, amp=amp)
-        after_m = binary_metrics(a_true, a_prob, optc_frozen_thr)
+        after_m_unified = binary_metrics(a_true, a_prob, unified_thr)
+        after_m_legacy = binary_metrics(a_true, a_prob, optc_frozen_thr)
 
-        bwt_f1 = after_m["f1"] - before_m["f1"]
-        bwt_ap = after_m["pr_auc"] - before_m["pr_auc"]
+        bwt_f1 = after_m_unified["f1"] - before_m["f1"]
+        bwt_ap = after_m_unified["pr_auc"] - before_m["pr_auc"]
+        bwt_roc_auc = after_m_unified["roc_auc"] - before_m["roc_auc"]
 
         bwt_metrics = {
             "optc_before_il": before_m,
-            "optc_after_il": after_m,
-            "bwt_f1": bwt_f1,
-            "bwt_ap": bwt_ap,
+            "optc_after_il": after_m_unified,
+            "optc_after_il_unified": after_m_unified,
+            "optc_after_il_legacy_thr": after_m_legacy,
+            "unified_threshold": float(unified_thr),
+            "bwt_f1": float(bwt_f1),
+            "bwt_f1_unified": float(bwt_f1),
+            "bwt_ap": float(bwt_ap),
+            "bwt_roc_auc": float(bwt_roc_auc),
         }
         dump_json(results_dir / "bwt_metrics.json", bwt_metrics)
 
-        print(f"  OpTC Test Before IL : F1={before_m['f1']:.4f} | Prec={before_m['precision']:.4f} | Rec={before_m['recall']:.4f} | TP={before_m['tp']}, FP={before_m['fp']}")
-        print(f"  OpTC Test After IL  : F1={after_m['f1']:.4f} | Prec={after_m['precision']:.4f} | Rec={after_m['recall']:.4f} | TP={after_m['tp']}, FP={after_m['fp']}")
-        print(f"  Backward Transfer (BWT F1): {bwt_f1:+.4f} ({bwt_f1*100:+.2f}%)")
+        print(f"  OpTC Test Before IL (Base Thr={optc_frozen_thr:.4f})  : F1={before_m['f1']:.4f} | Prec={before_m['precision']:.4f} | Rec={before_m['recall']:.4f} | TP={before_m['tp']}, FP={before_m['fp']}")
+        print(f"  OpTC Test After IL  (Unified Thr={unified_thr:.4f}): F1={after_m_unified['f1']:.4f} | Prec={after_m_unified['precision']:.4f} | Rec={after_m_unified['recall']:.4f} | TP={after_m_unified['tp']}, FP={after_m_unified['fp']}")
+        print(f"  OpTC Test After IL  (Legacy Thr={optc_frozen_thr:.4f}) : F1={after_m_legacy['f1']:.4f} | Prec={after_m_legacy['precision']:.4f} | Rec={after_m_legacy['recall']:.4f} | TP={after_m_legacy['tp']}, FP={after_m_legacy['fp']}")
+        print(f"  Backward Transfer (BWT F1 Unified): {bwt_f1:+.4f} ({bwt_f1*100:+.2f}%)")
+        print(f"  Backward Transfer (BWT AP): {bwt_ap:+.4f} | BWT ROC-AUC: {bwt_roc_auc:+.4f}")
 
     # -------------------------------------------------------------
     # 5. Build comparison_metrics.csv (Matching Host ML Run 6 Standards)
