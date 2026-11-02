@@ -36,15 +36,28 @@ def main():
     print(f"Loading Base OpTC Booster from {model_path}...")
     optc_booster = lgb.Booster(model_file=model_path)
 
-    target_pos = 25_000
+    # Attack Prototype Re-anchoring Quotas (Total: 25,000 attack prototypes)
+    target_cmd = 1_131          # 100% of available CMD attacks
+    target_script = 502         # 100% of available LOLBin attacks (WScript, CScript, Rundll32)
+    target_ps = 11_500          # Prototypical PowerShell attacks
+    target_other = 11_867       # Diverse other attack actions (inject, file drop, registry, lateral)
+    target_pos = target_cmd + target_script + target_ps + target_other
+
     target_hard_neg = 35_000
     target_rand_neg = 15_000
 
-    pos_matrices = []
+    cmd_cols = {190, 188}
+    script_cols = {1294, 2521, 1595}
+    ps_cols = {263, 261, 951}
+
+    pool_pos_cmd = []
+    pool_pos_script = []
+    pool_pos_ps = []
+    pool_pos_other = []
+
     hard_neg_matrices = []
     rand_neg_matrices = []
 
-    total_pos = 0
     total_hard = 0
     total_rand = 0
 
@@ -58,20 +71,28 @@ def main():
     shuffled_paths = list(train_shard_paths)
     random.shuffle(shuffled_paths)
 
+    print("\nScanning OpTC shards for Attack Prototypes & Boundary Hard Negatives...")
     for p in shuffled_paths:
         matrix, labels, _ = decode_shard(p, 10317)
         pos_idx = np.where(labels == 1)[0]
         neg_idx = np.where(labels == 0)[0]
 
-        # 1. Sample positive attack events
-        if len(pos_idx) > 0 and total_pos < target_pos:
-            take_pos = min(len(pos_idx), target_pos - total_pos)
-            chosen_pos = pos_idx[:take_pos] if take_pos == len(pos_idx) else np.random.choice(pos_idx, take_pos, replace=False)
-            pos_matrices.append(matrix[chosen_pos])
-            total_pos += take_pos
+        # 1. Collect Attack Prototypes by process family
+        if len(pos_idx) > 0:
+            sub_pos = matrix[pos_idx]
+            for i in range(len(pos_idx)):
+                cols = set(sub_pos.indices[sub_pos.indptr[i]:sub_pos.indptr[i+1]])
+                if cols & cmd_cols:
+                    pool_pos_cmd.append(sub_pos[i])
+                elif cols & script_cols:
+                    pool_pos_script.append(sub_pos[i])
+                elif cols & ps_cols:
+                    pool_pos_ps.append(sub_pos[i])
+                else:
+                    pool_pos_other.append(sub_pos[i])
 
         # 2. Score negatives with base OpTC model for boundary sampling
-        if len(neg_idx) > 0:
+        if len(neg_idx) > 0 and (total_hard < target_hard_neg or total_rand < target_rand_neg):
             sample_size = min(len(neg_idx), 3500)
             sub_neg = np.random.choice(neg_idx, sample_size, replace=False)
             z = optc_booster.predict(matrix[sub_neg], raw_score=True, num_threads=4)
@@ -98,19 +119,41 @@ def main():
                 rand_neg_matrices.append(matrix[sel_r])
                 total_rand += take_r
 
-        if total_pos >= target_pos and total_hard >= target_hard_neg and total_rand >= target_rand_neg:
-            break
+    print(f"\nDiscovered Attack Prototype Pools in {time.time()-t0:.1f}s:")
+    print(f"  CMD:        {len(pool_pos_cmd):,} available (target: {target_cmd:,})")
+    print(f"  LOLBins:    {len(pool_pos_script):,} available (target: {target_script:,})")
+    print(f"  PowerShell: {len(pool_pos_ps):,} available (target: {target_ps:,})")
+    print(f"  Other:      {len(pool_pos_other):,} available (target: {target_other:,})")
+
+    # Sample balanced positive prototypes
+    selected_pos = []
+    # CMD: take all
+    take_cmd = min(len(pool_pos_cmd), target_cmd)
+    selected_pos.extend(pool_pos_cmd[:take_cmd])
+    # LOLBins: take all
+    take_script = min(len(pool_pos_script), target_script)
+    selected_pos.extend(pool_pos_script[:take_script])
+    # PowerShell: sample target_ps
+    take_ps = min(len(pool_pos_ps), target_ps)
+    chosen_ps_idx = np.random.choice(len(pool_pos_ps), take_ps, replace=False)
+    selected_pos.extend([pool_pos_ps[i] for i in chosen_ps_idx])
+    # Other: sample target_other to reach exactly 25,000
+    needed_other = target_pos - len(selected_pos)
+    take_other = min(len(pool_pos_other), needed_other)
+    chosen_other_idx = np.random.choice(len(pool_pos_other), take_other, replace=False)
+    selected_pos.extend([pool_pos_other[i] for i in chosen_other_idx])
+
+    X_pos = sparse.vstack(selected_pos, format="csr")
+    total_pos = X_pos.shape[0]
 
     total_neg = total_hard + total_rand
-    print(f"Sampling complete in {time.time()-t0:.1f}s:")
-    print(f"  Positives:  {total_pos:,}")
-    print(f"  Hard Neg:   {total_hard:,} (naturally captures {lwabeat_in_hard:,} lwabeat events near boundary)")
+    print(f"\nFinal Experience Replay Buffer Assembly:")
+    print(f"  Positives:  {total_pos:,} (CMD: {take_cmd:,}, LOLBins: {take_script:,}, PowerShell: {take_ps:,}, Other: {take_other:,})")
+    print(f"  Hard Neg:   {total_hard:,} (captures {lwabeat_in_hard:,} lwabeat events near boundary)")
     print(f"  Random Neg: {total_rand:,}")
     print(f"  Total Neg:  {total_neg:,}")
 
-    X_pos = sparse.vstack(pos_matrices, format="csr")
     X_neg = sparse.vstack(hard_neg_matrices + rand_neg_matrices, format="csr")
-
     X_replay = sparse.vstack([X_pos, X_neg], format="csr")
     y_replay = np.concatenate([np.ones(total_pos, dtype=np.int8), np.zeros(total_neg, dtype=np.int8)])
 
@@ -121,7 +164,7 @@ def main():
 
     output_path = Path("/mnt/SSD_Data/optc/IL/dataset_1-ATLASv2/code/ML/preprocess/output/optc_replay_buffer.npz")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    print(f"Saving Replay Buffer to {output_path} (shape: {X_replay.shape})...")
+    print(f"\nSaving Replay Buffer to {output_path} (shape: {X_replay.shape})...")
 
     np.savez_compressed(
         output_path,

@@ -12,6 +12,8 @@ Host ML contract from OpTC (host_shards.py, lgbm.ipynb).
 from __future__ import annotations
 
 import argparse
+from bisect import bisect_left, bisect_right
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import csv
 from datetime import datetime, timezone
 import hashlib
@@ -34,7 +36,11 @@ WORKSPACE_ROOT = Path("/mnt/SSD_Data/optc")
 sys.path.insert(0, str(CODE_ROOT))
 sys.path.insert(0, str(WORKSPACE_ROOT))
 
-from preprocess.common_schema import CanonicalEvent, extract_basename
+from preprocess.common_schema import (
+    CanonicalEvent,
+    classify_image_dir,
+    extract_basename,
+)
 from preprocess.label_refiner import LabelRefiner
 from preprocess.cbc_adapter import CBCAdapter
 from preprocess.split_config import (
@@ -52,10 +58,20 @@ from ML.code.preprocess.host_shards import FORMAT, SCHEMA, SPLITS, ShardBuffer, 
 from collections import defaultdict
 import ntpath
 
+# Finite directory categories from OpTC spec (no heuristic malware lists)
+DIR_CATEGORIES = (
+    "SYSTEM32",
+    "PROGRAM_FILES",
+    "TEMP_OR_APPDATA",
+    "WINDOWS_OTHER",
+    "USERS_OTHER",
+    "OTHER",
+)
+
 PREDEFINED_DOMAIN_TOKENS = [
-    # Firefox & App Cache
+    # 1. Browser self-cache structural indicator
     "temp_context::app_own_cache",
-    # File Extension Categorization
+    # 2. File Extension Structural Categorization
     "file_ext::type=exe",
     "file_ext::type=zip",
     "file_ext::type=hta",
@@ -66,140 +82,117 @@ PREDEFINED_DOMAIN_TOKENS = [
     "file_ext::type=sqlite",
     "file_ext::type=none_or_dir",
     "file_ext::type=other",
-    # Office Temporary / AutoSave
     "file_ext::office_autosave_tmp",
-    # Process Context (active network socket)
+    # 3. Causal Typed Incoming Interaction Context (Past-only [ts - 30s/300s, ts])
     "proc_context::has_netconn",
-    # Parent Process Basenames (Atomic Lineage)
-    "parent_image::basename=regsvr32.exe",
-    "parent_image::basename=mshta.exe",
-    "parent_image::basename=winword.exe",
-    "parent_image::basename=excel.exe",
-    "parent_image::basename=eqnedt32.exe",
-    "parent_image::basename=cmd.exe",
-    "parent_image::basename=powershell.exe",
-    "parent_image::basename=svchost.exe",
-    "parent_image::basename=explorer.exe",
-    "parent_image::basename=firefox.exe",
-    "parent_image::basename=services.exe",
-    "parent_image::basename=payload.exe",
-    # Network Flow Tokens (RFC 1340 / RFC 1918 Standard)
-    "net::direction=outbound",
-    "net::direction=inbound",
-    "net::proto=tcp",
-    "net::proto=udp",
-    "port::range=well_known",
-    "port::range=registered",
-    "port::range=dynamic_ephemeral",
-    "port::service=http",
-    "port::service=https",
-    "port::service=dns",
-    "port::service=smb",
-    "port::service=other_well_known",
-    "net::ip_scope=rfc1918_private",
-    "net::ip_scope=loopback",
-    "net::ip_scope=public",
+    # 4. Cross-Process Structural Directory Transitions (Actor_Dir and Actor_Dir -> Target_Dir)
+    *[f"crossproc::actor_dir={d}" for d in DIR_CATEGORIES],
+    *[f"crossproc::dir={d1}->{d2}" for d1 in DIR_CATEGORIES for d2 in DIR_CATEGORIES],
 ]
 
 
-def get_ip_scope(ip_str: str) -> str:
-    """Classify IP address according to RFC 1918 private / loopback / public scopes."""
-    if not ip_str:
-        return "unknown"
-    try:
-        ip = ipaddress.ip_address(ip_str.strip())
-        if ip.is_loopback:
-            return "loopback"
-        elif ip.is_private:
-            return "rfc1918_private"
-        else:
-            return "public"
-    except Exception:
-        return "unknown"
-
-
 class FileSessionIndex:
-    """Indexes process session activities (child spawns, netconns, and parent lineage) for rolling-window context."""
+    """Strictly causal (past-only, t' <= t) index for Parent Lineage and Typed Incoming Interactions."""
+
     def __init__(self) -> None:
-        self.child_spawns: dict[str, list[tuple[int, str]]] = defaultdict(list)
         self.netconns: dict[str, list[int]] = defaultdict(list)
-        self.parent_map: dict[str, tuple[str, str]] = {}  # guid -> (parent_guid, parent_basename)
+        # parent_map: guid -> (parent_guid, parent_basename, parent_dir_category)
+        self.parent_map: dict[str, tuple[str, str, str]] = {}
+        # incoming_crossproc: target_guid -> list of (ts, actor_dir_category)
+        self.incoming_crossproc: dict[str, list[tuple[int, str]]] = defaultdict(list)
 
     def add_event(self, event: CanonicalEvent) -> None:
+        """Update session state causally at current event timestamp ts."""
         et = event.event_type
         guid = event.process_guid
         ts = event.timestamp
+
+        # Record 1-hop parent mapping from current event
         if guid and event.parent_path:
             p_base = extract_basename(event.parent_path).lower()
+            p_dir = classify_image_dir(event.parent_path)
             if p_base:
-                self.parent_map[guid] = (event.parent_guid, p_base)
+                self.parent_map[guid] = (event.parent_guid, p_base, p_dir)
+
         if et == "PROCESS_START":
-            child = extract_basename(event.target_path).lower()
-            self.child_spawns[guid].append((ts, child))
-            if event.parent_guid:
-                self.child_spawns[event.parent_guid].append((ts, child))
-            if event.target_guid and child:
-                self.parent_map[event.target_guid] = (guid, extract_basename(event.process_path).lower())
+            if event.target_guid and event.target_path:
+                self.parent_map[event.target_guid] = (
+                    guid,
+                    extract_basename(event.process_path).lower(),
+                    classify_image_dir(event.process_path),
+                )
         elif et == "FLOW_START":
-            self.netconns[guid].append(ts)
+            # Record network activity timestamp in monotonic order
+            if guid:
+                self.netconns[guid].append(ts)
             if event.parent_guid:
                 self.netconns[event.parent_guid].append(ts)
+        elif et == "CROSS_PROCESS":
+            # Record typed incoming cross-process interaction onto target_guid
+            if event.target_guid:
+                actor_dir = classify_image_dir(event.process_path)
+                self.incoming_crossproc[event.target_guid].append((ts, actor_dir))
 
-    def get_ancestors(self, guid: str, max_depth: int = 5) -> list[str]:
-        ancestors = []
+    def get_ancestors(self, guid: str, max_depth: int = 2) -> list[tuple[str, str]]:
+        """Return list of (basename, dir_category) for up to max_depth ancestors."""
+        ancestors: list[tuple[str, str]] = []
         curr = guid
         depth = 0
         while curr in self.parent_map and depth < max_depth:
-            p_guid, p_base = self.parent_map[curr]
+            p_guid, p_base, p_dir = self.parent_map[curr]
             if p_base:
-                ancestors.append(p_base)
+                ancestors.append((p_base, p_dir))
             if not p_guid or p_guid == curr:
                 break
             curr = p_guid
             depth += 1
         return ancestors
 
-    def has_child_exploit(self, guid: str, ts: int, window_micros: int = 30_000_000) -> bool:
-        if not guid:
-            return False
-        for c_ts, c_name in self.child_spawns.get(guid, ()):
-            if abs(c_ts - ts) <= window_micros and c_name in EXPLOIT_CHILD_PROCS:
-                return True
-        return False
-
     def has_netconn(self, guid: str, ts: int, window_micros: int = 30_000_000) -> bool:
-        if not guid:
+        """Strictly causal check [ts - window, ts] on current process_guid (no 2-hop sibling leak)."""
+        if not guid or guid not in self.netconns:
             return False
-        for n_ts in self.netconns.get(guid, ()):
-            if abs(n_ts - ts) <= window_micros:
-                return True
-        return False
+        n_list = self.netconns[guid]
+        left = bisect_left(n_list, ts - window_micros)
+        right = bisect_right(n_list, ts)
+        return right > left
+
+    def get_incoming_crossproc_dirs(self, guid: str, ts: int, window_micros: int = 30_000_000) -> set[str]:
+        """Return distinct actor directory categories that opened `guid` within [ts - 30s, ts]."""
+        if not guid or guid not in self.incoming_crossproc:
+            return set()
+        low = ts - window_micros
+        dirs: set[str] = set()
+        # Iterate backward from most recent causal interaction (<= ts)
+        for ev_ts, actor_dir in reversed(self.incoming_crossproc[guid]):
+            if ev_ts < low:
+                break
+            if ev_ts <= ts:
+                dirs.add(actor_dir)
+        return dirs
 
 
 def extract_domain_shift_tokens(event: CanonicalEvent, session: FileSessionIndex) -> list[str]:
     tokens: list[str] = []
     proc_base = extract_basename(event.process_path).lower()
+    self_dir = classify_image_dir(event.process_path)
     target_raw = event.target_path or ""
     target_norm = target_raw.strip().strip('"\'').replace("/", "\\").lower()
     target_base = extract_basename(target_raw).lower()
     et = event.event_type
 
-    # 1. Firefox & App Cache (Browser writing to its own local cache)
+    # 1. Intrinsic Event Structure: Browser local cache
     if proc_base == "firefox.exe" and ("mozilla" in target_norm or "firefox" in target_norm):
         tokens.append("temp_context::app_own_cache")
 
-    # 2. File extension classification
+    # 2. Intrinsic Event Structure: File extension classification
     if et in ("FILE_CREATE", "FILE_WRITE", "FILE_DELETE"):
-        if "." in target_base:
-            ext = "." + target_base.rsplit(".", 1)[-1]
-        else:
-            ext = ""
-
+        ext = ("." + target_base.rsplit(".", 1)[-1]) if "." in target_base else ""
         if ext in (".exe", ".com", ".scr", ".pif"):
             tokens.append("file_ext::type=exe")
         elif ext in (".zip", ".7z", ".tar", ".gz", ".rar", ".cab"):
             tokens.append("file_ext::type=zip")
-        elif ext in (".hta",):
+        elif ext in (".hta", ".sct"):
             tokens.append("file_ext::type=hta")
         elif ext in (".vbs", ".vbe"):
             tokens.append("file_ext::type=vbs")
@@ -216,54 +209,26 @@ def extract_domain_shift_tokens(event: CanonicalEvent, session: FileSessionIndex
         else:
             tokens.append("file_ext::type=other")
 
-        # Office autosave draft / temp files (~*.tmp, .asd, .wbk)
         if proc_base in ("winword.exe", "excel.exe", "powerpnt.exe"):
             if "~" in target_base or ext in (".tmp", ".asd", ".wbk"):
                 tokens.append("file_ext::office_autosave_tmp")
 
-    # 3. Module Load: emit atomic module basename
-    if et == "MODULE_LOAD" and target_base:
-        tokens.append(f"module_name::{target_base}")
+    # 3. Intrinsic Event Structure: Cross-Process structural directory transition
+    if et == "CROSS_PROCESS":
+        tokens.append(f"crossproc::actor_dir={self_dir}")
+        if target_raw:
+            target_dir = classify_image_dir(target_raw)
+            tokens.append(f"crossproc::dir={self_dir}->{target_dir}")
 
-    # 4. Atomic Parent Process Basename
-    parent_base = extract_basename(event.parent_path).lower()
-    if parent_base:
-        tokens.append(f"parent_image::basename={parent_base}")
-
-    # 5. Process Session Rolling Window Context (active network socket)
-    if session.has_netconn(event.process_guid, event.timestamp, window_micros=30_000_000):
+    # 4. Typed Incoming Interaction Context (Strictly causal: [ts - W, ts])
+    net_win = 30_000_000 if proc_base == "firefox.exe" else 300_000_000
+    if session.has_netconn(event.process_guid, event.timestamp, window_micros=net_win):
         tokens.append("proc_context::has_netconn")
 
-    # 6. Network Flow Attributes (RFC 1340 / RFC 1918 Standard)
-    if et == "FLOW_START":
-        tokens.append("net::direction=inbound" if event.inbound else "net::direction=outbound")
-        if event.proto:
-            proto_clean = event.proto.lower().strip()
-            if proto_clean in ("tcp", "udp"):
-                tokens.append(f"net::proto={proto_clean}")
-
-        port = event.remote_port
-        if 0 <= port <= 65535:
-            if port < 1024:
-                tokens.append("port::range=well_known")
-                if port == 80:
-                    tokens.append("port::service=http")
-                elif port == 443:
-                    tokens.append("port::service=https")
-                elif port == 53:
-                    tokens.append("port::service=dns")
-                elif port == 445:
-                    tokens.append("port::service=smb")
-                else:
-                    tokens.append("port::service=other_well_known")
-            elif port <= 49151:
-                tokens.append("port::range=registered")
-            else:
-                tokens.append("port::range=dynamic_ephemeral")
-
-        scope = get_ip_scope(event.remote_ip)
-        if scope != "unknown":
-            tokens.append(f"net::ip_scope={scope}")
+    # 5. Immediate Parent Process Lineage (1-Hop)
+    p_base = extract_basename(event.parent_path).lower()
+    if p_base:
+        tokens.append(f"parent_image::basename={p_base}")
 
     return tokens
 
@@ -274,9 +239,6 @@ def canonical_ecar_record(event: CanonicalEvent) -> dict[str, Any]:
     props = {}
     obj = "process"
     act = "start"
-
-    if event.parent_path:
-        props["parent_image_path"] = event.parent_path
 
     if et == "PROCESS_START":
         obj = "process"
@@ -353,6 +315,54 @@ def get_split_from_event(scenario: str, timestamp_micros: int) -> str:
         return "train"
 
 
+def process_file_worker(args_tuple: tuple[str, str, str, int]) -> tuple[str, list[dict[str, Any]], int, int]:
+    """Worker process: sort chronologically, update session causally (t' <= t), and tokenize."""
+    f_path, sc, reapr_dir, sample_stride = args_tuple
+    f = Path(f_path)
+    refiner = LabelRefiner(Path(reapr_dir))
+    adapter = CBCAdapter(refiner)
+    is_bg = "benign" in f.stem
+
+    # Read all events and sort strictly by timestamp ascending to guarantee causal order
+    all_raw_events = list(adapter.stream_file(f, sc))
+    all_raw_events.sort(key=lambda e: e.timestamp)
+
+    session = FileSessionIndex()
+    results = []
+    file_total = 0
+    file_attack = 0
+    line_idx = 0
+
+    for event in all_raw_events:
+        # Update session state causally at current timestamp t (ONLY past & present t' <= t exist in session)
+        session.add_event(event)
+        if event.event_type == "FLOW_START":
+            continue
+        line_idx += 1
+        if is_bg and (line_idx % sample_stride != 0):
+            continue
+
+        file_total += 1
+        if event.label == 1:
+            file_attack += 1
+
+        split = get_split_from_event(sc, event.timestamp)
+        rec = canonical_ecar_record(event)
+        grouped, audit = tokenize_record(rec)
+        tokens = flatten_tokens(grouped)
+        shift_tokens = extract_domain_shift_tokens(event, session)
+        all_tokens = tokens + shift_tokens
+
+        results.append({
+            "tokens": all_tokens,
+            "label": event.label,
+            "scenario": sc,
+            "split": split,
+        })
+
+    return f.name, results, file_total, file_attack
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build Host ML Shards for ATLASv2")
     parser.add_argument(
@@ -376,6 +386,7 @@ def main():
         help="Output directory for generated shards and manifests",
     )
     parser.add_argument("--seed", type=int, default=42, help="Sampling seed")
+    parser.add_argument("--workers", type=int, default=6, help="Parallel worker processes")
     parser.add_argument("--target-benign-ratio", type=int, default=TARGET_BENIGN_RATIO, help="Benign to attack ratio for train")
     args = parser.parse_args()
 
@@ -394,6 +405,7 @@ def main():
     print(f"REAPr Dir:    {reapr_dir}")
     print(f"OpTC Vocab:   {optc_vocab_path}")
     print(f"Output Dir:   {output_dir}")
+    print(f"Workers:      {args.workers}")
 
     # 1. Load Frozen OpTC Vocab
     print("\n[1/6] Loading Frozen OpTC Vocabulary...")
@@ -411,10 +423,9 @@ def main():
             extended_vocab[tok] = new_idx
             new_train_tokens[tok] = new_idx
 
-    # 2. Initialize LabelRefiner & CBCAdapter
+    # 2. Initialize LabelRefiner & Ground Truth
     print("\n[2/6] Initializing LabelRefiner & Ground Truth...")
     refiner = LabelRefiner(reapr_dir)
-    adapter = CBCAdapter(refiner)
     print(f"  Loaded attack scenarios: {len(refiner.scenario_attack_guids)}")
 
     # 3. Find CBC-EDR JSONL files
@@ -424,70 +435,53 @@ def main():
     for f in edr_files:
         print(f"  - {f.relative_to(data_dir)}")
 
-    # 4. Stream and collect events
-    print("\n[4/6] Streaming Host Events and Tokenizing...")
+    # 4. Stream and collect events in parallel
+    print("\n[4/6] Streaming Host Events and Tokenizing in Parallel...")
+    split_events_raw: dict[str, list[dict[str, Any]]] = {"train": [], "val": [], "test": []}
     split_events: dict[str, list[dict[str, Any]]] = {"train": [], "val": [], "test": []}
     total_events = 0
     refined_attack_events = 0
     t0 = time.time()
 
+    tasks = []
     for f in edr_files:
         stem = f.stem
         parts = stem.split("-")
         sc = parts[-1] if len(parts) >= 3 else stem
-
-        file_total = 0
-        file_attack = 0
-
-        # Subsample benign files during reading to keep balanced representation
         is_bg = "benign" in stem
-        sample_stride = 10 if is_bg else 1  # sample benign background stream
+        sample_stride = 10 if is_bg else 1
+        tasks.append((str(f), sc, str(reapr_dir), sample_stride))
 
-        session = FileSessionIndex()
-        file_events = []
-        line_idx = 0
-        for event in adapter.stream_file(f, sc):
-            session.add_event(event)
-            line_idx += 1
-            if is_bg and (line_idx % sample_stride != 0):
-                continue
-            file_events.append(event)
+    num_workers = min(args.workers, len(edr_files))
+    print(f"  Spawning {num_workers} parallel workers across {len(edr_files)} files...")
+    with ProcessPoolExecutor(max_workers=num_workers) as executor:
+        ordered_futures = [executor.submit(process_file_worker, t) for t in tasks]
+        for future in ordered_futures:
+            fname, results, file_total, file_attack = future.result()
+            total_events += file_total
+            refined_attack_events += file_attack
+            for item in results:
+                sp = item["split"]
+                if sp == "train":
+                    for token in item["tokens"]:
+                        if token not in extended_vocab:
+                            new_idx = len(extended_vocab)
+                            extended_vocab[token] = new_idx
+                            new_train_tokens[token] = new_idx
+                split_events_raw[sp].append(item)
+            print(f"  Processed {fname:25s}: {file_total:7,d} events | {file_attack:5,d} attack")
 
-        for event in file_events:
-            total_events += 1
-            file_total += 1
-            if event.label == 1:
-                refined_attack_events += 1
-                file_attack += 1
-
-            split = get_split_from_event(sc, event.timestamp)
-
-            # Tokenize record with base tokenizer + refined domain shift features
-            rec = canonical_ecar_record(event)
-            grouped, audit = tokenize_record(rec)
-            tokens = flatten_tokens(grouped)
-            shift_tokens = extract_domain_shift_tokens(event, session)
-            all_tokens = tokens + shift_tokens
-
-            # Check new tokens on TRAIN partition
-            if split == "train":
-                for token in all_tokens:
-                    if token not in extended_vocab:
-                        new_idx = len(extended_vocab)
-                        extended_vocab[token] = new_idx
-                        new_train_tokens[token] = new_idx
-
-            # Map tokens to column indices using extended_vocab
-            col_indices = [extended_vocab[t] for t in all_tokens if t in extended_vocab]
+    # Map tokens to column indices using finalized extended_vocab
+    print("  Mapping tokens to integer column indices...")
+    for sp in ["train", "val", "test"]:
+        for item in split_events_raw[sp]:
+            col_indices = [extended_vocab[t] for t in item["tokens"] if t in extended_vocab]
             col_indices = sorted(set(col_indices))
-
-            split_events[split].append({
+            split_events[sp].append({
                 "columns": col_indices,
-                "label": event.label,
-                "scenario": sc,
+                "label": item["label"],
+                "scenario": item["scenario"],
             })
-
-        print(f"  Processed {f.name:25s}: {file_total:7,d} events | {file_attack:5,d} attack")
 
     elapsed = time.time() - t0
     print(f"  Streaming complete in {elapsed:.1f}s.")

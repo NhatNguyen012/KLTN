@@ -13,6 +13,7 @@ Applies 60% Train / 20% Val / 20% Test scenario-based split with benign undersam
 from __future__ import annotations
 
 import argparse
+from bisect import bisect_left, bisect_right
 import csv
 from datetime import datetime, timezone
 import hashlib
@@ -49,6 +50,7 @@ from preprocess.split_config import (
 
 EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 WINDOW_SIZE_MICROS = 900_000_000  # 15 minutes in microseconds
+STRIDE_MICROS = 180_000_000       # 3 minutes sliding step (continuous sequential resolution)
 MAX_SEQ_LEN = 512                 # Max events per window chunk
 
 
@@ -128,7 +130,7 @@ def main():
     )
     parser.add_argument(
         "--optc-spec",
-        default="/mnt/SSD_Data/optc/DL/02_processed_ecar_bro/subset_B/preprocessing/preprocess_spec.json",
+        default="/mnt/SSD_Data/optc/DL/02_artifacts/22_v2_pipeline/S3_preprocess/data/preprocess_spec.json",
         help="Path to OpTC preprocess_spec.json for vocabulary alignment",
     )
     parser.add_argument(
@@ -183,58 +185,87 @@ def main():
     for f in edr_files:
         print(f"  - {f.relative_to(data_dir)}")
 
-    # 4. Stream events, filter netconn, and aggregate into 15-min windows
-    print("\n[4/6] Streaming Netconn Events and Building Windows...")
-    windows: dict[tuple[str, int], list[CanonicalEvent]] = {}
-    window_scenarios: dict[tuple[str, int], str] = {}
-    total_netconn = 0
-    refined_attack_netconn = 0
+    # 4. Stream events (netconn + OS logs) and build Sliding Windows (15 min window, 3 min stride)
+    print(f"\n[4/6] Streaming Events and Building Sliding Windows (Win={WINDOW_SIZE_MICROS//1_000_000}s, Stride={STRIDE_MICROS//1_000_000}s)...")
+    windows: dict[tuple[str, str, int], list[CanonicalEvent]] = {}
+    window_scenarios: dict[tuple[str, str, int], str] = {}
+    total_events = 0
+    refined_attack_events = 0
 
     t0 = time.time()
     for f in edr_files:
-        # Determine scenario from filename e.g. edr-h1-s1.jsonl -> s1, edr-h2-benign.jsonl -> benign
         stem = f.stem  # 'edr-h1-s1'
         parts = stem.split("-")
         sc = parts[-1] if len(parts) >= 3 else stem
 
-        file_netconn = 0
+        file_events: list[CanonicalEvent] = []
         file_attack = 0
         for event in adapter.stream_file(f, sc):
-            if event.event_type != "FLOW_START":
+            if event.event_type not in ("FLOW_START", "PROCESS_START", "CROSS_PROCESS"):
                 continue
-            total_netconn += 1
-            file_netconn += 1
+            total_events += 1
+            file_events.append(event)
             if event.label == 1:
-                refined_attack_netconn += 1
+                refined_attack_events += 1
                 file_attack += 1
 
-            # Window key: (hostname, timestamp // WINDOW_SIZE_MICROS)
-            w_idx = event.timestamp // WINDOW_SIZE_MICROS
-            w_key = (event.hostname, w_idx)
-            if w_key not in windows:
-                windows[w_key] = []
-                window_scenarios[w_key] = sc
-            windows[w_key].append(event)
+        if not file_events:
+            continue
 
-        print(f"  Processed {f.name:25s}: {file_netconn:7,d} netconn | {file_attack:5,d} attack")
+        # Sort strictly chronologically by timestamp
+        file_events.sort(key=lambda e: e.timestamp)
+        ts_list = [e.timestamp for e in file_events]
+        curr_ts = ts_list[0]
+        w_count = 0
+
+        while curr_ts <= ts_list[-1]:
+            end_ts = curr_ts + WINDOW_SIZE_MICROS
+            l_idx = bisect_left(ts_list, curr_ts)
+            r_idx = bisect_right(ts_list, end_ts)
+            if r_idx - l_idx >= 2:  # Keep windows with at least 2 events
+                sub_evs = file_events[l_idx:r_idx]
+                w_key = (file_events[0].hostname, sc, w_count)
+                windows[w_key] = sub_evs
+                window_scenarios[w_key] = sc
+                w_count += 1
+            curr_ts += STRIDE_MICROS
+
+        print(f"  Processed {f.name:25s}: {len(file_events):7,d} events | {file_attack:5,d} attack -> {w_count} windows")
 
     elapsed = time.time() - t0
     print(f"  Streaming complete in {elapsed:.1f}s.")
-    print(f"  Total netconn events:      {total_netconn:,}")
-    print(f"  Refined attack events:     {refined_attack_netconn:,}")
-    print(f"  Total 15-min windows:      {len(windows):,}")
+    print(f"  Total valid events:        {total_events:,}")
+    print(f"  Refined attack events:     {refined_attack_events:,}")
+    print(f"  Total sliding windows:     {len(windows):,}")
+
+    # 4b. Fit app_family Vocabulary on TRAIN partition
+    print("\n[4b/6] Discovering & Fitting app_family Vocabulary on TRAIN Partition...")
+    train_apps = set()
+    for (hostname, sc, w_idx), ev_list in windows.items():
+        first_ts = min(e.timestamp for e in ev_list)
+        if get_split_from_event(sc, first_ts) == "train":
+            for ev in ev_list:
+                app = extract_basename(ev.target_path if (ev.event_type in ("PROCESS_START", "CROSS_PROCESS") and ev.target_path) else ev.process_path)
+                if app and app not in vocab_maps["app_family"]:
+                    train_apps.add(app)
+
+    next_app_id = max(vocab_maps["app_family"].values()) + 1
+    for app in sorted(train_apps):
+        vocab_maps["app_family"][app] = next_app_id
+        next_app_id += 1
+    print(f"  Added {len(train_apps)} new application binaries from TRAIN partition.")
+    print(f"  app_family vocabulary size expanded from 61 to {len(vocab_maps['app_family'])} categories.")
 
     # 5. Process Windows, Encode Features, and Assign Partitions
     print("\n[5/6] Encoding Window Sequences and Balancing Partitions...")
     split_samples: dict[str, list[dict[str, Any]]] = {"train": [], "val": [], "test": []}
 
-    for (hostname, w_idx), ev_list in windows.items():
+    for (hostname, sc, w_idx), ev_list in windows.items():
         # Sort events strictly causal by timestamp
         ev_list.sort(key=lambda e: e.timestamp)
 
         # Window-level label: 1 if any event has label 1, else 0
         w_label = 1 if any(e.label == 1 for e in ev_list) else 0
-        sc = window_scenarios[(hostname, w_idx)]
         first_ts = ev_list[0].timestamp
         split = get_split_from_event(sc, first_ts)
 
@@ -252,21 +283,28 @@ def main():
 
             prev_ts = chunk_events[0].timestamp
             for i, ev in enumerate(chunk_events):
-                # 1. app_family
-                app = extract_basename(ev.process_path)
+                # 1. app_family (extract from target_path for procstart/crossproc, else process_path)
+                app = extract_basename(ev.target_path if (ev.event_type in ("PROCESS_START", "CROSS_PROCESS") and ev.target_path) else ev.process_path)
                 x_cat[i, 0] = vocab_maps["app_family"].get(app, 0)
 
-                # 2. proto
-                p = ev.proto.lower()
-                x_cat[i, 1] = vocab_maps["proto"].get(p, 0)
+                # 2. proto (FLOW_START has proto; procstart/crossproc use <MISSING>)
+                if ev.event_type == "FLOW_START" and ev.proto:
+                    p = ev.proto.lower()
+                    x_cat[i, 1] = vocab_maps["proto"].get(p, 0)
+                else:
+                    x_cat[i, 1] = vocab_maps["proto"].get("<MISSING>", 1)
 
-                # 3. resp_port_class
-                resp_port = ev.remote_port if not ev.inbound else ev.local_port
-                port_cat = map_resp_port_class(resp_port)
-                x_cat[i, 2] = vocab_maps["resp_port_class"].get(port_cat, 0)
+                # 3. resp_port_class (FLOW_START has port; procstart/crossproc use <MISSING>)
+                if ev.event_type == "FLOW_START":
+                    resp_port = ev.remote_port if not ev.inbound else ev.local_port
+                    port_cat = map_resp_port_class(resp_port)
+                    x_cat[i, 2] = vocab_maps["resp_port_class"].get(port_cat, 0)
+                else:
+                    x_cat[i, 2] = vocab_maps["resp_port_class"].get("<MISSING>", 1)
 
                 # 4. image_dir_class
-                img_dir = classify_image_dir(ev.process_path)
+                path_for_dir = ev.target_path if (ev.event_type in ("PROCESS_START", "CROSS_PROCESS") and ev.target_path) else ev.process_path
+                img_dir = classify_image_dir(path_for_dir)
                 x_cat[i, 3] = vocab_maps["image_dir_class"].get(img_dir, 0)
 
                 # 5. delta_t_log1p
@@ -277,7 +315,7 @@ def main():
                     delta_t[i] = math.log1p(dt_sec)
                 prev_ts = ev.timestamp
 
-            sample_id = f"{hostname}_{w_idx}_c{chunk_idx:02d}"
+            sample_id = f"{hostname}_{sc}_w{w_idx:04d}_c{chunk_idx:02d}"
             sample = {
                 "sample_id": sample_id,
                 "label": chunk_label,
@@ -501,6 +539,7 @@ def main():
     build_config = {
         "script": "build_network_shards.py",
         "window_size_seconds": 900,
+        "stride_seconds": 180,
         "max_seq_len": MAX_SEQ_LEN,
         "target_benign_ratio": args.target_benign_ratio,
         "features": {

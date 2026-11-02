@@ -130,15 +130,20 @@ class LabelRefiner:
         if proc_base == "firefox.exe":
             if et == "FLOW_START":
                 is_c2_ip = event.remote_ip in KNOWN_IOCS["c2_ips"]
-                is_c2_port = event.remote_port in KNOWN_IOCS["c2_ports"]
                 is_c2_domain = any(d in target_norm for d in KNOWN_IOCS["c2_domains"])
                 is_seed = False
                 seeds = self.scenario_seeds.get(sc, set())
                 for s in seeds:
-                    if event.remote_ip in s or (event.remote_port > 0 and str(event.remote_port) in s):
+                    clean = s.strip().rstrip(",")
+                    if ":" in clean:
+                        p_ip, _, p_port = clean.partition(":")
+                        if event.remote_ip == p_ip.strip() and str(event.remote_port) == p_port.strip():
+                            is_seed = True
+                            break
+                    elif event.remote_ip == clean:
                         is_seed = True
                         break
-                return is_c2_ip or is_c2_port or is_c2_domain or is_seed
+                return is_c2_ip or is_c2_domain or is_seed
 
             elif et in {"FILE_WRITE", "FILE_CREATE"}:
                 return any(mal in target_base for mal in KNOWN_IOCS["malicious_files"]) or target_base.endswith((".exe", ".zip"))
@@ -155,9 +160,20 @@ class LabelRefiner:
                 return target_base in EXPLOIT_CHILD_PROCS
             elif et == "FLOW_START":
                 is_c2_ip = event.remote_ip in KNOWN_IOCS["c2_ips"]
-                is_c2_port = event.remote_port in KNOWN_IOCS["c2_ports"]
                 is_c2_domain = any(d in target_norm for d in KNOWN_IOCS["c2_domains"])
-                return is_c2_ip or is_c2_port or is_c2_domain
+                is_seed = False
+                seeds = self.scenario_seeds.get(sc, set())
+                for s in seeds:
+                    clean = s.strip().rstrip(",")
+                    if ":" in clean:
+                        p_ip, _, p_port = clean.partition(":")
+                        if event.remote_ip == p_ip.strip() and str(event.remote_port) == p_port.strip():
+                            is_seed = True
+                            break
+                    elif event.remote_ip == clean:
+                        is_seed = True
+                        break
+                return is_c2_ip or is_c2_domain or is_seed
             elif et in {"FILE_WRITE", "FILE_CREATE"}:
                 # Font loading or Office autosave draft (~*.tmp, .asd, .wbk) -> 0
                 if any(target_base.endswith(ext) for ext in (".ttf", ".fon", ".tmp", ".asd", ".wbk")) or "~" in target_base or "\\fonts\\" in target_norm:
@@ -204,8 +220,61 @@ class LabelRefiner:
             return False
 
         # 8. Pure attack and shell execution tools (payload.exe, powershell.exe, cmd.exe, mshta.exe, etc.)
+        # Aligns with Causal Edge Theorem (atlas.pdf Fig 1a & DEEPDIST Fig 1):
+        # OS loader mapping standard system DLLs and shell UI initialization are benign background (0).
+        # Real execution (PROCESS_START), injection (CROSS_PROCESS), file drops (FILE_WRITE/CREATE),
+        # and system registry persistence/manipulation remain attack (1).
         if proc_base in ("payload.exe", "powershell.exe", "cmd.exe", "eqnedt32.exe", "mshta.exe", "regsvr32.exe", "python.exe") or proc_base in KNOWN_IOCS["attack_processes"]:
+            if et == "MODULE_LOAD":
+                if target_base in SUSPICIOUS_MODULES:
+                    return True
+                # Standard system DLL loads from system32, syswow64, microsoft.net, etc. -> 0
+                if (
+                    target_base in OFFICE_SYS_MODULES
+                    or "\\system32\\" in target_norm
+                    or "\\syswow64\\" in target_norm
+                    or "\\microsoft.net\\" in target_norm
+                    or "\\assembly\\" in target_norm
+                    or "\\microsoft shared\\" in target_norm
+                ):
+                    return False
+                return False
+            elif et in ("REGISTRY_WRITE", "REGISTRY_READ"):
+                # Harmless OS shell interface & user environment queries/initialization -> 0
+                if any(s in target_norm for s in (
+                    r"\explorer\shell folders",
+                    r"\user shell folders",
+                    r"\muicache",
+                    r"\internet settings\wpad",
+                    r"\internet settings\connections",
+                    r"\session manager\environment",
+                )):
+                    return False
+                return True
             return True
 
         # Default for other attacker-flagged processes
+        if et == "MODULE_LOAD":
+            if target_base in SUSPICIOUS_MODULES:
+                return True
+            if (
+                target_base in OFFICE_SYS_MODULES
+                or "\\system32\\" in target_norm
+                or "\\syswow64\\" in target_norm
+                or "\\microsoft.net\\" in target_norm
+                or "\\assembly\\" in target_norm
+                or "\\microsoft shared\\" in target_norm
+            ):
+                return False
+            return False
+        elif et in ("REGISTRY_WRITE", "REGISTRY_READ"):
+            if any(s in target_norm for s in (
+                r"\explorer\shell folders",
+                r"\user shell folders",
+                r"\muicache",
+                r"\internet settings\wpad",
+                r"\internet settings\connections",
+                r"\session manager\environment",
+            )):
+                return False
         return True
