@@ -130,15 +130,20 @@ class LabelRefiner:
         if proc_base == "firefox.exe":
             if et == "FLOW_START":
                 is_c2_ip = event.remote_ip in KNOWN_IOCS["c2_ips"]
-                is_c2_port = event.remote_port in KNOWN_IOCS["c2_ports"]
                 is_c2_domain = any(d in target_norm for d in KNOWN_IOCS["c2_domains"])
                 is_seed = False
                 seeds = self.scenario_seeds.get(sc, set())
                 for s in seeds:
-                    if event.remote_ip in s or (event.remote_port > 0 and str(event.remote_port) in s):
+                    clean = s.strip().rstrip(",")
+                    if ":" in clean:
+                        p_ip, _, p_port = clean.partition(":")
+                        if event.remote_ip == p_ip.strip() and str(event.remote_port) == p_port.strip():
+                            is_seed = True
+                            break
+                    elif event.remote_ip == clean:
                         is_seed = True
                         break
-                return is_c2_ip or is_c2_port or is_c2_domain or is_seed
+                return is_c2_ip or is_c2_domain or is_seed
 
             elif et in {"FILE_WRITE", "FILE_CREATE"}:
                 return any(mal in target_base for mal in KNOWN_IOCS["malicious_files"]) or target_base.endswith((".exe", ".zip"))
@@ -155,9 +160,20 @@ class LabelRefiner:
                 return target_base in EXPLOIT_CHILD_PROCS
             elif et == "FLOW_START":
                 is_c2_ip = event.remote_ip in KNOWN_IOCS["c2_ips"]
-                is_c2_port = event.remote_port in KNOWN_IOCS["c2_ports"]
                 is_c2_domain = any(d in target_norm for d in KNOWN_IOCS["c2_domains"])
-                return is_c2_ip or is_c2_port or is_c2_domain
+                is_seed = False
+                seeds = self.scenario_seeds.get(sc, set())
+                for s in seeds:
+                    clean = s.strip().rstrip(",")
+                    if ":" in clean:
+                        p_ip, _, p_port = clean.partition(":")
+                        if event.remote_ip == p_ip.strip() and str(event.remote_port) == p_port.strip():
+                            is_seed = True
+                            break
+                    elif event.remote_ip == clean:
+                        is_seed = True
+                        break
+                return is_c2_ip or is_c2_domain or is_seed
             elif et in {"FILE_WRITE", "FILE_CREATE"}:
                 # Font loading or Office autosave draft (~*.tmp, .asd, .wbk) -> 0
                 if any(target_base.endswith(ext) for ext in (".ttf", ".fon", ".tmp", ".asd", ".wbk")) or "~" in target_base or "\\fonts\\" in target_norm:
