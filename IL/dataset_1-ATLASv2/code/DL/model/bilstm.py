@@ -130,25 +130,26 @@ class BiLSTMBaseline(nn.Module):
         # 1. Final hidden state of forward and backward LSTM: (batch_size, hidden_dim * 2)
         h_last = torch.cat([h_n[-2], h_n[-1]], dim=-1)
 
-        # 2. Top-K Mean Pooling (k=15) over valid time dimension (Run 8 / Task 5.md Thay đổi 1)
-        # Smooths out single-event outlier spikes while capturing sustained anomaly amplitude
+        # 2. Multi-Scale Top-K Pooling (APT-LMSPS 2026)
         seq_mask = torch.arange(lstm_out.size(1), device=lengths.device)[None, :] < lengths[:, None]
         fill_val = -1e4 if lstm_out.dtype in (torch.float16, torch.bfloat16) else -1e9
         lstm_out_masked = lstm_out.masked_fill(~seq_mask.unsqueeze(-1), fill_val)
 
-        k_steps = min(15, int(lstm_out.size(1)))
-        topk_vals, _ = torch.topk(lstm_out_masked, k=k_steps, dim=1)  # (batch_size, k_steps, hidden_dim * 2)
+        def _masked_topk_mean(tensor_masked: torch.Tensor, k_val: int) -> torch.Tensor:
+            k_eff = max(1, min(k_val, int(tensor_masked.size(1))))
+            vals, _ = torch.topk(tensor_masked, k=k_eff, dim=1)
+            valid_k = torch.clamp(lengths, max=k_eff).unsqueeze(1).unsqueeze(2)
+            k_idx = torch.arange(k_eff, device=lengths.device).unsqueeze(0).unsqueeze(2)
+            v_mask = k_idx < valid_k
+            vals_clean = vals.masked_fill(~v_mask, 0.0)
+            return vals_clean.sum(dim=1) / valid_k.squeeze(1).float().clamp(min=1.0)
 
-        # Valid step mask for sequences shorter than k_steps (avoids averaging padding fill_val)
-        valid_k = torch.clamp(lengths, max=k_steps).unsqueeze(1).unsqueeze(2)  # (batch_size, 1, 1)
-        k_idx = torch.arange(k_steps, device=lengths.device).unsqueeze(0).unsqueeze(2)  # (1, k_steps, 1)
-        valid_mask = k_idx < valid_k  # (batch_size, k_steps, 1)
+        # Kết hợp k=3 (bắt đỉnh C2 thưa ở đuôi kịch bản m6 như Run 7) và k=12 (làm mượt nhiễu nền như Run 8)
+        h_topk_sharp = _masked_topk_mean(lstm_out_masked, k_val=3)
+        h_topk_broad = _masked_topk_mean(lstm_out_masked, k_val=12)
 
-        topk_vals_clean = topk_vals.masked_fill(~valid_mask, 0.0)
-        h_topk_mean = topk_vals_clean.sum(dim=1) / valid_k.squeeze(1).float().clamp(min=1.0)
-
-        # Run 8 Hybrid Pooling: context preservation + smoothed sustained anomaly activation
-        pooled = 0.5 * h_last + 0.5 * h_topk_mean
+        # Run 9 Multi-Scale Burst-Aware Pooling: context + sharp peak + broad smoothed
+        pooled = 0.40 * h_last + 0.35 * h_topk_sharp + 0.25 * h_topk_broad
 
         # Output logit
         logits = self.classifier(pooled).squeeze(-1)
