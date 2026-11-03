@@ -86,7 +86,7 @@ except ImportError:
         collate_sequence_batch,
     )
 
-SCRIPT_VERSION = "atlasv2-bilstm-incremental-v5.0"
+SCRIPT_VERSION = "atlasv2-bilstm-incremental-v9.0"
 
 
 def load_json(path: Path) -> Any:
@@ -246,19 +246,19 @@ class AsymmetricFocalLoss(nn.Module):
 
 
 class SupConWithHardNegativeRepulsion(nn.Module):
-    """Supervised Contrastive Loss with Hard Negative Repulsion (Run 8 / Task 5.md Thay đổi 2).
+    """Contrastive Loss with Positive Cohesion & Hard-Negative Cosine Repulsion (Run 12)."""
 
-    Combines standard SupCon (Khosla et al., 2020) with active cosine repulsion for hard negatives:
-    penalizes negative samples whose cosine similarity with any positive sample exceeds margin (default 0.15).
-    This actively forces benign background traffic (e.g. firefox.exe HTTPS windows and VM startup footprints)
-    away from the attack cluster into the low-probability zone (< 0.25).
-    """
-
-    def __init__(self, temperature: float = 0.1, margin: float = 0.15, repulsion_weight: float = 0.5):
+    def __init__(
+        self,
+        feature_dim: int = 128,
+        temperature: float = 0.1,
+        margin: float = 0.15,
+        scale: float = 0.15,
+    ):
         super().__init__()
         self.temperature = float(temperature)
         self.margin = float(margin)
-        self.repulsion_weight = float(repulsion_weight)
+        self.scale = float(scale)
 
     def forward(self, features: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
         device = features.device
@@ -266,50 +266,29 @@ class SupConWithHardNegativeRepulsion(nn.Module):
         if batch_size <= 1:
             return torch.tensor(0.0, device=device)
 
-        targets = targets.view(-1, 1)
-        # mask[i, j] = 1 if sample i and sample j share the same label
-        mask = torch.eq(targets, targets.T).float().to(device)
-
-        # L2-normalize feature representations
         features_norm = F.normalize(features, p=2, dim=1)
         cos_sim = torch.matmul(features_norm, features_norm.T)
-        sim_matrix = cos_sim / self.temperature
+        targets_flat = targets.view(-1)
+        is_pos = (targets_flat == 1).view(-1, 1)
+        is_neg = (targets_flat == 0).view(1, -1)
 
-        # Subtract max for numerical stability
-        sim_max, _ = torch.max(sim_matrix, dim=1, keepdim=True)
-        sim_matrix = sim_matrix - sim_max.detach()
+        # 1. Positive cohesion (loss_pos): kéo các mẫu dương lại gần nhau
+        pos_pos_mask = (is_pos & (targets_flat == 1).view(1, -1)).clone()
+        pos_pos_mask.fill_diagonal_(False)
+        if pos_pos_mask.any():
+            loss_pos = (1.0 - cos_sim[pos_pos_mask]).clamp(min=0.0).mean()
+        else:
+            loss_pos = torch.tensor(0.0, device=device)
 
-        # Mask out self-contrast (diagonal entries)
-        logits_mask = torch.scatter(
-            torch.ones_like(mask),
-            1,
-            torch.arange(batch_size, device=device).view(-1, 1),
-            0.0,
-        )
-        pos_mask = mask * logits_mask
-
-        exp_sim = torch.exp(sim_matrix) * logits_mask
-        log_prob = sim_matrix - torch.log(exp_sim.sum(dim=1, keepdim=True) + 1e-8)
-
-        denom = pos_mask.sum(dim=1).clamp(min=1e-8)
-        mean_log_prob_pos = (pos_mask * log_prob).sum(dim=1) / denom
-
-        valid_anchors = (pos_mask.sum(dim=1) > 0)
-        supcon_loss = -mean_log_prob_pos[valid_anchors].mean() if valid_anchors.any() else torch.tensor(0.0, device=device)
-
-        # Hard Negative Repulsion:
-        # For all pairs where target_i == 1 (positive) and target_j == 0 (negative),
-        # penalize any cosine similarity that exceeds margin (0.15)
-        is_pos = (targets == 1).view(-1, 1)
-        is_neg = (targets == 0).view(1, -1)
+        # 2. Hard negative repulsion (loss_neg): đẩy các mẫu âm khó ra xa mẫu dương
         pos_neg_mask = (is_pos & is_neg)
         if pos_neg_mask.any():
             pos_neg_sim = cos_sim[pos_neg_mask]
-            repulsion_loss = F.relu(pos_neg_sim - self.margin).pow(2).mean()
+            loss_neg = F.relu(pos_neg_sim - self.margin).pow(2).mean()
         else:
-            repulsion_loss = torch.tensor(0.0, device=device)
+            loss_neg = torch.tensor(0.0, device=device)
 
-        return supcon_loss + self.repulsion_weight * repulsion_loss
+        return self.scale * (loss_pos + loss_neg)
 
 
 SupervisedContrastiveLoss = SupConWithHardNegativeRepulsion  # Alias for backward compatibility
@@ -382,59 +361,92 @@ def find_best_f1_threshold(y_true, y_prob, **kwargs):
     return find_optimal_threshold(y_true, y_prob, t_min=0.20, t_max=0.50)
 
 
+def augment_dormant_positives(batch_items: list[dict[str, Any]], p_aug: float = 0.5) -> list[dict[str, Any]]:
+    """DEEPDIST Entity Perturbation (Run 9 / Task 6.md Giải pháp 3):
+    Tạo các mẫu tấn công pha loãng / đuôi kịch bản (dormant tail) bằng cách trích xuất phân đoạn thưa
+    từ mẫu Positive kết hợp với giao tiếp nền Benign.
+    """
+    pos_items = [x for x in batch_items if x["label"] == 1 and str(x.get("sample_id", "")).startswith("win-")]
+    neg_items = [x for x in batch_items if x["label"] == 0 and str(x.get("sample_id", "")).startswith("win-")]
+    if not pos_items or not neg_items:
+        return batch_items
+
+    augmented = list(batch_items)
+    for pos in pos_items:
+        if random.random() > p_aug or pos["event_count"] < 6:
+            continue
+        neg = random.choice(neg_items)
+        # Lấy 40% sự kiện cuối của mẫu Positive (mô phỏng đuôi kịch bản m6)
+        cut_p = max(2, int(pos["event_count"] * 0.4))
+        # Ghép với tối đa 30% sự kiện nền của mẫu Benign (DEEPDIST benign interaction injection)
+        cut_n = min(40, max(2, int(neg["event_count"] * 0.3)))
+
+        aug_item = {
+            "sample_id": f"{pos['sample_id']}_pert",
+            "label": 1,
+            "event_count": cut_n + cut_p,
+            "x_cat": np.concatenate([neg["x_cat"][:cut_n], pos["x_cat"][-cut_p:]], axis=0),
+            "x_num": np.concatenate([neg["x_num"][:cut_n], pos["x_num"][-cut_p:]], axis=0),
+            "x_num_missing": np.concatenate([neg["x_num_missing"][:cut_n], pos["x_num_missing"][-cut_p:]], axis=0),
+            "x_bin": np.concatenate([neg["x_bin"][:cut_n], pos["x_bin"][-cut_p:]], axis=0),
+            "delta_t_log1p": np.concatenate([neg["delta_t_log1p"][:cut_n], pos["delta_t_log1p"][-cut_p:]], axis=0),
+        }
+        augmented.append(aug_item)
+    return augmented
+
+
 def find_harmonic_domain_threshold(
     y_atlas_true: np.ndarray,
     y_atlas_probs: np.ndarray,
     y_optc_true: np.ndarray | None = None,
     y_optc_probs: np.ndarray | None = None,
     *,
-    t_min: float = 0.25,
-    t_max: float = 0.75,
-    num_points: int = 101,
+    t_min: float = 0.20,
+    t_max: float = 0.65,
+    soft_max_fpr: float = 0.010,  # Phạt mạnh nếu FPR trên ATLASv2 Val vượt quá 1.0% (~7 FP)
+    num_points: int = 91,
 ) -> tuple[float, dict[str, Any]]:
-    """Harmonic Domain-Balanced Validation Threshold Search (Run 8 / Task 5.md Thay đổi 4).
-
-    Maximizes the Harmonic Mean of F1 between ATLASv2 and OpTC domains across candidate thresholds:
-        H_F1(t) = 2 * F1_atlas(t) * F1_optc(t) / (F1_atlas(t) + F1_optc(t) + 1e-8)
-    Prevents OpTC positive dominance while guaranteeing an optimal operating point for both domains.
-    """
+    """Harmonic Domain-Balanced Threshold Search with Peak Smoothing (Run 12)."""
     thresholds = np.linspace(t_min, t_max, num_points)
     scores = []
 
     for t in thresholds:
         m_atlas = binary_metrics(y_atlas_true, y_atlas_probs, t)
         f1_atlas = m_atlas["f1"]
+        fpr_atlas = m_atlas["fpr"]
+
+        fpr_penalty = 1.0
+        if fpr_atlas > soft_max_fpr:
+            fpr_penalty = float(np.exp(-15.0 * (fpr_atlas - soft_max_fpr)))
 
         if y_optc_true is not None and y_optc_probs is not None:
             m_optc = binary_metrics(y_optc_true, y_optc_probs, t)
             f1_optc = m_optc["f1"]
-            denom = f1_atlas + f1_optc + 1e-8
-            harmonic_f1 = (2.0 * f1_atlas * f1_optc) / denom
-            scores.append(float(harmonic_f1))
+            if f1_atlas <= 0.0 or f1_optc <= 0.0:
+                scores.append(0.0)
+                continue
+            w_atlas, w_optc = 0.75, 0.25
+            weighted_h_f1 = 1.0 / ((w_atlas / (f1_atlas + 1e-8)) + (w_optc / (f1_optc + 1e-8)))
+            scores.append(float(weighted_h_f1 * fpr_penalty))
         else:
-            scores.append(float(f1_atlas))
+            scores.append(float(f1_atlas * fpr_penalty))
 
     scores = np.array(scores, dtype=np.float64)
     if np.max(scores) <= 0.0:
         best_t = float((t_min + t_max) / 2.0)
     else:
         smoothed = np.convolve(scores, np.ones(3) / 3.0, mode="same")
-        best_idx = int(np.argmax(smoothed))
-        best_t = float(thresholds[best_idx])
+        chosen_idx = int(np.argmax(smoothed))
+        best_t = float(thresholds[chosen_idx])
 
+    m_atlas = binary_metrics(y_atlas_true, y_atlas_probs, best_t)
     if y_optc_true is not None and y_optc_probs is not None:
-        y_comb_true = np.concatenate([y_atlas_true, y_optc_true])
-        y_comb_probs = np.concatenate([y_atlas_probs, y_optc_probs])
-        combined_m = binary_metrics(y_comb_true, y_comb_probs, best_t)
-        m_atlas = binary_metrics(y_atlas_true, y_atlas_probs, best_t)
         m_optc = binary_metrics(y_optc_true, y_optc_probs, best_t)
-        combined_m["f1_atlas"] = m_atlas["f1"]
-        combined_m["f1_optc"] = m_optc["f1"]
+        m_atlas["f1_atlas"] = m_atlas["f1"]
+        m_atlas["f1_optc"] = m_optc["f1"]
         denom = m_atlas["f1"] + m_optc["f1"] + 1e-8
-        combined_m["harmonic_f1"] = (2.0 * m_atlas["f1"] * m_optc["f1"]) / denom
-        return best_t, combined_m
-    else:
-        return best_t, binary_metrics(y_atlas_true, y_atlas_probs, best_t)
+        m_atlas["harmonic_f1"] = (2.0 * m_atlas["f1"] * m_optc["f1"]) / denom
+    return best_t, m_atlas
 
 
 def evaluate_domain_validation(
@@ -491,8 +503,15 @@ def evaluate_combined_validation(
 
 
 
-def load_pretrained_checkpoint(model: nn.Module, ckpt_path: str | Path, device: torch.device) -> dict[int, int]:
-    """Load pretrained model weights, adapting embedding layers when vocabulary is expanded."""
+def load_pretrained_checkpoint(
+    model: nn.Module,
+    ckpt_path: str | Path,
+    device: torch.device,
+    *,
+    recenter_logit_bias: bool = False,
+    optc_base_thr: float = 0.9956,
+) -> dict[int, int]:
+    """Load pretrained model weights, with optional Zero-Step Logit Recentering for Continual Learning."""
     ckpt = torch.load(ckpt_path, map_location=device, weights_only=False)
     state_dict = ckpt.get("model_state_dict", ckpt)
     model_state = model.state_dict()
@@ -514,19 +533,37 @@ def load_pretrained_checkpoint(model: nn.Module, ckpt_path: str | Path, device: 
             if emb_idx >= 0:
                 old_vocab_sizes[emb_idx] = n_old
             if model_state[key].shape[0] > n_old:
-                unk_vec = val[0:1, :d]  # row 0 is <UNK>
-                model_state[key][n_old:, :d] = unk_vec
-                print(f"  [Vocab Expansion] {key}: transferred {n_old} rows from OpTC, initialized {model_state[key].shape[0] - n_old} new rows with <UNK> embedding.")
+                n_new = model_state[key].shape[0] - n_old
+                base_vec = val[1:n_old, :d].mean(dim=0, keepdim=True) if n_old > 1 else val[0:1, :d]
+                rng_gen = torch.Generator(device=val.device).manual_seed(42 + max(0, emb_idx))
+                noise = torch.randn((n_new, d), generator=rng_gen, device=val.device, dtype=val.dtype) * 0.05
+                model_state[key][n_old:, :d] = base_vec + noise
+                print(
+                    f"  [Vocab Expansion] {key}: transferred {n_old} rows from OpTC, "
+                    f"initialized {n_new} new rows with Mean-Embedding + N(0, 0.05) symmetry breaking."
+                )
         else:
             print(f"  [Warning] Skipping key {key} due to shape mismatch: ckpt {val.shape} vs model {model_state[key].shape}")
 
     model.load_state_dict(model_state)
+
+    if recenter_logit_bias:
+        # Dịch chuyển 60% độ lệch logit từ ngưỡng OpTC (0.9956 -> logit +5.4216 * 0.60 = +3.2530)
+        # Vừa đủ xóa sạch các cụm FP lành tính, vừa không làm tụt xác suất của các chuỗi exfiltration
+        logit_offset = math.log(optc_base_thr / (1.0 - optc_base_thr))
+        with torch.no_grad():
+            last_linear = model.classifier[-1]
+            if isinstance(last_linear, nn.Linear) and last_linear.bias is not None:
+                shift_val = 0.60 * logit_offset
+                last_linear.bias.data -= shift_val
+                print(f"  [Logit Recentering] Shifted classifier[-1].bias by -{shift_val:.4f} (60% of OpTC thr offset {logit_offset:.4f} -> ~ -3.25).")
+
     print(f"Loaded pretrained weights from {ckpt_path}")
     return old_vocab_sizes
 
 
 def apply_optc_gradient_shield(model: nn.Module, old_sizes: dict[int, int], old_scale: float = 0.35) -> None:
-    """Shield shared OpTC vocabulary from rapid drift during incremental training (Run 8 / Task 5.md Thay đổi 3)."""
+    """Shield shared OpTC vocabulary from rapid drift during incremental training (default: 0.35x)."""
     if not old_sizes:
         return
     for i, emb in enumerate(model.embeddings):
@@ -599,8 +636,9 @@ def train_single_model(
     model_tag: str = "model",
     freeze_epochs: int = 0,
     loss_type: str = "focal",
-    t_min: float = 0.20,
-    t_max: float = 0.55,
+    t_min: float = 0.35,
+    t_max: float = 0.75,
+    soft_max_fpr: float = 0.015,
 ) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
     best_path = output_dir / f"{model_tag}_best.pt"
@@ -624,22 +662,22 @@ def train_single_model(
         criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
         print(f"  [Loss] Configured BCEWithLogitsLoss (pos_weight={clamped_pos_weight:.2f})")
 
-    # Supervised Contrastive Loss with Hard Negative Repulsion (Run 8 / Task 5.md Thay đổi 2)
-    contrastive_criterion = SupConWithHardNegativeRepulsion(
-        temperature=0.1, margin=0.15, repulsion_weight=0.5
-    ) if (model_tag == "incremental") else None
-    if contrastive_criterion is not None:
-        print("  [Loss] Configured SupConWithHardNegativeRepulsion (tau=0.1, margin=0.15, repulsion_wt=0.5, total_wt=0.25).")
+    # Configured SupConWithHardNegativeRepulsion with loss_pos + loss_neg scaled by 0.15
+    if model_tag == "incremental":
+        contrastive_criterion = SupConWithHardNegativeRepulsion(margin=0.15, scale=0.15)
+        print("  [Loss] Configured SupConWithHardNegativeRepulsion (margin=0.15, scale=0.15 with loss_pos + loss_neg)")
+    else:
+        contrastive_criterion = None
 
     # Mở khóa toàn bộ tham số mô hình (Task 3.md Section 2)
     for param in model.parameters():
         param.requires_grad = True
 
-    # 3-Tier Decoupled Learning Rate Setup (Task 3.md Section 2)
+    # 3-Tier Decoupled Learning Rate Setup (Task 7.md Giải pháp 3)
     if model_tag == "incremental":
-        lr_emb = lr * 2.5       # 5e-4 when lr=2e-4: allows 80 new ATLASv2 binaries to escape <UNK>
-        lr_backbone = lr * 0.5  # 1e-4 when lr=2e-4: preserves temporal sequence patterns from OpTC
-        lr_head = lr * 5.0      # 1e-3 when lr=2e-4: rapidly shifts logit scale from +5.4 to balanced range
+        lr_emb = lr * 3.0       # 6e-4: học nhanh 80 token mới như Scratch
+        lr_backbone = lr * 1.5  # 3e-4: đủ nhanh để thích nghi với Multi-Scale Pooling mới
+        lr_head = lr * 3.0      # 6e-4: cân bằng lại thang đo logit
 
         backbone_params = list(model.event_encoder.parameters()) + list(model.lstm.parameters())
         optimizer = torch.optim.AdamW([
@@ -651,6 +689,8 @@ def train_single_model(
     else:
         optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
 
+    # Task 7.md: Giữ LR hằng số trong 10 epoch để không bị đóng băng khi đang tăng tốc hội tụ
+    scheduler = None
     scaler = get_scaler(device, amp)
 
     best_val_score = -1.0
@@ -682,6 +722,10 @@ def train_single_model(
                     for repl_idx in replay_indices:
                         batch_items.append(replay_ds[repl_idx])
 
+            # DEEPDIST Entity Perturbation disabled in Run 10 (Task 7.md: eliminates label noise)
+            # if model_tag == "incremental":
+            #     batch_items = augment_dormant_positives(batch_items, p_aug=0.5)
+
             batch = collate_sequence_batch(batch_items)
 
             x_cat = batch["x_cat"].to(device)
@@ -706,7 +750,7 @@ def train_single_model(
                     )
                     loss_focal = criterion(logits, targets)
                     loss_con = contrastive_criterion(pooled, targets)
-                    loss = loss_focal + 0.25 * loss_con
+                    loss = loss_focal + loss_con
                 else:
                     logits = model(
                         x_cat=x_cat,
@@ -729,19 +773,17 @@ def train_single_model(
 
         train_loss = running_loss / max(1, seen_batches)
 
-        # Harmonic Domain-Balanced Validation (Run 8 / Task 5.md Thay đổi 4)
+        # Harmonic Domain-Balanced Validation (Run 10 / Task 7.md Giải pháp 4)
         if model_tag == "incremental" and replay_ds is not None:
             atlas_true, atlas_prob, _, rep_true, rep_prob, _ = evaluate_domain_validation(
                 model, val_loader, replay_ds, device=device, amp=amp
             )
             val_thr, val_metrics = find_harmonic_domain_threshold(
-                atlas_true, atlas_prob, rep_true, rep_prob, t_min=t_min, t_max=t_max
+                atlas_true, atlas_prob, rep_true, rep_prob, t_min=t_min, t_max=t_max, soft_max_fpr=soft_max_fpr
             )
-            val_comb_true = np.concatenate([atlas_true, rep_true])
-            val_comb_prob = np.concatenate([atlas_prob, rep_prob])
-            val_pr_auc = float(average_precision_score(val_comb_true, val_comb_prob))
-            # Checkpoint selection prioritizes Harmonic F1 across both domains
-            val_score = val_metrics.get("harmonic_f1", val_metrics["f1"]) + 0.1 * val_pr_auc
+            # Tính PR-AUC trực tiếp trên tập Validation của ATLASv2 để chọn đúng epoch hội tụ tốt nhất trên miền đích (Task 7.md)
+            val_pr_auc = float(average_precision_score(atlas_true, atlas_prob))
+            val_score = val_pr_auc + 0.2 * val_metrics.get("harmonic_f1", val_metrics["f1"])
         else:
             val_true, val_prob, _ = predict(model, val_loader, device=device, amp=amp)
             val_pr_auc = float(average_precision_score(val_true, val_prob))
@@ -779,6 +821,9 @@ def train_single_model(
             if epoch >= min_epochs:
                 stale_epochs += 1
 
+        if scheduler is not None:
+            scheduler.step()
+
         if stale_epochs >= patience:
             print(f"  [{model_tag} Early Stopping] No improvement in Val score for {stale_epochs} epochs (after epoch {min_epochs}).")
             break
@@ -787,13 +832,13 @@ def train_single_model(
     best_ckpt = torch.load(best_path, map_location=device, weights_only=False)
     model.load_state_dict(best_ckpt["model_state_dict"])
 
-    # Optimize threshold on VAL (Harmonic Domain-Balanced Validation for Run 8)
+    # Optimize threshold on VAL (Harmonic Domain-Balanced Validation for Run 9)
     if model_tag == "incremental" and replay_ds is not None:
         atlas_true, atlas_prob, atlas_ids, rep_true, rep_prob, rep_ids = evaluate_domain_validation(
             model, val_loader, replay_ds, device=device, amp=amp
         )
         final_thr, final_val_m = find_harmonic_domain_threshold(
-            atlas_true, atlas_prob, rep_true, rep_prob, t_min=t_min, t_max=t_max
+            atlas_true, atlas_prob, rep_true, rep_prob, t_min=t_min, t_max=t_max, soft_max_fpr=soft_max_fpr
         )
     else:
         val_true, val_prob, val_ids = predict(model, val_loader, device=device, amp=amp)
@@ -911,18 +956,19 @@ def main():
     p.add_argument("--replay-ratio", type=float, default=0.05, help="Fraction of replay samples per mini-batch (default 0.05 - MalFSCIL 2024)")
     p.add_argument("--optc-test-root", default=None, help="Path to optc_test/ directory for Backward Transfer evaluation")
     p.add_argument("--run-benchmark", action="store_true", help="Run full 4-experiment benchmark suite (Scratch, Zero-shot, IL, BWT)")
-    p.add_argument("--epochs", type=int, default=10, help="Number of training epochs")
+    p.add_argument("--epochs", type=int, default=15, help="Number of training epochs (default: 15 - Run 11)")
     p.add_argument("--min-epochs", type=int, default=3, help="Minimum warmup epochs before allowing early stopping (default: 3)")
     p.add_argument("--freeze-epochs", type=int, default=0, help="Legacy parameter, kept for compatibility (default: 0)")
     p.add_argument("--loss", default="focal", choices=["focal", "asl", "bce"], help="Loss function for training (default: focal - MORPH-IDS BinaryFocalLossWithWeights)")
-    p.add_argument("--t-min", type=float, default=0.25, help="Minimum threshold for controlled search (default: 0.25 - Run 8)")
-    p.add_argument("--t-max", type=float, default=0.75, help="Maximum threshold for controlled search (default: 0.75 - Run 8)")
+    p.add_argument("--t-min", type=float, default=0.20, help="Minimum threshold for controlled search (default: 0.20)")
+    p.add_argument("--t-max", type=float, default=0.65, help="Maximum threshold for controlled search (default: 0.65)")
+    p.add_argument("--soft-max-fpr", type=float, default=0.010, help="Soft maximum validation FPR constraint (default: 0.010 - Run 11)")
     p.add_argument("--max-fpr", type=float, default=0.03, help="Maximum validation FPR constraint (legacy)")
     p.add_argument("--batch-size", type=int, default=32, help="Mini-batch size")
     p.add_argument("--lr", type=float, default=2e-4, help="Learning rate for incremental fine-tuning")
     p.add_argument("--weight-decay", type=float, default=1e-4)
     p.add_argument("--grad-clip", type=float, default=1.0)
-    p.add_argument("--patience", type=int, default=4, help="Early stopping patience")
+    p.add_argument("--patience", type=int, default=5, help="Early stopping patience (default: 5 - Run 11)")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--no-amp", action="store_true")
     args = p.parse_args()
@@ -979,7 +1025,7 @@ def main():
     print("=" * 60)
     zs_model = create_model()
     if args.init_model and Path(args.init_model).exists():
-        load_pretrained_checkpoint(zs_model, args.init_model, device)
+        load_pretrained_checkpoint(zs_model, args.init_model, device, recenter_logit_bias=False)
 
     zs_val_true, zs_val_prob, _ = predict(zs_model, val_loader, device=device, amp=amp)
     zs_test_true, zs_test_prob, zs_test_ids = predict(zs_model, test_loader, device=device, amp=amp)
@@ -1015,6 +1061,7 @@ def main():
         loss_type="focal",
         t_min=args.t_min,
         t_max=args.t_max,
+        soft_max_fpr=args.soft_max_fpr,
     )
     scratch_test_m = scratch_res["test"]
     scratch_val_m = scratch_res["val"]
@@ -1029,7 +1076,7 @@ def main():
     il_model = create_model()
     old_vocab_sizes: dict[int, int] = {}
     if args.init_model and Path(args.init_model).exists():
-        old_vocab_sizes = load_pretrained_checkpoint(il_model, args.init_model, device)
+        old_vocab_sizes = load_pretrained_checkpoint(il_model, args.init_model, device, recenter_logit_bias=True)
         apply_optc_gradient_shield(il_model, old_vocab_sizes, old_scale=0.35)
 
     il_res = train_single_model(
@@ -1053,6 +1100,7 @@ def main():
         loss_type=args.loss,
         t_min=args.t_min,
         t_max=args.t_max,
+        soft_max_fpr=args.soft_max_fpr,
     )
     il_test_m = il_res["test"]
     il_val_m = il_res["val"]
