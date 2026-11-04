@@ -29,7 +29,21 @@
     src: '{{ playbook_dir }}/../serving/endpoint/{{ item }}'
     dest: '/opt/kltn-agent/{{ item }}'
     mode: '0644'
-  loop: [agent.py, requirements.txt]
+  loop: [agent.py, endpoint_normalization.py, requirements.txt]
+  notify: Restart Linux agent
+- name: Create deployed tokenizer package directories
+  ansible.builtin.file:
+    path: /opt/kltn-agent/ML/code/preprocess
+    state: directory
+    owner: root
+    group: kltn-agent
+    mode: '0755'
+- name: Copy the exact trained tokenizer implementation
+  ansible.builtin.copy:
+    src: '{{ playbook_dir }}/../../../ML/code/preprocess/{{ item }}'
+    dest: '/opt/kltn-agent/ML/code/preprocess/{{ item }}'
+    mode: '0644'
+  loop: [ecar_tokenizer.py, command_syntax.py]
   notify: Restart Linux agent
 - name: Install pinned ML runtime in dedicated venv
   ansible.builtin.pip:

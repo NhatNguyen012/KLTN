@@ -176,7 +176,7 @@
 <text x="1665" y="982.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#b33d43">CENTRAL DETECTION: STILL MISSING</text>
 <text x="1665" y="1021.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Normalization / correlation / sequence builder</text>
 <text x="1665" y="1051.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">ML result relay / score API / feature adapters</text>
-<text x="1665" y="1081.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">BiLSTM &amp; GraphSAGE inference / fusion</text>
+<text x="1665" y="1081.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">LightGBM &amp; BiLSTM inference / fusion</text>
 <text x="1665" y="1111.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">SOC UI / verified-label feedback / response</text>
 <text x="1045" y="1205.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#162b40">Storage &amp; safety boundaries</text>
 <text x="1045" y="1241.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="normal" fill="#162b40">Persistent Docker volumes • runtime secrets outside source control</text>

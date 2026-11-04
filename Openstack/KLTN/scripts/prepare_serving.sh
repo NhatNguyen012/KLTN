@@ -6,6 +6,7 @@ export ANSIBLE_CONFIG="$ROOT/ansible/ansible.cfg"
 "$PY" "$ROOT/scripts/fetch_serving_assets.py"
 "$PY" "$ROOT/scripts/prepare_serving.py"
 docker build --network host -t kltn-dl:prepared "$ROOT/serving/central"
+docker compose -f "$ROOT/central/compose.yaml" --profile framework up -d --no-build framework
 docker compose -f "$ROOT/central/compose.yaml" --profile model-prep up -d --no-build dl-prep
 "$ROOT/runtime/venv/bin/ansible-playbook" "$ROOT/ansible/prepare-serving.yml"
 "$PY" - "$ROOT/runtime" <<'PY'

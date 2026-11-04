@@ -1,10 +1,14 @@
-# Preparing model services before the models are ready
+# Model-gated serving contract
 
-Status: 2026-10-30. The **model-free runtime foundation is now implemented**;
-see [installation and operations](OPERATIONS.md). The sections below distinguish
-the intended complete serving contract from the current bounded inbox/staging
-implementation. Model-specific adapters, context/features, inference and score
-transport remain activation work. No model weights or predictions are installed.
+Status: 2026-11-03. The endpoint and central workers now implement bounded
+normalization, checksum-gated model loading, shadow inference, a durable endpoint
+score outbox, authenticated central score storage and explicit unavailable states.
+The control plane also implements masked shadow fusion, SOC review, drift and
+approval-gated lifecycle requests. See [installation and operations](OPERATIONS.md).
+
+The selected run-12 artifacts are packaged only as **ineligible candidates**.
+No prediction is emitted until an immutable bundle contains approved parity
+evidence and `activation.eligible=true`. Linux/THEIA inference remains unsupported.
 
 You do not need incremental learning to deploy a frozen supervised model.
 Prepare the services now, then release a **versioned model bundle** later.
@@ -16,12 +20,12 @@ model configuration and decision threshold must match training exactly.
 | Component | Placement | Selected tools | Installation stage |
 |---|---|---|---|
 | Sensors and raw forwarding | All endhosts | Existing Sysmon/Security/PowerShell or auditd/journal + Fluent Bit | Already reported working |
-| Local normalization/context | All endhosts | Python, bounded SQLite state, OS-specific adapters | Implement before model activation |
-| Host ML scoring | Each supported endhost | LightGBM + NumPy/SciPy; FastAPI/Uvicorn loopback ingress | Prepare code/runtime now, model later |
+| Local normalization/context | All endhosts | Python, bounded SQLite state, OS-specific adapters | Windows adapter implemented; live parity pending; Linux inference unsupported |
+| Host ML scoring | Each supported endhost | LightGBM + NumPy/SciPy; FastAPI/Uvicorn loopback ingress | Checksum/width/domain-gated shadow path implemented |
 | Process supervision | Ubuntu / Windows | systemd / WinSW wrapping Python | Separate OS installation recipes |
 | Raw archive | Physical host | Existing Caddy/FastAPI/NATS/PostgreSQL | Already reported working |
-| Sequence preparation + DL | Physical host Docker | Python + CPU PyTorch worker, PostgreSQL job cursor/outbox | Prepare code/runtime now, model later |
-| Model distribution | Controller → services | Versioned directories + SHA256 manifest + Ansible | No registry server needed for this pilot |
+| Sequence preparation + DL | Physical host Docker | Python + CPU PyTorch worker, PostgreSQL job ledger | Sequence/scoring path implemented; bundle parity pending |
+| Model distribution | Controller → services | Versioned directories + SHA256 manifest + Ansible | Registry metadata API plus immutable filesystem releases |
 
 Python inference code can be shared across Windows and Ubuntu. Sensors, raw-log
 adapters, paths, service wrappers and dependency wheels differ. Do not install
@@ -66,13 +70,10 @@ ledger and insert jobs + seen entries in one transaction. Do not use only
 `received_at > last_timestamp`: equal timestamps and concurrent commits can skip
 records. A dedicated fan-out stream with independent consumers is a later option.
 
-## Service interfaces to implement
+## Implemented service interfaces
 
-The endpoint inbox, health and readiness interfaces are now implemented in
-preparation mode. Score ingestion and model inference below remain a specification.
-Existing central ingest accepts raw sources only; add a separate authenticated
-score endpoint and table during activation.
-Do not overload the raw `smoke` source or send fabricated scores.
+The interfaces below are implemented. Preparation mode keeps model-dependent
+paths dormant. Do not overload the raw `smoke` source or send fabricated scores.
 
 | Interface | Required behavior |
 |---|---|
@@ -102,7 +103,7 @@ Suggested score record:
   "threshold": 0.75,
   "prediction": 1,
   "domain": "windows-sysmon",
-  "domain_validation": "pending",
+  "domain_validation": "shadow_unvalidated",
   "processed_at": "2026-10-30T00:00:00Z"
 }
 ```
@@ -267,10 +268,10 @@ an immediate per-event classifier. Report detection delay including window closu
    release config and restart. Keep raw archive and evidence; version context and
    job state so incompatible state is not reused or scores silently overwritten.
 
-No new Terraform VM is needed. Terraform remains responsible for networking/VMs;
-Ansible installs services; Compose manages the central worker. The endpoint runtime and central preparation container are installed by the
-[operations runbook](OPERATIONS.md); adapter, inference and score transport steps
-remain pending. The preparation worker only stages event references.
+No additional Terraform VM is needed. Terraform remains responsible for
+networking/VMs; Ansible installs services; Compose manages the central workers.
+The [operations runbook](OPERATIONS.md) installs preparation mode. Promotion and
+rollout remain blocked until parity and live-domain validation are published.
 
 ## Acceptance before declaring “just add the model” complete
 
@@ -288,9 +289,10 @@ remain pending. The preparation worker only stages event references.
 - OpTC-only model: shadow outputs clearly labelled; live detection accuracy is
   unproven until representative labelled testbed evaluation is completed.
 
-Fusion, SOC UI, isolation, GraphSAGE and incremental learning are separate later
-milestones. Their absence does not prevent testing a frozen ML/DL service, but
-means the complete architecture is not finished.
+Shadow fallback fusion, a small SOC UI and approval queues are present. Learned
+fusion, automatic training execution and OpenStack
+quarantine execution remain separate validated releases; none are inferred from
+the existence of their control-plane interface.
 
 ## References
 

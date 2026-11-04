@@ -1,8 +1,30 @@
 import importlib.util
+import hashlib
+import json
 from pathlib import Path
+import sys
 import tempfile
+import types
 import unittest
 import sqlite3
+
+try:
+    import fastapi  # noqa: F401
+except ModuleNotFoundError:
+    module = types.ModuleType('fastapi')
+    class FastAPI:
+        def __init__(self, *args, **kwargs):
+            pass
+        def get(self, *args, **kwargs):
+            return lambda function: function
+        def post(self, *args, **kwargs):
+            return lambda function: function
+    class HTTPException(Exception):
+        pass
+    class Request:
+        pass
+    module.FastAPI, module.HTTPException, module.Request = FastAPI, HTTPException, Request
+    sys.modules['fastapi'] = module
 
 # Allows running both in this repository and in a container with /src mounted.
 source = Path(__file__).resolve().parents[1] / 'serving/endpoint/agent.py'
@@ -23,6 +45,35 @@ class InboxTests(unittest.TestCase):
 
     def inbox(self, **kwargs):
         return agent.Inbox(self.path, 'host-1', min_free_bytes=0, **kwargs)
+
+    def test_bundle_requires_all_promotion_gates(self):
+        root = Path(self.tmp.name) / 'bundle'
+        artifact = root / 'model/model.txt'
+        artifact.parent.mkdir(parents=True)
+        artifact.write_bytes(b'model')
+        manifest = {
+            'schema_version': 'bundle.v1', 'branch': 'host_ml',
+            'algorithm': 'lightgbm', 'domain_validation': 'shadow_unvalidated',
+            'activation': {'eligible': False},
+            'artifacts': {'model/model.txt': {
+                'sha256': hashlib.sha256(b'model').hexdigest(), 'bytes': 5,
+            }},
+        }
+        manifest_path = root / 'manifest.json'
+        manifest_path.write_text(json.dumps(manifest), encoding='utf-8')
+        with self.assertRaisesRegex(agent.BundleError, 'bundle_not_activation_eligible'):
+            agent.verify_manifest(root)
+        manifest['activation']['eligible'] = True
+        manifest_path.write_text(json.dumps(manifest), encoding='utf-8')
+        with self.assertRaisesRegex(agent.BundleError, 'bundle_domain_not_validated'):
+            agent.verify_manifest(root)
+        manifest['domain_validation'] = 'validated'
+        manifest_path.write_text(json.dumps(manifest), encoding='utf-8')
+        with self.assertRaisesRegex(agent.BundleError, 'bundle_parity_not_passed'):
+            agent.verify_manifest(root)
+        manifest['parity'] = {'passed': True}
+        manifest_path.write_text(json.dumps(manifest), encoding='utf-8')
+        self.assertEqual(agent.verify_manifest(root)['domain_validation'], 'validated')
 
     def test_replay_is_deduplicated_across_reopen(self):
         self.assertEqual(self.inbox().put('sysmon', [{'date':1,'EventRecordID':42}]), 1)
@@ -53,7 +104,28 @@ class InboxTests(unittest.TestCase):
         self.inbox().put('sysmon', [{'EventRecordID':1}])
         with sqlite3.connect(self.path) as db:
             self.assertEqual(db.execute('SELECT state FROM inbox').fetchone()[0], 'waiting_for_model')
-            self.assertNotIn('score', [row[1] for row in db.execute('PRAGMA table_info(inbox)')])
+            self.assertIsNone(db.execute('SELECT score_id FROM inbox').fetchone()[0])
+            self.assertEqual(db.execute('SELECT count(*) FROM score_outbox').fetchone()[0], 0)
+
+    def test_score_and_outbox_commit_atomically(self):
+        inbox = self.inbox()
+        inbox.put('sysmon', [{'EventRecordID': 1}])
+        identity = agent.event_id('host-1', 'sysmon', {'EventRecordID': 1})
+        score = {'score_id': 'score-1', 'score': 0.9}
+        inbox.store_score(identity, {'event_type': 'PROCESS_START'}, score)
+        with sqlite3.connect(self.path) as db:
+            self.assertEqual(db.execute('SELECT state FROM inbox').fetchone()[0], 'scored_shadow')
+            self.assertEqual(db.execute('SELECT score_id FROM inbox').fetchone()[0], 'score-1')
+            self.assertEqual(db.execute('SELECT score_id FROM score_outbox').fetchone()[0], 'score-1')
+
+    def test_permanent_inference_error_does_not_starve_queue(self):
+        inbox = self.inbox()
+        inbox.put('sysmon', [{'EventRecordID': 1}])
+        identity = agent.event_id('host-1', 'sysmon', {'EventRecordID': 1})
+        for _ in range(3):
+            inbox.mark_error(identity, 'fixture_error')
+        with sqlite3.connect(self.path) as db:
+            self.assertEqual(db.execute('SELECT state,attempts FROM inbox').fetchone(), ('error', 3))
 
 if __name__ == '__main__':
     unittest.main()
