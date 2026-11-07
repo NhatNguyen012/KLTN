@@ -1,5 +1,10 @@
 # Terraform: 2 Ubuntu + 1 Windows trên 3 subnet
 
+> Trạng thái 03/11/2026: cấu hình Terraform không cần thay đổi cho framework mới.
+> Không cần tạo thêm Ubuntu/THEIA VM. State local hiện có `0` resource, vì vậy
+> `apply` sẽ tạo lại toàn bộ 2 Ubuntu + 1 Windows; chỉ chạy sau khi đọc plan.
+> Model bundle chưa sẵn sàng không phải lý do để tạo VM sớm.
+
 Cấu hình này tạo hai máy Ubuntu 24.04 và một máy Windows 11 Enterprise LTSC
 2024. Mỗi máy nằm trên một tenant network và subnet riêng. Ba subnet cùng nối
 vào một router có external gateway là `public-net`; mỗi máy mặc định được cấp
@@ -46,6 +51,7 @@ terraform fmt -check
 terraform init
 terraform validate
 terraform plan -out=kltn.tfplan
+# Chỉ chạy khi đã quyết định tạo lại 3 VM:
 terraform apply kltn.tfplan
 ```
 
@@ -70,8 +76,8 @@ terraform output -json ssh_commands
 - Sao chép `terraform.tfvars.example` thành `terraform.tfvars`; file thật được
   gitignore để tránh commit cấu hình cục bộ.
 - `nodes` bắt buộc có đúng ba phần tử, ba CIDR/network/subnet khác nhau.
-- Mặc định SSH mở từ `0.0.0.0/0` để tiện cho lab AIO. Hãy giới hạn
-  `ssh_source_cidr` và `rdp_source_cidr` khi dùng trong môi trường chia sẻ.
+- Mặc định SSH/RDP/WinRM chỉ mở từ management host `172.31.250.1/32`.
+  Không mở rộng CIDR nếu không có nhu cầu quản trị rõ ràng.
 - Windows image phải có các property UEFI, Secure Boot, TPM 2.0 và VirtIO như
   mô tả tại `../windows-image/README.md`.
 - Cloudbase-Init nhận metadata và `windows-user-data.ps1` qua config drive. Script
@@ -194,6 +200,13 @@ terraform destroy
 # Khôi phục trạng thái nghỉ của lab sau khi destroy:
 openstack compute service set --disable \
   --disable-reason "KLTN lab idle" openstack-aio nova-compute
+```
+
+Ưu tiên quy trình có saved plan để tránh xóa nhầm:
+
+```bash
+terraform plan -destroy -out=destroy.tfplan
+terraform apply destroy.tfplan
 ```
 
 ## Collector pilot

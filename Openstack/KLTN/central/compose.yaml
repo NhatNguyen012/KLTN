@@ -62,6 +62,14 @@ services:
     command: ['python', 'worker.py']
     depends_on:
       api: {condition: service_healthy}
+  framework:
+    <<: *app
+    profiles: [framework]
+    command: ['python', '-u', 'framework_worker.py']
+    mem_limit: 384m
+    cpus: 0.75
+    depends_on:
+      api: {condition: service_healthy}
   dl-prep:
     profiles: [model-prep]
     image: kltn-dl:prepared

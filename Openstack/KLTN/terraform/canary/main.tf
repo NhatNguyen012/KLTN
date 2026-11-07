@@ -1,0 +1,139 @@
+terraform {
+  required_version = ">= 1.5.0"
+  required_providers {
+    openstack = {
+      source  = "terraform-provider-openstack/openstack"
+      version = "~> 3.0"
+    }
+  }
+}
+
+provider "openstack" {
+}
+
+data "openstack_networking_network_v2" "external" {
+  name = var.external_network_name
+}
+
+data "openstack_images_image_v2" "windows" {
+  name        = var.windows_image_name
+  most_recent = true
+}
+
+resource "openstack_compute_flavor_v2" "windows" {
+  name      = var.windows_flavor.name
+  ram       = var.windows_flavor.ram_mb
+  vcpus     = var.windows_flavor.vcpus
+  disk      = var.windows_flavor.disk_gb
+  is_public = true
+
+  extra_specs = {
+    "trait:COMPUTE_SECURITY_TPM_2_0" = "required"
+    "trait:COMPUTE_SECURITY_TPM_CRB" = "required"
+  }
+}
+
+resource "openstack_networking_network_v2" "canary" {
+  name           = var.canary_node.network_name
+  admin_state_up = true
+  mtu            = var.network_mtu
+}
+
+resource "openstack_networking_subnet_v2" "canary" {
+  name            = var.canary_node.subnet_name
+  network_id      = openstack_networking_network_v2.canary.id
+  cidr            = var.canary_node.cidr
+  gateway_ip      = cidrhost(var.canary_node.cidr, 1)
+  ip_version      = 4
+  enable_dhcp     = true
+  dns_nameservers = var.dns_nameservers
+
+  allocation_pool {
+    start = var.canary_node.allocation_pool_start
+    end   = var.canary_node.allocation_pool_end
+  }
+}
+
+resource "openstack_networking_router_v2" "canary" {
+  name                = var.router_name
+  admin_state_up      = true
+  external_network_id = data.openstack_networking_network_v2.external.id
+  enable_snat         = true
+}
+
+resource "openstack_networking_router_interface_v2" "canary" {
+  router_id = openstack_networking_router_v2.canary.id
+  subnet_id = openstack_networking_subnet_v2.canary.id
+}
+
+resource "openstack_networking_secgroup_v2" "canary" {
+  name        = var.security_group_name
+  description = "KLTN Windows Canary: RDP, WinRM, ICMP"
+}
+
+resource "openstack_networking_secgroup_rule_v2" "rdp" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 3389
+  port_range_max    = 3389
+  remote_ip_prefix  = var.rdp_source_cidr
+  security_group_id = openstack_networking_secgroup_v2.canary.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "winrm_https" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 5986
+  port_range_max    = 5986
+  remote_ip_prefix  = var.management_source_cidr
+  security_group_id = openstack_networking_secgroup_v2.canary.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "icmp" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "icmp"
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = openstack_networking_secgroup_v2.canary.id
+}
+
+resource "openstack_networking_port_v2" "canary" {
+  name               = "${var.canary_node.instance_name}-port"
+  network_id         = openstack_networking_network_v2.canary.id
+  admin_state_up     = true
+  security_group_ids = [openstack_networking_secgroup_v2.canary.id]
+
+  fixed_ip {
+    subnet_id = openstack_networking_subnet_v2.canary.id
+  }
+}
+
+resource "openstack_networking_floatingip_v2" "canary" {
+  pool    = data.openstack_networking_network_v2.external.name
+  port_id = openstack_networking_port_v2.canary.id
+
+  depends_on = [openstack_networking_router_interface_v2.canary]
+}
+
+resource "openstack_compute_instance_v2" "canary" {
+  name         = var.canary_node.instance_name
+  image_id     = data.openstack_images_image_v2.windows.id
+  flavor_id    = openstack_compute_flavor_v2.windows.id
+  key_pair     = var.keypair_name
+  config_drive = true
+  user_data    = templatefile("${path.module}/../windows-user-data.ps1", {
+    management_cidr = var.management_source_cidr
+    management_ip   = openstack_networking_floatingip_v2.canary.address
+  })
+
+  network {
+    port = openstack_networking_port_v2.canary.id
+  }
+
+  depends_on = [
+    openstack_networking_router_interface_v2.canary,
+  ]
+}
+

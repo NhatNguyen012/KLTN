@@ -1,5 +1,9 @@
 # Model-free serving validation — 2026-10-30
 
+> Historical evidence. It validates the telemetry/runtime foundation, not the
+> 03/11/2026 model-gated inference, fusion, registry or lifecycle additions.
+> Those additions require a new live deployment and parity-approved bundles.
+
 Installed on the existing two Ubuntu VMs, Windows11 VM and physical Docker host.
 This is a runtime/inbox/staging validation, not model accuracy or load testing.
 

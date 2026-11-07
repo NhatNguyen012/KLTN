@@ -2,7 +2,18 @@
   "host_id": {{ host_id | to_json }},
   "database": {{ agent_database | to_json }},
   "local_token": {{ (ingest_token | hash('sha256')) | to_json }},
+  "central_score_url": {{ ('https://' ~ central_ip ~ ':' ~ central_port ~ '/v1/scores') | to_json }},
+  "central_token": {{ ingest_token | to_json }},
+{% if inventory_hostname in groups['windows'] %}
+  "platform_domain": "windows-sysmon",
+  "bundle_path": {{ (agent_bundle_path | default('C:\\KLTN\\agent\\models\\current')) | to_json }},
+  "tls_ca": "C:\\KLTN\\ca.crt",
+{% else %}
+  "platform_domain": "linux-audit",
+  "bundle_path": {{ (agent_bundle_path | default('/opt/kltn-agent/models/current')) | to_json }},
+  "tls_ca": "/etc/fluent-bit/kltn-ca.crt",
+{% endif %}
   "max_rows": 50000,
   "max_bytes": 134217728,
-  "mode": "prepare"
+  "mode": {{ (agent_mode | default('prepare')) | to_json }}
 }

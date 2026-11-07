@@ -1,0 +1,29 @@
+---
+# Provision and deploy endpoint agent on Windows Canary VM
+- name: Deploy KLTN endpoint agent on Windows Canary
+  hosts: windows
+  gather_facts: false
+  tasks:
+    - name: Verify WinRM connection
+      ansible.windows.win_ping:
+
+    - name: Ensure KLTN agent directory exists
+      ansible.windows.win_file:
+        path: C:\KLTN\agent
+        state: directory
+
+    - name: Ensure KLTN models directory exists
+      ansible.windows.win_file:
+        path: C:\KLTN\agent\models
+        state: directory
+
+    - name: Check KLTN agent service status
+      ansible.windows.win_service:
+        name: kltn-agent
+      register: kltn_service
+      failed_when: false
+
+    - name: Display KLTN agent status
+      ansible.builtin.debug:
+        msg: "kltn-agent installed: {{ kltn_service.exists | default(false) }}, state: {{ kltn_service.state | default('absent') }}"
+

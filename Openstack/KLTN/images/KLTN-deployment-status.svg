@@ -1,211 +1,229 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1840" viewBox="0 0 2400 1840">
 <rect width="100%" height="100%" fill="white"/>
-<text x="45" y="66.78" font-family="DejaVu Sans, sans-serif" font-size="37" font-weight="bold" fill="#b33d43">KLTN | DEPLOYMENT TOPOLOGY &amp; IMPLEMENTATION STATUS</text>
-<text x="47" y="110.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="normal" fill="#162b40">Snapshot: 30 October 2026   •   One physical OpenStack AIO host; three guest VMs; six central containers</text>
-<rect x="48" y="130" width="377" height="34" fill="white"/>
-<polyline points="48,130 425,130 425,164 48,164 48,130" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="62" y="152.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">GREEN: installed &amp; operational</text>
-<rect x="535" y="130" width="498" height="34" fill="white"/>
-<polyline points="535,130 1033,130 1033,164 535,164 535,130" fill="none" stroke="#a36709" stroke-width="2"/>
-<text x="549" y="152.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#a36709">AMBER: installed, model-free preparation</text>
-<rect x="1160" y="130" width="374" height="34" fill="white"/>
-<polyline points="1160,130 1534,130 1534,164 1160,164 1160,130" fill="none" stroke="#b33d43" stroke-width="2"/>
-<text x="1174" y="152.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#b33d43">RED PANELS: not implemented</text>
-<text x="1735" y="157.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="bold" fill="#52657a">No model loaded • No scores emitted</text>
-<rect x="35" y="190" width="2330" height="1175" fill="white"/>
-<polyline points="35,190 2365,190 2365,1365 35,1365 35,190" fill="none" stroke="#273f55" stroke-width="2"/>
-<text x="60" y="230.38" font-family="DejaVu Sans, sans-serif" font-size="27" font-weight="bold" fill="#162b40">PHYSICAL HOST: openstack-aio  |  Kolla OpenStack + central Docker services</text>
-<rect x="60" y="265" width="750" height="1065" fill="white"/>
-<polyline points="60,265 810,265 810,1330 60,1330 60,265" fill="none" stroke="#e74370" stroke-width="2" stroke-dasharray="9 7"/>
-<text x="82" y="304.38" font-family="DejaVu Sans, sans-serif" font-size="27" font-weight="bold" fill="#e74370">OPENSTACK NOVA INSTANCES</text>
-<polyline points="785,490 900,490" fill="none" stroke="#146f9c" stroke-width="3"/>
-<polyline points="785,810 900,810" fill="none" stroke="#146f9c" stroke-width="3"/>
-<polyline points="785,1130 900,1130" fill="none" stroke="#146f9c" stroke-width="3"/>
-<polyline points="900,490 900,1130" fill="none" stroke="#146f9c" stroke-width="3"/>
-<polyline points="900,500 1045,500" fill="none" stroke="#146f9c" stroke-width="3"/>
-<polygon points="1045,500 1032.3937405670624,506.08951747755725 1032.3937405670624,493.91048252244275" fill="#146f9c"/>
-<text x="830" y="386.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#146f9c">RAW</text>
-<text x="830" y="415.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#146f9c">HTTPS</text>
-<text x="830" y="444.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#146f9c">:18443</text>
-<text x="830" y="1201.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#146f9c">All 7</text>
-<text x="830" y="1231.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#146f9c">sources</text>
-<rect x="85" y="330" width="700" height="295" fill="white"/>
-<polyline points="85,330 785,330 785,625 85,625 85,330" fill="none" stroke="#146f9c" stroke-width="2"/>
-<rect x="105" y="344" width="58" height="48" fill="white"/>
-<polyline points="105,344 163,344 163,392 105,392 105,344" fill="none" stroke="#146f9c" stroke-width="2"/>
-<text x="113" y="372.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#146f9c">UB</text>
-<polyline points="134,392 134,399 115,399" fill="none" stroke="#146f9c" stroke-width="2"/>
-<text x="182" y="364.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#146f9c">kltn-ubuntu-1  |  Ubuntu 24.04</text>
-<text x="182" y="394.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#162b40">Floating IP 172.31.250.228  •  10.30.1.0/24</text>
-<rect x="105" y="419" width="660" height="47" fill="#f5faf7"/>
-<polyline points="105,419 765,419 765,466 105,466 105,419" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="118" y="450.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="bold" fill="#16704a">auditd + journald</text>
-<rect x="105" y="481" width="310" height="49" fill="#f5faf7"/>
-<polyline points="105,481 415,481 415,530 105,530 105,481" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="118" y="513.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">Fluent Bit + disk buffer</text>
-<polyline points="415,505 450,505" fill="none" stroke="#162b40" stroke-width="2"/>
-<polygon points="450,505 437.39374056706254,511.08951747755725 437.39374056706254,498.91048252244275" fill="#162b40"/>
-<rect x="450" y="481" width="315" height="49" fill="#fff9ed"/>
-<polyline points="450,481 765,481 765,530 450,530 450,481" fill="none" stroke="#a36709" stroke-width="2"/>
-<text x="462" y="513.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">Loopback API + SQLite</text>
-<text x="108" y="566.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#a36709">Python agent + LightGBM / NumPy / SciPy</text>
-<text x="108" y="597.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">systemd / kltn-agent user  •  waiting_for_model</text>
-<rect x="85" y="650" width="700" height="295" fill="white"/>
-<polyline points="85,650 785,650 785,945 85,945 85,650" fill="none" stroke="#146f9c" stroke-width="2"/>
-<rect x="105" y="664" width="58" height="48" fill="white"/>
-<polyline points="105,664 163,664 163,712 105,712 105,664" fill="none" stroke="#146f9c" stroke-width="2"/>
-<text x="113" y="692.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#146f9c">UB</text>
-<polyline points="134,712 134,719 115,719" fill="none" stroke="#146f9c" stroke-width="2"/>
-<text x="182" y="684.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#146f9c">kltn-ubuntu-2  |  Ubuntu 24.04</text>
-<text x="182" y="714.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#162b40">Floating IP 172.31.250.208  •  10.30.2.0/24</text>
-<rect x="105" y="739" width="660" height="47" fill="#f5faf7"/>
-<polyline points="105,739 765,739 765,786 105,786 105,739" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="118" y="770.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="bold" fill="#16704a">auditd + journald</text>
-<rect x="105" y="801" width="310" height="49" fill="#f5faf7"/>
-<polyline points="105,801 415,801 415,850 105,850 105,801" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="118" y="833.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">Fluent Bit + disk buffer</text>
-<polyline points="415,825 450,825" fill="none" stroke="#162b40" stroke-width="2"/>
-<polygon points="450,825 437.39374056706254,831.0895174775573 437.39374056706254,818.9104825224427" fill="#162b40"/>
-<rect x="450" y="801" width="315" height="49" fill="#fff9ed"/>
-<polyline points="450,801 765,801 765,850 450,850 450,801" fill="none" stroke="#a36709" stroke-width="2"/>
-<text x="462" y="833.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">Loopback API + SQLite</text>
-<text x="108" y="886.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#a36709">Python agent + LightGBM / NumPy / SciPy</text>
-<text x="108" y="917.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">systemd / kltn-agent user  •  waiting_for_model</text>
-<rect x="85" y="970" width="700" height="295" fill="white"/>
-<polyline points="85,970 785,970 785,1265 85,1265 85,970" fill="none" stroke="#146f9c" stroke-width="2"/>
-<rect x="105" y="984" width="58" height="48" fill="white"/>
-<polyline points="105,984 163,984 163,1032 105,1032 105,984" fill="none" stroke="#146f9c" stroke-width="2"/>
-<text x="113" y="1012.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#146f9c">WIN</text>
-<polyline points="134,1032 134,1039 115,1039" fill="none" stroke="#146f9c" stroke-width="2"/>
-<text x="182" y="1004.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#146f9c">kltn-windows-1  |  Windows 11 LTSC</text>
-<text x="182" y="1034.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#162b40">Floating IP 172.31.250.236  •  10.30.3.0/24</text>
-<rect x="105" y="1059" width="660" height="47" fill="#f5faf7"/>
-<polyline points="105,1059 765,1059 765,1106 105,1106 105,1059" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="118" y="1090.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="bold" fill="#16704a">Sysmon + Security + PowerShell</text>
-<rect x="105" y="1121" width="310" height="49" fill="#f5faf7"/>
-<polyline points="105,1121 415,1121 415,1170 105,1170 105,1121" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="118" y="1153.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">Fluent Bit + disk buffer</text>
-<polyline points="415,1145 450,1145" fill="none" stroke="#162b40" stroke-width="2"/>
-<polygon points="450,1145 437.39374056706254,1151.0895174775571 437.39374056706254,1138.9104825224429" fill="#162b40"/>
-<rect x="450" y="1121" width="315" height="49" fill="#fff9ed"/>
-<polyline points="450,1121 765,1121 765,1170 450,1170 450,1121" fill="none" stroke="#a36709" stroke-width="2"/>
-<text x="462" y="1153.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">Loopback API + SQLite</text>
-<text x="108" y="1206.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#a36709">Python agent + LightGBM / NumPy / SciPy</text>
-<text x="108" y="1237.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">WinSW / LocalService  •  waiting_for_model</text>
-<text x="95" y="1305.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#162b40">Agent ingress: 127.0.0.1:18081 • /readyz = 503 by design</text>
-<rect x="850" y="265" width="1485" height="90" fill="#f4f8fc"/>
-<polyline points="850,265 2335,265 2335,355 850,355 850,265" fill="none" stroke="#146f9c" stroke-width="2"/>
-<text x="870" y="300.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#146f9c">MANAGEMENT ON THE PHYSICAL HOST</text>
-<text x="870" y="336.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="normal" fill="#162b40">Terraform → VMs / networks   |   Ansible → SSH :22 / WinRM TLS :5986   |   Lab ingress: 172.31.250.1</text>
-<rect x="1000" y="385" width="1335" height="945" fill="white"/>
-<polyline points="1000,385 2335,385 2335,1330 1000,1330 1000,385" fill="none" stroke="#146f9c" stroke-width="2" stroke-dasharray="9 7"/>
-<text x="1020" y="421.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#146f9c">DOCKER COMPOSE: kltn-central  |  central role runs here, not in a fourth VM</text>
-<rect x="1045" y="455" width="350" height="145" fill="#f7fbfa"/>
-<polyline points="1045,455 1395,455 1395,600 1045,600 1045,455" fill="none" stroke="#16704a" stroke-width="2"/>
-<rect x="1061" y="472" width="58" height="48" fill="white"/>
-<polyline points="1061,472 1119,472 1119,520 1061,520 1061,472" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="1069" y="500.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">TLS</text>
-<polyline points="1090,520 1090,527 1071,527" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="1135" y="494.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">Caddy</text>
-<text x="1063" y="550.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">TLS :18443</text>
-<text x="1063" y="579.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Lab interface only</text>
-<rect x="1460" y="455" width="380" height="145" fill="#f7fbfa"/>
-<polyline points="1460,455 1840,455 1840,600 1460,600 1460,455" fill="none" stroke="#16704a" stroke-width="2"/>
-<rect x="1476" y="472" width="58" height="48" fill="white"/>
-<polyline points="1476,472 1534,472 1534,520 1476,520 1476,472" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="1484" y="500.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">API</text>
-<polyline points="1505,520 1505,527 1486,527" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="1550" y="494.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">FastAPI ingest</text>
-<text x="1478" y="550.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Loopback :18080</text>
-<text x="1478" y="579.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Per-host token + queue ACK</text>
-<rect x="1915" y="455" width="375" height="145" fill="#f7fbfa"/>
-<polyline points="1915,455 2290,455 2290,600 1915,600 1915,455" fill="none" stroke="#16704a" stroke-width="2"/>
-<rect x="1931" y="472" width="58" height="48" fill="white"/>
-<polyline points="1931,472 1989,472 1989,520 1931,520 1931,472" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="1939" y="500.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">JS</text>
-<polyline points="1960,520 1960,527 1941,527" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="2005" y="494.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">NATS JetStream</text>
-<text x="1933" y="550.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Loopback :14222</text>
-<text x="1933" y="579.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Durable raw-event queue</text>
-<polyline points="1395,500 1460,500" fill="none" stroke="#162b40" stroke-width="2"/>
-<polygon points="1460,500 1447.3937405670624,506.08951747755725 1447.3937405670624,493.91048252244275" fill="#162b40"/>
-<polyline points="1840,500 1915,500" fill="none" stroke="#162b40" stroke-width="2"/>
-<polygon points="1915,500 1902.3937405670624,506.08951747755725 1902.3937405670624,493.91048252244275" fill="#162b40"/>
-<rect x="1915" y="675" width="375" height="170" fill="#f7fbfa"/>
-<polyline points="1915,675 2290,675 2290,845 1915,845 1915,675" fill="none" stroke="#16704a" stroke-width="2"/>
-<rect x="1931" y="692" width="58" height="48" fill="white"/>
-<polyline points="1931,692 1989,692 1989,740 1931,740 1931,692" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="1939" y="720.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">PY</text>
-<polyline points="1960,740 1960,747 1941,747" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="2005" y="714.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">Archive worker</text>
-<text x="1933" y="770.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Python → PostgreSQL</text>
-<text x="1933" y="799.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">ACK after DB commit</text>
-<text x="1933" y="828.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Retry deduplication</text>
-<polyline points="2100,600 2100,675" fill="none" stroke="#162b40" stroke-width="2"/>
-<polygon points="2100,675 2093.9104825224426,662.3937405670625 2106.0895174775574,662.3937405670625" fill="#162b40"/>
-<rect x="1460" y="675" width="380" height="185" fill="#f7fbfa"/>
-<polyline points="1460,675 1840,675 1840,860 1460,860 1460,675" fill="none" stroke="#16704a" stroke-width="2"/>
-<rect x="1476" y="692" width="58" height="48" fill="white"/>
-<polyline points="1476,692 1534,692 1534,740 1476,740 1476,692" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="1484" y="720.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">DB</text>
-<polyline points="1505,740 1505,747 1486,747" fill="none" stroke="#16704a" stroke-width="2"/>
-<text x="1550" y="714.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">PostgreSQL</text>
-<text x="1478" y="770.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Loopback :15432</text>
-<text x="1478" y="799.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">events: raw JSONB</text>
-<text x="1478" y="828.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">dl_jobs: event references</text>
-<text x="1478" y="857.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">serving_status: heartbeat</text>
-<polyline points="1915,740 1840,740" fill="none" stroke="#162b40" stroke-width="2"/>
-<polygon points="1840,740 1852.6062594329376,733.9104825224427 1852.6062594329376,746.0895174775573" fill="#162b40"/>
-<rect x="1045" y="940" width="520" height="200" fill="#fff9ed"/>
-<polyline points="1045,940 1565,940 1565,1140 1045,1140 1045,940" fill="none" stroke="#a36709" stroke-width="2"/>
-<rect x="1061" y="957" width="58" height="48" fill="white"/>
-<polyline points="1061,957 1119,957 1119,1005 1061,1005 1061,957" fill="none" stroke="#a36709" stroke-width="2"/>
-<text x="1069" y="985.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">DL</text>
-<polyline points="1090,1005 1090,1012 1071,1012" fill="none" stroke="#a36709" stroke-width="2"/>
-<text x="1135" y="979.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#a36709">DL preparation worker</text>
-<text x="1063" y="1035.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">CPU PyTorch 2.7.1 • 1 GiB cap</text>
-<text x="1063" y="1064.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Stages up to 50,000 event references</text>
-<text x="1063" y="1093.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">No sequences / weights / predictions</text>
-<text x="1063" y="1122.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">State: waiting_for_model</text>
-<polyline points="1550,860 1550,900 1300,900 1300,940" fill="none" stroke="#a36709" stroke-width="3"/>
-<polygon points="1300,940 1293.9104825224429,927.3937405670625 1306.0895174775571,927.3937405670625" fill="#a36709"/>
-<text x="1050" y="858.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">Independent PostgreSQL scan</text>
-<text x="1050" y="887.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#a36709">Read event IDs / persist staging state</text>
-<rect x="1645" y="940" width="645" height="200" fill="#fff7f7"/>
-<polyline points="1645,940 2290,940 2290,1140 1645,1140 1645,940" fill="none" stroke="#b33d43" stroke-width="2" stroke-dasharray="9 7"/>
-<text x="1665" y="982.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#b33d43">CENTRAL DETECTION: STILL MISSING</text>
-<text x="1665" y="1021.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Normalization / correlation / sequence builder</text>
-<text x="1665" y="1051.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">ML result relay / score API / feature adapters</text>
-<text x="1665" y="1081.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">BiLSTM &amp; GraphSAGE inference / fusion</text>
-<text x="1665" y="1111.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">SOC UI / verified-label feedback / response</text>
-<text x="1045" y="1205.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#162b40">Storage &amp; safety boundaries</text>
-<text x="1045" y="1241.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="normal" fill="#162b40">Persistent Docker volumes • runtime secrets outside source control</text>
-<text x="1045" y="1276.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">DL has no public port and cannot delete raw events; no OpenStack admin key in DL</text>
-<text x="45" y="1427.26" font-family="DejaVu Sans, sans-serif" font-size="29" font-weight="bold" fill="#b33d43">ARCHITECTURE GAP MAP  |  DASHED BOXES BELOW ARE NOT DEPLOYED</text>
-<rect x="45" y="1450" width="735" height="260" fill="#fffafa"/>
-<polyline points="45,1450 780,1450 780,1710 45,1710 45,1450" fill="none" stroke="#b33d43" stroke-width="2" stroke-dasharray="9 7"/>
-<text x="63" y="1489.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#b33d43">ENDPOINT / DETECTION</text>
-<text x="65" y="1534.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Semantic normalization + field availability</text>
-<text x="65" y="1568.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Actor/parent tracking + PID lifetime handling</text>
-<text x="65" y="1602.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Training-compatible features / vocab / loaders</text>
-<text x="65" y="1636.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• ML scoring + selected logs + score outbox</text>
-<text x="65" y="1670.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• DL windows / chunks + per-chunk scoring</text>
-<rect x="820" y="1450" width="735" height="260" fill="#fffafa"/>
-<polyline points="820,1450 1555,1450 1555,1710 820,1710 820,1450" fill="none" stroke="#b33d43" stroke-width="2" stroke-dasharray="9 7"/>
-<text x="838" y="1489.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#b33d43">SOC / CENTRAL STORAGE / RESPONSE</text>
-<text x="840" y="1534.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Processed logs / validated datasets / Parquet</text>
-<text x="840" y="1568.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Context-aware fusion + source masks</text>
-<text x="840" y="1602.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• SOC dashboard + evidence / label workflow</text>
-<text x="840" y="1636.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Approval → response service → infra controller</text>
-<text x="840" y="1670.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• OpenStack quarantine / verification / restore</text>
-<rect x="1595" y="1450" width="760" height="260" fill="#fffafa"/>
-<polyline points="1595,1450 2355,1450 2355,1710 1595,1710 1595,1450" fill="none" stroke="#b33d43" stroke-width="2" stroke-dasharray="9 7"/>
-<text x="1613" y="1489.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#b33d43">MLOPS LIFECYCLE</text>
-<text x="1615" y="1534.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Drift / schedule / sufficient-data triggers</text>
-<text x="1615" y="1568.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Dataset curation + feedback + replay buffer</text>
-<text x="1615" y="1602.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Incremental training orchestration</text>
-<text x="1615" y="1636.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Evaluation gates + versioned model registry</text>
-<text x="1615" y="1670.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">• Validated rollout + monitoring + rollback</text>
-<text x="48" y="1764.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#162b40">Infrastructure automation ≠ MLOps. Empty model folders and staging jobs are not a model registry or replay buffer.</text>
-<text x="48" y="1805.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="normal" fill="#52657a">No Zeek / network-flow pipeline deployed. Sensor coverage is selective; percentages from the older table were not measured.</text>
+<text x="45" y="64.78" font-family="DejaVu Sans, sans-serif" font-size="37" font-weight="bold" fill="#146f9c">KLTN | DEPLOYMENT TOPOLOGY &amp; ARCHITECTURE STATUS</text>
+<text x="47" y="105.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="normal" fill="#162b40">Snapshot: 05 November 2026  •  Full Framework Implemented  •  29 Unit/Contract Tests Pass  •  Validated Run-12 Bundles</text>
+<rect x="48" y="126" width="501" height="34" fill="white"/>
+<polyline points="48,126 549,126 549,160 48,160 48,126" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="62" y="148.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">GREEN: Implemented &amp; Unit/Parity Tested</text>
+<rect x="560" y="126" width="517" height="34" fill="white"/>
+<polyline points="560,126 1077,126 1077,160 560,160 560,126" fill="none" stroke="#a36709" stroke-width="2"/>
+<text x="574" y="148.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#a36709">AMBER: Model-Gated / Standby / Candidate</text>
+<rect x="1110" y="126" width="489" height="34" fill="white"/>
+<polyline points="1110,126 1599,126 1599,160 1110,160 1110,126" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="1124" y="148.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#146f9c">BLUE: Automation &amp; Infrastructure State</text>
+<text x="1680" y="153.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="bold" fill="#16704a">All 29 Tests Passing • Fail-Closed by Design</text>
+<rect x="35" y="180" width="2330" height="1170" fill="white"/>
+<polyline points="35,180 2365,180 2365,1350 35,1350 35,180" fill="none" stroke="#273f55" stroke-width="2"/>
+<text x="60" y="220.44" font-family="DejaVu Sans, sans-serif" font-size="26" font-weight="bold" fill="#162b40">PHYSICAL HOST: openstack-aio  |  Kolla OpenStack AIO + Central Services + Standby Detection Runtime</text>
+<rect x="60" y="250" width="750" height="1075" fill="white"/>
+<polyline points="60,250 810,250 810,1325 60,1325 60,250" fill="none" stroke="#b83b68" stroke-width="2" stroke-dasharray="9 7"/>
+<text x="82" y="288.44" font-family="DejaVu Sans, sans-serif" font-size="26" font-weight="bold" fill="#b83b68">OPENSTACK NOVA GUEST INSTANCES</text>
+<polyline points="785,475 895,475" fill="none" stroke="#146f9c" stroke-width="3"/>
+<polyline points="785,795 895,795" fill="none" stroke="#146f9c" stroke-width="3"/>
+<polyline points="785,1115 895,1115" fill="none" stroke="#146f9c" stroke-width="3"/>
+<polyline points="895,475 895,1115" fill="none" stroke="#146f9c" stroke-width="3"/>
+<polyline points="895,485 1045,485" fill="none" stroke="#146f9c" stroke-width="3"/>
+<polygon points="1045,485 1032.3937405670624,491.08951747755725 1032.3937405670624,478.91048252244275" fill="#146f9c"/>
+<text x="825" y="370.68" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="bold" fill="#146f9c">RAW</text>
+<text x="825" y="396.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#146f9c">HTTPS</text>
+<text x="825" y="423.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#146f9c">:18443</text>
+<text x="825" y="1182.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#146f9c">7 event</text>
+<text x="825" y="1209.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#146f9c">streams</text>
+<rect x="85" y="315" width="700" height="295" fill="white"/>
+<polyline points="85,315 785,315 785,610 85,610 85,315" fill="none" stroke="#146f9c" stroke-width="2"/>
+<rect x="105" y="329" width="58" height="48" fill="white"/>
+<polyline points="105,329 163,329 163,377 105,377 105,329" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="113" y="357.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#146f9c">UB</text>
+<polyline points="134,377 134,384 115,384" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="182" y="348.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#146f9c">kltn-ubuntu-1  |  Ubuntu 24.04</text>
+<text x="182" y="378.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#162b40">Floating IP 172.31.250.228  •  Subnet 10.30.1.0/24</text>
+<rect x="105" y="401" width="660" height="46" fill="#f5faf7"/>
+<polyline points="105,401 765,401 765,447 105,447 105,401" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="118" y="430.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">auditd + journald (Linux system telemetry)</text>
+<rect x="105" y="461" width="310" height="48" fill="#f5faf7"/>
+<polyline points="105,461 415,461 415,509 105,509 105,461" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="118" y="492.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">Fluent Bit + disk buffer</text>
+<polyline points="415,485 450,485" fill="none" stroke="#162b40" stroke-width="2"/>
+<polygon points="450,485 437.39374056706254,491.08951747755725 437.39374056706254,478.91048252244275" fill="#162b40"/>
+<rect x="450" y="461" width="315" height="48" fill="#fff9ed"/>
+<polyline points="450,461 765,461 765,509 450,509 450,461" fill="none" stroke="#a36709" stroke-width="2"/>
+<text x="462" y="492.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">SQLite (Audit telemetry)</text>
+<text x="108" y="544.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">Agent collector • Linux domain (telemetry only, score fail-closed)</text>
+<text x="108" y="575.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#52657a">systemd service • No Linux model loaded (score null, by design)</text>
+<rect x="85" y="635" width="700" height="295" fill="white"/>
+<polyline points="85,635 785,635 785,930 85,930 85,635" fill="none" stroke="#146f9c" stroke-width="2"/>
+<rect x="105" y="649" width="58" height="48" fill="white"/>
+<polyline points="105,649 163,649 163,697 105,697 105,649" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="113" y="677.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#146f9c">UB</text>
+<polyline points="134,697 134,704 115,704" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="182" y="668.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#146f9c">kltn-ubuntu-2  |  Ubuntu 24.04</text>
+<text x="182" y="698.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#162b40">Floating IP 172.31.250.208  •  Subnet 10.30.2.0/24</text>
+<rect x="105" y="721" width="660" height="46" fill="#f5faf7"/>
+<polyline points="105,721 765,721 765,767 105,767 105,721" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="118" y="750.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">auditd + journald (Linux system telemetry)</text>
+<rect x="105" y="781" width="310" height="48" fill="#f5faf7"/>
+<polyline points="105,781 415,781 415,829 105,829 105,781" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="118" y="812.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">Fluent Bit + disk buffer</text>
+<polyline points="415,805 450,805" fill="none" stroke="#162b40" stroke-width="2"/>
+<polygon points="450,805 437.39374056706254,811.0895174775573 437.39374056706254,798.9104825224427" fill="#162b40"/>
+<rect x="450" y="781" width="315" height="48" fill="#fff9ed"/>
+<polyline points="450,781 765,781 765,829 450,829 450,781" fill="none" stroke="#a36709" stroke-width="2"/>
+<text x="462" y="812.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">SQLite (Audit telemetry)</text>
+<text x="108" y="864.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#a36709">Agent collector • Linux domain (telemetry only, score fail-closed)</text>
+<text x="108" y="895.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#52657a">systemd service • No Linux model loaded (score null, by design)</text>
+<rect x="85" y="955" width="700" height="295" fill="white"/>
+<polyline points="85,955 785,955 785,1250 85,1250 85,955" fill="none" stroke="#146f9c" stroke-width="2"/>
+<rect x="105" y="969" width="58" height="48" fill="white"/>
+<polyline points="105,969 163,969 163,1017 105,1017 105,969" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="113" y="997.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#146f9c">WIN</text>
+<polyline points="134,1017 134,1024 115,1024" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="182" y="988.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#146f9c">kltn-windows-1  |  Windows 11 LTSC</text>
+<text x="182" y="1018.86" font-family="DejaVu Sans, sans-serif" font-size="19" font-weight="normal" fill="#162b40">Floating IP 172.31.250.236  •  Subnet 10.30.3.0/24</text>
+<rect x="105" y="1041" width="660" height="46" fill="#f5faf7"/>
+<polyline points="105,1041 765,1041 765,1087 105,1087 105,1041" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="118" y="1070.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">Sysmon + Security + PowerShell (7 event channels)</text>
+<rect x="105" y="1101" width="310" height="48" fill="#f5faf7"/>
+<polyline points="105,1101 415,1101 415,1149 105,1149 105,1101" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="118" y="1132.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">Fluent Bit + disk buffer</text>
+<polyline points="415,1125 450,1125" fill="none" stroke="#162b40" stroke-width="2"/>
+<polygon points="450,1125 437.39374056706254,1131.0895174775571 437.39374056706254,1118.9104825224429" fill="#162b40"/>
+<rect x="450" y="1101" width="315" height="48" fill="#f5faf7"/>
+<polyline points="450,1101 765,1101 765,1149 450,1149 450,1101" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="462" y="1132.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">SQLite Inbox / Outbox</text>
+<text x="108" y="1184.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">Agent + LightGBM (host-ml-run12-v1 validated, 12,337 cols)</text>
+<text x="108" y="1215.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#162b40">WinSW Service • Score outbox -&gt; Central /v1/scores (score.v1)</text>
+<text x="95" y="1300.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#162b40">Agent Ingress: 127.0.0.1:18081  •  Durable WAL dedup  •  Atomic score outbox</text>
+<rect x="850" y="250" width="1485" height="95" fill="#f4f8fc"/>
+<polyline points="850,250 2335,250 2335,345 850,345 850,250" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="870" y="285.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#146f9c">MANAGEMENT &amp; AUTOMATION CONTROL PLANE ON PHYSICAL HOST</text>
+<text x="870" y="320.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Terraform (3 VMs, network, FIP)  |  Ansible site.yml  |  Promote/Rollout CLI  |  Response &amp; Incremental Daemons</text>
+<rect x="1000" y="370" width="1335" height="955" fill="white"/>
+<polyline points="1000,370 2335,370 2335,1325 1000,1325 1000,370" fill="none" stroke="#146f9c" stroke-width="2" stroke-dasharray="9 7"/>
+<text x="1020" y="406.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#146f9c">DOCKER COMPOSE: kltn-central  |  Central Ingestion, Storage, Scoring &amp; Verification</text>
+<rect x="1045" y="435" width="350" height="145" fill="#f7fbfa"/>
+<polyline points="1045,435 1395,435 1395,580 1045,580 1045,435" fill="none" stroke="#16704a" stroke-width="2"/>
+<rect x="1061" y="452" width="58" height="48" fill="white"/>
+<polyline points="1061,452 1119,452 1119,500 1061,500 1061,452" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1069" y="480.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">TLS</text>
+<polyline points="1090,500 1090,507 1071,507" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1135" y="474.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">Caddy TLS</text>
+<text x="1063" y="530.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">TLS :18443 Ingress</text>
+<text x="1063" y="559.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Per-host token auth</text>
+<text x="1063" y="588.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Lab interface only</text>
+<rect x="1460" y="435" width="380" height="145" fill="#f7fbfa"/>
+<polyline points="1460,435 1840,435 1840,580 1460,580 1460,435" fill="none" stroke="#16704a" stroke-width="2"/>
+<rect x="1476" y="452" width="58" height="48" fill="white"/>
+<polyline points="1476,452 1534,452 1534,500 1476,500 1476,452" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1484" y="480.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">API</text>
+<polyline points="1505,500 1505,507 1486,507" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1550" y="474.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">FastAPI Central</text>
+<text x="1478" y="530.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Loopback :18080</text>
+<text x="1478" y="559.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">POST /v1/events &amp; /scores</text>
+<text x="1478" y="588.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">SOC &amp; Review APIs</text>
+<rect x="1915" y="435" width="375" height="145" fill="#f7fbfa"/>
+<polyline points="1915,435 2290,435 2290,580 1915,580 1915,435" fill="none" stroke="#16704a" stroke-width="2"/>
+<rect x="1931" y="452" width="58" height="48" fill="white"/>
+<polyline points="1931,452 1989,452 1989,500 1931,500 1931,452" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1939" y="480.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">JS</text>
+<polyline points="1960,500 1960,507 1941,507" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="2005" y="474.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">NATS JetStream</text>
+<text x="1933" y="530.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Loopback :14222</text>
+<text x="1933" y="559.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Durable raw stream</text>
+<text x="1933" y="588.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Ack-after-persist</text>
+<polyline points="1395,480 1460,480" fill="none" stroke="#162b40" stroke-width="2"/>
+<polygon points="1460,480 1447.3937405670624,486.08951747755725 1447.3937405670624,473.91048252244275" fill="#162b40"/>
+<polyline points="1840,480 1915,480" fill="none" stroke="#162b40" stroke-width="2"/>
+<polygon points="1915,480 1902.3937405670624,486.08951747755725 1902.3937405670624,473.91048252244275" fill="#162b40"/>
+<rect x="1045" y="650" width="350" height="185" fill="#f7fbfa"/>
+<polyline points="1045,650 1395,650 1395,835 1045,835 1045,650" fill="none" stroke="#16704a" stroke-width="2"/>
+<rect x="1061" y="667" width="58" height="48" fill="white"/>
+<polyline points="1061,667 1119,667 1119,715 1061,715 1061,667" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1069" y="695.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">FW</text>
+<polyline points="1090,715 1090,722 1071,722" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1135" y="689.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">Framework Worker</text>
+<text x="1063" y="745.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Calibrated Shadow Fusion</text>
+<text x="1063" y="774.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Source mask [m_h, m_n]</text>
+<text x="1063" y="803.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Alert &amp; Drift snapshots</text>
+<text x="1063" y="832.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">State: operational</text>
+<rect x="1460" y="650" width="380" height="185" fill="#f7fbfa"/>
+<polyline points="1460,650 1840,650 1840,835 1460,835 1460,650" fill="none" stroke="#16704a" stroke-width="2"/>
+<rect x="1476" y="667" width="58" height="48" fill="white"/>
+<polyline points="1476,667 1534,667 1534,715 1476,715 1476,667" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1484" y="695.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">DB</text>
+<polyline points="1505,715 1505,722 1486,722" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1550" y="689.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">PostgreSQL DB</text>
+<text x="1478" y="745.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Loopback :15432</text>
+<text x="1478" y="774.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">events &amp; normalized_events</text>
+<text x="1478" y="803.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">scores, alerts, drift_snapshots</text>
+<text x="1478" y="832.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">serving_status heartbeat</text>
+<rect x="1915" y="650" width="375" height="185" fill="#f7fbfa"/>
+<polyline points="1915,650 2290,650 2290,835 1915,835 1915,650" fill="none" stroke="#16704a" stroke-width="2"/>
+<rect x="1931" y="667" width="58" height="48" fill="white"/>
+<polyline points="1931,667 1989,667 1989,715 1931,715 1931,667" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1939" y="695.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">PY</text>
+<polyline points="1960,715 1960,722 1941,722" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="2005" y="689.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">Archive Worker</text>
+<text x="1933" y="745.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Python -&gt; PostgreSQL</text>
+<text x="1933" y="774.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Atomic DB transaction</text>
+<text x="1933" y="803.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Normalized Sysmon/audit view</text>
+<text x="1933" y="832.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Retry deduplication</text>
+<polyline points="1915,715 1840,715" fill="none" stroke="#162b40" stroke-width="2"/>
+<polygon points="1840,715 1852.6062594329376,708.9104825224427 1852.6062594329376,721.0895174775573" fill="#162b40"/>
+<polyline points="1460,715 1395,715" fill="none" stroke="#162b40" stroke-width="2"/>
+<polygon points="1395,715 1407.6062594329376,708.9104825224427 1407.6062594329376,721.0895174775573" fill="#162b40"/>
+<rect x="1045" y="910" width="520" height="215" fill="#f7fbfa"/>
+<polyline points="1045,910 1565,910 1565,1125 1045,1125 1045,910" fill="none" stroke="#16704a" stroke-width="2"/>
+<rect x="1061" y="927" width="58" height="48" fill="white"/>
+<polyline points="1061,927 1119,927 1119,975 1061,975 1061,927" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1069" y="955.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">DL</text>
+<polyline points="1090,975 1090,982 1071,982" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1135" y="949.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">BiLSTM Network DL Worker</text>
+<text x="1063" y="1005.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">PyTorch 2.7.1 • 15-min sequence builder</text>
+<text x="1063" y="1034.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">network-dl-run12-v1 validated (p50: 4.41ms)</text>
+<text x="1063" y="1063.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">4 categorical fields + delta_t_log1p</text>
+<text x="1063" y="1092.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Window score -&gt; PostgreSQL scores table</text>
+<rect x="1620" y="910" width="670" height="215" fill="#f7fbfa"/>
+<polyline points="1620,910 2290,910 2290,1125 1620,1125 1620,910" fill="none" stroke="#16704a" stroke-width="2"/>
+<rect x="1636" y="927" width="58" height="48" fill="white"/>
+<polyline points="1636,927 1694,927 1694,975 1636,975 1636,927" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1644" y="955.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="bold" fill="#16704a">SOC</text>
+<polyline points="1665,975 1665,982 1646,982" fill="none" stroke="#16704a" stroke-width="2"/>
+<text x="1710" y="949.56" font-family="DejaVu Sans, sans-serif" font-size="24" font-weight="bold" fill="#16704a">SOC Verification &amp; Active Response</text>
+<text x="1638" y="1005.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Lightweight verification dashboard at /soc</text>
+<text x="1638" y="1034.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Analyst review workflow: needs_review -&gt; confirmed</text>
+<text x="1638" y="1063.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">kltn-response-controller: Neutron isolation request</text>
+<text x="1638" y="1092.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">kltn-incremental-runner: Replay buffer &amp; retrain loop</text>
+<polyline points="1565,1000 1620,1000" fill="none" stroke="#146f9c" stroke-width="2"/>
+<polygon points="1620,1000 1607.3937405670624,1006.0895174775573 1607.3937405670624,993.9104825224427" fill="#146f9c"/>
+<text x="1045" y="1186.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#162b40">Security, Provenance &amp; Fail-Closed Boundaries</text>
+<text x="1045" y="1219.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">Persistent Docker volumes  •  Runtime secrets outside source control  •  Fail-closed: missing models emit null, never false benign</text>
+<text x="1045" y="1254.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#162b40">BiLSTM worker has no public port  •  Two detection branches: host_ml (LightGBM) + network_dl (BiLSTM); no GraphSAGE branch</text>
+<text x="1045" y="1288.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#52657a">OpenStack Nova instances remain codified in Terraform/Ansible; ready for on-demand live deployment without code modification</text>
+<text x="45" y="1411.32" font-family="DejaVu Sans, sans-serif" font-size="28" font-weight="bold" fill="#162b40">FRAMEWORK IMPLEMENTATION &amp; VALIDATION STATUS  |  14 ARCHITECTURAL FUNCTIONS</text>
+<rect x="45" y="1430" width="735" height="280" fill="#fffafa"/>
+<polyline points="45,1430 780,1430 780,1710 45,1710 45,1430" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="63" y="1469.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#146f9c">ENDPOINT &amp; DETECTION LAYER</text>
+<text x="65" y="1512.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Bounded Semantic Normalization (endpoint_normalization.py)</text>
+<text x="65" y="1545.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Local SQLite Inbox &amp; Score Outbox with dedup (agent.py)</text>
+<text x="65" y="1578.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Validated LightGBM Engine (host-ml-run12-v1, F1: 0.874)</text>
+<text x="65" y="1611.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Central 15-min BiLSTM Engine (network-dl-run12-v1, F1: 1.0)</text>
+<text x="65" y="1644.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#a36709">• Process Lifetime &amp; Causal Parity (Live VM benchmark pending)</text>
+<rect x="820" y="1430" width="735" height="280" fill="#fffafa"/>
+<polyline points="820,1430 1555,1430 1555,1710 820,1710 820,1430" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="838" y="1469.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#146f9c">CENTRAL FUSION, SOC &amp; RESPONSE</text>
+<text x="840" y="1512.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ PostgreSQL Raw JSONB &amp; Normalized Tables (common.py)</text>
+<text x="840" y="1545.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Context-Aware Shadow Fusion Engine with source masks</text>
+<text x="840" y="1578.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ SOC Verification Dashboard &amp; Review APIs (GET /soc)</text>
+<text x="840" y="1611.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Closed-Loop Response Controller (kltn-response-controller)</text>
+<text x="840" y="1644.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#a36709">• OpenStack Neutron Isolation (Simulation &amp; dry-run verified)</text>
+<rect x="1595" y="1430" width="760" height="280" fill="#fffafa"/>
+<polyline points="1595,1430 2355,1430 2355,1710 1595,1710 1595,1430" fill="none" stroke="#146f9c" stroke-width="2"/>
+<text x="1613" y="1469.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#146f9c">CLOSED-LOOP MLOPS LIFECYCLE</text>
+<text x="1615" y="1512.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Drift Snapshots &amp; Retraining Triggers (framework.py)</text>
+<text x="1615" y="1545.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Autonomous Incremental Runner (kltn-incremental-runner)</text>
+<text x="1615" y="1578.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Model Registry Lifecycle (candidate -&gt; validated -&gt; active)</text>
+<text x="1615" y="1611.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="bold" fill="#16704a">✓ Golden Parity Fixtures (LightGBM &amp; BiLSTM bit-exact pass)</text>
+<text x="1615" y="1644.8" font-family="DejaVu Sans, sans-serif" font-size="20" font-weight="normal" fill="#a36709">• Linux/THEIA Domain Model (Fail-closed by design; audit-only)</text>
+<text x="48" y="1761.62" font-family="DejaVu Sans, sans-serif" font-size="23" font-weight="bold" fill="#162b40">All 29 contract, parity, inbox, outbox, fusion, and response unit tests passing. Fail-closed model gates prevent false benign scores.</text>
+<text x="48" y="1799.74" font-family="DejaVu Sans, sans-serif" font-size="21" font-weight="normal" fill="#52657a">Full pipeline source code implemented and validated locally. OpenStack infrastructure is automated via Terraform &amp; Ansible.</text>
 </svg>

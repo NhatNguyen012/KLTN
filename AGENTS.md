@@ -27,24 +27,12 @@ its README before restarting the scanner.
 
 ## Project scope
 
-This workspace develops an APT-detection architecture from the corrected DARPA
-OpTC dataset. The architecture source of truth is
-`analyst/image/general_model_architect.png`.
+This workspace develops an APT-detection architecture over host provenance telemetry (OpTC, ATLASv2, DARPA TC E3 THEIA) focusing on Host Machine Learning and Domain-Incremental Learning.
 
-The intended system has two model branches:
-
-- Host ML Agent: XGBoost, LightGBM, and Random Forest over eCAR host telemetry.
-- Network DL Agent: GraphSAGE, GAT, BiLSTM, and Mixed-Type Self-Attention over
-  network telemetry.
-
-Their outputs are intended to be combined by context-aware fusion using gating,
-cross-attention, and source masks, followed by APT detection, confidence
-estimation, evaluation, and incremental retraining.
-
-The current milestone is the local Host ML supervised preprocessing pipeline.
-Build deterministic, interpretable structure-aware semantic features for RF,
-XGBoost and LightGBM. The Network DL and fusion branches are future
-work unless the user explicitly changes the scope.
+The active system focuses on:
+- Host ML: Continual Boosting (LightGBM) over host provenance telemetry (Process, File, IPC, User).
+- Deterministic, interpretable structure-aware semantic features and lightweight causal context (past-only bounded histories, 2-hop ancestry, entity roles).
+- Domain-Incremental Learning: Transfer across domains without catastrophic forgetting via base margin residuals and experience replay buffers.
 
 ## Data sources and references
 

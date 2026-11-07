@@ -21,8 +21,23 @@ def private_write(path, content):
     tmp.replace(path)
 
 
+def get_terraform_dir():
+    if os.environ.get('TERRAFORM_DIR'):
+        return Path(os.environ['TERRAFORM_DIR'])
+    canary_tfstate = ROOT / 'terraform/canary/terraform.tfstate'
+    if canary_tfstate.exists() and canary_tfstate.stat().st_size > 100:
+        return ROOT / 'terraform/canary'
+    return ROOT / 'terraform'
+
+
 def hosts():
-    return json.loads(subprocess.check_output(['terraform', f'-chdir={ROOT / "terraform"}', 'output', '-json', 'ansible_hosts']))
+    tf_dir = get_terraform_dir()
+    try:
+        raw = subprocess.check_output(['terraform', f'-chdir={tf_dir}', 'output', '-json', 'ansible_hosts'], stderr=subprocess.DEVNULL)
+        return json.loads(raw)
+    except Exception:
+        return {}
+
 
 
 def main():

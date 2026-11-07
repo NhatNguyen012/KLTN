@@ -3,7 +3,7 @@
   ansible.windows.win_file:
     path: '{{ item }}'
     state: directory
-  loop: ['C:\KLTN\agent', 'C:\KLTN\agent\state', 'C:\KLTN\agent\models', 'C:\KLTN\agent\wheels']
+  loop: ['C:\KLTN\packages', 'C:\KLTN\agent', 'C:\KLTN\agent\state', 'C:\KLTN\agent\models', 'C:\KLTN\agent\wheels']
 - name: Grant LocalService traversal through protected KLTN parent
   ansible.windows.win_acl:
     path: 'C:\KLTN'
@@ -71,7 +71,17 @@
   ansible.windows.win_copy:
     src: '{{ playbook_dir }}/../serving/endpoint/{{ item }}'
     dest: 'C:\KLTN\agent\{{ item }}'
-  loop: [agent.py, requirements.txt]
+  loop: [agent.py, endpoint_normalization.py, requirements.txt]
+  notify: Restart Windows agent
+- name: Create deployed tokenizer package directories
+  ansible.windows.win_file:
+    path: 'C:\KLTN\agent\ML\code\preprocess'
+    state: directory
+- name: Copy the exact trained tokenizer implementation
+  ansible.windows.win_copy:
+    src: '{{ playbook_dir }}/../../../ML/code/preprocess/{{ item }}'
+    dest: 'C:\KLTN\agent\ML\code\preprocess\{{ item }}'
+  loop: [ecar_tokenizer.py, command_syntax.py]
   notify: Restart Windows agent
 - name: Install pinned Windows ML runtime offline
   ansible.windows.win_command:
@@ -115,6 +125,6 @@
   until: agent_health.status_code == 200
   retries: 12
   delay: 5
-- name: Assert Windows model-free mode
+- name: Assert Windows safe preparation mode
   ansible.builtin.assert:
     that: (agent_health.content | from_json).inference == 'waiting_for_model'

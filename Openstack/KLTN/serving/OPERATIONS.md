@@ -1,10 +1,10 @@
-# Installed model-free serving foundation
+# Installed model-gated serving foundation
 
-The preparation deployment adds endpoint runtimes and a central DL staging worker.
-No model is loaded and no prediction is emitted. This is **not yet a detector**:
-model-specific normalization, causal context/features and DL window construction
-still require their agreed training contract and implementation before activation.
-Copying a model file alone does not enable inference.
+The preparation deployment adds endpoint runtimes, central normalization/fusion
+control plane and a DL staging/inference worker. No model is loaded and no
+prediction is emitted in the default `mode=prepare`. This is **not yet a validated
+detector**: copying a model file alone does not bypass manifest, parity, domain,
+feature-width or state-dict gates.
 
 ## Reproduce installation
 
@@ -38,7 +38,8 @@ after the agent reports runtime health.
 | Linux state | `/var/lib/kltn-agent/inbox.sqlite` | WAL, FULL synchronous, service-user only |
 | Windows state | `C:\KLTN\agent\state\inbox.sqlite` | LocalService Modify; code/config read-only to service |
 | DL worker | Docker `kltn-central-dl-prep-1` | CPU PyTorch2.7.1, two threads, 1GiB/2CPU container cap, no listening port |
-| DL staging | PostgreSQL `dl_jobs`, `serving_status` | Independent archive scan, durable unique event/pipeline references, heartbeat |
+| DL staging/inference | PostgreSQL `dl_jobs`, `serving_status` | Independent archive scan; scoring only with an eligible bundle |
+| Framework worker | Docker `kltn-central-framework-1` | Masked shadow fusion, alerts, drift snapshots and approval queues |
 | Future bundle directories | `/opt/kltn-agent/models`, `C:\KLTN\agent\models`, controller `runtime/models/dl` | Empty; no auto-load or model execution |
 
 The Windows native dependency is Microsoft Visual C++ x64 Redistributable.
@@ -73,9 +74,8 @@ On an endhost, `GET http://127.0.0.1:18081/healthz` returns status, framework
 versions, counts and `inference: waiting_for_model`, `score: null`.
 `GET /readyz` returns HTTP503 by design: the runtime is alive but detection is
 not ready. Central heartbeat age should remain below60s; a healthy Docker
-container means the DB staging transaction and heartbeat succeeded, not that
-model inference is available. The original raw-ingest `/healthz` still correctly
-reports `disabled_schema_pending`.
+container means the DB transaction and heartbeat succeeded, not that model
+inference is available. Central raw-ingest `/healthz` reports `model_gated`.
 
 ## Capacity and behavior while models are absent
 
@@ -93,14 +93,14 @@ DL staging is bounded to50,000 event references, including historical archived
 events. Reaching the cap pauses staging; subsequent raw events stay in `events`.
 Jobs are never marked scored/benign or consumed without a model. The full ledger
 is retained, so an anti-join can resume without timestamp-watermark omissions.
-At this stage the worker does not assemble sequences or tokenize data.
-The role can read archive events and insert staging references/heartbeats; it
-cannot delete raw events. No OpenStack admin credential is mounted into it.
+Without a bundle, jobs are not marked scored/benign. With an eligible bundle the
+worker builds bounded per-host windows and atomically stores score + job completion.
+It cannot delete raw events. No OpenStack admin credential is mounted into it.
 
-No scoring outbox, score API, fusion or isolation is active: there are no scores
-to send. The [serving contract](README.md) describes those later activation pieces.
-The validated release must include the adapter/feature implementation and parity
-fixtures alongside weights; incremental learning is not required for first use.
+The score outbox, score API and shadow fusion are implemented but idle when no
+scores exist. Response and training paths stop at explicit approval queues; they
+do not execute OpenStack or notebooks. A validated release must include parity
+evidence alongside weights; incremental learning is not required for first use.
 
 ## Stop preparation without stopping raw collection
 

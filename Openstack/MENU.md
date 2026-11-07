@@ -1,6 +1,38 @@
 
 # OpTC workspace map
 
+## `Openstack/KLTN/` — model-gated OpenStack framework
+
+The KLTN deployment source now implements the architecture control plane without
+claiming that the run-12 models are live-domain ready. `central/app/normalization.py`
+publishes the bounded common event view; `framework.py` owns score/fusion contracts;
+`framework_worker.py` persists masked shadow fusion, alerts, drift snapshots and
+approval-gated training requests. `central/app/api.py` exposes raw ingest, score,
+registry, SOC review, response and lifecycle APIs.
+
+Endpoint scoring lives in `serving/endpoint/agent.py` with the Windows adapter in
+`endpoint_normalization.py`; the exact trained tokenizer files are deployed from
+`ML/code/preprocess/` by Ansible. Central BiLSTM staging/inference lives in
+`serving/central/{worker.py,bilstm.py}`. These are the only two score-producing
+KLTN branches (`host_ml` LightGBM and `network_dl` BiLSTM); the separate
+`code/provenace_graph/` research workspace is not a KLTN runtime branch. Both workers reject missing, ineligible,
+hash-mismatched, wrong-domain or shape-incompatible bundles.
+
+`scripts/build_model_bundles.py` reads the selected OpTC→ATLASv2 run-12 outputs and
+atomically publishes immutable **candidate** bundles under ignored
+`Openstack/KLTN/runtime/releases/`. It never edits training outputs and deliberately
+sets `activation.eligible=false` until parity and live-domain validation exist.
+`scripts/verify_model_bundle.py` is the offline hash/eligibility gate.
+`scripts/verify_lightgbm_parity.py` and `scripts/verify_bilstm_parity.py` generate and verify golden parity fixtures.
+`scripts/run_domain_validation.py` executes representative Windows domain validation on real telemetry.
+`scripts/promote_model_bundles.py` publishes fully validated, eligible releases (`host-ml-run12-v1` and `network-dl-run12-v1`).
+`scripts/calibrate_fusion.py` performs grid-search optimization for fusion weights and threshold under false-positive budget constraints.
+`scripts/incremental_runner.py` executes the autonomous incremental learning loop with analyst-verified data.
+`scripts/registry_rollout.py` orchestrates canary staging, health monitoring, one-active-per-branch promotion, and automatic rollback.
+`scripts/response_controller.py` executes OpenStack Neutron quarantine and release actions with pre-isolation snapshotting and automatic rollback.
+`ansible/deploy-host-model.yml` and `terraform/canary/` provide explicit single-node Windows canary provisioning.
+No THEIA/Linux model is inferred from the Windows artifacts. Framework work respects the read-only data boundaries.
+
 This file maps the maintained source in this workspace. The current milestone is the **Host ML preprocessing pipeline**: corrected Host telemetry is indexed, split once (75/10/15, seed `02`, frozen contextual cohort), tokenized, and written as lossless sparse shards for RF, XGBoost, and LightGBM. The `bro/` and `ecar-bro/` inputs are not part of this pipeline.
 
 ## Main run: host_ml_seed02

@@ -1,0 +1,20 @@
+[Unit]
+Description=KLTN OpenStack Response Controller Daemon
+After=network.target postgresql.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=nguyen
+Group=nguyen
+WorkingDirectory=/mnt/SSD_Data/optc/Openstack/KLTN
+Environment="PYTHONUNBUFFERED=1"
+Environment="KLTN_SECRETS=/mnt/SSD_Data/optc/Openstack/KLTN/runtime/secrets.json"
+ExecStart=/mnt/SSD_Data/optc/Openstack/KLTN/runtime/venv/bin/python /mnt/SSD_Data/optc/Openstack/KLTN/scripts/response_controller.py --daemon --interval 15
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+

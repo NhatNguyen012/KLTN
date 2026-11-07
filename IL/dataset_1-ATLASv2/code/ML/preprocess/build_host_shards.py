@@ -68,6 +68,31 @@ DIR_CATEGORIES = (
     "OTHER",
 )
 
+def get_command_family(basename: str) -> str:
+    """Classify executable basename into OpTC command family."""
+    b = basename.lower()
+    for fam in ("powershell", "cmd", "cscript", "wscript", "rundll32", "python"):
+        if fam in b:
+            return fam
+    return "native"
+
+
+def dir_to_role(dir_cat: str) -> str:
+    """Map directory category to OpTC path role."""
+    d = dir_cat.upper()
+    if d == "SYSTEM32":
+        return "system"
+    if d == "PROGRAM_FILES":
+        return "program_files"
+    if d == "TEMP_OR_APPDATA":
+        return "temp"
+    if d == "WINDOWS_OTHER":
+        return "windows"
+    if d == "USERS_OTHER":
+        return "user_profile"
+    return "other_path"
+
+
 PREDEFINED_DOMAIN_TOKENS = [
     # 1. Browser self-cache structural indicator
     "temp_context::app_own_cache",
@@ -92,14 +117,14 @@ PREDEFINED_DOMAIN_TOKENS = [
 
 
 class FileSessionIndex:
-    """Strictly causal (past-only, t' <= t) index for Parent Lineage and Typed Incoming Interactions."""
+    """Strictly causal (past-only, t' <= t) index for Parent Lineage, Grandparent, and Typed Incoming Interactions."""
 
     def __init__(self) -> None:
         self.netconns: dict[str, list[int]] = defaultdict(list)
-        # parent_map: guid -> (parent_guid, parent_basename, parent_dir_category)
-        self.parent_map: dict[str, tuple[str, str, str]] = {}
-        # incoming_crossproc: target_guid -> list of (ts, actor_dir_category)
-        self.incoming_crossproc: dict[str, list[tuple[int, str]]] = defaultdict(list)
+        # parent_map: guid -> (parent_guid, parent_basename, parent_dir_category, parent_path)
+        self.parent_map: dict[str, tuple[str, str, str, str]] = {}
+        # incoming_crossproc: target_guid -> list of (ts, actor_dir_category, actor_basename)
+        self.incoming_crossproc: dict[str, list[tuple[int, str, str]]] = defaultdict(list)
 
     def add_event(self, event: CanonicalEvent) -> None:
         """Update session state causally at current event timestamp ts."""
@@ -112,7 +137,7 @@ class FileSessionIndex:
             p_base = extract_basename(event.parent_path).lower()
             p_dir = classify_image_dir(event.parent_path)
             if p_base:
-                self.parent_map[guid] = (event.parent_guid, p_base, p_dir)
+                self.parent_map[guid] = (event.parent_guid, p_base, p_dir, event.parent_path)
 
         if et == "PROCESS_START":
             if event.target_guid and event.target_path:
@@ -120,6 +145,7 @@ class FileSessionIndex:
                     guid,
                     extract_basename(event.process_path).lower(),
                     classify_image_dir(event.process_path),
+                    event.process_path,
                 )
         elif et == "FLOW_START":
             # Record network activity timestamp in monotonic order
@@ -131,17 +157,18 @@ class FileSessionIndex:
             # Record typed incoming cross-process interaction onto target_guid
             if event.target_guid:
                 actor_dir = classify_image_dir(event.process_path)
-                self.incoming_crossproc[event.target_guid].append((ts, actor_dir))
+                actor_base = extract_basename(event.process_path).lower()
+                self.incoming_crossproc[event.target_guid].append((ts, actor_dir, actor_base))
 
-    def get_ancestors(self, guid: str, max_depth: int = 2) -> list[tuple[str, str]]:
-        """Return list of (basename, dir_category) for up to max_depth ancestors."""
-        ancestors: list[tuple[str, str]] = []
+    def get_ancestors(self, guid: str, max_depth: int = 3) -> list[tuple[str, str, str]]:
+        """Return list of (basename, dir_category, path) for up to max_depth ancestors."""
+        ancestors: list[tuple[str, str, str]] = []
         curr = guid
         depth = 0
         while curr in self.parent_map and depth < max_depth:
-            p_guid, p_base, p_dir = self.parent_map[curr]
+            p_guid, p_base, p_dir, p_path = self.parent_map[curr]
             if p_base:
-                ancestors.append((p_base, p_dir))
+                ancestors.append((p_base, p_dir, p_path))
             if not p_guid or p_guid == curr:
                 break
             curr = p_guid
@@ -157,25 +184,33 @@ class FileSessionIndex:
         right = bisect_right(n_list, ts)
         return right > left
 
-    def get_incoming_crossproc_dirs(self, guid: str, ts: int, window_micros: int = 30_000_000) -> set[str]:
-        """Return distinct actor directory categories that opened `guid` within [ts - 30s, ts]."""
+    def get_incoming_crossproc(self, guid: str, ts: int, window_micros: int = 30_000_000) -> list[tuple[str, str]]:
+        """Return distinct (actor_dir, actor_base) that opened `guid` within [ts - window, ts]."""
         if not guid or guid not in self.incoming_crossproc:
-            return set()
+            return []
         low = ts - window_micros
-        dirs: set[str] = set()
-        # Iterate backward from most recent causal interaction (<= ts)
-        for ev_ts, actor_dir in reversed(self.incoming_crossproc[guid]):
+        res: list[tuple[str, str]] = []
+        seen: set[tuple[str, str]] = set()
+        for ev_ts, actor_dir, actor_base in reversed(self.incoming_crossproc[guid]):
             if ev_ts < low:
                 break
-            if ev_ts <= ts:
-                dirs.add(actor_dir)
-        return dirs
+            if ev_ts <= ts and (actor_dir, actor_base) not in seen:
+                seen.add((actor_dir, actor_base))
+                res.append((actor_dir, actor_base))
+        return res
+
+    def get_incoming_crossproc_dirs(self, guid: str, ts: int, window_micros: int = 30_000_000) -> set[str]:
+        """Return distinct actor directory categories that opened `guid` within [ts - window, ts]."""
+        inc = self.get_incoming_crossproc(guid, ts, window_micros)
+        return {d for d, _ in inc}
 
 
-def extract_domain_shift_tokens(event: CanonicalEvent, session: FileSessionIndex) -> list[str]:
+def extract_domain_shift_tokens(event: CanonicalEvent, session: FileSessionIndex, optc_vocab: set[str] | None = None) -> list[str]:
     tokens: list[str] = []
     proc_base = extract_basename(event.process_path).lower()
     self_dir = classify_image_dir(event.process_path)
+    actor_fam = get_command_family(proc_base)
+    actor_role = dir_to_role(self_dir)
     target_raw = event.target_path or ""
     target_norm = target_raw.strip().strip('"\'').replace("/", "\\").lower()
     target_base = extract_basename(target_raw).lower()
@@ -225,62 +260,103 @@ def extract_domain_shift_tokens(event: CanonicalEvent, session: FileSessionIndex
     if session.has_netconn(event.process_guid, event.timestamp, window_micros=net_win):
         tokens.append("proc_context::has_netconn")
 
-    # 5. Immediate Parent Process Lineage (1-Hop)
-    p_base = extract_basename(event.parent_path).lower()
+    # Causal Incoming Cross-Process Interactions onto current process
+    incoming = session.get_incoming_crossproc(event.process_guid, event.timestamp, window_micros=30_000_000)
+    if incoming:
+        tokens.append("ctx::incoming::process_open::present=true")
+        tokens.append("ctx::incoming::process_open::direction=incoming")
+        for inc_dir, inc_base in incoming:
+            inc_fam = get_command_family(inc_base)
+            inc_role = dir_to_role(inc_dir)
+            tokens.append(f"ctx::incoming::process_open::source_family={inc_fam}")
+            tokens.append(f"ctx::incoming::process_open::source_path_role={inc_role}")
+            tok_exe = f"ctx::incoming::process_open::source_exe={inc_base}"
+            if optc_vocab and tok_exe in optc_vocab:
+                tokens.append(tok_exe)
+
+    # 5. Immediate Parent Process Lineage (1-Hop) & OpTC Base Alignment
+    ancestors = session.get_ancestors(event.process_guid, max_depth=1)
+    p_base = ""
+    p_dir = "OTHER"
+    if event.parent_path:
+        p_base = extract_basename(event.parent_path).lower()
+        p_dir = classify_image_dir(event.parent_path)
+    elif len(ancestors) >= 1:
+        p_base, p_dir, _ = ancestors[0]
+
     if p_base:
+        # OpTC Base name and backwards compatibility name
+        tokens.append(f"parent_image_path::basename={p_base}")
         tokens.append(f"parent_image::basename={p_base}")
+        tokens.append("ctx::status::has_parent")
+
+        p_fam = get_command_family(p_base)
+        p_role = dir_to_role(p_dir)
+        tokens.append(f"ctx::parent::family={p_fam}")
+        tokens.append(f"ctx::relation::lineage={p_fam}->{actor_fam}")
+        tokens.append(f"ctx::parent::path_role={p_role}")
+        tokens.append(f"ctx::relation::path={p_role}->{actor_role}")
 
     return tokens
 
 
-def canonical_ecar_record(event: CanonicalEvent) -> dict[str, Any]:
+def canonical_ecar_record(event: CanonicalEvent, session: FileSessionIndex | None = None) -> dict[str, Any]:
     """Convert CanonicalEvent into standard eCAR dictionary for tokenize_record."""
     et = event.event_type
     props = {}
     obj = "process"
     act = "start"
 
+    # Resolve parent image path
+    p_path = event.parent_path
+    if not p_path and session:
+        anc = session.get_ancestors(event.process_guid, max_depth=1)
+        if anc and anc[0][2]:
+            p_path = anc[0][2]
+    if p_path:
+        props["parent_image_path"] = p_path
+
     if et == "PROCESS_START":
         obj = "process"
         act = "start"
         props = {
             "image_path": event.target_path or event.process_path,
-            "parent_image_path": event.process_path,
+            "parent_image_path": event.process_path or p_path,
             "command_line": event.process_cmdline,
         }
     elif et == "PROCESS_END":
         obj = "process"
         act = "terminate"
-        props = {"image_path": event.process_path}
+        props["image_path"] = event.process_path
     elif et == "FILE_WRITE":
         obj = "file"
         act = "write"
-        props = {"image_path": event.process_path, "file_path": event.target_path}
+        props.update({"image_path": event.process_path, "file_path": event.target_path})
     elif et == "FILE_CREATE":
         obj = "file"
         act = "create"
-        props = {"image_path": event.process_path, "file_path": event.target_path}
+        props.update({"image_path": event.process_path, "file_path": event.target_path})
     elif et == "FILE_DELETE":
         obj = "file"
         act = "delete"
-        props = {"image_path": event.process_path, "file_path": event.target_path}
+        props.update({"image_path": event.process_path, "file_path": event.target_path})
     elif et == "REGISTRY_WRITE":
         obj = "registry"
         act = "modify"
-        props = {"image_path": event.process_path, "key": event.target_path}
+        props.update({"image_path": event.process_path, "key": event.target_path})
     elif et == "MODULE_LOAD":
         obj = "module"
         act = "load"
-        props = {"image_path": event.process_path, "module_path": event.target_path}
+        props.update({"image_path": event.process_path, "module_path": event.target_path})
     elif et == "CROSS_PROCESS":
         obj = "process"
         act = "open"
-        props = {"image_path": event.process_path}
+        props.update({"image_path": event.process_path})
     elif et == "FLOW_START":
         # Network flow events on host
         obj = "flow"
         act = "start"
-        props = {"image_path": event.process_path}
+        props.update({"image_path": event.process_path})
 
     return {
         "object": obj,
@@ -315,9 +391,9 @@ def get_split_from_event(scenario: str, timestamp_micros: int) -> str:
         return "train"
 
 
-def process_file_worker(args_tuple: tuple[str, str, str, int]) -> tuple[str, list[dict[str, Any]], int, int]:
+def process_file_worker(args_tuple: tuple[str, str, str, int, set[str]]) -> tuple[str, list[dict[str, Any]], int, int]:
     """Worker process: sort chronologically, update session causally (t' <= t), and tokenize."""
-    f_path, sc, reapr_dir, sample_stride = args_tuple
+    f_path, sc, reapr_dir, sample_stride, optc_vocab_set = args_tuple
     f = Path(f_path)
     refiner = LabelRefiner(Path(reapr_dir))
     adapter = CBCAdapter(refiner)
@@ -347,10 +423,10 @@ def process_file_worker(args_tuple: tuple[str, str, str, int]) -> tuple[str, lis
             file_attack += 1
 
         split = get_split_from_event(sc, event.timestamp)
-        rec = canonical_ecar_record(event)
+        rec = canonical_ecar_record(event, session)
         grouped, audit = tokenize_record(rec)
         tokens = flatten_tokens(grouped)
-        shift_tokens = extract_domain_shift_tokens(event, session)
+        shift_tokens = extract_domain_shift_tokens(event, session, optc_vocab_set)
         all_tokens = tokens + shift_tokens
 
         results.append({
@@ -414,6 +490,7 @@ def main():
     print(f"  OpTC Vocab Base Width: {base_width:,} features")
     optc_sha = sha256(optc_vocab_path)
     print(f"  OpTC Vocab SHA256:     {optc_sha}")
+    optc_vocab_set = set(optc_vocab.keys())
 
     extended_vocab = dict(optc_vocab)
     new_train_tokens = {}
@@ -450,7 +527,7 @@ def main():
         sc = parts[-1] if len(parts) >= 3 else stem
         is_bg = "benign" in stem
         sample_stride = 10 if is_bg else 1
-        tasks.append((str(f), sc, str(reapr_dir), sample_stride))
+        tasks.append((str(f), sc, str(reapr_dir), sample_stride, optc_vocab_set))
 
     num_workers = min(args.workers, len(edr_files))
     print(f"  Spawning {num_workers} parallel workers across {len(edr_files)} files...")
