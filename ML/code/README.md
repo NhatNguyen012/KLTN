@@ -65,7 +65,7 @@ ML/code/
     ├── host_ml_parent_incoming_seed02/ # KẾT QUẢ CUỐI CÙNG SOTA (F1 = 0.9963)
     │   ├── experiment_identity.json   # Định danh cấu hình, tham số TTL và SHA-256 mã nguồn
     │   ├── completion.json            # Biên bản hoàn thành tiền xử lý dữ liệu và đóng gói
-    │   ├── vocab.json                 # Từ điển đặc trưng (511 KB, 20,412 tokens nhị phân)
+    │   ├── vocab.json                 # Từ điển đặc trưng (511 KB, 10,317 tokens nhị phân, cột 0–10316)
     │   ├── vocab_metadata.json        # Metadata thống kê tần suất xuất hiện token trên tập TRAIN
     │   ├── frozen_label_membership_verification.json # Biên bản đối chiếu nhãn đóng băng 100%
     │   ├── scope.json                 # Thống kê tổng số host, số file nguồn và số dòng xử lý

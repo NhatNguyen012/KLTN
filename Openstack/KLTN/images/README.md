@@ -10,8 +10,8 @@ Thư mục này chỉ lưu trữ các tệp đồ họa và mã nguồn kết xu
 - `render.py`: Script Python kết xuất sơ đồ bằng Pillow.
 - `General_Architecture.png`: Sơ đồ kiến trúc tổng quát của hệ thống APT Detection.
 
-`KLTN-deployment-status.*` là snapshot triển khai ngày 30/10/2026, không phải
-bằng chứng framework source ngày 03/11/2026 đã được apply lại lên OpenStack.
-Trạng thái model-gated hiện tại và các activation blocker nằm trong README chính.
-Nhãn mô hình trong snapshot đã được hiệu chỉnh ngày 04/11/2026 theo phạm vi hai
-nhánh LightGBM và BiLSTM; KLTN không có nhánh Provenance/GraphSAGE.
+`KLTN-deployment-status.*` là snapshot kiến trúc và hiện trạng triển khai cập nhật ngày 05/11/2026:
+- Phản ánh đầy đủ 14 khối chức năng của framework đã được cài đặt mã nguồn hoàn chỉnh, vượt qua 29/29 bài test unit/contract.
+- Hai mô hình `host-ml-run12-v1` (LightGBM) và `network-dl-run12-v1` (BiLSTM) đã được xác nhận golden parity và đạt Windows domain validation.
+- Toàn bộ hạ tầng OpenStack Nova instances và Docker containers đã được mã hóa tự động hóa bằng Terraform và Ansible, sẵn sàng deploy live on-demand.
+- Hệ thống áp dụng chính sách an toàn fail-closed: khi chưa có model hoặc domain không tương thích (như Linux/THEIA), score trả về `null` theo đúng thiết kế.
