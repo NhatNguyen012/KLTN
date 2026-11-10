@@ -48,12 +48,22 @@ EXPLOIT_CHILD_PROCS = frozenset({
 })
 
 
+STAGE_IDS = {
+    "Benign": 0,
+    "Initial_Compromise": 1,
+    "Execution_Discovery": 2,
+    "Lateral_Movement": 3,
+    "Exfiltration": 4,
+}
+
+
 class LabelRefiner:
     """Manages ground-truth loading from REAPr and deterministic 2-tier event labeling."""
 
     def __init__(self, reapr_dir: str | Path) -> None:
         self.reapr_dir = Path(reapr_dir)
         self.scenario_attack_guids: dict[str, set[str]] = {}
+        self.scenario_guid_stages: dict[str, dict[str, tuple[str, int]]] = {}
         self.scenario_seeds: dict[str, set[str]] = {}
         self.scenario_attack_micros: dict[str, int] = {}
         self._load_ground_truth()
@@ -73,15 +83,29 @@ class LabelRefiner:
 
             if sc_key not in self.scenario_attack_guids:
                 self.scenario_attack_guids[sc_key] = set()
+            if sc_key not in self.scenario_guid_stages:
+                self.scenario_guid_stages[sc_key] = {}
 
             with lf.open("r", encoding="utf-8", errors="replace") as f:
                 reader = csv.reader(f)
                 header = next(reader, None)
+                stage_idx = -1
+                if header:
+                    clean_h = [h.strip().lower() for h in header]
+                    if "stage" in clean_h:
+                        stage_idx = clean_h.index("stage")
+
                 for row in reader:
                     if len(row) >= 5 and "attack" in row[4].strip().lower():
                         guid = row[3].strip().lower()
                         if guid and guid != "none":
                             self.scenario_attack_guids[sc_key].add(guid)
+                            if stage_idx != -1 and len(row) > stage_idx:
+                                stg_name = row[stage_idx].strip()
+                            else:
+                                stg_name = "Execution_Discovery"
+                            stg_id = STAGE_IDS.get(stg_name, 2)
+                            self.scenario_guid_stages[sc_key][guid] = (stg_name, stg_id)
 
         seed_files = sorted(self.reapr_dir.glob("*.seeds"))
         for sf in seed_files:
@@ -278,3 +302,31 @@ class LabelRefiner:
             )):
                 return False
         return True
+
+    def get_event_stage(self, event: CanonicalEvent) -> tuple[str, int]:
+        """Classify a canonical event into (stage_name, stage_id)."""
+        if not self.is_event_malicious(event):
+            return ("Benign", 0)
+
+        sc = event.scenario.lower().strip()
+        guid = event.process_guid.lower().strip()
+
+        # Check if guid is directly mapped in scenario_guid_stages
+        stage_info = self.scenario_guid_stages.get(sc, {}).get(guid)
+        if stage_info is not None:
+            return stage_info
+
+        # Fallback based on process basename and event characteristics
+        proc_base = extract_basename(event.process_path)
+        if "payload.exe" in proc_base:
+            return ("Exfiltration", 4)
+        if "python.exe" in proc_base or event.hostname.lower() == "h2":
+            return ("Lateral_Movement", 3)
+        if any(k in proc_base for k in ["firefox.exe", "winword.exe", "excel.exe", "plugin-container.exe", "mshta.exe"]):
+            return ("Initial_Compromise", 1)
+
+        return ("Execution_Discovery", 2)
+
+    def get_event_stage_id(self, event: CanonicalEvent) -> int:
+        return self.get_event_stage(event)[1]
+

@@ -61,6 +61,8 @@ class PackedNetworkDataset(Dataset):
                 self.rows.append({
                     "sample_id": row["sample_id"],
                     "label": int(row["label"]),
+                    "stage": int(row.get("stage", row["label"])),
+                    "stage_name": row.get("stage_name", "Unknown"),
                     "event_count": int(row["event_count"]),
                     "shard_file": row["shard_file"],
                     "shard_sample_index": int(row["shard_sample_index"]),
@@ -118,9 +120,11 @@ class PackedNetworkDataset(Dataset):
                 f"manifest={row['event_count']}, shard={end - start}"
             )
 
+        stage = int(shard["sample_stages"][i]) if "sample_stages" in shard else int(row["stage"])
         return {
             "sample_id": row["sample_id"],
             "label": int(shard["sample_labels"][i]),
+            "stage": stage,
             "event_count": end - start,
             "x_cat": self._x_cat(shard["x_cat"][start:end]),
             "x_num": self._x_num(shard["x_num"][start:end]),
@@ -156,9 +160,14 @@ class ReplayBufferDataset(Dataset):
     def __getitem__(self, index: int) -> dict[str, Any]:
         start = int(self.sample_offsets[index])
         end = int(self.sample_offsets[index + 1])
+        lbl = int(self.sample_labels[index])
+        # Replay buffer from OpTC has binary labels: 0 is Benign (Stage 0).
+        # OpTC attacks are generic anomaly replay (stage = -1 for masked stage loss)
+        stg = 0 if lbl == 0 else -1
         return {
             "sample_id": f"optc_replay_{index:05d}",
-            "label": int(self.sample_labels[index]),
+            "label": lbl,
+            "stage": stg,
             "event_count": end - start,
             "x_cat": self.x_cat[start:end],
             "x_num": self.x_num[start:end],
@@ -270,6 +279,7 @@ def collate_sequence_batch(batch: list[dict[str, Any]]) -> dict[str, Any]:
     delta = torch.zeros(bsz, max_len, 1, dtype=torch.float32)
     mask = torch.zeros(bsz, max_len, dtype=torch.bool)
     labels = torch.tensor([x["label"] for x in batch], dtype=torch.float32)
+    stages = torch.tensor([x.get("stage", int(x["label"])) for x in batch], dtype=torch.long)
 
     for i, item in enumerate(batch):
         t = item["event_count"]
@@ -289,6 +299,7 @@ def collate_sequence_batch(batch: list[dict[str, Any]]) -> dict[str, Any]:
         "delta_t_log1p": delta,
         "attention_mask": mask,
         "labels": labels,
+        "stages": stages,
         "lengths": lengths,
         "sample_ids": [x["sample_id"] for x in batch],
     }

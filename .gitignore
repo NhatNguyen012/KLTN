@@ -1,5 +1,6 @@
-# Read-only datasets
-/DATASET/
+# Read-only datasets (exclude all except ATLASv2_staged)
+/DATASET/*
+!/DATASET/ATLASv2_staged/
 
 # Temporary directories
 /Temp/
@@ -53,6 +54,11 @@ output/
 IL/**/output/
 /IL/*/output/
 IL/*/output/
+*.sqlite
+*.sqlite3
+*.db
+event_replay_cache/
+**/event_replay_cache/
 
 # Audit results & Archives
 /code/kaggle/mission4_audit_results_final/
@@ -65,4 +71,8 @@ code/kaggle/mission4_audit_results_final/
 *.tar.gz
 *.tgz
 *.zst
+
+# In DATASET/ATLASv2_staged, only ignore atlasv2.tar.gz
+!/DATASET/ATLASv2_staged/**
+/DATASET/ATLASv2_staged/atlasv2.tar.gz
 
