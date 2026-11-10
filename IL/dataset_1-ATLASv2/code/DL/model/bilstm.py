@@ -33,6 +33,7 @@ class BiLSTMBaseline(nn.Module):
         hidden_dim: int = 64,
         lstm_layers: int = 1,
         dropout: float = 0.2,
+        num_stages: int = 5,
     ) -> None:
         super().__init__()
         self.categorical_cardinalities = categorical_cardinalities
@@ -41,6 +42,7 @@ class BiLSTMBaseline(nn.Module):
         self.event_dim = event_dim
         self.hidden_dim = hidden_dim
         self.lstm_layers = lstm_layers
+        self.num_stages = num_stages
 
         # Categorical embeddings
         self.embeddings = nn.ModuleList([
@@ -70,13 +72,22 @@ class BiLSTMBaseline(nn.Module):
             dropout=dropout if lstm_layers > 1 else 0.0,
         )
 
-        # Classification head with pooled bidirectional states
+        # Classification head with pooled bidirectional states (Binary Anomaly Detection)
         self.classifier = nn.Sequential(
             nn.LayerNorm(hidden_dim * 2),
             nn.Linear(hidden_dim * 2, hidden_dim),
             nn.GELU(),
             nn.Dropout(dropout),
             nn.Linear(hidden_dim, 1),
+        )
+
+        # Stage classification head (Multi-stage Kill-Chain Detection: 0=Benign, 1=Compromise, 2=Execution, 3=Lateral, 4=Exfil)
+        self.stage_classifier = nn.Sequential(
+            nn.LayerNorm(hidden_dim * 2),
+            nn.Linear(hidden_dim * 2, hidden_dim),
+            nn.GELU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, num_stages),
         )
 
     def forward(
@@ -144,16 +155,25 @@ class BiLSTMBaseline(nn.Module):
             vals_clean = vals.masked_fill(~v_mask, 0.0)
             return vals_clean.sum(dim=1) / valid_k.squeeze(1).float().clamp(min=1.0)
 
-        # Kết hợp k=3 (bắt đỉnh C2 thưa ở đuôi kịch bản m6 như Run 7) và k=12 (làm mượt nhiễu nền như Run 8)
-        h_topk_sharp = _masked_topk_mean(lstm_out_masked, k_val=3)
-        h_topk_broad = _masked_topk_mean(lstm_out_masked, k_val=12)
+        # Multi-Scale Burst-Aware Pooling:
+        # 1. h_max (k=1): captures single sharp peak anomaly activation anywhere in sequence (e.g. solitary C2 beacon)
+        # 2. h_mean (k=6): captures burst clusters (e.g. reconnaissance command chains, exfiltration flows)
+        # 3. h_last: captures sequence-end boundary context
+        h_max = _masked_topk_mean(lstm_out_masked, k_val=1)
+        h_mean = _masked_topk_mean(lstm_out_masked, k_val=6)
+        pooled = 0.40 * h_max + 0.35 * h_mean + 0.25 * h_last
 
-        # Run 9 Multi-Scale Burst-Aware Pooling: context + sharp peak + broad smoothed
-        pooled = 0.40 * h_last + 0.35 * h_topk_sharp + 0.25 * h_topk_broad
+        # Output logits
+        binary_logits = self.classifier(pooled).squeeze(-1)
+        stage_logits = self.stage_classifier(pooled)
 
-        # Output logit
-        logits = self.classifier(pooled).squeeze(-1)
+        return_stage_logits = kwargs.get("return_stage_logits", False)
+        if return_stage_logits:
+            if return_features:
+                return binary_logits, stage_logits, pooled
+            return binary_logits, stage_logits
+
         if return_features:
-            return logits, pooled
-        return logits
+            return binary_logits, pooled
+        return binary_logits
 

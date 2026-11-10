@@ -125,7 +125,7 @@ def main():
     )
     parser.add_argument(
         "--reapr-dir",
-        default="/mnt/SSD_Data/optc/DATASET/ATLASv2/reapr-ground-truth/atlasv2",
+        default="/mnt/SSD_Data/optc/DATASET/ATLASv2_staged/reapr-ground-truth/atlasv2",
         help="Directory containing REAPr .labels and .seeds",
     )
     parser.add_argument(
@@ -140,10 +140,15 @@ def main():
     )
     parser.add_argument("--seed", type=int, default=42, help="Sampling seed")
     parser.add_argument("--target-benign-ratio", type=int, default=TARGET_BENIGN_RATIO, help="Benign to attack ratio for train")
+    parser.add_argument("--window-size-sec", type=int, default=180, help="Window duration in seconds (default: 180s / 3 min)")
+    parser.add_argument("--stride-sec", type=int, default=30, help="Sliding window stride in seconds (default: 30s)")
     args = parser.parse_args()
 
     random.seed(args.seed)
     np.random.seed(args.seed)
+
+    window_size_micros = args.window_size_sec * 1_000_000
+    stride_micros = args.stride_sec * 1_000_000
 
     data_dir = Path(args.data_dir)
     reapr_dir = Path(args.reapr_dir)
@@ -185,8 +190,8 @@ def main():
     for f in edr_files:
         print(f"  - {f.relative_to(data_dir)}")
 
-    # 4. Stream events (netconn + OS logs) and build Sliding Windows (15 min window, 3 min stride)
-    print(f"\n[4/6] Streaming Events and Building Sliding Windows (Win={WINDOW_SIZE_MICROS//1_000_000}s, Stride={STRIDE_MICROS//1_000_000}s)...")
+    # 4. Stream events (netconn + OS logs) and build Sliding Windows
+    print(f"\n[4/6] Streaming Events and Building Sliding Windows (Win={window_size_micros//1_000_000}s, Stride={stride_micros//1_000_000}s)...")
     windows: dict[tuple[str, str, int], list[CanonicalEvent]] = {}
     window_scenarios: dict[tuple[str, str, int], str] = {}
     total_events = 0
@@ -219,7 +224,7 @@ def main():
         w_count = 0
 
         while curr_ts <= ts_list[-1]:
-            end_ts = curr_ts + WINDOW_SIZE_MICROS
+            end_ts = curr_ts + window_size_micros
             l_idx = bisect_left(ts_list, curr_ts)
             r_idx = bisect_right(ts_list, end_ts)
             if r_idx - l_idx >= 2:  # Keep windows with at least 2 events
@@ -228,7 +233,7 @@ def main():
                 windows[w_key] = sub_evs
                 window_scenarios[w_key] = sc
                 w_count += 1
-            curr_ts += STRIDE_MICROS
+            curr_ts += stride_micros
 
         print(f"  Processed {f.name:25s}: {len(file_events):7,d} events | {file_attack:5,d} attack -> {w_count} windows")
 
@@ -275,14 +280,36 @@ def main():
             chunk_events = ev_list[chunk_idx * MAX_SEQ_LEN : (chunk_idx + 1) * MAX_SEQ_LEN]
             chunk_label = 1 if any(e.label == 1 for e in chunk_events) else 0
 
+            # Assign Kill-Chain attack stage:
+            # 0: Benign
+            # 1: Initial_Compromise
+            # 2: Execution_Discovery
+            # 3: Lateral_Movement
+            # 4: Exfiltration
+            if chunk_label == 1:
+                attack_events = [e for e in chunk_events if e.label == 1]
+                attack_stages = [refiner.get_event_stage(e) for e in attack_events]
+                # In temporal kill-chain progression, the latest attack event represents the active attack stage reached
+                latest_stg_name, latest_stg_id = attack_stages[-1]
+                chunk_stage_id = latest_stg_id
+                chunk_stage_name = latest_stg_name
+            else:
+                chunk_stage_id = 0
+                chunk_stage_name = "Benign"
+
             # Encode features
             # x_cat: [app_family, proto, resp_port_class, image_dir_class]
+            # x_bin: [is_secondary_host (1.0 for win-32-h2, 0.0 for win-32-h1/OpTC)]
             n_events = len(chunk_events)
             x_cat = np.zeros((n_events, 4), dtype=np.int64)
+            x_bin = np.zeros((n_events, 1), dtype=np.float32)
             delta_t = np.zeros(n_events, dtype=np.float32)
 
             prev_ts = chunk_events[0].timestamp
             for i, ev in enumerate(chunk_events):
+                # 0. Host role feature (h1 vs h2 disambiguation)
+                x_bin[i, 0] = 1.0 if "h2" in ev.hostname.lower() else 0.0
+
                 # 1. app_family (extract from target_path for procstart/crossproc, else process_path)
                 app = extract_basename(ev.target_path if (ev.event_type in ("PROCESS_START", "CROSS_PROCESS") and ev.target_path) else ev.process_path)
                 x_cat[i, 0] = vocab_maps["app_family"].get(app, 0)
@@ -319,8 +346,11 @@ def main():
             sample = {
                 "sample_id": sample_id,
                 "label": chunk_label,
+                "stage": chunk_stage_id,
+                "stage_name": chunk_stage_name,
                 "event_count": n_events,
                 "x_cat": x_cat,
+                "x_bin": x_bin,
                 "delta_t_log1p": delta_t,
                 "scenario": sc,
             }
@@ -348,11 +378,21 @@ def main():
     random.shuffle(split_samples["train"])
 
     print("\n  Partition Summary (Balanced Supervised Splits):")
+    STAGE_NAMES = {
+        0: "Benign",
+        1: "Initial_Compromise",
+        2: "Execution_Discovery",
+        3: "Lateral_Movement",
+        4: "Exfiltration",
+    }
     for sp in ["train", "val", "test"]:
         pos = sum(1 for s in split_samples[sp] if s["label"] == 1)
         neg = sum(1 for s in split_samples[sp] if s["label"] == 0)
         tot = len(split_samples[sp])
         print(f"    - {sp.upper():5s}: total={tot:6,d} | positive={pos:4,d} | negative={neg:6,d} | pos_ratio={pos/max(1,tot):.4%}")
+        stage_counts = {sid: sum(1 for s in split_samples[sp] if s["stage"] == sid) for sid in range(5)}
+        stg_str = ", ".join(f"{STAGE_NAMES[sid]}: {cnt}" for sid, cnt in stage_counts.items() if sid > 0)
+        print(f"            Stages -> {stg_str}")
 
     # 6. Write Shards and Manifests
     print("\n[6/6] Writing NPZ Shards, Manifests, and Specifications...")
@@ -388,14 +428,18 @@ def main():
 
             offsets = np.zeros(n_s + 1, dtype=np.uint32)
             labels = np.zeros(n_s, dtype=np.uint8)
+            stages = np.zeros(n_s, dtype=np.uint8)
             cat_list = []
+            bin_list = []
             delta_list = []
 
             curr_offset = 0
             for i, s in enumerate(shard_samples):
                 offsets[i] = curr_offset
                 labels[i] = s["label"]
+                stages[i] = s["stage"]
                 cat_list.append(s["x_cat"])
+                bin_list.append(s["x_bin"])
                 delta_list.append(s["delta_t_log1p"])
                 curr_offset += s["event_count"]
 
@@ -410,6 +454,8 @@ def main():
                     "sample_id": s["sample_id"],
                     "split": sp,
                     "label": s["label"],
+                    "stage": s["stage"],
+                    "stage_name": s["stage_name"],
                     "event_count": s["event_count"],
                     "shard_file": shard_rel,
                     "shard_sample_index": i,
@@ -417,19 +463,20 @@ def main():
 
             offsets[n_s] = curr_offset
             shard_x_cat = np.concatenate(cat_list, axis=0) if cat_list else np.zeros((0, 4), dtype=np.int64)
+            shard_x_bin = np.concatenate(bin_list, axis=0) if bin_list else np.zeros((0, 1), dtype=np.float32)
             shard_delta = np.concatenate(delta_list, axis=0) if delta_list else np.zeros((0,), dtype=np.float32)
             tot_ev = len(shard_delta)
 
-            # Subset B has 0 numerical features, 1 binary feature (all 0)
+            # Subset B has 0 numerical features, 1 binary feature (host role: 0=h1, 1=h2)
             shard_x_num = np.zeros((tot_ev, 0), dtype=np.float32)
             shard_x_missing = np.zeros((tot_ev, 0), dtype=np.float32)
-            shard_x_bin = np.zeros((tot_ev, 1), dtype=np.float32)
 
             shard_file_path = sp_shard_dir / f"shard_{shard_idx:04d}.npz"
             np.savez_compressed(
                 shard_file_path,
                 sample_offsets=offsets,
                 sample_labels=labels,
+                sample_stages=stages,
                 x_cat=shard_x_cat,
                 x_num=shard_x_num,
                 x_num_missing=shard_x_missing,
@@ -448,7 +495,10 @@ def main():
     # Write network_sample_manifest.csv
     manifest_csv_path = split_dir / "network_sample_manifest.csv"
     with manifest_csv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["sample_id", "split", "label", "event_count", "shard_file", "shard_sample_index"])
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["sample_id", "split", "label", "stage", "stage_name", "event_count", "shard_file", "shard_sample_index"],
+        )
         writer.writeheader()
         writer.writerows(manifest_rows)
 
@@ -511,7 +561,7 @@ def main():
         "x_cat_columns_all": keep_cat,
         "keep_categorical": keep_cat,
         "drop_numeric": True,
-        "zero_binary": True,
+        "zero_binary": False,
     }, indent=2), encoding="utf-8")
 
     # Generate fingerprint

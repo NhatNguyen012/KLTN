@@ -1,14 +1,29 @@
 #!/usr/bin/env python3
-"""Update bilstm_atlasv2.ipynb with exact path support for /kaggle/input/datasets/ngkimngn/dl-il-atlas."""
+"""Build a Kaggle BiLSTM notebook with checkpoint/layer inspection reports."""
 
 import json
 from pathlib import Path
 
 DL_DIR = Path("/mnt/SSD_Data/optc/IL/dataset_1-ATLASv2/code/DL")
-NB_PATH = DL_DIR / "notebook" / "bilstm_atlasv2.ipynb"
+SOURCE_NB_PATH = DL_DIR / "notebook" / "bilstm_atlasv2.ipynb"
+NB_PATH = DL_DIR / "notebook" / "bilstm_atlasv2_layer_report.ipynb"
 MODEL_DIR = DL_DIR / "model"
 
-nb = json.load(open(NB_PATH, encoding="utf-8"))
+nb = json.load(open(SOURCE_NB_PATH, encoding="utf-8"))
+
+title_src = """# BiLSTM Incremental Learning on ATLASv2 - Model Layer Report
+
+This Kaggle notebook runs the existing benchmark without changing the model or
+training policy.  It additionally prints and exports a teacher-readable report
+for each final `.pt` checkpoint: architecture, leaf layers, tensor names,
+shapes, parameter counts, finite-value checks, and checkpoint/model compatibility.
+"""
+nb["cells"][0]["source"] = [line + "\n" for line in title_src.split("\n")[:-1]] + [title_src.split("\n")[-1]]
+
+run_name_src = """RUN_NAME = "bilstm_atlasv2_incremental_layer_report"
+print("RUN_NAME =", RUN_NAME)
+"""
+nb["cells"][3]["source"] = [line + "\n" for line in run_name_src.split("\n")[:-1]] + [run_name_src.split("\n")[-1]]
 
 # Read current module sources
 bilstm_code = (MODEL_DIR / "bilstm.py").read_text(encoding="utf-8")
@@ -280,7 +295,75 @@ if bwt_file.exists():
 """
 nb["cells"][16]["source"] = [line + "\n" for line in cell_16_src.split("\n")[:-1]] + [cell_16_src.split("\n")[-1]]
 
+# 5. Add a dedicated teacher-facing checkpoint/layer report directly after metrics.
+layer_report_markdown = """## Inspect the saved `.pt` layers
+
+These tables explain what is stored in each checkpoint. `shape_matches_model`,
+`finite`, and the final compatibility summary should all be `True`. Operations
+implemented without learned tensors (for example top-k pooling) are verified in
+`bilstm.py`, not in the `.pt` tensor table.
+"""
+layer_report_code = """import json
+from pathlib import Path
+
+import pandas as pd
+from IPython.display import display
+
+reports = [
+    ('Scratch', OUTPUT_DIR / 'results/scratch/scratch_best_layers.json'),
+    ('Incremental', OUTPUT_DIR / 'results/incremental/incremental_best_layers.json'),
+]
+
+for label, report_path in reports:
+    print('\\n' + '=' * 100)
+    print(f'{label.upper()} CHECKPOINT LAYER REPORT')
+    print('=' * 100)
+    if not report_path.exists():
+        print('Missing report:', report_path)
+        continue
+
+    report = json.loads(report_path.read_text(encoding='utf-8'))
+    print(report['architecture'])
+    print('\\nValidation summary:')
+    print('  Total model parameters:    ', f"{report['total_model_parameters']:,}")
+    print('  Trainable parameters:      ', f"{report['trainable_parameters']:,}")
+    print('  Missing keys:              ', report['missing_keys'])
+    print('  Unexpected keys:           ', report['unexpected_keys'])
+    print('  Mismatched tensor shapes:  ', report['mismatched_shapes'])
+    print('  All tensors finite:        ', report['all_tensors_finite'])
+    print('  Checkpoint matches model:  ', report['checkpoint_matches_model'])
+    print('  Limitation:                ', report['limitation'])
+
+    print('\\nLeaf layers:')
+    display(pd.DataFrame(report['modules']))
+    print('Checkpoint tensors:')
+    tensor_columns = [
+        'name', 'kind', 'shape', 'dtype', 'values', 'trainable',
+        'finite', 'shape_matches_model'
+    ]
+    display(pd.DataFrame(report['tensors'])[tensor_columns])
+
+print('\\nDownloadable text reports:')
+for path in sorted((OUTPUT_DIR / 'results').rglob('*_layers.txt')):
+    print(' -', path)
+"""
+insert_at = 17
+nb["cells"][insert_at:insert_at] = [
+    {
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [line + "\n" for line in layer_report_markdown.split("\n")[:-1]] + [layer_report_markdown.split("\n")[-1]],
+    },
+    {
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": [line + "\n" for line in layer_report_code.split("\n")[:-1]] + [layer_report_code.split("\n")[-1]],
+    },
+]
+
 with open(NB_PATH, "w", encoding="utf-8") as f:
     json.dump(nb, f, indent=1, ensure_ascii=False)
 
-print(f"Successfully updated {NB_PATH}")
+print(f"Successfully created {NB_PATH} from {SOURCE_NB_PATH}")

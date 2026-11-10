@@ -86,7 +86,7 @@ except ImportError:
         collate_sequence_batch,
     )
 
-SCRIPT_VERSION = "atlasv2-bilstm-incremental-v9.0"
+SCRIPT_VERSION = "atlasv2-bilstm-incremental-v9.1-layer-report"
 
 
 def load_json(path: Path) -> Any:
@@ -96,6 +96,182 @@ def load_json(path: Path) -> Any:
 def dump_json(path: Path, obj: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def write_model_layer_report(
+    model: nn.Module,
+    checkpoint_path: str | Path,
+    report_base: str | Path,
+    *,
+    title: str,
+) -> dict[str, Any]:
+    """Inspect a trusted tensor-only checkpoint and publish readable layer reports.
+
+    The text report is intended for human review. The JSON report preserves the
+    same facts in a machine-readable form. This verifies that checkpoint tensor
+    names and shapes match the instantiated model; it does not claim to recover
+    parameter-free operations implemented only in ``forward``.
+    """
+    checkpoint_path = Path(checkpoint_path)
+    report_base = Path(report_base)
+    if not checkpoint_path.is_file():
+        raise FileNotFoundError(checkpoint_path)
+
+    try:
+        checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    except TypeError as exc:
+        raise RuntimeError(
+            "Checkpoint inspection requires a PyTorch version supporting "
+            "torch.load(..., weights_only=True)."
+        ) from exc
+
+    if not isinstance(checkpoint, dict):
+        raise TypeError(f"Checkpoint must be a dictionary, got {type(checkpoint).__name__}")
+    state_dict = checkpoint.get("model_state_dict", checkpoint)
+    if not isinstance(state_dict, dict):
+        raise TypeError("Checkpoint model_state_dict must be a dictionary")
+
+    model_state = model.state_dict()
+    named_parameters = dict(model.named_parameters())
+    checkpoint_names = set(state_dict)
+    model_names = set(model_state)
+    missing_keys = sorted(model_names - checkpoint_names)
+    unexpected_keys = sorted(checkpoint_names - model_names)
+
+    tensor_rows: list[dict[str, Any]] = []
+    total_checkpoint_values = 0
+    mismatched_shapes: list[str] = []
+    all_finite = True
+    for name, tensor in state_dict.items():
+        if not torch.is_tensor(tensor):
+            continue
+        shape = list(tensor.shape)
+        expected = model_state.get(name)
+        expected_shape = list(expected.shape) if expected is not None else None
+        shape_matches = expected_shape == shape
+        if expected is not None and not shape_matches:
+            mismatched_shapes.append(name)
+        finite = bool(torch.isfinite(tensor).all().item())
+        all_finite = all_finite and finite
+        values = int(tensor.numel())
+        total_checkpoint_values += values
+        parameter = named_parameters.get(name)
+        tensor_rows.append({
+            "name": name,
+            "kind": "parameter" if parameter is not None else "buffer",
+            "shape": shape,
+            "expected_shape": expected_shape,
+            "shape_matches_model": shape_matches,
+            "dtype": str(tensor.dtype),
+            "values": values,
+            "trainable": bool(parameter.requires_grad) if parameter is not None else False,
+            "finite": finite,
+        })
+
+    module_rows: list[dict[str, Any]] = []
+    for name, module in model.named_modules():
+        if not name or any(True for _ in module.children()):
+            continue
+        direct_parameters = sum(p.numel() for p in module.parameters(recurse=False))
+        module_rows.append({
+            "name": name,
+            "type": type(module).__name__,
+            "direct_parameters": int(direct_parameters),
+            "representation": repr(module),
+        })
+
+    checkpoint_metadata: dict[str, Any] = {}
+    for key, value in checkpoint.items():
+        if key == "model_state_dict":
+            continue
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            checkpoint_metadata[key] = value
+        elif torch.is_tensor(value) and value.numel() == 1:
+            checkpoint_metadata[key] = value.item()
+        else:
+            checkpoint_metadata[key] = f"<{type(value).__name__}>"
+
+    total_model_parameters = int(sum(p.numel() for p in model.parameters()))
+    trainable_parameters = int(sum(p.numel() for p in model.parameters() if p.requires_grad))
+    compatible = not missing_keys and not unexpected_keys and not mismatched_shapes and all_finite
+    report = {
+        "title": title,
+        "script_version": SCRIPT_VERSION,
+        "checkpoint": str(checkpoint_path),
+        "checkpoint_keys": list(checkpoint.keys()),
+        "checkpoint_metadata": checkpoint_metadata,
+        "architecture": str(model),
+        "modules": module_rows,
+        "tensors": tensor_rows,
+        "total_model_parameters": total_model_parameters,
+        "trainable_parameters": trainable_parameters,
+        "total_checkpoint_values": total_checkpoint_values,
+        "missing_keys": missing_keys,
+        "unexpected_keys": unexpected_keys,
+        "mismatched_shapes": mismatched_shapes,
+        "all_tensors_finite": all_finite,
+        "checkpoint_matches_model": compatible,
+        "limitation": (
+            "The checkpoint stores learned tensors. Parameter-free forward operations "
+            "such as top-k pooling, concatenation, masks, and functional dropout must "
+            "be verified in bilstm.py and do not appear as checkpoint tensors."
+        ),
+    }
+
+    lines = [
+        "=" * 100,
+        title,
+        "=" * 100,
+        f"Checkpoint: {checkpoint_path}",
+        f"Checkpoint keys: {list(checkpoint.keys())}",
+        f"Checkpoint metadata: {checkpoint_metadata}",
+        "",
+        "MODEL ARCHITECTURE",
+        "-" * 100,
+        str(model),
+        "",
+        "LEAF MODULES",
+        "-" * 100,
+    ]
+    for row in module_rows:
+        lines.append(
+            f"{row['name']:35s} type={row['type']:15s} "
+            f"direct_parameters={row['direct_parameters']:,}  {row['representation']}"
+        )
+    lines.extend(["", "CHECKPOINT TENSORS", "-" * 100])
+    for row in tensor_rows:
+        lines.append(
+            f"{row['name']:50s} shape={str(tuple(row['shape'])):18s} "
+            f"dtype={row['dtype']:15s} values={row['values']:8,d} "
+            f"trainable={str(row['trainable']):5s} finite={str(row['finite']):5s} "
+            f"shape_matches={row['shape_matches_model']}"
+        )
+    lines.extend([
+        "",
+        "VALIDATION SUMMARY",
+        "-" * 100,
+        f"Total model parameters:        {total_model_parameters:,}",
+        f"Trainable model parameters:    {trainable_parameters:,}",
+        f"Checkpoint tensor values:      {total_checkpoint_values:,}",
+        f"Missing checkpoint keys:       {missing_keys}",
+        f"Unexpected checkpoint keys:    {unexpected_keys}",
+        f"Mismatched tensor shapes:      {mismatched_shapes}",
+        f"All checkpoint tensors finite: {all_finite}",
+        f"Checkpoint matches model:      {compatible}",
+        "",
+        "LIMITATION",
+        report["limitation"],
+    ])
+    text_report = "\n".join(lines) + "\n"
+
+    report_base.parent.mkdir(parents=True, exist_ok=True)
+    text_path = report_base.with_suffix(".txt")
+    json_path = report_base.with_suffix(".json")
+    text_path.write_text(text_report, encoding="utf-8")
+    dump_json(json_path, report)
+    print("\n" + text_report, flush=True)
+    print(f"Saved model layer reports: {text_path} and {json_path}", flush=True)
+    return report
 
 
 def seed_everything(seed: int) -> None:
@@ -1066,6 +1242,12 @@ def main():
     scratch_test_m = scratch_res["test"]
     scratch_val_m = scratch_res["val"]
     print(f"  Scratch Baseline Test: F1={scratch_test_m['f1']:.4f} | Prec={scratch_test_m['precision']:.4f} | Rec={scratch_test_m['recall']:.4f} | TP={scratch_test_m['tp']}, FP={scratch_test_m['fp']}, FN={scratch_test_m['fn']}")
+    write_model_layer_report(
+        scratch_model,
+        results_dir / "scratch" / "scratch_best.pt",
+        results_dir / "scratch" / "scratch_best_layers",
+        title="ATLASv2 Scratch BiLSTM - checkpoint layer report",
+    )
 
     # -------------------------------------------------------------
     # 3. OpTC -> ATLASv2 Continual Learning (IL with Replay Buffer)
@@ -1105,6 +1287,12 @@ def main():
     il_test_m = il_res["test"]
     il_val_m = il_res["val"]
     print(f"  Continual IL Test: F1={il_test_m['f1']:.4f} | Prec={il_test_m['precision']:.4f} | Rec={il_test_m['recall']:.4f} | TP={il_test_m['tp']}, FP={il_test_m['fp']}, FN={il_test_m['fn']}")
+    write_model_layer_report(
+        il_model,
+        results_dir / "incremental" / "incremental_best.pt",
+        results_dir / "incremental" / "incremental_best_layers",
+        title="OpTC to ATLASv2 Incremental BiLSTM - checkpoint layer report",
+    )
 
     # -------------------------------------------------------------
     # 4. Backward Transfer (BWT) Evaluation on OpTC Test Set
