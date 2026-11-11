@@ -20,6 +20,30 @@ def embedding_dim(cardinality: int) -> int:
     return int(min(16, max(4, round(math.sqrt(cardinality) * 2))))
 
 
+class TemporalAttention(nn.Module):
+    """Additive Temporal Self-Attention (Bahdanau-style) for Sequence Event Pooling.
+    
+    Inspired by EagleEye (Acronis/A*STAR 2024) & StageFinder (2026):
+    Dynamically computes importance weights alpha_t over valid event timesteps,
+    amplifying solitary attack activities (whoami, exploit, C2 socket) without dilution.
+    """
+
+    def __init__(self, in_features: int, hidden_dim: int = 64):
+        super().__init__()
+        self.proj = nn.Linear(in_features, hidden_dim)
+        self.v = nn.Linear(hidden_dim, 1, bias=False)
+
+    def forward(self, h: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        # h: (batch, seq_len, in_features)
+        seq_mask = torch.arange(h.size(1), device=h.device)[None, :] < lengths[:, None]
+        score = self.v(torch.tanh(self.proj(h))).squeeze(-1)  # (batch, seq_len)
+        fill_val = -1e4 if h.dtype in (torch.float16, torch.bfloat16) else -1e9
+        score_masked = score.masked_fill(~seq_mask, fill_val)
+        alpha = F.softmax(score_masked, dim=-1)  # (batch, seq_len)
+        h_att = torch.bmm(alpha.unsqueeze(1), h).squeeze(1)  # (batch, in_features)
+        return h_att, alpha
+
+
 class BiLSTMBaseline(nn.Module):
     """Bidirectional LSTM model over sliding window sequences of network flow events."""
 
@@ -71,6 +95,9 @@ class BiLSTMBaseline(nn.Module):
             bidirectional=True,
             dropout=dropout if lstm_layers > 1 else 0.0,
         )
+
+        # Additive Temporal Self-Attention Pooling (EagleEye / StageFinder)
+        self.temporal_attention = TemporalAttention(hidden_dim * 2, hidden_dim)
 
         # Classification head with pooled bidirectional states (Binary Anomaly Detection)
         self.classifier = nn.Sequential(
@@ -155,13 +182,17 @@ class BiLSTMBaseline(nn.Module):
             vals_clean = vals.masked_fill(~v_mask, 0.0)
             return vals_clean.sum(dim=1) / valid_k.squeeze(1).float().clamp(min=1.0)
 
-        # Multi-Scale Burst-Aware Pooling:
-        # 1. h_max (k=1): captures single sharp peak anomaly activation anywhere in sequence (e.g. solitary C2 beacon)
-        # 2. h_mean (k=6): captures burst clusters (e.g. reconnaissance command chains, exfiltration flows)
-        # 3. h_last: captures sequence-end boundary context
+        # Additive Temporal Self-Attention (EagleEye 2024 / StageFinder 2026)
+        h_att, alpha = self.temporal_attention(lstm_out, lengths)
+
+        # Multi-Scale Burst-Aware Pooling with Temporal Attention:
+        # 1. h_att (0.45): dynamically attends to solitary anomalous events without benign dilution
+        # 2. h_max (0.35): captures peak anomaly activation anywhere in sequence (e.g. C2 beacon, exploit)
+        # 3. h_mean (0.10): captures multi-event burst cluster context (exfiltration streams)
+        # 4. h_last (0.10): captures sequence-end boundary context
         h_max = _masked_topk_mean(lstm_out_masked, k_val=1)
         h_mean = _masked_topk_mean(lstm_out_masked, k_val=6)
-        pooled = 0.40 * h_max + 0.35 * h_mean + 0.25 * h_last
+        pooled = 0.45 * h_att + 0.35 * h_max + 0.10 * h_mean + 0.10 * h_last
 
         # Output logits
         binary_logits = self.classifier(pooled).squeeze(-1)

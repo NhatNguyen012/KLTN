@@ -127,6 +127,56 @@ def set_seed(seed: int = 42) -> None:
         torch.backends.cudnn.deterministic = True
 
 
+class BinaryFocalLoss(nn.Module):
+    """Focal Loss for binary anomaly detection to counter extreme benign imbalance."""
+
+    def __init__(self, alpha: float = 0.75, gamma: float = 2.0, pos_weight: float = 5.0):
+        super().__init__()
+        self.alpha = alpha
+        self.gamma = gamma
+        self.pos_weight = pos_weight
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        p = torch.sigmoid(logits)
+        bce = F.binary_cross_entropy_with_logits(
+            logits, targets, pos_weight=torch.tensor([self.pos_weight], device=logits.device), reduction="none"
+        )
+        p_t = p * targets + (1.0 - p) * (1.0 - targets)
+        focal_weight = (1.0 - p_t) ** self.gamma
+        alpha_t = self.alpha * targets + (1.0 - self.alpha) * (1.0 - targets)
+        return (focal_weight * alpha_t * bce).mean()
+
+
+class ClassBalancedFocalLoss(nn.Module):
+    """Class-Balanced Focal Loss for Kill-Chain Stage Classification.
+    
+    Inspired by Lin et al. (ICCV) and Cui et al. (CVPR):
+    Downweights easy exfiltration examples and scales up gradients on rare early-stage attacks.
+    """
+
+    def __init__(
+        self,
+        class_counts: list[int],
+        gamma: float = 2.0,
+        label_smoothing: float = 0.05,
+        device: torch.device = torch.device("cpu"),
+    ):
+        super().__init__()
+        self.gamma = gamma
+        self.label_smoothing = label_smoothing
+        counts = torch.tensor([max(1, c) for c in class_counts], dtype=torch.float32, device=device)
+        weights = 1.0 / torch.sqrt(counts)
+        self.alpha = (weights / weights.sum() * len(class_counts)).to(device)
+
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        p = F.softmax(logits, dim=-1)
+        ce = F.cross_entropy(logits, targets, label_smoothing=self.label_smoothing, reduction="none")
+        p_t = p.gather(1, targets.unsqueeze(1)).squeeze(1)
+        focal_weight = (1.0 - p_t) ** self.gamma
+        alpha_t = self.alpha.gather(0, targets)
+        return (focal_weight * alpha_t * ce).mean()
+
+
 def load_pretrained_checkpoint(
     model: nn.Module,
     ckpt_path: str | Path,
@@ -222,8 +272,17 @@ def evaluate(
     device: torch.device,
     *,
     binary_threshold: float = 0.50,
+    stage_thresholds: list[float] | None = None,
+    decision_mode: str = "calibrated",
 ) -> dict[str, Any]:
-    """Hierarchical evaluation of both Binary Anomaly and Multi-Stage Kill-Chain detection."""
+    """Hierarchical evaluation of both Binary Anomaly and Multi-Stage Kill-Chain detection.
+    
+    Supports two operational modes:
+    1. 'calibrated': Joint Probabilistic Decision Rule P(Stage k) = P(Anomaly) * P(Stage k | Anomaly)
+       evaluated against stage-calibrated thresholds tau_k. Solves sequence dilution on early stages.
+    2. 'global': Standard Hard-Gating Baseline: y_bin = (P(Anomaly) >= binary_threshold),
+       y_stg = argmax(q_stg) if y_bin else 0.
+    """
     model.eval()
     all_bin_probs: list[float] = []
     all_bin_targets: list[int] = []
@@ -262,12 +321,50 @@ def evaluate(
 
     y_bin_true = np.array(all_bin_targets, dtype=int)
     y_bin_prob = np.array(all_bin_probs, dtype=float)
-    y_bin_pred = (y_bin_prob >= binary_threshold).astype(int)
+    y_stg_true = np.array(all_stage_targets, dtype=int)
+    all_stg_logits = np.concatenate(all_stage_logits, axis=0) if all_stage_logits else np.zeros((0, 4))
+
+    # Conditional Stage Probabilities: q(k | Anomaly) via Softmax
+    exp_l = np.exp(all_stg_logits - np.max(all_stg_logits, axis=-1, keepdims=True))
+    q_stg = exp_l / np.sum(exp_l, axis=-1, keepdims=True)  # [N, 4]
+
+    # Joint Stage Probabilities: P(Stage k) = P(Anomaly) * P(Stage k | Anomaly)
+    joint_probs = y_bin_prob[:, None] * q_stg  # [N, 4]
+
+    y_stg_pred = np.zeros_like(y_stg_true)
+    y_bin_pred = np.zeros_like(y_bin_true)
+
+    if decision_mode == "calibrated" and stage_thresholds is not None and len(stage_thresholds) == 4:
+        # Joint Probabilistic Decision Rule with Per-Stage Calibration
+        tau_arr = np.array(stage_thresholds, dtype=float)
+        norm_scores = joint_probs / np.maximum(tau_arr, 1e-6)
+        max_stage_idx = np.argmax(norm_scores, axis=1)  # 0..3
+        max_score = np.max(norm_scores, axis=1)
+
+        for i in range(len(y_bin_true)):
+            if max_score[i] >= 1.0 or y_bin_prob[i] >= binary_threshold:
+                y_bin_pred[i] = 1
+                y_stg_pred[i] = int(max_stage_idx[i]) + 1
+            else:
+                y_bin_pred[i] = 0
+                y_stg_pred[i] = 0
+    else:
+        # Standard Global Hard-Gating Rule
+        y_bin_pred = (y_bin_prob >= binary_threshold).astype(int)
+        for i in range(len(y_bin_pred)):
+            if y_bin_pred[i] == 0:
+                y_stg_pred[i] = 0
+            else:
+                y_stg_pred[i] = int(np.argmax(all_stg_logits[i])) + 1
 
     # Binary Metrics
     bin_f1 = float(f1_score(y_bin_true, y_bin_pred, zero_division=0))
     bin_prec = float(precision_score(y_bin_true, y_bin_pred, zero_division=0))
     bin_rec = float(recall_score(y_bin_true, y_bin_pred, zero_division=0))
+    fp = np.sum((y_bin_pred == 1) & (y_bin_true == 0))
+    tn = np.sum((y_bin_pred == 0) & (y_bin_true == 0))
+    bin_fpr = float(fp / max(1, fp + tn))
+
     try:
         bin_pr_auc = float(average_precision_score(y_bin_true, y_bin_prob))
     except Exception:
@@ -277,21 +374,7 @@ def evaluate(
     except Exception:
         bin_roc_auc = 0.0
 
-    # Stage Prediction: Hierarchical Consistent Prediction
-    # Head 1: Binary Gate (Benign vs Attack)
-    # Head 2: Attack Stage Classifier (1: InitComp, 2: ExecDisc, 3: LatMov, 4: Exfil)
-    all_stg_logits = np.concatenate(all_stage_logits, axis=0) if all_stage_logits else np.zeros((0, 4))
-    y_stg_true = np.array(all_stage_targets, dtype=int)
-    y_stg_pred = np.zeros_like(y_stg_true)
-
-    for i in range(len(y_bin_pred)):
-        if y_bin_pred[i] == 0:
-            y_stg_pred[i] = 0
-        else:
-            y_stg_pred[i] = int(np.argmax(all_stg_logits[i])) + 1
-
     # Multi-Stage Metrics
-    # Macro F1 across all 5 classes
     stage_macro_f1 = float(f1_score(y_stg_true, y_stg_pred, average="macro", zero_division=0))
     stage_weighted_f1 = float(f1_score(y_stg_true, y_stg_pred, average="weighted", zero_division=0))
 
@@ -319,9 +402,12 @@ def evaluate(
 
     return {
         "binary_threshold": binary_threshold,
+        "stage_thresholds": stage_thresholds,
+        "decision_mode": decision_mode,
         "binary_f1": bin_f1,
         "binary_precision": bin_prec,
         "binary_recall": bin_rec,
+        "binary_fpr": bin_fpr,
         "binary_pr_auc": bin_pr_auc,
         "binary_roc_auc": bin_roc_auc,
         "stage_macro_f1": stage_macro_f1,
@@ -336,8 +422,8 @@ def find_optimal_threshold(
     model: nn.Module,
     loader: DataLoader,
     device: torch.device,
-) -> tuple[float, dict[str, Any]]:
-    """Grid search for threshold on validation set that maximizes combined score."""
+) -> tuple[float, list[float], dict[str, Any]]:
+    """Determine both optimal global threshold and stage-calibrated thresholds on validation set."""
     model.eval()
     all_bin_probs: list[float] = []
     all_bin_targets: list[int] = []
@@ -374,13 +460,13 @@ def find_optimal_threshold(
     y_stg_true = np.array(all_stage_targets, dtype=int)
     all_stg_logits = np.concatenate(all_stage_logits, axis=0)
 
+    # 1. Optimal Global Binary Threshold under FPR <= 2.0%
     best_score = -1.0
-    best_thr = 0.15
-    min_fpr_thr = 0.15
+    best_thr = 0.20
+    min_fpr_thr = 0.20
     min_fpr = 1.0
-    best_metrics: dict[str, Any] = {}
 
-    for thr in np.linspace(0.015, 0.40, 78):
+    for thr in np.linspace(0.010, 0.50, 99):
         y_bin_pred = (y_bin_prob >= thr).astype(int)
         fp = np.sum((y_bin_pred == 1) & (y_bin_true == 0))
         tn = np.sum((y_bin_pred == 0) & (y_bin_true == 0))
@@ -390,39 +476,69 @@ def find_optimal_threshold(
             min_fpr = fpr
             min_fpr_thr = float(thr)
 
-        if fpr > 0.020:  # Operational security constraint: max 2.0% FPR
+        if fpr > 0.020:  # Operational constraint: max 2.0% FPR
             continue
 
-        y_stg_pred = np.zeros_like(y_stg_true)
-        for i in range(len(y_bin_pred)):
-            if y_bin_pred[i] == 0:
-                y_stg_pred[i] = 0
-            else:
-                y_stg_pred[i] = int(np.argmax(all_stg_logits[i])) + 1
-
-        macro_f1 = f1_score(y_stg_true, y_stg_pred, average="macro", zero_division=0)
-        bin_f1 = f1_score(y_bin_true, y_bin_pred, zero_division=0)
-
-        # Multi-stage Attack Macro F1 (Stages 1..4)
-        attack_mask = y_stg_true > 0
-        if np.any(attack_mask):
-            atk_macro_f1 = float(f1_score(y_stg_true[attack_mask], y_stg_pred[attack_mask], labels=[1, 2, 3, 4], average="macro", zero_division=0))
-        else:
-            atk_macro_f1 = 0.0
-
-        # Prioritize Attack detection and multi-stage classification
-        combined_score = 0.50 * atk_macro_f1 + 0.30 * macro_f1 + 0.20 * bin_f1
-
-        if combined_score > best_score:
-            best_score = combined_score
+        prec = precision_score(y_bin_true, y_bin_pred, zero_division=0)
+        rec = recall_score(y_bin_true, y_bin_pred, zero_division=0)
+        f1 = 2 * prec * rec / max(1e-6, prec + rec)
+        if f1 > best_score:
+            best_score = f1
             best_thr = float(thr)
 
     if best_score < 0:
         best_thr = min_fpr_thr
 
-    # Compute final metrics with best threshold
-    best_metrics = evaluate(model, loader, device, binary_threshold=best_thr)
-    return best_thr, best_metrics
+    # 2. Per-Stage Joint Threshold Calibration
+    # Joint Probability P(Stage k) = P(Anomaly) * P(Stage k | Anomaly)
+    exp_l = np.exp(all_stg_logits - np.max(all_stg_logits, axis=-1, keepdims=True))
+    q_stg = exp_l / np.sum(exp_l, axis=-1, keepdims=True)
+    joint_probs = y_bin_prob[:, None] * q_stg  # [N, 4]
+
+    benign_mask = (y_stg_true == 0)
+    n_benign = max(1, np.sum(benign_mask))
+    stage_thresholds: list[float] = []
+
+    for k in range(4):
+        target = (y_stg_true == k + 1).astype(int)
+        scores = joint_probs[:, k]
+        best_t = 0.05
+        best_stg_f1 = -1.0
+        n_pos = np.sum(target == 1)
+
+        candidate_grid = sorted(set(
+            [0.001, 0.002, 0.005, 0.008, 0.010, 0.015, 0.020, 0.030, 0.050, 0.080, 0.100, 0.150, 0.200, 0.300]
+            + (list(np.percentile(scores[scores > 0.0005], np.linspace(10, 90, 20))) if np.any(scores > 0.0005) else [])
+        ))
+
+        for t in candidate_grid:
+            pred = (scores >= t).astype(int)
+            fp_ben = np.sum((pred == 1) & benign_mask)
+            # Stage-level FPR budget: at most 0.8% FPR per stage on benign
+            if fp_ben / n_benign > 0.008:
+                continue
+            tp = np.sum((pred == 1) & (target == 1))
+            fn = np.sum((pred == 0) & (target == 1))
+            prec = tp / max(1, tp + fp_ben)
+            rec = tp / max(1, tp + fn)
+            f1 = 2 * prec * rec / max(1e-6, prec + rec)
+            if f1 > best_stg_f1:
+                best_stg_f1 = f1
+                best_t = t
+
+        # Fallback if no positive samples in validation or F1 was 0
+        if best_stg_f1 <= 0.0 or n_pos == 0:
+            best_t = 0.010 if k in (0, 1, 2) else 0.100
+
+        stage_thresholds.append(float(best_t))
+
+    val_metrics = evaluate(
+        model, loader, device,
+        binary_threshold=best_thr,
+        stage_thresholds=stage_thresholds,
+        decision_mode="calibrated",
+    )
+    return best_thr, stage_thresholds, val_metrics
 
 
 def print_confusion_matrix_ascii(cm: list[list[int]]) -> None:
@@ -460,9 +576,6 @@ def train(args: argparse.Namespace) -> None:
     print(f"Epochs:           {args.epochs}")
     print(f"Learning Rate:    {args.lr}")
     print(f"Weights:          Stage={args.stage_weight} | Replay={args.replay_weight} | Replay Ratio={args.replay_ratio}")
-
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. Load Datasets
     print("\n[1/5] Loading Datasets...")
@@ -515,8 +628,8 @@ def train(args: argparse.Namespace) -> None:
     print("\n[3/5] Configuring Losses & Optimizer...")
     # Binary loss pos_weight (balanced to prevent over-conservative predictions)
     pos_weight_val = 5.0
-    binary_loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([pos_weight_val], device=device))
-    atk_binary_loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([2.0], device=device))
+    binary_loss_fn = BinaryFocalLoss(alpha=0.75, gamma=2.0, pos_weight=pos_weight_val)
+    atk_binary_loss_fn = BinaryFocalLoss(alpha=0.75, gamma=2.0, pos_weight=2.0)
     replay_loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([2.0], device=device))
 
     # Stage Loss on 4 Attack Stages: InitComp, ExecDisc, LatMov, Exfil
@@ -532,7 +645,7 @@ def train(args: argparse.Namespace) -> None:
             attack_indices_by_stage[stg].append(idx)
     print(f"  Balanced Stage Sampler Pool: {[(STAGE_NAMES[k], len(v)) for k, v in attack_indices_by_stage.items()]}")
 
-    stage_loss_fn = nn.CrossEntropyLoss()
+    stage_loss_fn = ClassBalancedFocalLoss(class_counts=stage_counts, gamma=2.0, label_smoothing=0.05, device=device)
 
     # Layer-wise learning rates: lower for pretrained backbone, higher for stage head
     backbone_params = []
@@ -727,29 +840,38 @@ def train(args: argparse.Namespace) -> None:
     model.load_state_dict(best_ckpt["model_state_dict"])
 
     # Threshold optimization on Validation
-    print("  Optimizing threshold on Validation Set...")
-    opt_thr, opt_val_m = find_optimal_threshold(model, val_loader, device)
-    print(f"  Optimal Threshold: {opt_thr:.4f} | Val Bin F1: {opt_val_m['binary_f1']:.4f} | Val Stg Macro: {opt_val_m['stage_macro_f1']:.4f}")
+    print("  Optimizing thresholds on Validation Set (Global & Stage-Calibrated)...")
+    opt_thr, stage_thrs, opt_val_m = find_optimal_threshold(model, val_loader, device)
+    print(f"  Optimal Global Threshold: {opt_thr:.4f} (FPR={opt_val_m['binary_fpr']*100:.2f}%)")
+    print(f"  Stage-Calibrated Thresholds:")
+    for sid, sthr in enumerate(stage_thrs, start=1):
+        print(f"    - {STAGE_NAMES[sid]:20s}: tau = {sthr:.4f}")
+    print(f"  Val Bin F1: {opt_val_m['binary_f1']:.4f} | Val Stg Macro: {opt_val_m['stage_macro_f1']:.4f} | Atk F1: {opt_val_m['attack_macro_f1']:.4f}")
 
-    # Evaluate on TEST with optimal threshold
+    # Evaluate on TEST with both modes
     print("\n" + "=" * 80)
-    print("FINAL TEST EVALUATION RESULTS (ATLASv2 MULTI-STAGE KILL-CHAIN)")
+    print("FINAL TEST EVALUATION: MODE 1 - STAGE-CALIBRATED JOINT PROBABILISTIC MODEL")
     print("=" * 80)
-    test_m = evaluate(model, test_loader, device, binary_threshold=opt_thr)
+    test_m = evaluate(
+        model, test_loader, device,
+        binary_threshold=opt_thr,
+        stage_thresholds=stage_thrs,
+        decision_mode="calibrated",
+    )
 
-    print(f"\n--- Binary Detection Performance (Threshold={opt_thr:.4f}) ---")
+    print(f"\n--- Binary Anomaly Detection (FPR={test_m['binary_fpr']*100:.2f}%) ---")
     print(f"  Binary F1 Score:       {test_m['binary_f1']:.4f} ({test_m['binary_f1']*100:.2f}%)")
     print(f"  Binary Precision:      {test_m['binary_precision']:.4f} ({test_m['binary_precision']*100:.2f}%)")
     print(f"  Binary Recall:         {test_m['binary_recall']:.4f} ({test_m['binary_recall']*100:.2f}%)")
     print(f"  PR-AUC (Average Prec): {test_m['binary_pr_auc']:.4f}")
     print(f"  ROC-AUC:               {test_m['binary_roc_auc']:.4f}")
 
-    print(f"\n--- Multi-Stage Kill-Chain Detection Performance ---")
+    print(f"\n--- Multi-Stage Kill-Chain Detection (Calibrated) ---")
     print(f"  Stage Macro F1 (all):  {test_m['stage_macro_f1']:.4f} ({test_m['stage_macro_f1']*100:.2f}%)")
     print(f"  Stage Weighted F1:     {test_m['stage_weighted_f1']:.4f} ({test_m['stage_weighted_f1']*100:.2f}%)")
     print(f"  Attack-only Macro F1:  {test_m['attack_macro_f1']:.4f} ({test_m['attack_macro_f1']*100:.2f}%)")
 
-    print("\n--- Per-Stage Breakdown ---")
+    print("\n--- Per-Stage Breakdown (Calibrated) ---")
     print(f"  {'Stage':22s} | {'Support':7s} | {'Precision':10s} | {'Recall':10s} | {'F1-Score':10s}")
     print("  " + "-" * 70)
     for sname, s_met in test_m["per_stage"].items():
@@ -759,6 +881,26 @@ def train(args: argparse.Namespace) -> None:
         )
 
     print_confusion_matrix_ascii(test_m["confusion_matrix"])
+
+    # MODE 2: Global Hard-Gating Baseline
+    print("\n" + "=" * 80)
+    print("FINAL TEST EVALUATION: MODE 2 - GLOBAL HARD-GATING BASELINE")
+    print("=" * 80)
+    test_global_m = evaluate(
+        model, test_loader, device,
+        binary_threshold=opt_thr,
+        decision_mode="global",
+    )
+    print(f"  Global Gated Stage Macro F1: {test_global_m['stage_macro_f1']:.4f} | Attack-only Macro F1: {test_global_m['attack_macro_f1']:.4f}")
+    print("\n--- Per-Stage Breakdown (Global Baseline) ---")
+    print(f"  {'Stage':22s} | {'Support':7s} | {'Precision':10s} | {'Recall':10s} | {'F1-Score':10s}")
+    print("  " + "-" * 70)
+    for sname, s_met in test_global_m["per_stage"].items():
+        print(
+            f"  {sname:22s} | {s_met['support']:7d} | {s_met['precision']:10.4f} | "
+            f"{s_met['recall']:10.4f} | {s_met['f1']:10.4f}"
+        )
+    print_confusion_matrix_ascii(test_global_m["confusion_matrix"])
 
     # OpTC Test Set Backward Transfer Evaluation
     bwt_metrics = {}
@@ -784,8 +926,10 @@ def train(args: argparse.Namespace) -> None:
     results_payload = {
         "best_epoch": best_epoch,
         "optimal_threshold": opt_thr,
+        "stage_thresholds": stage_thrs,
         "val_metrics": opt_val_m,
-        "test_metrics": test_m,
+        "test_calibrated_metrics": test_m,
+        "test_global_metrics": test_global_m,
         "bwt_metrics": bwt_metrics,
         "train_history": train_history,
     }
@@ -802,9 +946,11 @@ def train(args: argparse.Namespace) -> None:
             writer.writerow([STAGE_NAMES[sid]] + row)
     print(f"Confusion matrix CSV saved to: {cm_csv_path}")
 
-    # Save Confusion Matrix Plot (matrix.png)
+    # Save Confusion Matrix Plots
     matrix_png_path = output_dir / "matrix.png"
-    save_confusion_matrix_plot(test_m["confusion_matrix"], matrix_png_path, threshold=opt_thr)
+    save_confusion_matrix_plot(test_m["confusion_matrix"], matrix_png_path, title="Calibrated Multi-Stage Kill-Chain Confusion Matrix")
+    matrix_global_path = output_dir / "matrix_global.png"
+    save_confusion_matrix_plot(test_global_m["confusion_matrix"], matrix_global_path, title="Global Hard-Gating Confusion Matrix", threshold=opt_thr)
 
 
 def main():
