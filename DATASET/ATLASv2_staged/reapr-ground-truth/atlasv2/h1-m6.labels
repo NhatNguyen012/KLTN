@@ -1,0 +1,15 @@
+attack,process_name,process_id,process_uuid,label,stage
+h1-m6,c:\program files\mozilla firefox\firefox.exe,1816,7DMF69PK-05e6d050-00000718-00000000-1d89bcb06740210,attack,Initial_Compromise
+h1-m6,c:\program files\microsoft office\office14\excel.exe,4912,7DMF69PK-05e6d050-00001330-00000000-1d89bcb7c201a79,attack,Initial_Compromise
+h1-m6,c:\program files\mozilla firefox\firefox.exe,2176,7DMF69PK-05e6d050-00000880-00000000-1d89bcaa1855d2e,attack,Initial_Compromise
+h1-m6,c:\windows\explorer.exe,1596,7DMF69PK-05e6d050-0000063c-00000000-1d89bca914c2885,attack,Lateral_Movement
+h1-m6,c:\windows\system32\lsass.exe,540.0,7DMF69PK-05e6d050-0000021c-00000000-1d89bca90bd55f5,attack,Execution_Discovery
+h1-m6,c:\windows\system32\cmd.exe,5912,7DMF69PK-05e6d050-00001718-00000000-1d89bcd48ff30c6,attack,Execution_Discovery
+h1-m6,c:\users\aalsahee\payload.exe,2196.0,7DMF69PK-05e6d050-00000894-00000000-1d89bcd4ab06b38,attack,Exfiltration
+h1-m6,c:\windows\system32\conhost.exe,3472,7DMF69PK-05e6d050-00001374-00000000-1d89bcd49019226,attack,Execution_Discovery
+h1-m6,c:\users\aalsahee\payload.exe,4824.0,7DMF69PK-05e6d050-000012d8-00000000-1d89bcd4b061cc2,attack,Exfiltration
+h1-m6,c:\windows\system32\windowspowershell\v1.0\powershell.exe,5668.0,7DMF69PK-05e6d050-00001624-00000000-1d89bcd126cc49e,attack,Execution_Discovery
+h1-m6,c:\windows\system32\regsvr32.exe,3596.0,7DMF69PK-05e6d050-00000e0c-00000000-1d89bcd0925274c,attack,Execution_Discovery
+h1-m6,c:\windows\system32\conhost.exe,3756,7DMF69PK-05e6d050-00000eac-00000000-1d89bcd126f25fe,attack,Execution_Discovery
+h1-m6,c:\program files\microsoft office\office14\winword.exe,3576,7DMF69PK-05e6d050-00000df8-00000000-1d89bcd03093f38,attack,Initial_Compromise
+h1-m6,c:\program files\common files\microsoft shared\equation\eqnedt32.exe,5124.0,7DMF69PK-05e6d050-00001404-00000000-1d89bcd090896c9,attack,Initial_Compromise

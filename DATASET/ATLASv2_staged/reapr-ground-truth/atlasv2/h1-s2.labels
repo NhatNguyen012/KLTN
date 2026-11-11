@@ -1,0 +1,9 @@
+attack,process_name,process_id,process_uuid,label,stage
+h1-s2,c:\program files\mozilla firefox\firefox.exe,1584,7DMF69PK-05e5add1-00000630-00000000-1d89b75aaf1262f,attack,Initial_Compromise
+h1-s2,c:\users\aalsahee\payload.exe,3096,7DMF69PK-05e5add1-00000c18-00000000-1d89b795cfe92c7,attack,Exfiltration
+h1-s2,c:\users\aalsahee\payload.exe,424.0,7DMF69PK-05e5add1-000001a8-00000000-1d89b795c1dcc6c,attack,Exfiltration
+h1-s2,c:\windows\system32\cmd.exe,128.0,7DMF69PK-05e5add1-00000080-00000000-1d89b795a1daf2d,attack,Execution_Discovery
+h1-s2,c:\windows\system32\lsass.exe,431,7DMF69PK-05e5add1-0000021c-00000000-1d89b751a78f89b,attack,Execution_Discovery
+h1-s2,c:\program files\mozilla firefox\plugin-container.exe,1412.0,7DMF69PK-05e5add1-00000584-00000000-1d89b7930ca9e56,attack,Initial_Compromise
+h1-s2,c:\windows\system32\conhost.exe,3892,7DMF69PK-05e5add1-00000f34-00000000-1d89b795a21a6dc,attack,Execution_Discovery
+h1-s2,c:\windows\system32\audiodg.exe,1531,7DMF69PK-05e5add1-00000d54-00000000-1d89b793126061c,attack,Execution_Discovery

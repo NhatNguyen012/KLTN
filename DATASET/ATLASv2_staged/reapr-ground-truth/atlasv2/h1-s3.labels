@@ -1,0 +1,18 @@
+attack,process_name,process_id,process_uuid,label,stage
+h1-s3,c:\program files\mozilla firefox\firefox.exe,2508,7DMF69PK-05e5c3f1-000009cc-00000000-1d89b7b01dd33ac,attack,Initial_Compromise
+h1-s3,c:\program files\mozilla firefox\firefox.exe,4688.0,7DMF69PK-05e5c3f1-00001250-00000000-1d89b7b18f6f3af,attack,Initial_Compromise
+h1-s3,c:\windows\system32\lsass.exe,209,7DMF69PK-05e5c3f1-00000218-00000000-1d89b7a98681977,attack,Execution_Discovery
+h1-s3,c:\windows\system32\taskhost.exe,5456.0,7DMF69PK-05e5c3f1-00001550-00000000-1d89b7b4bd209a1,attack,Execution_Discovery
+h1-s3,c:\windows\system32\schtasks.exe,5564.0,7DMF69PK-05e5c3f1-000015bc-00000000-1d89b7b4c7d6753,attack,Execution_Discovery
+h1-s3,c:\program files\microsoft office\office14\winword.exe,5592,7DMF69PK-05e5c3f1-000015d8-00000000-1d89b7c7cccb0df,attack,Initial_Compromise
+h1-s3,c:\program files\common files\microsoft shared\equation\eqnedt32.exe,6032.0,7DMF69PK-05e5c3f1-00001790-00000000-1d89b7c806ffcf2,attack,Initial_Compromise
+h1-s3,c:\windows\system32\regsvr32.exe,6124.0,7DMF69PK-05e5c3f1-000017ec-00000000-1d89b7c80861d55,attack,Execution_Discovery
+h1-s3,c:\windows\system32\dllhost.exe,5632.0,7DMF69PK-05e5c3f1-00001600-00000000-1d89b7c76f5dabb,attack,Execution_Discovery
+h1-s3,c:\program files\mozilla firefox\firefox.exe,420.0,7DMF69PK-05e5c3f1-000001a4-00000000-1d89b7b030223ff,attack,Initial_Compromise
+h1-s3,c:\program files\common files\microsoft shared\equation\eqnedt32.exe,2244.0,7DMF69PK-05e5c3f1-000008c4-00000000-1d89b7ce6ef1713,attack,Initial_Compromise
+h1-s3,c:\windows\system32\regsvr32.exe,3992.0,7DMF69PK-05e5c3f1-00000f98-00000000-1d89b7ce6fafdf4,attack,Execution_Discovery
+h1-s3,c:\windows\system32\windowspowershell\v1.0\powershell.exe,2340.0,7DMF69PK-05e5c3f1-00000924-00000000-1d89b7ce72113f9,attack,Execution_Discovery
+h1-s3,c:\windows\system32\cmd.exe,1880.0,7DMF69PK-05e5c3f1-00000758-00000000-1d89b7d0b85dde9,attack,Execution_Discovery
+h1-s3,c:\windows\system32\conhost.exe,1316.0,7DMF69PK-05e5c3f1-00000524-00000000-1d89b7d0b85dde9,attack,Execution_Discovery
+h1-s3,c:\users\aalsahee\payload.exe,3208.0,7DMF69PK-05e5c3f1-00000c88-00000000-1d89b7d0d37185b,attack,Exfiltration
+h1-s3,c:\users\aalsahee\payload.exe,4964.0,7DMF69PK-05e5c3f1-00001364-00000000-1d89b7d0d8f2b45,attack,Exfiltration

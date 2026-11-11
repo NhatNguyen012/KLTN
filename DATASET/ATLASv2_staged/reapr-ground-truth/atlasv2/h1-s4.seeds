@@ -1,0 +1,5 @@
+attack,vertex_id,vertex_name,seed_label
+atlasv2/h1-s4, 335, 10.193.66.115:8080, root_cause
+atlasv2/h1-s4, 3716, 34.107.221.82:80, root_cause
+atlasv2/h1-s4, 6091, 10.193.66.115:8443, root_cause
+atlasv2/h1-s4, 5528, 10.193.66.115:9999, impact

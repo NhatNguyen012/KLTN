@@ -1,0 +1,6 @@
+attack,process_name,process_id,process_uuid,label,stage
+h2-m1,c:\windows\explorer.exe,1118,7DMF69PK-05e61374-0000063c-00000000-1d89b6984b85de4,attack,Lateral_Movement
+h2-m1,c:\program files\mozilla firefox\firefox.exe,3060,7DMF69PK-05e61374-00000bf4-00000000-1d89b699780ab93,attack,Lateral_Movement
+h2-m1,c:\users\aalsahee\downloads\payload.exe,640.0,7DMF69PK-05e61374-00000280-00000000-1d89b94f8fff420,attack,Exfiltration
+h2-m1,c:\windows\system32\conhost.exe,3508.0,7DMF69PK-05e61374-00000db4-00000000-1d89b94f90a0666,attack,Lateral_Movement
+h2-m1,c:\users\aalsahee\downloads\payload.exe,1800.0,7DMF69PK-05e61374-00000708-00000000-1d89b94f9c590f5,attack,Exfiltration
