@@ -10,6 +10,7 @@ Báo cáo: [`analyst/dl_optc_il_20261112.md`](../../../analyst/dl_optc_il_202611
 | `train_il.py` | Huấn luyện IL: lịch freeze A→B→C hoặc fine-tune toàn bộ, replay OpTC thật, chọn epoch/ngưỡng trên VAL, TEST một lần |
 | `run_matrix.sh` | 6 cấu hình × 3 seed |
 | `summarize.py` | Bảng mean ± std |
+| `plot_confusion.py` | Vẽ confusion matrix (ATLASv2 binary, OpTC trước/sau, ATLASv2 last stage) từ `result.json` |
 
 Dữ liệu vào:
 - ATLASv2: `output/bilstm_v9_20261112/dataset_v9b_stage_optc.pkl` (tạo bởi `bilstm_v9/build_dataset.py --out-name dataset_v9b_stage_optc.pkl`; đã có trường `optc_raw`).
