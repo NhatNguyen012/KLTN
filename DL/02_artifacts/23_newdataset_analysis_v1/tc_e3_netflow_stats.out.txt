@@ -1,0 +1,120 @@
+===== DARPA-TC-E3-THEIA
+                    operation         c
+0              EVENT_RECVFROM  14219453
+1                  EVENT_READ   8369451
+2                  EVENT_OPEN   6613272
+3    EVENT_READ_SOCKET_PARAMS   3894722
+4                 EVENT_WRITE   3679281
+5               EVENT_RECVMSG   3041987
+6               EVENT_SENDMSG   2412672
+7                EVENT_SENDTO    636414
+8               EVENT_CONNECT    592840
+9                EVENT_UNLINK    410091
+10                EVENT_CLONE    239820
+11  EVENT_WRITE_SOCKET_PARAMS    176505
+time range: ('2018-04-03 14:02', '2018-04-13 21:04')
+        src_addr  src_port       dst_addr  dst_port
+0  128.55.12.110     38585             NA         0
+1  128.55.12.110     57010   128.55.12.10        53
+2  128.55.12.110     51907  66.150.139.21        80
+3  128.55.12.110     57433             NA         0
+4  128.55.12.110     47586   128.55.12.10        53
+5  128.55.12.110     39545   128.55.12.10        53
+6  128.55.12.110     47093             NA         0
+7  128.55.12.110     57147   128.55.12.10        53
+events process->netflow: (3818431,)
+                   operation        c
+0              EVENT_SENDMSG  2412672
+1               EVENT_SENDTO   636414
+2              EVENT_CONNECT   592840
+3  EVENT_WRITE_SOCKET_PARAMS   176505
+     pos        n  procs  dips
+0   True    64012    114     9
+1  False  3754419  56535   196
+                                     path    pos        c
+0   /home/admin/Downloads/firefox/firefox  False  1872686
+1                        /bin/dbus-daemon  False   604439
+2            /usr/sbin/console-kit-daemon  False   363628
+3                          /usr/sbin/sshd  False   185309
+4            /usr/lib/policykit-1/polkitd  False   185028
+5                     /usr/bin/pulseaudio  False    81311
+6                       /usr/bin/whoopsie  False    73033
+7    /usr/lib/postgresql/9.1/bin/postgres  False    65655
+8                           /var/log/mail   True    63608
+9                /usr/sbin/NetworkManager  False    60529
+10                     /usr/bin/python2.7  False    48622
+11     /usr/lib/unity/unity-panel-service  False    45760
+                                          path      c  ips
+0                                /var/log/mail  63608    3
+1                             /usr/bin/fluxbox    157    3
+2                /home/admin/profile (deleted)     78    2
+3  /etc/firefox/native-messaging-hosts/gtcache     72    2
+4        /home/admin/Downloads/firefox/firefox     48    2
+5                  /home/admin/clean (deleted)     32    1
+6                            /home/admin/clean      5    1
+7                          /home/admin/profile      5    1
+8                                    /bin/dash      5    1
+9                      /usr/bin/gnome-terminal      2    1
+   dst_port    pos        c
+0         0  False  2809658
+1        53  False   522325
+2        80  False   198878
+3         0   True    63714
+4     36665  False    35634
+5     33455  False    28435
+6       143  False    13822
+7     42706  False     9084
+8     55694  False     1845
+9     43214  False     1740
+label rows: (126,) secs 3
+===== DARPA-TC-E3-CADETS
+                 operation         c
+0               EVENT_READ  12527239
+1              EVENT_CLOSE   6124156
+2               EVENT_MMAP   4648096
+3              EVENT_LSEEK   4016402
+4               EVENT_OPEN   3843324
+5              EVENT_WRITE   1602681
+6     EVENT_MODIFY_PROCESS   1099007
+7      EVENT_CREATE_OBJECT    940967
+8   EVENT_CHANGE_PRINCIPAL    304919
+9               EVENT_FORK    223781
+10              EVENT_EXIT    215741
+11           EVENT_EXECUTE    210914
+time range: ('2018-04-02 22:07', '2018-04-13 21:35')
+       src_addr  src_port       dst_addr  dst_port
+0  128.55.12.73     54019   128.55.12.10        53
+1  128.55.12.73        25  128.55.12.166     35811
+2  128.55.12.73        25  128.55.12.166     46808
+3     localhost        -1   128.55.12.10        53
+4  128.55.12.73     44818   128.55.12.10        53
+5     localhost        -1   128.55.12.10        53
+6     localhost        -1   128.55.12.10        53
+7     localhost        -1   128.55.12.10        53
+events process->netflow: (445689,)
+       operation       c
+0    EVENT_WRITE  231625
+1    EVENT_CLOSE   81338
+2   EVENT_SENDTO   70860
+3  EVENT_CONNECT   61780
+4  EVENT_SENDMSG      86
+     pos       n  procs  dips
+0  False  370266  14260  1140
+1   True   75423  11178    22
+   path    pos       c
+0  None  False  370266
+1  None   True   75423
+   path      c  ips
+0  None  75423   22
+   dst_port    pos       c
+0        53  False  132932
+1        53   True   40437
+2     40495  False   13432
+3        80  False   11450
+4       512  False    8838
+5     49228  False    7014
+6     60376  False    5562
+7     60378  False    5240
+8     54020  False    4322
+9     61219   True    4298
+label rows: (102359,) secs 11

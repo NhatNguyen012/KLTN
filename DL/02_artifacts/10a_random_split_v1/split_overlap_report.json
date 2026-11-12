@@ -1,0 +1,104 @@
+{
+  "expected_shared_test_hosts_if_independent_random": 13.9,
+  "test_hosts_per_seed": {
+    "seed_1": 93,
+    "seed_2": 93,
+    "seed_3": 93,
+    "original": 94
+  },
+  "test_positive_hosts_per_seed": {
+    "seed_1": [
+      "sysclient0051",
+      "sysclient0104",
+      "sysclient0255",
+      "sysclient0618"
+    ],
+    "seed_2": [
+      "sysclient0051",
+      "sysclient0203",
+      "sysclient0355",
+      "sysclient0660"
+    ],
+    "seed_3": [
+      "sysclient0051",
+      "sysclient0069",
+      "sysclient0104",
+      "sysclient0503"
+    ],
+    "original": [
+      "sysclient0051",
+      "sysclient0402",
+      "sysclient0503",
+      "sysclient0851"
+    ]
+  },
+  "pairs": [
+    {
+      "a": "seed_1",
+      "b": "seed_2",
+      "shared_train_hosts": 299,
+      "shared_val_hosts": 12,
+      "shared_test_hosts": 16,
+      "shared_test_positive_hosts": 1,
+      "shared_test_benign_hosts": 15,
+      "test_positive_hosts_identical": false,
+      "test_hosts_jaccard": 0.0941
+    },
+    {
+      "a": "seed_1",
+      "b": "seed_3",
+      "shared_train_hosts": 306,
+      "shared_val_hosts": 11,
+      "shared_test_hosts": 17,
+      "shared_test_positive_hosts": 2,
+      "shared_test_benign_hosts": 15,
+      "test_positive_hosts_identical": false,
+      "test_hosts_jaccard": 0.1006
+    },
+    {
+      "a": "seed_1",
+      "b": "original",
+      "shared_train_hosts": 301,
+      "shared_val_hosts": 13,
+      "shared_test_hosts": 14,
+      "shared_test_positive_hosts": 1,
+      "shared_test_benign_hosts": 13,
+      "test_positive_hosts_identical": false,
+      "test_hosts_jaccard": 0.0809
+    },
+    {
+      "a": "seed_2",
+      "b": "seed_3",
+      "shared_train_hosts": 303,
+      "shared_val_hosts": 12,
+      "shared_test_hosts": 17,
+      "shared_test_positive_hosts": 1,
+      "shared_test_benign_hosts": 16,
+      "test_positive_hosts_identical": false,
+      "test_hosts_jaccard": 0.1006
+    },
+    {
+      "a": "seed_2",
+      "b": "original",
+      "shared_train_hosts": 303,
+      "shared_val_hosts": 11,
+      "shared_test_hosts": 14,
+      "shared_test_positive_hosts": 1,
+      "shared_test_benign_hosts": 13,
+      "test_positive_hosts_identical": false,
+      "test_hosts_jaccard": 0.0809
+    },
+    {
+      "a": "seed_3",
+      "b": "original",
+      "shared_train_hosts": 303,
+      "shared_val_hosts": 17,
+      "shared_test_hosts": 8,
+      "shared_test_positive_hosts": 2,
+      "shared_test_benign_hosts": 6,
+      "test_positive_hosts_identical": false,
+      "test_hosts_jaccard": 0.0447
+    }
+  ],
+  "splits_actually_differ": true
+}

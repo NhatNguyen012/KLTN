@@ -1,0 +1,254 @@
+{
+  "generated_at": "2026-10-01T04:21:40.159612+00:00",
+  "script_version": "step10d-validate-random-split-v1.0",
+  "status": "PASS",
+  "dataset_root": "03_datasets\\random_network_dl_v1_1_15m\\seed_2",
+  "heldout_scenario": null,
+  "fold_name": "seed_2",
+  "experiment_mode": "random",
+  "build_config": {
+    "window_minutes": 15,
+    "max_events": 512,
+    "script_version": "step10c-random-split-network-dl-shards-v1.0"
+  },
+  "host_audit": {
+    "host_counts": {
+      "train": 434,
+      "val": 93,
+      "test": 93
+    },
+    "host_intersections": {
+      "train_vs_val": [],
+      "train_vs_test": [],
+      "val_vs_test": []
+    }
+  },
+  "manifest_audit": {
+    "positive_samples_by_scenario_split": {
+      "scenario_1|test": 6,
+      "scenario_1|train": 53,
+      "scenario_1|val": 19,
+      "scenario_2|test": 72,
+      "scenario_2|train": 261,
+      "scenario_2|val": 149,
+      "scenario_3|test": 4,
+      "scenario_3|train": 2
+    },
+    "positive_samples_by_split_host": {
+      "test|sysclient0051": 4,
+      "test|sysclient0203": 72,
+      "test|sysclient0355": 3,
+      "test|sysclient0660": 3,
+      "train|sysclient0005": 3,
+      "train|sysclient0010": 72,
+      "train|sysclient0104": 3,
+      "train|sysclient0170": 4,
+      "train|sysclient0205": 3,
+      "train|sysclient0255": 3,
+      "train|sysclient0321": 12,
+      "train|sysclient0351": 2,
+      "train|sysclient0402": 4,
+      "train|sysclient0419": 5,
+      "train|sysclient0501": 29,
+      "train|sysclient0503": 3,
+      "train|sysclient0559": 3,
+      "train|sysclient0618": 73,
+      "train|sysclient0771": 6,
+      "train|sysclient0811": 12,
+      "train|sysclient0851": 72,
+      "train|sysclient0874": 4,
+      "train|sysclient0955": 3,
+      "val|sysclient0069": 77,
+      "val|sysclient0201": 13,
+      "val|sysclient0358": 72,
+      "val|sysclient0462": 3,
+      "val|sysclient0609": 3
+    },
+    "rows": 228984,
+    "split_stats": {
+      "train": {
+        "samples": 163027,
+        "positive_samples": 316,
+        "negative_samples": 162711,
+        "events": 61122797,
+        "positive_events": 14649,
+        "hosts_with_samples": 434,
+        "shards_referenced": 250,
+        "positive_sample_rate": 0.0019383292338078968,
+        "pos_weight_neg_over_pos": 514.9082278481013
+      },
+      "val": {
+        "samples": 30019,
+        "positive_samples": 168,
+        "negative_samples": 29851,
+        "events": 11010382,
+        "positive_events": 6991,
+        "hosts_with_samples": 93,
+        "shards_referenced": 50,
+        "positive_sample_rate": 0.005596455578133848,
+        "pos_weight_neg_over_pos": 177.6845238095238
+      },
+      "test": {
+        "samples": 35938,
+        "positive_samples": 82,
+        "negative_samples": 35856,
+        "events": 13493006,
+        "positive_events": 3081,
+        "hosts_with_samples": 93,
+        "shards_referenced": 58,
+        "positive_sample_rate": 0.002281707384940731,
+        "pos_weight_neg_over_pos": 437.2682926829268
+      }
+    },
+    "day_positive_samples": {
+      "train": {
+        "2019-09-23": 53,
+        "2019-09-24": 85,
+        "2019-09-25": 178
+      },
+      "val": {
+        "2019-09-23": 19,
+        "2019-09-24": 41,
+        "2019-09-25": 108
+      },
+      "test": {
+        "2019-09-23": 6,
+        "2019-09-24": 18,
+        "2019-09-25": 58
+      }
+    },
+    "errors": {
+      "duplicate_sample_id": [],
+      "duplicate_sample_key": [],
+      "missing_host_in_mapping": [],
+      "host_split_mismatch": [],
+      "invalid_label_rule": [],
+      "event_count_out_of_range": [],
+      "window_alignment_error": [],
+      "date_mismatch": [],
+      "positive_sample_on_nonpositive_host": [],
+      "test_positive_not_heldout_scenario": [],
+      "train_val_positive_from_heldout_scenario": [],
+      "missing_shard_reference": []
+    },
+    "error_counts": {
+      "duplicate_sample_id": 0,
+      "duplicate_sample_key": 0,
+      "missing_host_in_mapping": 0,
+      "host_split_mismatch": 0,
+      "invalid_label_rule": 0,
+      "event_count_out_of_range": 0,
+      "window_alignment_error": 0,
+      "date_mismatch": 0,
+      "positive_sample_on_nonpositive_host": 0,
+      "test_positive_not_heldout_scenario": 0,
+      "train_val_positive_from_heldout_scenario": 0,
+      "missing_shard_reference": 0
+    }
+  },
+  "stats_compare": {
+    "pass": true,
+    "mismatches": []
+  },
+  "integrity_audit": {
+    "entries": 368,
+    "missing_files": [],
+    "size_mismatch": [],
+    "sha_verified": true,
+    "sha_files_checked": 368,
+    "sha_mismatch": [],
+    "listed_bytes": 4670969503
+  },
+  "npz_smoke": {
+    "samples_per_split": 3,
+    "samples_inspected": 9,
+    "inspected": [
+      {
+        "split": "train",
+        "sample_id": "90f90c2e334b6b3cea722d05",
+        "shard": "shards/train/date=2019-09-17/train_2019-09-17_0000.npz",
+        "index": 0,
+        "events": 154,
+        "label": 0
+      },
+      {
+        "split": "train",
+        "sample_id": "6a31d6004700efa8d21066d2",
+        "shard": "shards/train/date=2019-09-17/train_2019-09-17_0000.npz",
+        "index": 1,
+        "events": 205,
+        "label": 0
+      },
+      {
+        "split": "train",
+        "sample_id": "2c8d15fe534ed70a88bc43df",
+        "shard": "shards/train/date=2019-09-17/train_2019-09-17_0000.npz",
+        "index": 2,
+        "events": 261,
+        "label": 0
+      },
+      {
+        "split": "val",
+        "sample_id": "98c0315ba004e15c22c91be1",
+        "shard": "shards/val/date=2019-09-17/val_2019-09-17_0000.npz",
+        "index": 0,
+        "events": 219,
+        "label": 0
+      },
+      {
+        "split": "val",
+        "sample_id": "9662fcb18002a0e5767268b9",
+        "shard": "shards/val/date=2019-09-17/val_2019-09-17_0000.npz",
+        "index": 1,
+        "events": 512,
+        "label": 0
+      },
+      {
+        "split": "val",
+        "sample_id": "3d61f143124fdd31e4683f53",
+        "shard": "shards/val/date=2019-09-17/val_2019-09-17_0000.npz",
+        "index": 2,
+        "events": 173,
+        "label": 0
+      },
+      {
+        "split": "test",
+        "sample_id": "5eac36977769c0c89e2b66af",
+        "shard": "shards/test/date=2019-09-17/test_2019-09-17_0000.npz",
+        "index": 0,
+        "events": 150,
+        "label": 0
+      },
+      {
+        "split": "test",
+        "sample_id": "a15b6543ac05f9086b878b9e",
+        "shard": "shards/test/date=2019-09-17/test_2019-09-17_0000.npz",
+        "index": 1,
+        "events": 69,
+        "label": 0
+      },
+      {
+        "split": "test",
+        "sample_id": "0d512b82bf52027f47ab1408",
+        "shard": "shards/test/date=2019-09-17/test_2019-09-17_0000.npz",
+        "index": 2,
+        "events": 258,
+        "label": 0
+      }
+    ],
+    "errors": [],
+    "error_count": 0
+  },
+  "gates": {
+    "dataset_status_ready_for_validation": true,
+    "heldout_scenario_matches_build_config": true,
+    "host_split_disjoint": true,
+    "manifest_no_logic_errors": true,
+    "manifest_stats_match_dataset_manifest": true,
+    "integrity_no_missing_files": true,
+    "integrity_no_size_mismatch": true,
+    "integrity_sha_pass": true,
+    "npz_smoke_pass": true
+  },
+  "next_step": "Build next seed or package for Kaggle."
+}

@@ -1,0 +1,32 @@
+{
+  "script_version": "step05e-mixed-type-self-attention-v1.0",
+  "best_epoch": 1,
+  "best_val_pr_auc": 0.9747051148920307,
+  "threshold_selected_on_val": 0.0002551078796386719,
+  "val": {
+    "threshold": 0.0002551078796386719,
+    "precision": 1.0,
+    "recall": 0.9743589743589743,
+    "f1": 0.987012987012987,
+    "fpr": 0.0,
+    "tn": 33206,
+    "fp": 0,
+    "fn": 1,
+    "tp": 38,
+    "pr_auc": 0.9747051148920307,
+    "roc_auc": 0.9979278536316422
+  },
+  "test": {
+    "threshold": 0.0002551078796386719,
+    "precision": 1.0,
+    "recall": 0.9879518072289156,
+    "f1": 0.9939393939393939,
+    "fpr": 0.0,
+    "tn": 30330,
+    "fp": 0,
+    "fn": 1,
+    "tp": 82,
+    "pr_auc": 1.0,
+    "roc_auc": 1.0
+  }
+}

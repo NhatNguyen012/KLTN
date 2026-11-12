@@ -1,0 +1,81 @@
+{
+ "name": "theia",
+ "flows_parquet": 186100,
+ "events_in_shards": 186100,
+ "positive_flows_parquet": 627,
+ "positive_events_in_shards": 627,
+ "samples_expected": 700,
+ "samples": 700,
+ "positive_samples": 11,
+ "windows": 469,
+ "positive_windows": 9,
+ "hosts": 1,
+ "max_event_count": 512,
+ "unique_sample_id": true,
+ "recheck_python_vs_shard": {
+  "checked": 300,
+  "mismatch": 0
+ },
+ "share_unk_by_field": {
+  "app_family": 1.0,
+  "proto": 0.0,
+  "service": 0.0,
+  "conn_state": 0.0,
+  "resp_port_class": 0.0041,
+  "image_dir_class": 0.0,
+  "principal_class": 0.0
+ },
+ "share_missing_by_field": {
+  "app_family": 0.0,
+  "proto": 1.0,
+  "service": 1.0,
+  "conn_state": 1.0,
+  "resp_port_class": 0.1567,
+  "image_dir_class": 0.0,
+  "principal_class": 0.0
+ },
+ "top_app_family": [
+  [
+   "firefox",
+   177413,
+   163
+  ],
+  [
+   "whoopsie",
+   4534,
+   0
+  ],
+  [
+   "sshd",
+   1632,
+   0
+  ],
+  [
+   "python2.7",
+   1134,
+   0
+  ],
+  [
+   "thunderbird",
+   552,
+   0
+  ],
+  [
+   "mail",
+   453,
+   453
+  ],
+  [
+   "bash",
+   301,
+   0
+  ],
+  [
+   "ubuntu-geoip-provider",
+   40,
+   0
+  ]
+ ],
+ "PASS": true,
+ "seconds": 12
+}

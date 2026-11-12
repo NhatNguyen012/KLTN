@@ -1,0 +1,109 @@
+{
+  "version": "network-numeric-stats-v1.1",
+  "fit_split": "train",
+  "transform": "log1p_nonnegative_then_zscore",
+  "missing_policy": {
+    "normalized_value": 0.0,
+    "parallel_missing_mask": true,
+    "note": "0.0 sau z-score tương ứng TRAIN mean. Missing được phân biệt bằng x_num_missing mask ở STEP 04D."
+  },
+  "features": {
+    "duration": {
+      "log1p_mean": 0.08513253551424808,
+      "log1p_std": 0.41697470048941426,
+      "scale_used": 0.41697470048941426,
+      "train_observed": 61745738,
+      "train_missing": 5554,
+      "train_missing_rate": 8.994143798643111e-05,
+      "raw_train_min": 0.00067,
+      "raw_train_max": 10801.14967,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "orig_bytes": {
+      "log1p_mean": 6.8270749304423015,
+      "log1p_std": 0.5488172454432245,
+      "scale_used": 0.5488172454432245,
+      "train_observed": 61745738,
+      "train_missing": 5554,
+      "train_missing_rate": 8.994143798643111e-05,
+      "raw_train_min": 0,
+      "raw_train_max": 687699148,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "resp_bytes": {
+      "log1p_mean": 7.903249224676226,
+      "log1p_std": 1.7743507257864137,
+      "scale_used": 1.7743507257864137,
+      "train_observed": 61745738,
+      "train_missing": 5554,
+      "train_missing_rate": 8.994143798643111e-05,
+      "raw_train_min": 0,
+      "raw_train_max": 31471762,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "missed_bytes": {
+      "log1p_mean": 8.093372742995311e-07,
+      "log1p_std": 0.0024038287336471207,
+      "scale_used": 0.0024038287336471207,
+      "train_observed": 61751292,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 0,
+      "raw_train_max": 1260,
+      "active_for_model": false,
+      "zscore_clip_abs": 10.0
+    },
+    "orig_pkts": {
+      "log1p_mean": 2.2384027302974916,
+      "log1p_std": 0.3772749065184494,
+      "scale_used": 0.3772749065184494,
+      "train_observed": 61751292,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 1,
+      "raw_train_max": 597040,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "orig_ip_bytes": {
+      "log1p_mean": 7.170876804439055,
+      "log1p_std": 0.35789572875427295,
+      "scale_used": 0.35789572875427295,
+      "train_observed": 61751292,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 52,
+      "raw_train_max": 711580796,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "resp_pkts": {
+      "log1p_mean": 2.5851729261260155,
+      "log1p_std": 0.7946860126242433,
+      "scale_used": 0.7946860126242433,
+      "train_observed": 61751292,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 0,
+      "raw_train_max": 88831,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "resp_ip_bytes": {
+      "log1p_mean": 8.142982576124618,
+      "log1p_std": 1.596134982709177,
+      "scale_used": 1.596134982709177,
+      "train_observed": 61751292,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 0,
+      "raw_train_max": 32471334,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    }
+  },
+  "zscore_clip_abs": 10.0
+}

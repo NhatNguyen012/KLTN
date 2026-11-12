@@ -1,0 +1,31 @@
+[A] ta1-theia-e3-official-1r.json
+[A] 5,000,000 dòng 87s netflow 14,189 subject 10,256
+[A] ta1-theia-e3-official-1r.json.1
+[A] 5,000,000 dòng 206s netflow 27,678 subject 22,692
+[A] ta1-theia-e3-official-1r.json.2
+[A] 5,000,000 dòng 337s netflow 37,801 subject 33,937
+[A] ta1-theia-e3-official-1r.json.3
+[A] 5,000,000 dòng 461s netflow 45,830 subject 45,081
+[A] ta1-theia-e3-official-1r.json.4
+[A] 5,000,000 dòng 589s netflow 51,324 subject 59,083
+[A] ta1-theia-e3-official-1r.json.5
+[A] 5,000,000 dòng 721s netflow 57,191 subject 67,387
+[A] ta1-theia-e3-official-1r.json.6
+[A] 5,000,000 dòng 842s netflow 62,082 subject 74,630
+[A] ta1-theia-e3-official-1r.json.7
+[A] 5,000,000 dòng 968s netflow 66,585 subject 81,805
+[A] ta1-theia-e3-official-1r.json.8
+[A] 5,000,000 dòng 1094s netflow 69,302 subject 89,668
+[A] ta1-theia-e3-official-1r.json.9
+[B] ta1-theia-e3-official-1r.json
+[B] ta1-theia-e3-official-1r.json.1
+[B] ta1-theia-e3-official-1r.json.2
+[B] ta1-theia-e3-official-1r.json.3
+[B] ta1-theia-e3-official-1r.json.4
+[B] ta1-theia-e3-official-1r.json.5
+[B] ta1-theia-e3-official-1r.json.6
+[B] ta1-theia-e3-official-1r.json.7
+[B] ta1-theia-e3-official-1r.json.8
+[B] 5,000,000 dòng 2225s
+[B] ta1-theia-e3-official-1r.json.9
+[xong] {"seconds": 2281, "type_counts": {"Host": 1, "Event": 44023627, "Principal": 21, "Subject": 92376, "MemoryObject": 2329980, "FileObject": 246074, "NetFlowObject": 69870}, "netflow": {"n": 69870, "ipProtocol": {"None": 69870}, "remote_addr_empty": 0, "remote_port_top": {"53": 27899, "0": 24121, "80": 17555, "143": 16, "25": 10, "4506": 3, "41394": 1, "36665": 1, "4505": 1, "41462": 1}, "example": [["FEFFFFFF-0000-FFFF-FFFF-000000000040", ["LOCAL", 0, "NA", 0, null]], ["0A00063C-0000-FFFF-FFFF-000000000040", ["/var/run/dbus/system_bus_socket", 0, "NA", 0, null]], ["FDFFFFFF-0000-FFFF-FFFF-000000000040", ["/tmp/.X11-unix/X1", 0, "NA", 0, null]]]}, "net_events": {"by_type": {"EVENT_CONNECT": {"n": 216450, "size_nonnull": 0, "size_sum": 0, "size_max": 0}, "EVENT_SENDTO": {"n": 279384, "size_nonnull": 279384, "size_sum": 69724221, "size_max": 8317}, "EVENT_RECVMSG": {"n": 1766758, "size_nonnull": 1766758, "size_sum": 601510764, "size_max": 10664}, "EVENT_READ_SOCKET_PARAMS": {"n": 3679710, "size_nonnull": 3679710, "size_sum": 4670588785, "size_max": 262104}, "EVENT_SENDMSG": {"n": 1391095, "size_nonnull": 1391095, "size_sum": 562533902, "size_max": 208832}, "EVENT_RECVFROM": {"n": 3926777, "size_nonnull": 3926777, "size_sum": 4612891436, "size_max": 2849920}, "EVENT_WRITE_SOCKET_PARAMS": {"n": 21297, "size_nonnull": 21297, "size_sum": 17943612, "size_max": 78389}}, "total": 11281471, "subject_known": 11281471, "subject_with_path": 11281471, "subject_with_cmd_not_NA": 11281471, "subject_with_ppid": 11281471, "subject_principal_known": 11281471, "ts_nanos_range": [1522764134422514178, 1522941541001378439], "distinct_netflows_touched": 69870, "top_subject_paths": {"/usr/bin/Xvnc4": 3545190, "/usr/bin/fluxbox": 3140767, "/home/admin/Downloads/firefox/firefox": 1666974, "/bin/dbus-daemon": 1031053, "/usr/lib/policykit-1/polkitd": 551720, "/usr/sbin/console-kit-daemon": 332406, "/usr/bin/whoopsie": 178355, "/usr/lib/thunderbird/thunderbird": 131468, "/usr/sbin/NetworkManager": 94632, "/usr/bin/Xorg": 88387, "/usr/bin/pulseaudio": 76127, "/usr/lib/postgresql/9.1/bin/postgres": 71268, "/usr/bin/unity-2d-panel": 56519, "/usr/lib/unity/unity-panel-service": 45390, "/usr/lib/rtkit/rtkit-daemon": 40836, "/usr/sbin/sshd": 39769, "/usr/bin/python2.7": 34589, "/usr/bin/metacity": 22655, "/usr/bin/unity-2d-shell": 16471, "/usr/sbin/ntpd": 15597, "/usr/lib/bamf/bamfdaemon": 9463, "/usr/lib/accountsservice/accounts-daemon": 7673, "/usr/lib/udisks/udisks-daemon": 7637, "/usr/lib/upower/upowerd": 7637, "/usr/lib/pulseaudio/pulse/gconf-helper": 7424}}}

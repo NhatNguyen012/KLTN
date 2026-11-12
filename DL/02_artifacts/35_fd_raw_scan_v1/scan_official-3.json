@@ -1,0 +1,644 @@
+{
+ "file": "03_datasets/ta1-fivedirections-e3-official-3.json.tar.gz",
+ "seconds": 54,
+ "type_counts": {
+  "StartMarker": 1,
+  "TimeMarker": 901,
+  "Host": 1,
+  "Subject": 10688,
+  "FileObject": 37440,
+  "Event": 4535354,
+  "RegistryKeyObject": 8146,
+  "NetFlowObject": 1818,
+  "SrcSinkObject": 2,
+  "MemoryObject": 152385,
+  "Principal": 10,
+  "EndMarker": 1
+ },
+ "parsed_counts": {
+  "StartMarker": 1,
+  "TimeMarker": 901,
+  "Host": 1,
+  "Subject": 10688,
+  "FileObject": 20000,
+  "RegistryKeyObject": 8146,
+  "NetFlowObject": 1818,
+  "SrcSinkObject": 2,
+  "MemoryObject": 20000,
+  "Principal": 10,
+  "EndMarker": 1
+ },
+ "event_types_all": {
+  "EVENT_CHECK_FILE_ATTRIBUTES": 892318,
+  "EVENT_OPEN": 805872,
+  "EVENT_READ": 687409,
+  "EVENT_CREATE_OBJECT": 586583,
+  "EVENT_CLOSE": 437032,
+  "EVENT_WRITE": 431980,
+  "EVENT_FCNTL": 241104,
+  "EVENT_OTHER": 194919,
+  "EVENT_RECVFROM": 75931,
+  "EVENT_SENDTO": 56529,
+  "EVENT_MODIFY_FILE_ATTRIBUTES": 37651,
+  "EVENT_LOADLIBRARY": 31332,
+  "EVENT_ACCEPT": 20272,
+  "EVENT_EXIT": 9041,
+  "EVENT_CREATE_THREAD": 8615,
+  "EVENT_UNLINK": 7482,
+  "EVENT_RENAME": 6584,
+  "EVENT_RECVMSG": 2169,
+  "EVENT_BIND": 567,
+  "EVENT_EXECUTE": 470,
+  "EVENT_CONNECT": 404,
+  "EVENT_FORK": 358,
+  "EVENT_SIGNAL": 354,
+  "EVENT_LINK": 289,
+  "EVENT_LOGIN": 57,
+  "EVENT_UPDATE": 16,
+  "EVENT_SENDMSG": 11,
+  "EVENT_LOGOUT": 5
+ },
+ "event_types_parsed": {
+  "EVENT_WRITE": 2160,
+  "EVENT_READ": 3438,
+  "EVENT_CONNECT": 404,
+  "EVENT_BIND": 567,
+  "EVENT_ACCEPT": 20272,
+  "EVENT_UNLINK": 38,
+  "EVENT_LINK": 2,
+  "EVENT_OPEN": 4030,
+  "EVENT_MODIFY_FILE_ATTRIBUTES": 189,
+  "EVENT_RECVMSG": 2169,
+  "EVENT_CREATE_OBJECT": 2933,
+  "EVENT_UPDATE": 1,
+  "EVENT_OTHER": 975,
+  "EVENT_CHECK_FILE_ATTRIBUTES": 4462,
+  "EVENT_FCNTL": 1206,
+  "EVENT_SENDTO": 56529,
+  "EVENT_RECVFROM": 75931,
+  "EVENT_EXECUTE": 3,
+  "EVENT_LOADLIBRARY": 157,
+  "EVENT_CLOSE": 2186,
+  "EVENT_RENAME": 33,
+  "EVENT_EXIT": 46,
+  "EVENT_CREATE_THREAD": 44,
+  "EVENT_LOGIN": 1,
+  "EVENT_LOGOUT": 1,
+  "EVENT_SIGNAL": 2,
+  "EVENT_FORK": 2,
+  "EVENT_SENDMSG": 11
+ },
+ "event_ts_nanos_range_from_parsed": [
+  1523626653144000000,
+  1523653704757000000
+ ],
+ "time_markers_sample": [
+  [
+   1523626948676704966,
+   1523626352221461787,
+   1523626628048390582
+  ],
+  [
+   1523653479757743681,
+   1523653453249892609,
+   1523653471871781427
+  ]
+ ],
+ "netflow": {
+  "local_addr_present": 1818,
+  "remote_addr_present": 1525,
+  "n": 1818,
+  "remote_port_present": 1818,
+  "local_port_present": 1818,
+  "inbound_like": 0,
+  "ip_protocol": {
+   "17": 1769,
+   "6": 41,
+   "58": 6,
+   "2": 2
+  },
+  "n_unique_uuid": 1818
+ },
+ "subject": {
+  "n": 10688,
+  "types": {
+   "SUBJECT_PROCESS": 582,
+   "SUBJECT_THREAD": 10106
+  },
+  "with_cmdLine": 533,
+  "with_parentSubject": 10576,
+  "with_localPrincipal": 10688,
+  "properties_map_keys": {},
+  "cmd_examples": [
+   "MpCmdRun.exe",
+   "MpCmdRun.exe",
+   "MpCmdRun.exe",
+   "MpCmdRun.exe",
+   "MpCmdRun.exe"
+  ]
+ },
+ "net_events": {
+  "parsed_by_type": {
+   "EVENT_CONNECT": 404,
+   "EVENT_BIND": 567,
+   "EVENT_ACCEPT": 20272,
+   "EVENT_RECVMSG": 2169,
+   "EVENT_SENDTO": 56529,
+   "EVENT_RECVFROM": 75931,
+   "EVENT_SENDMSG": 11
+  },
+  "total": 155883,
+  "predicateObject_is_netflow": 153703,
+  "of_total_with_predicate": 155883,
+  "subject_known": 155883,
+  "subject_with_cmdLine": 122286,
+  "subject_with_parentSubject": 155319
+ },
+ "event_size_by_type": {
+  "EVENT_WRITE": {
+   "n": 2160,
+   "with_size": 2160,
+   "sum": 8366303,
+   "max": 1048576
+  },
+  "EVENT_READ": {
+   "n": 3438,
+   "with_size": 3438,
+   "sum": 9678707,
+   "max": 262144
+  },
+  "EVENT_CONNECT": {
+   "n": 404,
+   "with_size": 404,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_BIND": {
+   "n": 567,
+   "with_size": 567,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_ACCEPT": {
+   "n": 20272,
+   "with_size": 20272,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_UNLINK": {
+   "n": 38,
+   "with_size": 38,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_LINK": {
+   "n": 2,
+   "with_size": 2,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_OPEN": {
+   "n": 4030,
+   "with_size": 4030,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_MODIFY_FILE_ATTRIBUTES": {
+   "n": 189,
+   "with_size": 189,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_RECVMSG": {
+   "n": 2169,
+   "with_size": 2169,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_CREATE_OBJECT": {
+   "n": 2933,
+   "with_size": 2933,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_UPDATE": {
+   "n": 1,
+   "with_size": 1,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_OTHER": {
+   "n": 975,
+   "with_size": 975,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_CHECK_FILE_ATTRIBUTES": {
+   "n": 4462,
+   "with_size": 4462,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_FCNTL": {
+   "n": 1206,
+   "with_size": 1206,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_SENDTO": {
+   "n": 56529,
+   "with_size": 56529,
+   "sum": 485345334,
+   "max": 86771
+  },
+  "EVENT_RECVFROM": {
+   "n": 75931,
+   "with_size": 75931,
+   "sum": 3883848,
+   "max": 1428
+  },
+  "EVENT_EXECUTE": {
+   "n": 3,
+   "with_size": 3,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_LOADLIBRARY": {
+   "n": 157,
+   "with_size": 157,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_CLOSE": {
+   "n": 2186,
+   "with_size": 2186,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_RENAME": {
+   "n": 33,
+   "with_size": 33,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_EXIT": {
+   "n": 46,
+   "with_size": 46,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_CREATE_THREAD": {
+   "n": 44,
+   "with_size": 44,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_LOGIN": {
+   "n": 1,
+   "with_size": 1,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_LOGOUT": {
+   "n": 1,
+   "with_size": 1,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_SIGNAL": {
+   "n": 2,
+   "with_size": 2,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_FORK": {
+   "n": 2,
+   "with_size": 2,
+   "sum": 0,
+   "max": 0
+  },
+  "EVENT_SENDMSG": {
+   "n": 11,
+   "with_size": 11,
+   "sum": 0,
+   "max": 0
+  }
+ },
+ "fields": {
+  "StartMarker": {
+   "sessionNumber": 1
+  },
+  "TimeMarker": {
+   "tsNanos": 901
+  },
+  "Host": {
+   "hostName": 1,
+   "osDetails": 1,
+   "uuid": 1,
+   "hostIdentifiers[].idValue": 1,
+   "hostIdentifiers[]": 1,
+   "hostType": 1,
+   "interfaces[].macAddress": 1,
+   "interfaces[]": 1,
+   "interfaces[].name": 1,
+   "hostIdentifiers[].idType": 1,
+   "interfaces[].ipAddresses": 1
+  },
+  "Subject": {
+   "iteration:null": 10688,
+   "uuid": 10688,
+   "privilegeLevel:null": 10688,
+   "count:null": 10688,
+   "startTimestampNanos": 10688,
+   "exportedLibraries:null": 10688,
+   "localPrincipal": 10688,
+   "properties:null": 10688,
+   "unitId:null": 10688,
+   "cid": 10688,
+   "importedLibraries:null": 10688,
+   "type": 10688,
+   "hostId": 10688,
+   "cmdLine:null": 10155,
+   "cmdLine:string": 533,
+   "parentSubject:null": 112
+  },
+  "FileObject": {
+   "localPrincipal:null": 20000,
+   "fileDescriptor:null": 20000,
+   "type": 20000,
+   "uuid": 20000,
+   "baseObject.properties:null": 20000,
+   "peInfo:null": 20000,
+   "hashes:null": 20000,
+   "baseObject.permission:null": 20000,
+   "baseObject.hostId": 20000,
+   "size:null": 20000,
+   "baseObject.epoch:null": 20000
+  },
+  "RegistryKeyObject": {
+   "key": 8146,
+   "value.isNull": 8146,
+   "value.runtimeDataType:null": 8146,
+   "uuid": 8146,
+   "baseObject.properties:null": 8146,
+   "value.provenance:null": 8146,
+   "value.tag:null": 8146,
+   "value.type": 8146,
+   "value.components:null": 8146,
+   "value.size": 8146,
+   "value.valueDataType": 8146,
+   "baseObject.permission:null": 8146,
+   "baseObject.hostId": 8146,
+   "size:null": 8146,
+   "baseObject.epoch:null": 8146,
+   "value.valueBytes:null": 7853,
+   "value.name:null": 7723,
+   "value.name:string": 423,
+   "value.valueBytes:bytes": 293
+  },
+  "NetFlowObject": {
+   "fileDescriptor:null": 1818,
+   "uuid": 1818,
+   "baseObject.properties:null": 1818,
+   "remotePort": 1818,
+   "ipProtocol:int": 1818,
+   "remoteAddress": 1818,
+   "baseObject.permission:null": 1818,
+   "localPort": 1818,
+   "baseObject.hostId": 1818,
+   "localAddress": 1818,
+   "baseObject.epoch:null": 1818
+  },
+  "SrcSinkObject": {
+   "fileDescriptor:null": 2,
+   "type": 2,
+   "uuid": 2,
+   "baseObject.properties:null": 2,
+   "baseObject.permission:null": 2,
+   "baseObject.hostId": 2,
+   "baseObject.epoch:null": 2
+  },
+  "MemoryObject": {
+   "uuid": 20000,
+   "baseObject.properties.map": 20000,
+   "size:long": 20000,
+   "memoryAddress": 20000,
+   "pageOffset:null": 20000,
+   "baseObject.permission:null": 20000,
+   "baseObject.hostId": 20000,
+   "pageNumber:null": 20000,
+   "baseObject.epoch:null": 20000
+  },
+  "Principal": {
+   "uuid": 10,
+   "userId": 10,
+   "properties:null": 10,
+   "groupIds[]": 10,
+   "type": 10,
+   "hostId": 10,
+   "username:string": 9,
+   "username:null": 1
+  },
+  "EndMarker": {
+   "recordCounts.Host": 1,
+   "recordCounts.Subject": 1,
+   "recordCounts.Principal": 1,
+   "recordCounts.NetFlowObject": 1,
+   "recordCounts.MemoryObject": 1,
+   "recordCounts.RegistryKeyObject": 1,
+   "recordCounts.Event": 1,
+   "recordCounts.FileObject": 1,
+   "sessionNumber": 1,
+   "recordCounts.SrcSinkObject": 1
+  }
+ },
+ "event_fields_by_type": {
+  "EVENT_WRITE": {
+   "sequence:long": 2160,
+   "predicateObject2:null": 2160,
+   "uuid": 2160,
+   "parameters:null": 2160,
+   "programPoint:null": 2160,
+   "size:long": 2160,
+   "name:string": 2160,
+   "threadId:int": 2160,
+   "predicateObject2Path:null": 2160,
+   "timestampNanos": 2160,
+   "type": 2160,
+   "hostId": 2160,
+   "location:long": 2160,
+   "predicateObjectPath:string": 2156,
+   "properties.map.IoFlags": 2047,
+   "properties:null": 113,
+   "predicateObjectPath:null": 4
+  },
+  "EVENT_READ": {
+   "sequence:long": 3438,
+   "predicateObject2:null": 3438,
+   "uuid": 3438,
+   "parameters:null": 3438,
+   "programPoint:null": 3438,
+   "size:long": 3438,
+   "name:string": 3438,
+   "threadId:int": 3438,
+   "predicateObject2Path:null": 3438,
+   "timestampNanos": 3438,
+   "type": 3438,
+   "hostId": 3438,
+   "location:long": 3438,
+   "properties:null": 2973,
+   "predicateObjectPath:null": 2791,
+   "predicateObjectPath:string": 647,
+   "properties.map.IoFlags": 465
+  },
+  "EVENT_CONNECT": {
+   "sequence:long": 404,
+   "predicateObject2:null": 404,
+   "uuid": 404,
+   "parameters:null": 404,
+   "programPoint:null": 404,
+   "size:long": 404,
+   "name:string": 404,
+   "properties:null": 404,
+   "predicateObjectPath:null": 404,
+   "threadId:int": 404,
+   "predicateObject2Path:null": 404,
+   "timestampNanos": 404,
+   "type": 404,
+   "hostId": 404,
+   "location:long": 404
+  },
+  "EVENT_BIND": {
+   "sequence:long": 567,
+   "predicateObject2:null": 567,
+   "uuid": 567,
+   "parameters:null": 567,
+   "programPoint:null": 567,
+   "size:long": 567,
+   "name:string": 567,
+   "properties:null": 567,
+   "predicateObjectPath:null": 567,
+   "threadId:int": 567,
+   "predicateObject2Path:null": 567,
+   "timestampNanos": 567,
+   "type": 567,
+   "hostId": 567,
+   "location:long": 567
+  },
+  "EVENT_ACCEPT": {
+   "sequence:long": 20272,
+   "predicateObject2:null": 20272,
+   "uuid": 20272,
+   "parameters:null": 20272,
+   "programPoint:null": 20272,
+   "size:long": 20272,
+   "name:string": 20272,
+   "properties:null": 20272,
+   "predicateObjectPath:null": 20272,
+   "threadId:int": 20272,
+   "predicateObject2Path:null": 20272,
+   "timestampNanos": 20272,
+   "type": 20272,
+   "hostId": 20272,
+   "location:long": 20272
+  },
+  "EVENT_RECVMSG": {
+   "sequence:long": 2169,
+   "predicateObject2:null": 2169,
+   "properties.map.groupOperationID": 2169,
+   "properties.map.operation": 2169,
+   "uuid": 2169,
+   "parameters:null": 2169,
+   "properties.map.operationID": 2169,
+   "programPoint:null": 2169,
+   "size:long": 2169,
+   "name:string": 2169,
+   "predicateObjectPath:null": 2169,
+   "threadId:int": 2169,
+   "predicateObject2Path:null": 2169,
+   "timestampNanos": 2169,
+   "properties.map.correlationID": 2169,
+   "type": 2169,
+   "hostId": 2169,
+   "location:long": 2169
+  },
+  "EVENT_SENDTO": {
+   "sequence:long": 56529,
+   "predicateObject2:null": 56529,
+   "uuid": 56529,
+   "parameters:null": 56529,
+   "programPoint:null": 56529,
+   "size:long": 56529,
+   "name:string": 56529,
+   "properties:null": 56529,
+   "predicateObjectPath:null": 56529,
+   "threadId:int": 56529,
+   "predicateObject2Path:null": 56529,
+   "timestampNanos": 56529,
+   "type": 56529,
+   "hostId": 56529,
+   "location:long": 56529
+  },
+  "EVENT_RECVFROM": {
+   "sequence:long": 75931,
+   "predicateObject2:null": 75931,
+   "uuid": 75931,
+   "parameters:null": 75931,
+   "programPoint:null": 75931,
+   "size:long": 75931,
+   "name:string": 75931,
+   "properties:null": 75931,
+   "predicateObjectPath:null": 75931,
+   "threadId:int": 75931,
+   "predicateObject2Path:null": 75931,
+   "timestampNanos": 75931,
+   "type": 75931,
+   "hostId": 75931,
+   "location:long": 75931
+  },
+  "EVENT_EXECUTE": {
+   "sequence:long": 3,
+   "predicateObject2:null": 3,
+   "uuid": 3,
+   "parameters:null": 3,
+   "programPoint:null": 3,
+   "size:long": 3,
+   "name:string": 3,
+   "properties:null": 3,
+   "predicateObjectPath:string": 3,
+   "threadId:int": 3,
+   "predicateObject2Path:null": 3,
+   "timestampNanos": 3,
+   "type": 3,
+   "hostId": 3,
+   "location:long": 3
+  },
+  "EVENT_SENDMSG": {
+   "predicateObject2:null": 11,
+   "timestampNanos": 11,
+   "properties.map.operation": 11,
+   "parameters:null": 11,
+   "location:long": 11,
+   "properties.map.groupOperationID": 11,
+   "properties.map.providerPath": 11,
+   "uuid": 11,
+   "predicateObjectPath:null": 11,
+   "predicateObject2Path:null": 11,
+   "properties.map.providerGUID": 11,
+   "sequence:long": 11,
+   "properties.map.providerName": 11,
+   "programPoint:null": 11,
+   "size:long": 11,
+   "name:string": 11,
+   "threadId:int": 11,
+   "type": 11,
+   "hostId": 11
+  }
+ },
+ "host_record": "{\"datum\":{\"com.bbn.tc.schema.avro.cdm18.Host\":{\"uuid\":\"47923ED7-29D4-4E65-ABA2-F70A4E74DCCD\",\"hostName\":\"ta1-fivedirections\",\"hostIdentifiers\":[{\"idType\":\"\",\"idValue\":\"\"}],\"osDetails\":\"\",\"hostType\":\"HOST_DESKTOP\",\"interfaces\":[{\"name\":\"\",\"macAddress\":\"\",\"ipAddresses\":[]}]}},\"CDMVersion\":\"18\",\"source\":\"SOURCE_WINDOWS_FIVEDIRECTIONS\"}\n",
+ "first_net_events": [
+  "{\"datum\":{\"com.bbn.tc.schema.avro.cdm18.Event\":{\"uuid\":\"783B45BE-2208-4494-82CC-50005E4CA3E4\",\"sequence\":{\"long\":0},\"type\":\"EVENT_CONNECT\",\"threadId\":{\"int\":0},\"hostId\":\"47923ED7-29D4-4E65-ABA2-F70A4E74DCCD\",\"subject\":{\"com.bbn.tc.schema.avro.cdm18.UUID\":\"CA8B06B8-B4D4-4E64-90F4-FADF919C8556\"},\"predicateObject\":{\"com.bbn.tc.schema.avro.cdm18.UUID\":\"327970F4-B934-41F3-8146-19A02080F122\"},\"predicateObjectPath\":null,\"predicateObject2\":null,\"predicateObject2Path\":null,\"timestampNanos\":1523626654408000000,\"name\":{\"string\":\"EVENT_CONNECT\"},\"parameters\":null,\"location\":{\"long\":0},\"size\":{\"long\":0},\"programPoint\":null,\"properties\":null}},\"CDMVersion\":\"18\",\"source\":\"SOURCE_WINDOWS_FIVEDIRECTIONS\"}\n",
+  "{\"datum\":{\"com.bbn.tc.schema.avro.cdm18.Event\":{\"uuid\":\"30B4F3AA-37D5-45FE-97EF-FED226EF2169\",\"sequence\":{\"long\":0},\"type\":\"EVENT_CONNECT\",\"threadId\":{\"int\":0},\"hostId\":\"47923ED7-29D4-4E65-ABA2-F70A4E74DCCD\",\"subject\":{\"com.bbn.tc.schema.avro.cdm18.UUID\":\"CA8B06B8-B4D4-4E64-90F4-FADF919C8556\"},\"predicateObject\":{\"com.bbn.tc.schema.avro.cdm18.UUID\":\"65F6B62D-62D1-4508-9A65-2E9568914AFF\"},\"predicateObjectPath\":null,\"predicateObject2\":null,\"predicateObject2Path\":null,\"timestampNanos\":1523626654409000000,\"name\":{\"string\":\"EVENT_CONNECT\"},\"parameters\":null,\"location\":{\"long\":0},\"size\":{\"long\":0},\"programPoint\":null,\"properties\":null}},\"CDMVersion\":\"18\",\"source\":\"SOURCE_WINDOWS_FIVEDIRECTIONS\"}\n",
+  "{\"datum\":{\"com.bbn.tc.schema.avro.cdm18.Event\":{\"uuid\":\"2DC7BCBA-D708-4866-A16A-4F9A5547B526\",\"sequence\":{\"long\":0},\"type\":\"EVENT_BIND\",\"threadId\":{\"int\":0},\"hostId\":\"47923ED7-29D4-4E65-ABA2-F70A4E74DCCD\",\"subject\":{\"com.bbn.tc.schema.avro.cdm18.UUID\":\"D1DE91F7-5669-4FF2-A7B8-10AFB3EED785\"},\"predicateObject\":{\"com.bbn.tc.schema.avro.cdm18.UUID\":\"CD459FFF-7C67-429F-B7EA-2E52BC054A20\"},\"predicateObjectPath\":null,\"predicateObject2\":null,\"predicateObject2Path\":null,\"timestampNanos\":1523626656883000000,\"name\":{\"string\":\"EVENT_BIND\"},\"parameters\":null,\"location\":{\"long\":0},\"size\":{\"long\":0},\"programPoint\":null,\"properties\":null}},\"CDMVersion\":\"18\",\"source\":\"SOURCE_WINDOWS_FIVEDIRECTIONS\"}\n"
+ ]
+}

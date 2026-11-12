@@ -1,0 +1,39 @@
+known     C1.json    n=  607416 mal=    30 (0.00%) techniques= 7 span=15.0 min  12s
+known     C2.json    n=  950436 mal=    53 (0.01%) techniques= 8 span=15.0 min  25s
+known     C3.json    n= 1203013 mal= 14137 (1.18%) techniques= 6 span=15.0 min  31s
+known     C4.json    n= 2072151 mal=    22 (0.00%) techniques= 5 span=15.0 min  39s
+known     C5.json    n=  961920 mal=  1133 (0.12%) techniques= 4 span=15.0 min  17s
+known     C6.json    n=  442729 mal=    59 (0.01%) techniques= 9 span=15.0 min  8s
+known     C7.json    n=  155296 mal= 14124 (9.09%) techniques= 9 span=15.0 min  3s
+known     C8.json    n=  844723 mal=    49 (0.01%) techniques= 8 span=11.8 min  16s
+generated G1.json    n=  558368 mal=    35 (0.01%) techniques=10 span=15.0 min  9s
+generated G2.json    n=  232414 mal=   150 (0.06%) techniques= 9 span=15.0 min  4s
+generated G3.json    n=  424376 mal=    57 (0.01%) techniques= 8 span=6.0 min  8s
+generated G4.json    n=  359970 mal=   111 (0.03%) techniques=10 span=15.0 min  6s
+generated G5.json    n=  423459 mal=   199 (0.05%) techniques=10 span=15.0 min  8s
+generated G6.json    n=   96176 mal=   128 (0.13%) techniques= 8 span=1.0 min  2s
+generated G7.json    n=  381355 mal=    42 (0.01%) techniques= 7 span=15.0 min  6s
+generated G8.json    n= 2348338 mal=   101 (0.00%) techniques=10 span=15.0 min  37s
+generated G9.json    n= 1936581 mal=   188 (0.01%) techniques= 8 span=15.0 min  34s
+generated G10.json   n=  233526 mal=   182 (0.08%) techniques= 9 span=8.5 min  4s
+generated G11.json   n=  425309 mal=    30 (0.01%) techniques= 9 span=6.2 min  8s
+generated G12.json   n=  309510 mal=    57 (0.02%) techniques= 9 span=14.9 min  6s
+generated G13.json   n=  285053 mal=    39 (0.01%) techniques= 8 span=15.0 min  5s
+generated G14.json   n=  402268 mal=    24 (0.01%) techniques= 5 span=6.0 min  8s
+generated G15.json   n= 1305571 mal=    22 (0.00%) techniques= 6 span=15.0 min  25s
+generated G16.json   n=   86357 mal=   122 (0.14%) techniques=10 span=15.0 min  2s
+generated G17.json   n=  298825 mal=    21 (0.01%) techniques= 3 span=4.7 min  6s
+generated G18.json   n=  403077 mal=   194 (0.05%) techniques=10 span=15.0 min  7s
+generated G19.json   n=  372137 mal=    37 (0.01%) techniques= 7 span=13.2 min  6s
+generated G20.json   n=  718873 mal=    29 (0.00%) techniques= 9 span=15.0 min  13s
+composite M1.json    n=  694858 mal=   233 (0.03%) techniques=18 span=15.0 min  12s
+composite M2.json    n=  170717 mal= 14283 (8.37%) techniques=15 span=15.0 min  3s
+composite M3.json    n= 1019071 mal=   246 (0.02%) techniques=15 span=15.0 min  18s
+composite M4.json    n= 1836925 mal=    83 (0.00%) techniques=13 span=15.0 min  30s
+composite M5.json    n=  481322 mal= 15307 (3.18%) techniques=13 span=15.0 min  8s
+composite M6.json    n= 1871221 mal=   158 (0.01%) techniques=18 span=15.0 min  33s
+composite M7.json    n=  193743 mal=   367 (0.19%) techniques=17 span=15.0 min  3s
+composite M8.json    n=  224854 mal= 14363 (6.39%) techniques=18 span=15.0 min  4s
+composite M9.json    n=  281012 mal=   574 (0.20%) techniques=17 span=15.0 min  5s
+composite M10.json   n= 2192613 mal=   101 (0.00%) techniques=18 span=15.0 min  39s
+DONE 513s

@@ -1,0 +1,139 @@
+scenario,host,time_edt,tactics,pad_before_s,pad_after_s,detail,note
+SC1,sysclient0201,9/23/2019 11:23,IA|EX,60,300,detailed,tai runme.bat stager Empire
+SC1,sysclient0201,9/23/2019 11:24,C2,60,300,detailed,agent check-in
+SC1,sysclient0201,9/23/2019 11:26,PR,60,300,detailed,bypass UAC (registry windir)
+SC1,sysclient0201,9/23/2019 11:26,PR|C2,60,300,detailed,agent nang quyen check-in
+SC1,sysclient0201,9/23/2019 11:33,CA,60,300,detailed,Mimikatz
+SC1,sysclient0201,9/23/2019 11:35,CA,60,300,detailed,lay mat khau zleazer
+SC1,sysclient0201,9/23/2019 11:37,DE|PR,60,300,detailed,psinject vao LSASS (that bai)
+SC1,sysclient0201,9/23/2019 11:39,PE,60,300,detailed,persistence registry HKCU Debug
+SC1,sysclient0201,9/23/2019 11:40,DI,60,300,detailed,ps liet ke process
+SC1,sysclient0201,9/23/2019 11:41,DE|PR,60,300,detailed,psinject lan 2
+SC1,sysclient0201,9/23/2019 12:51,CO,60,300,detailed,chup man hinh
+SC1,sysclient0201,9/23/2019 12:58,DI,60,300,detailed,ARP scan /22
+SC1,sysclient0201,9/23/2019 13:07,DI|LM,60,300,detailed,thu SMB toi 142.20.56.204
+SC1,sysclient0201,9/23/2019 13:08,DI,60,300,detailed,ARP scan lai
+SC1,sysclient0201,9/23/2019 13:15,DI,60,300,detailed,ping sweep /24
+SC1,sysclient0201,9/23/2019 13:24,LM,60,300,detailed,invoke_wmi sang 0402
+SC1,sysclient0201,9/23/2019 15:30,DE,60,300,detailed,go persistence registry
+SC1,sysclient0402,9/23/2019 13:25,LM|C2,60,300,detailed,agent nang quyen check-in
+SC1,sysclient0402,9/23/2019 13:29,DI,60,300,detailed,ping sweep /24
+SC1,sysclient0402,9/23/2019 13:35,LM,60,300,detailed,invoke_wmi sang 0660
+SC1,sysclient0660,9/23/2019 13:35,LM|C2,60,300,detailed,agent check-in
+SC1,sysclient0660,9/23/2019 13:38,DI,60,300,detailed,ipconfig
+SC1,sysclient0660,9/23/2019 13:40,CA,60,300,detailed,Mimikatz
+SC1,sysclient0660,9/23/2019 13:44,DE|PR,60,300,detailed,psinject (that bai)
+SC1,sysclient0660,9/23/2019 13:49,DI,60,300,detailed,ps
+SC1,sysclient0660,9/23/2019 13:50,DE|PR,60,300,detailed,inject shellcode (that bai)
+SC1,sysclient0660,9/23/2019 13:54,DI,60,300,detailed,script thong tin DC
+SC1,sysclient0660,9/23/2019 13:56,DI,60,300,detailed,tim domain controller
+SC1,sysclient0660,9/23/2019 14:02,C2,60,300,detailed,tai zipfldr.dll (ingress tool transfer)
+SC1,sysclient0660,9/23/2019 14:04,LM,60,300,detailed,invoke_wmi sang DC1
+SC1,dc1,9/23/2019 14:04,LM|C2,60,300,detailed,agent check-in
+SC1,dc1,9/23/2019 14:07,CA,60,300,detailed,Mimikatz
+SC1,dc1,9/23/2019 14:09,CA,60,300,detailed,lsadump lay hash hdorka
+SC1,dc1,9/23/2019 14:45,LM,60,300,detailed,invoke_wmi lay lan sang 14 may
+SC1,sysclient0104,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0104,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0170,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0170,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0205,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0205,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0255,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0255,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0321,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0321,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0355,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0355,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0419,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0419,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0462,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0462,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0503,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0503,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0559,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0559,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0609,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0609,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0771,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0771,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0874,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0874,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC1,sysclient0955,9/23/2019 14:45,LM|EX,60,300,coarse,duoc DC1 lay lan; agent chay den 15:24 [buoc tai thoi diem]
+SC1,sysclient0955,9/23/2019 14:45,C2,60,2340,coarse,duoc DC1 lay lan; agent chay den 15:24 [trang thai agent dang chay]
+SC2,sysclient0811,9/24/2019 10:28,IA,60,300,detailed,email phishing toi 0811
+SC2,sysclient0811,9/24/2019 10:40,EX|C2,60,300,detailed,mo payroll.docx; agent check-in
+SC2,sysclient0501,9/24/2019 10:36,IA|EX|C2,60,300,detailed,mo payroll.docx; agent check-in
+SC2,sysclient0501,9/24/2019 10:46,EX|C2,60,300,detailed,inject script chuyen sang Empire sports.com:443
+SC2,sysclient0501,9/24/2019 11:03,DI,60,300,detailed,DeathStar khoi dong
+SC2,sysclient0501,9/24/2019 11:04,DI,60,300,detailed,lay domain SID
+SC2,sysclient0501,9/24/2019 11:04,DI,60,300,detailed,liet ke 43 Domain Admins
+SC2,sysclient0501,9/24/2019 11:05,DI,60,300,detailed,tim domain controller
+SC2,sysclient0501,9/24/2019 11:09,LM,60,300,detailed,DeathStar bat dau lateral movement
+SC2,sysclient0501,9/24/2019 11:09,PR,60,300,detailed,domain privilege escalation
+SC2,sysclient0501,9/24/2019 11:09,PR,60,300,detailed,bypassuac_eventvwr
+SC2,sysclient0501,9/24/2019 11:10,CA|PR,60,300,detailed,GPP SYSVOL tim credential
+SC2,sysclient0501,9/24/2019 11:13,DI,60,300,detailed,admin tren 1025 may
+SC2,sysclient0501,9/24/2019 11:20,LM|C2,60,300,detailed,cai agent len DC1
+SC2,sysclient0501,9/24/2019 11:23,PR,60,300,detailed,bypassuac_env (that bai)
+SC2,sysclient0501,9/24/2019 11:25,PR,60,300,detailed,bypassuac_fodhelper (that bai)
+SC2,sysclient0501,9/24/2019 11:26,LM|PR,60,300,detailed,invoke_wmi localhost
+SC2,sysclient0501,9/24/2019 11:33,LM,60,300,detailed,DC1 pivot ve 0501 bang credential admin
+SC2,sysclient0501,9/24/2019 11:34,PE,60,300,detailed,WMI subscription persistence
+SC2,sysclient0501,9/24/2019 11:37,DI,60,300,detailed,findtrusteddocuments
+SC2,sysclient0501,9/24/2019 11:39,DI|CO,60,300,detailed,winenum tu khoa important/secret
+SC2,sysclient0501,9/24/2019 11:41,DI,60,300,detailed,tim vector privesc
+SC2,sysclient0501,9/24/2019 11:45,C2,60,300,detailed,upload plink.exe
+SC2,sysclient0501,9/24/2019 13:05,C2,60,300,detailed,kiem tra plink
+SC2,sysclient0501,9/24/2019 13:11,C2,60,300,detailed,reverse SSH chuyen tiep cong RDP
+SC2,sysclient0501,9/24/2019 13:19,LM,60,300,detailed,RDP qua cong chuyen tiep
+SC2,sysclient0501,9/24/2019 13:26,C2,60,300,detailed,tai nc.exe tu news.com:8080
+SC2,sysclient0501,9/24/2019 13:31,CO,60,300,detailed,nen tai lieu C:\documents
+SC2,sysclient0501,9/24/2019 13:44,EXF,60,300,detailed,gui export.zip toi news.com:9999 bang nc.exe
+SC2,sysclient0501,9/24/2019 13:45,DE,60,300,detailed,xoa nc.exe va export.zip
+SC2,sysclient0501,9/24/2019 13:46,LM,60,300,detailed,RDP sang 0974
+SC2,sysclient0501,9/24/2019 15:42,LM,60,300,detailed,DC1 lay lan; agent chay qua dem [buoc tai thoi diem]
+SC2,sysclient0501,9/24/2019 15:42,C2,60,62000,detailed,DC1 lay lan; agent chay qua dem [trang thai agent dang chay]
+SC2,sysclient0501,9/25/2019 10:00,PE|C2,60,300,detailed,WMI subscription kich hoat; agent check-in
+SC2,dc1,9/24/2019 11:20,LM|C2,60,300,detailed,agent nang quyen check-in
+SC2,dc1,9/24/2019 11:31,LM,60,300,detailed,thu pivot WMI (access denied)
+SC2,dc1,9/24/2019 11:33,LM,60,300,detailed,pivot sang 0501
+SC2,dc1,9/24/2019 15:42,LM,60,300,detailed,lay lan sang 6 may; chay qua dem [buoc tai thoi diem]
+SC2,dc1,9/24/2019 15:42,C2,60,62000,detailed,lay lan sang 6 may; chay qua dem [trang thai agent dang chay]
+SC2,sysclient0974,9/24/2019 13:46,LM,60,300,detailed,nhan RDP tu 0501
+SC2,sysclient0974,9/24/2019 13:51,DI|CO,60,300,detailed,duyet C:\documents
+SC2,sysclient0974,9/24/2019 13:54,LM,60,300,detailed,RDP sang 0005
+SC2,sysclient0005,9/24/2019 13:54,LM,60,300,detailed,nhan RDP tu 0974
+SC2,sysclient0005,9/24/2019 14:06,CO,60,300,detailed,mount share 142.20.61.135
+SC2,sysclient0005,9/24/2019 14:34,CO,60,300,detailed,nen file share allgone.zip
+SC2,sysclient0005,9/24/2019 14:37,C2,60,300,detailed,tai movingonup.exe (nc.exe) tu news.com:4445
+SC2,sysclient0005,9/24/2019 15:04,EXF,60,300,detailed,gui 3.5 GB allgona.zip
+SC2,sysclient0005,9/24/2019 15:22,DE,60,300,detailed,don file Downloads
+SC2,sysclient0010,9/24/2019 15:42,LM,60,300,coarse,duoc DC1 lay lan; agent qua dem [buoc tai thoi diem]
+SC2,sysclient0010,9/24/2019 15:42,C2,60,62000,coarse,duoc DC1 lay lan; agent qua dem [trang thai agent dang chay]
+SC2,sysclient0069,9/24/2019 15:42,LM,60,300,coarse,duoc DC1 lay lan; agent qua dem [buoc tai thoi diem]
+SC2,sysclient0069,9/24/2019 15:42,C2,60,62000,coarse,duoc DC1 lay lan; agent qua dem [trang thai agent dang chay]
+SC2,sysclient0203,9/24/2019 15:42,LM,60,300,coarse,duoc DC1 lay lan; agent qua dem [buoc tai thoi diem]
+SC2,sysclient0203,9/24/2019 15:42,C2,60,62000,coarse,duoc DC1 lay lan; agent qua dem [trang thai agent dang chay]
+SC2,sysclient0358,9/24/2019 15:42,LM,60,300,coarse,duoc DC1 lay lan; agent qua dem [buoc tai thoi diem]
+SC2,sysclient0358,9/24/2019 15:42,C2,60,62000,coarse,duoc DC1 lay lan; agent qua dem [trang thai agent dang chay]
+SC2,sysclient0618,9/24/2019 15:42,LM,60,300,coarse,duoc DC1 lay lan; agent qua dem [buoc tai thoi diem]
+SC2,sysclient0618,9/24/2019 15:42,C2,60,62000,coarse,duoc DC1 lay lan; agent qua dem [trang thai agent dang chay]
+SC2,sysclient0851,9/24/2019 15:42,LM,60,300,coarse,duoc DC1 lay lan; agent qua dem [buoc tai thoi diem]
+SC2,sysclient0851,9/24/2019 15:42,C2,60,62000,coarse,duoc DC1 lay lan; agent qua dem [trang thai agent dang chay]
+SC3,sysclient0051,9/25/2019 10:29,IA|EX,150,300,detailed,cap nhat notepad++ tai update.exe Meterpreter (du lieu eCAR cho thay 10:28:11)
+SC3,sysclient0051,9/25/2019 10:31,PR,60,300,detailed,getsystem named pipe
+SC3,sysclient0051,9/25/2019 10:32,EX|DI,60,300,detailed,CMD shell lay thong tin may
+SC3,sysclient0051,9/25/2019 10:33,DI,60,300,detailed,ARP scan /22
+SC3,sysclient0051,9/25/2019 10:36,DI,60,300,detailed,enum ung dung
+SC3,sysclient0051,9/25/2019 10:37,DI,60,300,detailed,enum_domain
+SC3,sysclient0051,9/25/2019 10:38,DI,60,300,detailed,enum_shares
+SC3,sysclient0051,9/25/2019 10:40,DE|PR,60,300,detailed,migrate sang LSASS 568
+SC3,sysclient0051,9/25/2019 10:44,CA,60,300,detailed,Mimikatz
+SC3,sysclient0051,9/25/2019 10:48,PE,120,300,detailed,persistence Autorun + vbs (eCAR cho thay 10:47:14)
+SC3,sysclient0051,9/25/2019 10:53,DE,60,300,detailed,timestomp
+SC3,sysclient0051,9/25/2019 11:07,PE|PR,120,300,detailed,them admin vao Administrators va RDP (eCAR cho thay 11:06:32)
+SC3,sysclient0051,9/25/2019 13:42,LM,60,300,detailed,RDP tu may tan cong
+SC3,sysclient0051,9/25/2019 14:24,EX|C2,60,300,detailed,chay lai update.exe
+SC3,sysclient0351,9/25/2019 11:23,IA|EX,150,300,coarse,cap nhat notepad++ tai update.exe (eCAR cho thay 11:17-11:22)
+SC3,sysclient0351,9/25/2019 11:24,DE|PR,60,300,coarse,migrate sang lwabeat

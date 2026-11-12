@@ -1,0 +1,12 @@
+tactic,name,SC1,SC2,SC3,ALL
+IA,Initial Access,1,3,3,7
+EX,Execution,29,4,4,37
+PE,Persistence,1,3,2,6
+PR,Privilege Escalation,5,3,4,12
+DE,Defense Evasion,6,3,3,12
+CA,Credential Access,4,2,2,8
+DI,Discovery,10,5,1,16
+LM,Lateral Movement,37,25,2,64
+CO,Collection,1,5,0,6
+C2,Command and Control,81,657,9,747
+EXF,Exfiltration,0,3,0,3

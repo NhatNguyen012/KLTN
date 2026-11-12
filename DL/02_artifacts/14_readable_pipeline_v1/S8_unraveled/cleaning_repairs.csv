@@ -1,0 +1,5 @@
+﻿loại_lỗi,số_dòng,cách_sửa
+user_agent có dấu phẩy,11676,ghép các trường bị tách thành một user_agent
+client_fingerprint DHCP là danh sách,1493,ghép danh sách option thành một client_fingerprint
+dòng bình thường,6863988,giữ nguyên
+dòng bị loại,0,không có

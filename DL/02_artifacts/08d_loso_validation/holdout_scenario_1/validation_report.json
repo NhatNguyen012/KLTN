@@ -1,0 +1,208 @@
+{
+  "generated_at": "2026-09-23T20:17:18.410488+00:00",
+  "script_version": "step05f-d-validate-loso-fold-v1.1-int-like-csv-fix",
+  "status": "PASS",
+  "dataset_root": "D:\\UIT\\KLTN\\kaggle\\loso_network_dl_v1_1_15m\\holdout_scenario_1",
+  "heldout_scenario": "scenario_1",
+  "build_config": {
+    "window_minutes": 15,
+    "max_events": 512,
+    "script_version": "step05f-d-loso-network-dl-shards-v1.1-one-scan-per-day"
+  },
+  "host_audit": {
+    "host_counts": {
+      "train": 421,
+      "val": 92,
+      "test": 107
+    },
+    "host_intersections": {
+      "train_vs_val": [],
+      "train_vs_test": [],
+      "val_vs_test": []
+    }
+  },
+  "manifest_audit": {
+    "rows": 228984,
+    "split_stats": {
+      "train": {
+        "samples": 158871,
+        "positive_samples": 335,
+        "negative_samples": 158536,
+        "events": 59586600,
+        "positive_events": 11319,
+        "hosts_with_samples": 421,
+        "shards_referenced": 244,
+        "positive_sample_rate": 0.0021086290134763423,
+        "pos_weight_neg_over_pos": 473.2417910447761
+      },
+      "val": {
+        "samples": 35370,
+        "positive_samples": 153,
+        "negative_samples": 35217,
+        "events": 13260258,
+        "positive_events": 4372,
+        "hosts_with_samples": 92,
+        "shards_referenced": 57,
+        "positive_sample_rate": 0.004325699745547073,
+        "pos_weight_neg_over_pos": 230.1764705882353
+      },
+      "test": {
+        "samples": 34743,
+        "positive_samples": 78,
+        "negative_samples": 34665,
+        "events": 12779327,
+        "positive_events": 9030,
+        "hosts_with_samples": 107,
+        "shards_referenced": 57,
+        "positive_sample_rate": 0.0022450565581555995,
+        "pos_weight_neg_over_pos": 444.4230769230769
+      }
+    },
+    "day_positive_samples": {
+      "train": {
+        "2019-09-24": 103,
+        "2019-09-25": 232
+      },
+      "val": {
+        "2019-09-24": 41,
+        "2019-09-25": 112
+      },
+      "test": {
+        "2019-09-23": 78
+      }
+    },
+    "errors": {
+      "duplicate_sample_id": [],
+      "duplicate_sample_key": [],
+      "missing_host_in_mapping": [],
+      "host_split_mismatch": [],
+      "invalid_label_rule": [],
+      "event_count_out_of_range": [],
+      "window_alignment_error": [],
+      "date_mismatch": [],
+      "positive_sample_on_nonpositive_host": [],
+      "test_positive_not_heldout_scenario": [],
+      "train_val_positive_from_heldout_scenario": [],
+      "missing_shard_reference": []
+    },
+    "error_counts": {
+      "duplicate_sample_id": 0,
+      "duplicate_sample_key": 0,
+      "missing_host_in_mapping": 0,
+      "host_split_mismatch": 0,
+      "invalid_label_rule": 0,
+      "event_count_out_of_range": 0,
+      "window_alignment_error": 0,
+      "date_mismatch": 0,
+      "positive_sample_on_nonpositive_host": 0,
+      "test_positive_not_heldout_scenario": 0,
+      "train_val_positive_from_heldout_scenario": 0,
+      "missing_shard_reference": 0
+    }
+  },
+  "stats_compare": {
+    "pass": true,
+    "mismatches": []
+  },
+  "integrity_audit": {
+    "entries": 368,
+    "missing_files": [],
+    "size_mismatch": [],
+    "sha_verified": true,
+    "sha_files_checked": 368,
+    "sha_mismatch": [],
+    "listed_bytes": 4670940686
+  },
+  "npz_smoke": {
+    "samples_per_split": 3,
+    "samples_inspected": 9,
+    "inspected": [
+      {
+        "split": "train",
+        "sample_id": "d9365e376dc70380c678b147",
+        "shard": "shards/train/date=2019-09-17/train_2019-09-17_0000.npz",
+        "index": 0,
+        "events": 153,
+        "label": 0
+      },
+      {
+        "split": "train",
+        "sample_id": "680dc70bd71a6ab4aa8084f3",
+        "shard": "shards/train/date=2019-09-17/train_2019-09-17_0000.npz",
+        "index": 1,
+        "events": 414,
+        "label": 0
+      },
+      {
+        "split": "train",
+        "sample_id": "c988a7aee1ca8b23043cf43f",
+        "shard": "shards/train/date=2019-09-17/train_2019-09-17_0000.npz",
+        "index": 2,
+        "events": 81,
+        "label": 0
+      },
+      {
+        "split": "val",
+        "sample_id": "356d174e38ec93a495df00dc",
+        "shard": "shards/val/date=2019-09-17/val_2019-09-17_0000.npz",
+        "index": 0,
+        "events": 150,
+        "label": 0
+      },
+      {
+        "split": "val",
+        "sample_id": "31e805e2e6274729aadfbaa6",
+        "shard": "shards/val/date=2019-09-17/val_2019-09-17_0000.npz",
+        "index": 1,
+        "events": 69,
+        "label": 0
+      },
+      {
+        "split": "val",
+        "sample_id": "e812038a73acaaac8122f5cb",
+        "shard": "shards/val/date=2019-09-17/val_2019-09-17_0000.npz",
+        "index": 2,
+        "events": 258,
+        "label": 0
+      },
+      {
+        "split": "test",
+        "sample_id": "422a84688555e3b84459fa45",
+        "shard": "shards/test/date=2019-09-17/test_2019-09-17_0000.npz",
+        "index": 0,
+        "events": 512,
+        "label": 0
+      },
+      {
+        "split": "test",
+        "sample_id": "8f1ef3375e3464bb97b61d95",
+        "shard": "shards/test/date=2019-09-17/test_2019-09-17_0000.npz",
+        "index": 1,
+        "events": 512,
+        "label": 0
+      },
+      {
+        "split": "test",
+        "sample_id": "54bb7100df765f914c87b94c",
+        "shard": "shards/test/date=2019-09-17/test_2019-09-17_0000.npz",
+        "index": 2,
+        "events": 512,
+        "label": 0
+      }
+    ],
+    "errors": [],
+    "error_count": 0
+  },
+  "gates": {
+    "dataset_status_ready_for_validation": true,
+    "heldout_scenario_matches_build_config": true,
+    "host_split_disjoint": true,
+    "manifest_no_logic_errors": true,
+    "manifest_stats_match_dataset_manifest": true,
+    "integrity_no_missing_files": true,
+    "integrity_no_size_mismatch": true,
+    "integrity_sha_pass": true,
+    "npz_smoke_pass": true
+  },
+  "next_step": "Build next LOSO fold or package for Kaggle."
+}

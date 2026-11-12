@@ -1,0 +1,92 @@
+  lô 1/31: 223,673 flow (6s)
+  lô 2/31: 1,132,574 flow (14s)
+  lô 3/31: 3,788,258 flow (34s)
+  lô 4/31: 4,638,123 flow (63s)
+  lô 5/31: 4,707,495 flow (109s)
+  lô 6/31: 3,240,921 flow (153s)
+  lô 7/31: 3,142,423 flow (200s)
+  lô 8/31: 4,316,080 flow (240s)
+  lô 9/31: 1,744,793 flow (259s)
+  lô 10/31: 4,380,428 flow (293s)
+  lô 11/31: 1,006,305 flow (307s)
+  lô 12/31: 2,441,848 flow (330s)
+  lô 13/31: 3,034,018 flow (357s)
+  lô 14/31: 1,363,501 flow (375s)
+  lô 15/31: 4,809,794 flow (416s)
+  lô 16/31: 1,344,642 flow (433s)
+  lô 17/31: 3,525,248 flow (468s)
+  lô 18/31: 2,279,548 flow (498s)
+  lô 19/31: 1,400,144 flow (517s)
+  lô 20/31: 3,134,136 flow (548s)
+  lô 21/31: 3,076,120 flow (581s)
+  lô 22/31: 2,174,955 flow (610s)
+  lô 23/31: 2,020,682 flow (638s)
+  lô 24/31: 2,971,404 flow (668s)
+  lô 25/31: 3,050,556 flow (700s)
+  lô 26/31: 3,188,196 flow (733s)
+  lô 27/31: 1,923,041 flow (760s)
+  lô 28/31: 2,147,583 flow (791s)
+  lô 29/31: 2,869,235 flow (821s)
+  lô 30/31: 3,195,700 flow (855s)
+  lô 31/31: 3,354,761 flow (892s)
+train: {'samples': 160210, 'events': 59902514, 'positive_events': 17682, 'positive_samples': 401, 'shards': 60} (919s)
+val: {'samples': 34361, 'events': 12836373, 'positive_events': 3495, 'positive_samples': 83, 'shards': 13} (926s)
+test: {'samples': 34413, 'events': 12887298, 'positive_events': 3544, 'positive_samples': 82, 'shards': 13} (931s)
+{
+ "by_split": {
+  "train": {
+   "events_shards": 59902514,
+   "flows_windows_csv": 59902514,
+   "positive_events_shards": 17682,
+   "positive_flows_windows_csv": 17682,
+   "samples_shards": 160210,
+   "samples_windows_csv": 160210,
+   "conserved": true
+  },
+  "val": {
+   "events_shards": 12836373,
+   "flows_windows_csv": 12836373,
+   "positive_events_shards": 3495,
+   "positive_flows_windows_csv": 3495,
+   "samples_shards": 34361,
+   "samples_windows_csv": 34361,
+   "conserved": true
+  },
+  "test": {
+   "events_shards": 12887298,
+   "flows_windows_csv": 12887298,
+   "positive_events_shards": 3544,
+   "positive_flows_windows_csv": 3544,
+   "samples_shards": 34413,
+   "samples_windows_csv": 34413,
+   "conserved": true
+  }
+ },
+ "unique_sample_id": true,
+ "max_event_count": 512,
+ "stats": {
+  "train": {
+   "samples": 160210,
+   "events": 59902514,
+   "positive_events": 17682,
+   "positive_samples": 401,
+   "shards": 60
+  },
+  "val": {
+   "samples": 34361,
+   "events": 12836373,
+   "positive_events": 3495,
+   "positive_samples": 83,
+   "shards": 13
+  },
+  "test": {
+   "samples": 34413,
+   "events": 12887298,
+   "positive_events": 3544,
+   "positive_samples": 82,
+   "shards": 13
+  }
+ },
+ "PASS": true
+}
+S4 xong (934s) PASS=True shards=4.97 GB

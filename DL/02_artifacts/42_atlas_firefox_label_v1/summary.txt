@@ -1,0 +1,160 @@
+tiến trình firefox.exe: 215 | nhãn dương 26 | tệp attack không nhãn 63 | tệp benign 126
+
+== số tiến trình có sự kiện loại X (>0), theo nhóm
+n_net        {'attack-DƯƠNG': '26/26', 'attack-không-nhãn': '60/63', 'benign-tệp': '93/126'} | trung vị {'attack-DƯƠNG': 166.5, 'attack-không-nhãn': 3.0, 'benign-tệp': 3.0}
+n_file       {'attack-DƯƠNG': '18/26', 'attack-không-nhãn': '12/63', 'benign-tệp': '26/126'} | trung vị {'attack-DƯƠNG': 2402.0, 'attack-không-nhãn': 0.0, 'benign-tệp': 0.0}
+n_mod        {'attack-DƯƠNG': '25/26', 'attack-không-nhãn': '42/63', 'benign-tệp': '126/126'} | trung vị {'attack-DƯƠNG': 124.5, 'attack-không-nhãn': 68.0, 'benign-tệp': 74.5}
+n_reg        {'attack-DƯƠNG': '17/26', 'attack-không-nhãn': '1/63', 'benign-tệp': '21/126'} | trung vị {'attack-DƯƠNG': 11.5, 'attack-không-nhãn': 0.0, 'benign-tệp': 0.0}
+n_cross      {'attack-DƯƠNG': '5/26', 'attack-không-nhãn': '1/63', 'benign-tệp': '11/126'} | trung vị {'attack-DƯƠNG': 0.0, 'attack-không-nhãn': 0.0, 'benign-tệp': 0.0}
+n_ps         {'attack-DƯƠNG': '18/26', 'attack-không-nhãn': '11/63', 'benign-tệp': '21/126'} | trung vị {'attack-DƯƠNG': 2.0, 'attack-không-nhãn': 0.0, 'benign-tệp': 0.0}
+n_script     {'attack-DƯƠNG': '1/26', 'attack-không-nhãn': '1/63', 'benign-tệp': '2/126'} | trung vị {'attack-DƯƠNG': 0.0, 'attack-không-nhãn': 0.0, 'benign-tệp': 0.0}
+n_seed_conn  {'attack-DƯƠNG': '18/26', 'attack-không-nhãn': '0/63', 'benign-tệp': '0/126'} | trung vị {'attack-DƯƠNG': 2.0, 'attack-không-nhãn': 0.0, 'benign-tệp': 0.0}
+seed_file    {'attack-DƯƠNG': '0/26', 'attack-không-nhãn': '0/63', 'benign-tệp': '0/126'} | trung vị {'attack-DƯƠNG': 0.0, 'attack-không-nhãn': 0.0, 'benign-tệp': 0.0}
+n_dropped    {'attack-DƯƠNG': '18/26', 'attack-không-nhãn': '11/63', 'benign-tệp': '21/126'} | trung vị {'attack-DƯƠNG': 5.0, 'attack-không-nhãn': 0.0, 'benign-tệp': 0.0}
+
+== firefox dương: theo host/scenario, số tiến trình dương mỗi (host-scenario)
+host  sc
+h1    m1    2
+      m2    1
+      m3    1
+      m4    1
+      m5    5
+      m6    2
+      s1    2
+      s2    1
+      s3    3
+      s4    2
+h2    m1    1
+      m2    1
+      m3    1
+      m4    1
+      m5    1
+      m6    1
+
+== firefox attack không nhãn: theo host/scenario
+host  sc
+h1    m1     4
+      m2     4
+      m3     2
+      m4     2
+      m5     3
+      m6     3
+      s1     4
+      s2     4
+      s3     1
+      s4     3
+h2    m1     6
+      m2     5
+      m3     5
+      m4     2
+      m5     5
+      m6    10
+
+== cha có nhãn? (parent_label)
+grp                parent_label
+attack-DƯƠNG       0                 6
+                   1                20
+attack-không-nhãn  0                20
+                   1                43
+benign-tệp         0               126
+dtype: int64
+
+== firefox dương: kết nối tới nút gốc/tác động (seed IP) và crossproc
+         guid host  sc  n_net  n_seed_conn  n_cross  n_ps  n_dropped  seed_file
+0    b6c08080   h2  m3     87            2        1     4          7          0
+10   c3a14ceb   h2  m2    928            2        2     4          7          0
+20   fd04d4cf   h2  m6    196            2        0     8          7          0
+36   4c851887   h2  m4    330            2        0     4          5          0
+42   4ae28c9b   h2  m5    137            2        0     6          5          0
+57   9780ab93   h2  m1    612            2        2     3          7          0
+63   ef61e268   h1  m4    329            4        2     2          5          0
+74   58b9c425   h1  s4    324            4        0     2          5          0
+84   676e6f1a   h1  s4      3            0        0     0          0          0
+99   52c95100   h1  m3    379            2        0     3          5          0
+109  06740210   h1  m6    541            7        0     2          5          0
+111  a1855d2e   h1  m6     21            1        0     1          3          0
+126  01dd33ac   h1  s3    714           12        0     2          5          0
+127  18f6f3af   h1  s3      3            0        0     0          0          0
+136  030223ff   h1  s3      3            0        0     0          0          0
+144  f4572302   h1  s1    652            2        0     4          5          0
+153  4ab89bf0   h1  s1      3            0        0     0          0          0
+169  df46bd5c   h1  m1   1408            2        0     4          5          0
+171  eadbd057   h1  m1      3            0        0     0          0          0
+189  26a8a364   h1  m2    634            2        0     3          5          0
+201  aaf1262f   h1  s2    286            2        0     3          5          0
+213  2c2355bf   h1  m5     47            2        1     2          5          0
+222  842569c4   h1  m5     70            4        0     2          5          0
+224  98c31358   h1  m5      3            0        0     0          0          0
+239  3affec2c   h1  m5      3            0        0     0          0          0
+248  2d29542e   h1  m5      3            0        0     0          0          0
+
+== firefox attack không nhãn: ví dụ
+        guid host  sc  n_net  n_seed_conn  n_cross  n_ps  n_file  n_mod
+1   698c6b9e   h2  m3      3            0        0     0       0     96
+3   fd1a3d57   h2  m3      3            0        0     0       0    100
+4   b8eb4831   h2  m3      3            0        0     0       0     68
+5   c884c889   h2  m3     21            0        0     1      51      0
+6   c93052ad   h2  m3      2            0        0     0       0      0
+11  c48868b9   h2  m2      3            0        0     0       0    100
+13  ca5a76e2   h2  m2      3            0        0     0       0     68
+14  05945329   h2  m2      3            0        0     0       0    100
+17  53c42de6   h2  m2     58            0        0     2     122      2
+18  54663289   h2  m2      4            0        0     0       0      0
+21  577b83fd   h2  m6      3            0        0     0       0     92
+23  f87f7586   h2  m6      3            0        0     0       0    100
+
+== chi tiết firefox dương có crossproc / seed / dropped
+b6c08080 h2 m3 | seed_conn {'10.193.242.113:9997=root_cause': 2} | crossproc {'ACTION_OPEN_PROCESS_HANDLE->explorer.exe': 1} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'c:\\users\\aalsahee\\appdata\\local\\temp\\pxvehs8q.exe', 'c:\\users\\aalsahee\\downloads\\payload.exe'] | children {'firefox.exe': 3, 'payload.exe': 1}
+c3a14ceb h2 m2 | seed_conn {'10.193.242.113:9997=root_cause': 2} | crossproc {'ACTION_OPEN_PROCESS_HANDLE->explorer.exe': 2} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'c:\\users\\aalsahee\\appdata\\local\\temp\\lkiuddmx.exe'] | children {'firefox.exe': 3, 'payload.exe': 1}
+fd04d4cf h2 m6 | seed_conn {'10.193.242.113:9997=root_cause': 2} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'c:\\users\\aalsahee\\appdata\\local\\temp\\taoxunez.exe', 'c:\\users\\aalsahee\\downloads\\payload.exe'] | children {'firefox.exe': 7, 'payload.exe': 1}
+4c851887 h2 m4 | seed_conn {'10.193.242.113:9997=root_cause': 2} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js'] | children {'firefox.exe': 3, 'payload.exe': 1}
+4ae28c9b h2 m5 | seed_conn {'10.193.242.113:9997=root_cause': 2} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'c:\\users\\aalsahee\\appdata\\local\\temp\\r1wgnsiu.exe'] | children {'firefox.exe': 5, 'payload.exe': 1}
+9780ab93 h2 m1 | seed_conn {'10.193.242.113:9997=root_cause': 2} | crossproc {'ACTION_OPEN_PROCESS_HANDLE->explorer.exe': 2} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'c:\\users\\aalsahee\\appdata\\local\\temp\\g8goldwy.exe'] | children {'firefox.exe': 2, 'payload.exe': 1}
+ef61e268 h1 m4 | seed_conn {'34.107.221.82:80=root_cause': 4} | crossproc {'ACTION_OPEN_PROCESS_HANDLE->explorer.exe': 2} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js'] | children {'firefox.exe': 2}
+58b9c425 h1 s4 | seed_conn {'34.107.221.82:80=root_cause': 4} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js'] | children {'firefox.exe': 2}
+52c95100 h1 m3 | seed_conn {'10.193.66.115:8080=root_cause': 2} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js'] | children {'firefox.exe': 2, 'plugin-container.exe': 1}
+06740210 h1 m6 | seed_conn {'34.107.221.82:80=root_cause': 7} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'lsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore.js'] | children {'firefox.exe': 2}
+a1855d2e h1 m6 | seed_conn {'34.107.221.82:80=root_cause': 1} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js'] | children {'firefox.exe': 1}
+01dd33ac h1 s3 | seed_conn {'34.107.221.82:80=root_cause': 9, '142.250.191.225:443=root_cause': 3} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js'] | children {'firefox.exe': 2}
+f4572302 h1 s1 | seed_conn {'10.193.66.115:8080=root_cause': 2} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'lsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore.js'] | children {'firefox.exe': 3, 'plugin-container.exe': 1}
+df46bd5c h1 m1 | seed_conn {'10.193.66.115:8080=root_cause': 2} | crossproc {} | dropped ['aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js'] | children {'firefox.exe': 3, 'plugin-container.exe': 1}
+26a8a364 h1 m2 | seed_conn {'10.193.66.115:8080=root_cause': 2} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'lsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore.js'] | children {'firefox.exe': 2, 'plugin-container.exe': 1}
+aaf1262f h1 s2 | seed_conn {'10.193.66.115:8080=root_cause': 2} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js'] | children {'firefox.exe': 2, 'plugin-container.exe': 1}
+2c2355bf h1 m5 | seed_conn {'34.107.221.82:80=root_cause': 2} | crossproc {'ACTION_OPEN_PROCESS_HANDLE->explorer.exe': 1} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'sers\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs.js'] | children {'firefox.exe': 2}
+842569c4 h1 m5 | seed_conn {'34.107.221.82:80=root_cause': 4} | crossproc {} | dropped ['rs\\aalsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\prefs-1.js', 'aming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore-backups\\recovery.js', 'lsahee\\appdata\\roaming\\mozilla\\firefox\\profiles\\a6gl280b.default\\sessionstore.js'] | children {'firefox.exe': 2}
+
+== các tiến trình có nhãn không phải firefox: chương trình (đếm)
+conhost.exe             34
+payload.exe             32
+cmd.exe                 18
+explorer.exe            11
+lsass.exe               11
+winword.exe             10
+taskhost.exe             6
+powershell.exe           6
+excel.exe                5
+plugin-container.exe     5
+audiodg.exe              5
+mshta.exe                4
+python.exe               4
+regsvr32.exe             3
+eqnedt32.exe             3
+Name: count, dtype: int64
+
+== firefox dương: thời điểm đầu/cuối so với tiến trình không nhãn cùng host-scenario (khoảng thời gian)
+h1 m1 dương 2 2022-07-19 16:01:57 → 2022-07-19 17:46:43 | không nhãn 4 2022-07-19 16:00:17 → 2022-07-19 17:46:43
+h1 m2 dương 1 2022-07-19 19:31:32 → 2022-07-19 20:00:34 | không nhãn 4 2022-07-19 19:27:58 → 2022-07-19 20:00:31
+h1 m3 dương 1 2022-07-19 20:08:33 → 2022-07-19 20:40:29 | không nhãn 2 2022-07-19 20:08:35 → 2022-07-19 20:40:28
+h1 m4 dương 1 2022-07-19 22:36:06 → 2022-07-19 23:02:49 | không nhãn 2 2022-07-19 22:36:08 → 2022-07-19 23:02:46
+h1 m5 dương 5 2022-07-19 23:16:03 → 2022-07-19 23:46:29 | không nhãn 3 2022-07-19 23:14:11 → 2022-07-19 23:16:18
+h1 m6 dương 2 2022-07-19 23:54:13 → 2022-07-20 00:25:45 | không nhãn 3 2022-07-19 23:54:14 → 2022-07-20 00:25:43
+h1 s1 dương 2 2022-07-19 13:10:44 → 2022-07-19 13:34:21 | không nhãn 4 2022-07-19 13:08:56 → 2022-07-19 13:12:27
+h1 s2 dương 1 2022-07-19 13:44:28 → 2022-07-19 14:14:46 | không nhãn 4 2022-07-19 13:43:12 → 2022-07-19 14:14:46
+h1 s3 dương 3 2022-07-19 14:22:42 → 2022-07-19 14:59:19 | không nhãn 1 2022-07-19 14:21:28 → 2022-07-19 14:21:28
+h1 s4 dương 2 2022-07-20 00:33:35 → 2022-07-20 01:04:14 | không nhãn 3 2022-07-20 00:31:59 → 2022-07-20 00:33:39
+h2 m1 dương 1 2022-07-19 12:18:02 → 2022-07-19 17:47:56 | không nhãn 6 2022-07-19 12:09:41 → 2022-07-19 17:56:21
+h2 m2 dương 1 2022-07-19 19:07:17 → 2022-07-19 20:00:40 | không nhãn 5 2022-07-19 13:58:02 → 2022-07-19 20:00:40
+h2 m3 dương 1 2022-07-19 15:17:52 → 2022-07-19 20:40:34 | không nhãn 5 2022-07-19 15:13:29 → 2022-07-19 20:40:30
+h2 m4 dương 1 2022-07-19 17:26:19 → 2022-07-19 23:02:58 | không nhãn 2 2022-07-19 22:32:42 → 2022-07-19 23:02:55
+h2 m5 dương 1 2022-07-19 23:10:59 → 2022-07-19 23:46:35 | không nhãn 5 2022-07-19 23:15:19 → 2022-07-19 23:46:33
+h2 m6 dương 1 2022-07-19 23:55:13 → 2022-07-20 00:25:45 | không nhãn 10 2022-07-19 23:53:50 → 2022-07-20 00:25:45

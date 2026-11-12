@@ -1,0 +1,28 @@
+{
+  "version": "1.0.0",
+  "name": "DARPA OpTC leakage-safe split policy",
+  "status": "CANDIDATE_UNTIL_REVIEWED",
+  "ground_truth": {
+    "folder": "a_new_hope_for_darpa_optc",
+    "prefer_corrected": true,
+    "allow_original_fallback_by_default": false,
+    "exclude_all_events_files_from_per_host_profiling": true,
+    "note": "Corrected per-scenario/per-host ground-truth files are preferred. Raw eCAR label remains audit-only until event-level reconciliation."
+  },
+  "split": {
+    "unit": "hostname",
+    "ratios": {
+      "train": 0.7,
+      "val": 0.15,
+      "test": 0.15
+    },
+    "seed": "KLTN_OPTC_SPLIT_V1",
+    "stratify_by": "ground_truth_positive_host_group",
+    "rules": [
+      "All files for the same hostname must remain in exactly one split.",
+      "Vocabulary fitting is allowed only on rows with split=train.",
+      "Validation/test files must never affect vocabulary membership or frequency thresholds.",
+      "Ground-truth labels are used only for split stratification/audit, never as model features."
+    ]
+  }
+}

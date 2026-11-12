@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-09-24T02:31:30.397561",
+  "script_version": "step05f-c-loso-train-only-preprocess-v1.0",
+  "experiment": "LOSO scenario generalization",
+  "heldout_scenario": "scenario_3",
+  "fit_split": "train",
+  "fit_scope": "LOSO fold TRAIN only",
+  "val_used_for_fit": false,
+  "test_used_for_fit": false,
+  "heldout_scenario_used_for_fit": false,
+  "label_used_for_feature_selection": false,
+  "loso_contract_sha256": "b2071391f9e5281efb34e32e2e30e82bc643ca2e076ef10877f31e197538aa2b",
+  "loso_mapping_sha256": "235efe48f55463fd02d354d031addb8cc67f7cbde3d68c45e08d63ba5d83c958",
+  "report04b_sha256": "4f4136992804f2235d4bef2add0eeadbc635dbd3abafd3d8bc071c016e574ac9",
+  "candidate_fingerprint_sha256": "6a5cd69f86a8b2f2cc3db10df633b97d03b4bd315fcabd061ed0705a52743cdd",
+  "category_maps_sha256": "098553a750ef20168affc68c75d8f7c480a7d4f2393c3d5ab4ed2d9d2427cba4",
+  "numeric_stats_sha256": "14e93543fb69140670428511c3821735636a9c97782d5f6ef49a8a4e65c5e207",
+  "preprocess_spec_sha256": "d1da2da644ce3449ee6f8b0adfa915eed98192d924cd3a2b74dd6cf3bcdca1ba",
+  "frozen_fingerprint_sha256": "00b303f8873fafb9da78d065c8334557de46b1bbfef9bbb9d5eed95d841c28dd"
+}

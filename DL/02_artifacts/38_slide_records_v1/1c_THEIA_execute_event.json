@@ -1,0 +1,79 @@
+{
+    "datum": {
+        "com.bbn.tc.schema.avro.cdm18.Event": {
+            "uuid": "33A9F8B5-DC27-2415-BC66-3E0000000010",
+            "sequence": {
+                "long": 0
+            },
+            "type": "EVENT_EXECUTE",
+            "threadId": {
+                "int": 8063
+            },
+            "hostId": "0A00063C-5254-00F0-0D60-000000000070",
+            "subject": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "7F1FD92F-0000-0000-0000-000000000020"
+            },
+            "predicateObject": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "0100D00F-0400-0400-0000-0000487D8C12"
+            },
+            "predicateObjectPath": null,
+            "predicateObject2": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "00000000-0000-0000-0000-000000000000"
+            },
+            "predicateObject2Path": null,
+            "timestampNanos": 1523386402857330995,
+            "name": null,
+            "parameters": null,
+            "location": null,
+            "size": null,
+            "programPoint": null,
+            "properties": {
+                "map": {
+                    "cmdLine": "/bin/bash -c /usr/bin/firefox"
+                }
+            }
+        }
+    },
+    "CDMVersion": "18",
+    "source": "SOURCE_LINUX_THEIA"
+}
+
+{
+    "datum": {
+        "com.bbn.tc.schema.avro.cdm18.Event": {
+            "uuid": "581023B6-DC27-2415-DB66-3E0000000010",
+            "sequence": {
+                "long": 38
+            },
+            "type": "EVENT_EXECUTE",
+            "threadId": {
+                "int": 8063
+            },
+            "hostId": "0A00063C-5254-00F0-0D60-000000000070",
+            "subject": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "7F1FD92F-0000-0000-0000-000000000020"
+            },
+            "predicateObject": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "0100D00F-0300-3000-0000-0000F16E5316"
+            },
+            "predicateObjectPath": null,
+            "predicateObject2": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "00000000-0000-0000-0000-000000000000"
+            },
+            "predicateObject2Path": null,
+            "timestampNanos": 1523386402860109912,
+            "name": null,
+            "parameters": null,
+            "location": null,
+            "size": null,
+            "programPoint": null,
+            "properties": {
+                "map": {
+                    "cmdLine": "/usr/bin/firefox"
+                }
+            }
+        }
+    },
+    "CDMVersion": "18",
+    "source": "SOURCE_LINUX_THEIA"
+}

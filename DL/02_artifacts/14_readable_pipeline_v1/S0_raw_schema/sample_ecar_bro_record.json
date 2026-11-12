@@ -1,0 +1,24 @@
+{
+  "timestamp": "2019-09-24T10:14:09.602-04:00",
+  "id": "62281972-2d5c-45d1-ac01-348ba8299ec1",
+  "hostname": "SysClient0024.systemia.com",
+  "objectID": "0ebd69ae-80ad-4740-b41f-1ee9409a7523",
+  "object": "FLOW",
+  "action": "INFO",
+  "actorID": "0fe2bb5e-e8ee-44bf-8de6-7b40fab9e24a",
+  "pid": 5592,
+  "ppid": 4268,
+  "tid": -1,
+  "principal": "SYSTEMIACOM\\jmundul",
+  "properties": {
+    "acuity_level": "1",
+    "bro_uid": "CaS5hsDH2TQBF7iga",
+    "dest_ip": "98.61.14.5",
+    "dest_port": "80",
+    "direction": "outbound",
+    "image_path": "\\\\?\\C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe",
+    "l4protocol": "6",
+    "src_ip": "142.20.56.25",
+    "src_port": "49804"
+  }
+}

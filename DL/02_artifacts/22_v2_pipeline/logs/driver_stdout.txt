@@ -1,0 +1,10 @@
+[07:21:20] S1 xong
+[07:21:20] === S2: bắt đầu
+[07:21:24] === S2: returncode=0, PASS=True
+[07:21:24] === S3: bắt đầu
+[07:21:55] === S3: returncode=0, PASS=True
+[07:21:55] === S4: bắt đầu
+[07:33:55] === S4: returncode=0, PASS=True
+[07:33:55] === S5: bắt đầu
+[07:34:39] === S5: returncode=0, PASS=True
+[07:34:39] S2-S5 xong, tất cả PASS

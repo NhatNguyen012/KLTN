@@ -1,0 +1,112 @@
+{
+    "datum": {
+        "com.bbn.tc.schema.avro.cdm18.Subject": {
+            "uuid": "7F1FD92F-0000-0000-0000-000000000020",
+            "type": "SUBJECT_PROCESS",
+            "cid": 8063,
+            "parentSubject": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "8C081700-0000-0000-0000-000000000020"
+            },
+            "hostId": "0A00063C-5254-00F0-0D60-000000000070",
+            "localPrincipal": "EC000000-0000-0000-0000-000000000060",
+            "startTimestampNanos": 1523386402855280509,
+            "unitId": null,
+            "iteration": null,
+            "count": null,
+            "cmdLine": {
+                "string": "fluxbox"
+            },
+            "privilegeLevel": null,
+            "importedLibraries": null,
+            "exportedLibraries": null,
+            "properties": {
+                "map": {
+                    "tgid": "8063",
+                    "path": "/usr/bin/fluxbox",
+                    "ppid": "2188"
+                }
+            }
+        }
+    },
+    "CDMVersion": "18",
+    "source": "SOURCE_LINUX_THEIA"
+}
+
+
+{
+    "datum": {
+        "com.bbn.tc.schema.avro.cdm18.Principal": {
+            "uuid": "EC000000-0000-0000-0000-000000000060",
+            "type": "PRINCIPAL_LOCAL",
+            "hostId": "0A00063C-5254-00F0-0D60-000000000070",
+            "userId": "1004",
+            "username": null,
+            "groupIds": [],
+            "properties": {
+                "map": {
+                    "cred": "1004/1004"
+                }
+            }
+        }
+    },
+    "CDMVersion": "18",
+    "source": "SOURCE_LINUX_THEIA"
+}
+
+
+{
+    "datum": {
+        "com.bbn.tc.schema.avro.cdm18.NetFlowObject": {
+            "uuid": "80370C6E-8581-8D2B-B0CB-500000000040",
+            "baseObject": {
+                "hostId": "0A00063C-5254-00F0-0D60-000000000070",
+                "permission": null,
+                "epoch": null,
+                "properties": null
+            },
+            "localAddress": "128.55.12.110",
+            "localPort": 33157,
+            "remoteAddress": "141.43.176.203",
+            "remotePort": 80,
+            "ipProtocol": null,
+            "fileDescriptor": null
+        }
+    },
+    "CDMVersion": "18",
+    "source": "SOURCE_LINUX_THEIA"
+}
+
+
+{
+    "datum": {
+        "com.bbn.tc.schema.avro.cdm18.Subject": {
+            "uuid": "4D17450E-0000-0000-0000-000000000020",
+            "type": "SUBJECT_PROCESS",
+            "cid": 5965,
+            "parentSubject": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "B9030F00-0000-0000-0000-000000000020"
+            },
+            "hostId": "0A00063C-5254-00F0-0D60-000000000070",
+            "localPrincipal": "00000000-0000-0000-0000-000000000060",
+            "startTimestampNanos": 1522945371839400738,
+            "unitId": null,
+            "iteration": null,
+            "count": null,
+            "cmdLine": {
+                "string": "/usr/sbin/sshd -D"
+            },
+            "privilegeLevel": null,
+            "importedLibraries": null,
+            "exportedLibraries": null,
+            "properties": {
+                "map": {
+                    "tgid": "5965",
+                    "path": "/usr/sbin/sshd",
+                    "ppid": "953"
+                }
+            }
+        }
+    },
+    "CDMVersion": "18",
+    "source": "SOURCE_LINUX_THEIA"
+}

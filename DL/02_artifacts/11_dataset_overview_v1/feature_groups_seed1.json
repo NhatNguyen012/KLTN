@@ -1,0 +1,161 @@
+{
+  "_note": "Tong hop 4 nhom dau vao cua model (seed_1). Nguon: preprocessing/network_preprocess_spec.json, network_category_maps.json, network_numeric_stats.json va dataset_manifest.json (sequence_contract, shard_format). Chi de doc, khong dung de chay pipeline.",
+  "1_categorical": {
+    "tensor": "x_cat",
+    "shape_per_event": [
+      5
+    ],
+    "dtype": "uint16 (ID nguyen)",
+    "reserved_ids": {
+      "<UNK>": 0,
+      "<MISSING>": 1
+    },
+    "fields": {
+      "app_family": {
+        "num_ids": 67,
+        "examples": {
+          "<UNK>": 0,
+          "<MISSING>": 1,
+          "firefox.exe": 2,
+          "conhost.exe": 3,
+          "cmd.exe": 4,
+          "powershell.exe": 5
+        }
+      },
+      "proto": {
+        "num_ids": 4,
+        "examples": {
+          "<UNK>": 0,
+          "<MISSING>": 1,
+          "tcp": 2,
+          "udp": 3
+        }
+      },
+      "service": {
+        "num_ids": 5,
+        "examples": {
+          "<UNK>": 0,
+          "<MISSING>": 1,
+          "ssl": 2,
+          "http": 3,
+          "dns": 4
+        }
+      },
+      "conn_state": {
+        "num_ids": 7,
+        "examples": {
+          "<UNK>": 0,
+          "<MISSING>": 1,
+          "sf": 2,
+          "rsto": 3,
+          "rstr": 4,
+          "s0": 5
+        }
+      },
+      "resp_port_class": {
+        "num_ids": 9,
+        "examples": {
+          "<UNK>": 0,
+          "<MISSING>": 1,
+          "PORT_443_HTTPS": 2,
+          "PORT_80_HTTP": 3,
+          "PORT_8080_HTTP_ALT": 4,
+          "PORT_53_DNS": 5
+        }
+      }
+    },
+    "dropped_constant_on_TRAIN": [
+      "direction",
+      "local_orig",
+      "local_resp",
+      "orig_ip_scope",
+      "resp_ip_scope",
+      "orig_port_class"
+    ]
+  },
+  "2_numeric": {
+    "tensor": "x_num + x_num_missing",
+    "shape_per_event": [
+      7
+    ],
+    "dtype": "float32 + uint8 (co thieu)",
+    "transform": "log1p_nonnegative_then_train_zscore_then_clip",
+    "clip_abs": 10.0,
+    "missing_policy": "0.0 after z-score corresponds to TRAIN mean. Missing is distinguished by x_num_missing mask.",
+    "fields": {
+      "duration": {
+        "log1p_mean": 0.0848,
+        "log1p_std": 0.4163
+      },
+      "orig_bytes": {
+        "log1p_mean": 6.8277,
+        "log1p_std": 0.5449
+      },
+      "resp_bytes": {
+        "log1p_mean": 7.9012,
+        "log1p_std": 1.7705
+      },
+      "orig_pkts": {
+        "log1p_mean": 2.2378,
+        "log1p_std": 0.3767
+      },
+      "orig_ip_bytes": {
+        "log1p_mean": 7.1709,
+        "log1p_std": 0.3571
+      },
+      "resp_pkts": {
+        "log1p_mean": 2.5836,
+        "log1p_std": 0.7937
+      },
+      "resp_ip_bytes": {
+        "log1p_mean": 8.1405,
+        "log1p_std": 1.5937
+      }
+    },
+    "dropped": {
+      "missed_bytes": "TRAIN log1p std=0.001812481 < 0.01; raw z-score would be unstable for rare non-zero values"
+    }
+  },
+  "3_binary": {
+    "tensor": "x_bin",
+    "shape_per_event": [
+      1
+    ],
+    "dtype": "uint8",
+    "fields": [
+      {
+        "name": "has_missed_bytes",
+        "source": "missed_bytes",
+        "rule": "1.0 if missed_bytes > 0 else 0.0",
+        "fit_required": false,
+        "reason": "Preserve rare missed-bytes signal without unstable z-score."
+      }
+    ]
+  },
+  "4_time": {
+    "tensor": "delta_t_log1p",
+    "shape_per_event": [
+      1
+    ],
+    "dtype": "float32",
+    "rule": "ln(1 + giay tu flow truoc trong cung chunk); flow dau chunk = 0 (dataset_manifest.sequence_contract)"
+  },
+  "not_model_input": {
+    "join_audit": [
+      "uid",
+      "hostname",
+      "ts",
+      "date",
+      "split"
+    ],
+    "target": [
+      "label (chi lam dap an; sample positive neu co >=1 flow positive)"
+    ],
+    "graph_only": [
+      "orig_h",
+      "orig_p",
+      "resp_h",
+      "resp_p"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+﻿field,role,type,source,derived_from,meaning_vi,example,notes
+uid,join_audit,string,Bro conn.uid = eCAR-Bro properties.bro_uid,,Mã định danh duy nhất của một kết nối Bro; khóa nối eCAR-Bro với Bro conn.,CcUrXX1KFnhO6S8Xa9,"Dùng khử trùng và sắp xếp phụ (ORDER BY ts, uid)."
+ts,join_audit,double,Bro conn.ts,,"Thời điểm bắt đầu kết nối, epoch giây theo UTC.",1569355215.846942,"Dùng chia cửa sổ 15 phút (floor(ts/900)*900), sắp thứ tự flow và tính delta_t_log1p. Không là feature. Giờ địa phương của eCAR là EDT = UTC - 4."
+hostname,join_audit,string,"eCAR-Bro hostname (chữ thường, bỏ đuôi domain)",,Tên máy host sinh ra kết nối.,sysclient0618,"Khóa gom sample (host, cửa sổ 15 phút) và đơn vị chia TRAIN/VAL/TEST (host-disjoint)."
+label,target,int,Bro conn.label,,"0 = benign, 1 = flow thuộc hoạt động tấn công (nhãn của bài A New Hope: IP máy bị chiếm + IP C2 + thời gian, kiểm tay).",1,Nhãn sample = 1 nếu chunk có ít nhất một flow label = 1. Không đưa vào tensor đầu vào.
+app_family,categorical,string,"eCAR-Bro properties.image_path (tên file thực thi, chữ thường)",,Process (ứng dụng) trên host đã tạo ra kết nối.,powershell.exe,"Trong dữ liệu 99.8% là firefox.exe; powershell.exe luôn là flow tấn công, nên là 'đường tắt' (shortcut). Có thể bỏ bằng tuỳ chọn DROP_APP_FAMILY ở notebook."
+direction,categorical,string,eCAR-Bro properties.direction,,Hướng flow theo eCAR: outbound hoặc inbound.,outbound,Hằng số trên TRAIN (outbound) nên bị loại khỏi feature thực dùng.
+ecar_l4protocol,cross_check,string,eCAR-Bro properties.l4protocol,,"Số hiệu giao thức IP theo eCAR: 6 = TCP, 17 = UDP.",6,Chỉ để đối chiếu với proto của Bro.
+orig_h,graph_only,string,Bro conn id.orig_h,,Địa chỉ IP nguồn (máy host).,142.20.58.107,Dẫn xuất orig_ip_scope. Không là feature (IP cụ thể không học được và dễ gây rò rỉ).
+orig_p,graph_only,int,Bro conn id.orig_p,,"Cổng nguồn (thường là cổng tạm thời, ephemeral).",49265,Dẫn xuất orig_port_class.
+resp_h,graph_only,string,Bro conn id.resp_h,,Địa chỉ IP đích (máy chủ ở Internet giả lập hoặc C2).,202.6.172.98,Dẫn xuất resp_ip_scope; dùng làm nút REMOTE_ENDPOINT cục bộ trong sample cho model đồ thị. Không là feature.
+resp_p,graph_only,int,Bro conn id.resp_p,,Cổng đích.,443,Dẫn xuất resp_port_class (feature chính).
+proto,categorical,string,Bro conn.proto,,"Giao thức tầng giao vận: tcp, udp, icmp.",tcp,
+service,categorical,string,Bro conn.service,,"Dịch vụ tầng ứng dụng Bro nhận diện: ssl, http, dns...; '-' nếu không nhận diện được.",ssl,Dấu '-' được xem là <MISSING>.
+duration,numeric,double,Bro conn.duration,,Thời lượng kết nối (giây).,0.063495,
+orig_bytes,numeric,int,Bro conn.orig_bytes,,Số byte dữ liệu ứng dụng gửi đi từ nguồn (host).,667,
+resp_bytes,numeric,int,Bro conn.resp_bytes,,Số byte dữ liệu ứng dụng nhận về từ đích.,2277,
+conn_state,categorical,string,Bro conn.conn_state,,"Trạng thái kết thúc kết nối: SF = bình thường, S0 = chỉ có SYN không phản hồi, REJ = bị từ chối, RSTO = nguồn reset, RSTR = đích reset...",SF,"Chuyển thành chữ thường khi mã hóa (sf, rej...)."
+local_orig,categorical,string,Bro conn.local_orig,,Nguồn có thuộc mạng nội bộ do Bro cấu hình hay không (T/F).,F,Hằng số trên TRAIN nên bị loại.
+local_resp,categorical,string,Bro conn.local_resp,,Đích có thuộc mạng nội bộ do Bro cấu hình hay không (T/F).,F,Hằng số trên TRAIN nên bị loại.
+missed_bytes,numeric,int,Bro conn.missed_bytes,,Số byte Bro bỏ lỡ (mất gói).,0,Gần như luôn 0 nên độ lệch chuẩn quá nhỏ; không dùng z-score mà thay bằng cờ has_missed_bytes.
+history,not_used,string,Bro conn.history,,Chuỗi cờ TCP theo thứ tự xuất hiện (ví dụ ShADadfF).,ShADadfF,Chưa dùng làm feature.
+orig_pkts,numeric,int,Bro conn.orig_pkts,,Số gói tin gửi đi từ nguồn.,6,
+orig_ip_bytes,numeric,int,Bro conn.orig_ip_bytes,,Tổng byte tầng IP từ nguồn (gồm header).,919,
+resp_pkts,numeric,int,Bro conn.resp_pkts,,Số gói tin gửi về từ đích.,8,
+resp_ip_bytes,numeric,int,Bro conn.resp_ip_bytes,,Tổng byte tầng IP từ đích (gồm header).,2609,
+ecar_occurrence_count,join_audit,int,STEP 04B,,Số lần uid xuất hiện trong eCAR-Bro trước khi khử trùng.,1,Chỉ để kiểm tra; không là feature.
+date,join_audit,date,partition STEP 04B,,Ngày của partition parquet (theo file eCAR-Bro).,2019-09-24,Không phải ngày UTC chuẩn của ts; không là feature.
+split,join_audit,string,partition STEP 04B (split STEP 02),,Split gốc của host (train/val/test/unmatched_split) ở STEP 02.,train,"Khi chia lại split (LOSO hoặc ngẫu nhiên), split mới được map lại theo hostname."
+orig_ip_scope,categorical,string,dẫn xuất từ orig_h,orig_h,"Loại địa chỉ IP nguồn: PRIVATE, PUBLIC_IPV4, LOOPBACK...",PUBLIC_IPV4,Hằng số trên TRAIN nên bị loại.
+resp_ip_scope,categorical,string,dẫn xuất từ resp_h,resp_h,Loại địa chỉ IP đích.,PUBLIC_IPV4,Hằng số trên TRAIN nên bị loại.
+orig_port_class,categorical,string,dẫn xuất từ orig_p,orig_p,Nhóm cổng nguồn.,EPHEMERAL,Hằng số trên TRAIN nên bị loại.
+resp_port_class,categorical,string,dẫn xuất từ resp_p,resp_p,Nhóm cổng đích: cổng phổ biến có tên riêng (PORT_443_HTTPS...) hoặc nhóm dải cổng.,PORT_443_HTTPS,Quy tắc nằm ở mục port_class.
+has_missed_bytes,binary,uint8,dẫn xuất từ missed_bytes,missed_bytes,"1 nếu missed_bytes > 0, ngược lại 0.",0,
+delta_t_log1p,time,float32,dẫn xuất từ ts khi dựng sample,ts,ln(1 + số giây từ flow liền trước trong cùng chunk); flow đầu chunk = 0.,3.438,Beacon 30 giây cho giá trị lặp lại ~3.44.

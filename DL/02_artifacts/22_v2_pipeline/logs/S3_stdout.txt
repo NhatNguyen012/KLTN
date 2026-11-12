@@ -1,0 +1,62 @@
+phạm vi fit: 77,281 cửa sổ TRAIN, 59,902,514 flow (2s)
+  app_family: 68 giá trị, giữ 59, missing 20,401, active=True
+  direction: 2 giá trị, giữ 2, missing 0, active=False
+  proto: 2 giá trị, giữ 2, missing 0, active=True
+  service: 4 giá trị, giữ 3, missing 238,993, active=True
+  conn_state: 6 giá trị, giữ 6, missing 0, active=True
+  local_orig: 1 giá trị, giữ 1, missing 0, active=False
+  local_resp: 1 giá trị, giữ 1, missing 0, active=False
+  orig_ip_scope: 1 giá trị, giữ 1, missing 0, active=False
+  resp_ip_scope: 1 giá trị, giữ 1, missing 0, active=False
+  orig_port_class: 1 giá trị, giữ 1, missing 0, active=False
+  resp_port_class: 9 giá trị, giữ 9, missing 0, active=True
+  image_dir_class: 8 giá trị, giữ 8, missing 0, active=True
+  principal_class: 5 giá trị, giữ 5, missing 0, active=True
+{
+ "fit_windows": 77281,
+ "expected_train_windows": 77281,
+ "fit_flows": 59902514,
+ "fit_scope_equals_train_windows": true,
+ "active_categorical": [
+  "app_family",
+  "proto",
+  "service",
+  "conn_state",
+  "resp_port_class",
+  "image_dir_class",
+  "principal_class"
+ ],
+ "active_numeric": [
+  "duration",
+  "orig_bytes",
+  "resp_bytes",
+  "orig_pkts",
+  "orig_ip_bytes",
+  "resp_pkts",
+  "resp_ip_bytes"
+ ],
+ "old_pipeline_features_all_active": true,
+ "host_derived_active": [
+  "app_family",
+  "image_dir_class",
+  "principal_class"
+ ],
+ "vocab_sizes": {
+  "app_family": 61,
+  "direction": 4,
+  "proto": 4,
+  "service": 5,
+  "conn_state": 8,
+  "local_orig": 3,
+  "local_resp": 3,
+  "orig_ip_scope": 3,
+  "resp_ip_scope": 3,
+  "orig_port_class": 3,
+  "resp_port_class": 11,
+  "image_dir_class": 10,
+  "principal_class": 7
+ },
+ "fingerprint_sha256": "287b07a57dd1b1181249a0169f7882ab4bb04d854792201d21b3c8d451dc2617",
+ "PASS": true
+}
+S3 xong (35s) PASS=True

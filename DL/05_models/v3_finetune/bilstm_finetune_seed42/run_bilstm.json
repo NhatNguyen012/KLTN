@@ -1,0 +1,33 @@
+{
+ "model": "bilstm",
+ "args": {
+  "model": "bilstm",
+  "ft_root": "/kaggle/input/datasets/rvmortimer/v3-ft-kaggle-upload",
+  "optc_root": "/kaggle/working/optc_network_dl",
+  "code_dir": "/kaggle/working/ft_code",
+  "out_dir": "/kaggle/working/bilstm_finetune_seed42",
+  "folds": "0,1,2",
+  "seed": 42,
+  "epochs_a": 3,
+  "epochs_b": 3,
+  "lr_a": 0.001,
+  "lr_b_bilstm": 0.0001,
+  "lr_b_mixed": 3e-05,
+  "weight_decay": 0.0001,
+  "grad_clip": 1.0,
+  "replay_per_epoch": 600,
+  "replay_pos": 150,
+  "batch_size": 32,
+  "eval_batch": 128,
+  "equiv_tol": 0.02,
+  "optc_eval": "test",
+  "max_optc_test": 0,
+  "no_amp": false,
+  "cpu": false
+ },
+ "folds": [
+  0,
+  1,
+  2
+ ]
+}

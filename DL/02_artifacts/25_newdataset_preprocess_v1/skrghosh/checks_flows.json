@@ -1,0 +1,204 @@
+{
+ "session_gap_seconds": 120,
+ "scenarios": [
+  {
+   "scenario": "fin6",
+   "local_ip": "192.168.1.139",
+   "events": 435313,
+   "events_positive": 6000,
+   "objects": 17850,
+   "objects_positive": 6,
+   "flows": 13092,
+   "flows_positive": 6,
+   "flows_without_image_path": 51,
+   "l4_values": {
+    "17": 6849,
+    "4": 6243
+   },
+   "l4_by_top_ports": [
+    [
+     "4",
+     443,
+     6154
+    ],
+    [
+     "17",
+     53,
+     5492
+    ],
+    [
+     "17",
+     5355,
+     551
+    ],
+    [
+     "17",
+     1900,
+     432
+    ],
+    [
+     "4",
+     80,
+     86
+    ],
+    [
+     "17",
+     443,
+     34
+    ],
+    [
+     "17",
+     5353,
+     5
+    ],
+    [
+     "4",
+     8888,
+     3
+    ]
+   ],
+   "ts_min": 1690249546.1193752,
+   "ts_max": 1690289425.0851433,
+   "positive_windows": 2,
+   "windows": 45,
+   "seconds": 1.4
+  },
+  {
+   "scenario": "apt29",
+   "local_ip": "192.168.1.139",
+   "events": 705218,
+   "events_positive": 11565,
+   "objects": 12228,
+   "objects_positive": 3,
+   "flows": 10625,
+   "flows_positive": 3,
+   "flows_without_image_path": 0,
+   "l4_values": {
+    "6": 6584,
+    "17": 4041
+   },
+   "l4_by_top_ports": [
+    [
+     "6",
+     443,
+     6416
+    ],
+    [
+     "17",
+     53,
+     1601
+    ],
+    [
+     "17",
+     5355,
+     964
+    ],
+    [
+     "6",
+     80,
+     166
+    ],
+    [
+     "17",
+     443,
+     43
+    ],
+    [
+     "17",
+     1900,
+     21
+    ],
+    [
+     "17",
+     5353,
+     6
+    ],
+    [
+     "17",
+     138,
+     3
+    ]
+   ],
+   "ts_min": 1693293900.8738365,
+   "ts_max": 1693361971.939559,
+   "positive_windows": 2,
+   "windows": 77,
+   "seconds": 2.8
+  },
+  {
+   "scenario": "oilrig",
+   "events": 0,
+   "skipped": "không có sự kiện FLOW",
+   "seconds": 4.0
+  },
+  {
+   "scenario": "menupass",
+   "local_ip": "192.168.1.139",
+   "events": 1429132,
+   "events_positive": 5150,
+   "objects": 30420,
+   "objects_positive": 273,
+   "flows": 22929,
+   "flows_positive": 273,
+   "flows_without_image_path": 8,
+   "l4_values": {
+    "17": 12098,
+    "6": 10831
+   },
+   "l4_by_top_ports": [
+    [
+     "6",
+     443,
+     10653
+    ],
+    [
+     "17",
+     53,
+     8269
+    ],
+    [
+     "17",
+     5355,
+     784
+    ],
+    [
+     "17",
+     1900,
+     379
+    ],
+    [
+     "17",
+     443,
+     348
+    ],
+    [
+     "17",
+     137,
+     256
+    ],
+    [
+     "6",
+     80,
+     159
+    ],
+    [
+     "6",
+     8000,
+     13
+    ]
+   ],
+   "ts_min": 1705366372.1118882,
+   "ts_max": 1705418867.488461,
+   "positive_windows": 4,
+   "windows": 59,
+   "seconds": 37.1
+  },
+  {
+   "scenario": "wizard_spider",
+   "events": 0,
+   "skipped": "không có sự kiện FLOW",
+   "seconds": 20.1
+  }
+ ],
+ "rows": 46646
+}

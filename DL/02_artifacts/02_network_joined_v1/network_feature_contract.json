@@ -1,0 +1,54 @@
+{
+  "version": "network-feature-contract-v1.0",
+  "join_only_or_audit": [
+    "uid",
+    "hostname",
+    "ts",
+    "date",
+    "split",
+    "ecar_occurrence_count"
+  ],
+  "target_only": [
+    "label"
+  ],
+  "categorical_candidates": [
+    "app_family",
+    "direction",
+    "proto",
+    "service",
+    "conn_state",
+    "local_orig",
+    "local_resp"
+  ],
+  "numerical_candidates": [
+    "duration",
+    "orig_bytes",
+    "resp_bytes",
+    "missed_bytes",
+    "orig_pkts",
+    "orig_ip_bytes",
+    "resp_pkts",
+    "resp_ip_bytes"
+  ],
+  "graph_construction_only_initial": [
+    "orig_h",
+    "orig_p",
+    "resp_h",
+    "resp_p"
+  ],
+  "cross_source_validation_or_optional": [
+    "ecar_l4protocol"
+  ],
+  "never_predictive_directly": [
+    "uid",
+    "hostname",
+    "split",
+    "label",
+    "raw exact timestamp",
+    "raw global IP identity as learned category"
+  ],
+  "next_step": {
+    "step04c": "Derive IP scope/port buckets and fit categorical maps + numeric log/scale statistics on TRAIN only.",
+    "step04d": "Build shared (hostname,15-minute-window,chunk) graph/sequence samples."
+  }
+}

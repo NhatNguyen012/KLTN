@@ -1,0 +1,9 @@
+[member] atlasv2/data/attack/h1/msft-security/msft-security-h1-m1.xml 562214625
+[member] atlasv2/data/attack/h1/msft-security/groundtruth/h1_m1 2400
+[member] atlasv2/data/attack/h1/sysmon/sysmon-h1-m1.xml 1793606
+[member] atlasv2/data/attack/h1/cbc-edr-alerts/edr-alerts-h1-m1.jsonl 48917
+[member] atlasv2/data/attack/h1/cbc-edr/edr-h1-m1.jsonl 90132985
+[member] atlasv2/data/attack/h1/dns/dns-h1-m1 4949406
+[member] atlasv2/data/attack/h1/cbc-ngav/ngav-h1-m1.jsonl 2794423
+[member] atlasv2/data/attack/h1/firefox/firefox-h1-m1 4566060298
+[xong] ['alerts', 'dns', 'edr', 'ff', 'gt', 'ngav', 'sec', 'sysmon']

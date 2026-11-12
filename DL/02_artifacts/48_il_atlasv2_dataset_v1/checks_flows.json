@@ -1,0 +1,46 @@
+{
+ "rows_in": 29744,
+ "flows": 29565,
+ "flows_positive": 7761,
+ "windows": 456,
+ "windows_positive": 59,
+ "proto_values": {
+  "tcp": 28378,
+  "udp": 1187
+ },
+ "app_family_null": 0,
+ "resp_p_null": 0,
+ "positive_windows_by_scenario": {
+  "m1": 12,
+  "m2": 8,
+  "m3": 6,
+  "m4": 8,
+  "m5": 7,
+  "m6": 6,
+  "s1": 3,
+  "s2": 3,
+  "s3": 3,
+  "s4": 3
+ },
+ "fold_counts": {
+  "0": {
+   "0": 138,
+   "1": 130,
+   "2": 129
+  },
+  "1": {
+   "0": 21,
+   "1": 20,
+   "2": 18
+  }
+ },
+ "val_counts_if_fold0_is_test": {
+  "0": 58,
+  "1": 14
+ },
+ "ts_min": 1657890595.491184,
+ "ts_max": 1658278957.20462,
+ "seed": 42,
+ "folds": 3,
+ "val_buckets": 5
+}

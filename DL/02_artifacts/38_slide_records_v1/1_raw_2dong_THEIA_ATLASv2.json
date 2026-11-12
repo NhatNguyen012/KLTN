@@ -1,0 +1,120 @@
+{
+    "datum": {
+        "com.bbn.tc.schema.avro.cdm18.Event": {
+            "uuid": "DF53003A-E927-2415-7A22-3F0000000010",
+            "sequence": {
+                "long": 46644
+            },
+            "type": "EVENT_CONNECT",
+            "threadId": {
+                "int": 8063
+            },
+            "hostId": "0A00063C-5254-00F0-0D60-000000000070",
+            "subject": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "7F1FD92F-0000-0000-0000-000000000020"
+            },
+            "predicateObject": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "80370C6E-8581-8D2B-B0CB-500000000040"
+            },
+            "predicateObjectPath": null,
+            "predicateObject2": {
+                "com.bbn.tc.schema.avro.cdm18.UUID": "00000000-0000-0000-0000-000000000000"
+            },
+            "predicateObject2Path": null,
+            "timestampNanos": 1523386456612033503,
+            "name": {
+                "string": "connect"
+            },
+            "parameters": null,
+            "location": null,
+            "size": null,
+            "programPoint": null,
+            "properties": {
+                "map": {
+                    "rc": "0"
+                }
+            }
+        }
+    },
+    "CDMVersion": "18",
+    "source": "SOURCE_LINUX_THEIA"
+}
+{
+    "type": "endpoint.event.netconn",
+    "process_guid": "7DMF69PK-05e5f750-0000055c-00000000-1d89b88df46bd5c",
+    "parent_guid": "7DMF69PK-05e5f750-00000608-00000000-1d89b87dc95da45",
+    "backend_timestamp": "2022-07-19 16:18:29 +0000 UTC",
+    "org_key": "7DMF69PK",
+    "device_id": 98483951,
+    "device_name": "WIN-32-H1",
+    "device_external_ip": "130.126.255.183",
+    "device_os": "WINDOWS",
+    "device_group": "",
+    "action": "ACTION_CONNECTION_CREATE",
+    "schema": 1,
+    "device_timestamp": "2022-07-19 16:18:11.0194015 +0000 UTC",
+    "process_terminated": false,
+    "process_reputation": "REP_RESOLVING",
+    "parent_reputation": "REP_RESOLVING",
+    "process_pid": 1372,
+    "parent_pid": 1544.0,
+    "process_publisher": [
+        {
+            "name": "Mozilla Corporation",
+            "state": "FILE_SIGNATURE_STATE_SIGNED | FILE_SIGNATURE_STATE_VERIFIED | FILE_SIGNATURE_STATE_TRUSTED"
+        }
+    ],
+    "process_path": "c:\\program files\\mozilla firefox\\firefox.exe",
+    "parent_path": "c:\\windows\\explorer.exe",
+    "process_hash": [
+        "4959107124ca2555f18c43cea6ab07da",
+        "0e7cfcb192108cee35d27925ae78b0b2a83fc5f9e31a689bed132867c17d41cb"
+    ],
+    "parent_hash": [
+        "40d777b7a95e00593eb1568c68514493",
+        "0a8ce026714e03e72c619307bd598add5f9b639cfd91437cb8d9c847bf9f6894"
+    ],
+    "process_cmdline": "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" ",
+    "parent_cmdline": "C:\\Windows\\Explorer.EXE",
+    "process_username": "WIN-32-H1\\aalsahee",
+    "sensor_action": "ACTION_ALLOW",
+    "event_origin": "EDR",
+    "filemod_hash": null,
+    "filemod_name": null,
+    "regmod_name": null,
+    "modload_name": null,
+    "modload_count": null,
+    "modload_effective_reputation": null,
+    "modload_hash": null,
+    "modload_md5": null,
+    "modload_publisher": null,
+    "modload_sha256": null,
+    "process_duration": null,
+    "target_cmdline": null,
+    "remote_port": 443.0,
+    "remote_ip": "185.199.108.153",
+    "local_port": 50448.0,
+    "local_ip": "192.168.223.128",
+    "netconn_domain": "uiucmcs.org",
+    "netconn_inbound": 0.0,
+    "netconn_protocol": "PROTO_TCP",
+    "netconn_community_id": "5ffd85b9d02c83a43e8f2c113606381411060632",
+    "childproc_name": null,
+    "childproc_hash": null,
+    "childproc_pid": null,
+    "childproc_guid": null,
+    "childproc_username": null,
+    "childproc_publisher": null,
+    "childproc_reputation": null,
+    "crossproc_name": null,
+    "crossproc_guid": null,
+    "crossproc_hash": null,
+    "crossproc_action": null,
+    "crossproc_publisher": null,
+    "crossproc_reputation": null,
+    "crossproc_target": null,
+    "scriptload_count": null,
+    "scriptload_reputation": null,
+    "scriptload_effective_reputation": null,
+    "scriptload_publisher": null
+}

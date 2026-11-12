@@ -1,0 +1,109 @@
+{
+  "status": "PASS",
+  "gates": {
+    "same_hosts_as_10a": true,
+    "same_assigned_split_as_10a": true,
+    "event_conservation": true,
+    "positive_conservation": true,
+    "removed_events_all_positive": true,
+    "removed_only_on_gt_positive_hosts": true,
+    "each_split_has_positive": true
+  },
+  "seed": 1,
+  "excluded_resp_ips": [
+    "202.6.172.98"
+  ],
+  "events_before": 85626185,
+  "events_removed": 13412,
+  "events_after": 85612773,
+  "positive_events_before": 24721,
+  "positive_events_removed": 13412,
+  "positive_events_after": 11309,
+  "positive_removed_share": 0.5425346871081267,
+  "by_split_after": {
+    "train": {
+      "hosts": 434,
+      "events": 62057568,
+      "positive_events": 8721
+    },
+    "val": {
+      "hosts": 93,
+      "events": 12337336,
+      "positive_events": 1526
+    },
+    "test": {
+      "hosts": 93,
+      "events": 11217869,
+      "positive_events": 1062
+    }
+  },
+  "positive_events_by_scenario_split_after": {
+    "scenario_1": {
+      "train": 6740,
+      "val": 1391,
+      "test": 899
+    },
+    "scenario_2": {
+      "train": 1955,
+      "val": 135,
+      "test": 0
+    },
+    "scenario_3": {
+      "train": 26,
+      "val": 0,
+      "test": 163
+    }
+  },
+  "removed_by_host": [
+    {
+      "hostname": "sysclient0010",
+      "removed_event_rows": 2104,
+      "removed_positive_event_rows": 2104,
+      "gt_primary_scenario": "scenario_2",
+      "assigned_split": "train"
+    },
+    {
+      "hostname": "sysclient0069",
+      "removed_event_rows": 2105,
+      "removed_positive_event_rows": 2105,
+      "gt_primary_scenario": "scenario_2",
+      "assigned_split": "train"
+    },
+    {
+      "hostname": "sysclient0203",
+      "removed_event_rows": 2102,
+      "removed_positive_event_rows": 2102,
+      "gt_primary_scenario": "scenario_2",
+      "assigned_split": "train"
+    },
+    {
+      "hostname": "sysclient0358",
+      "removed_event_rows": 2101,
+      "removed_positive_event_rows": 2101,
+      "gt_primary_scenario": "scenario_2",
+      "assigned_split": "train"
+    },
+    {
+      "hostname": "sysclient0501",
+      "removed_event_rows": 809,
+      "removed_positive_event_rows": 809,
+      "gt_primary_scenario": "scenario_2",
+      "assigned_split": "val"
+    },
+    {
+      "hostname": "sysclient0618",
+      "removed_event_rows": 2097,
+      "removed_positive_event_rows": 2097,
+      "gt_primary_scenario": "scenario_2",
+      "assigned_split": "test"
+    },
+    {
+      "hostname": "sysclient0851",
+      "removed_event_rows": 2094,
+      "removed_positive_event_rows": 2094,
+      "gt_primary_scenario": "scenario_2",
+      "assigned_split": "train"
+    }
+  ],
+  "contract_sha256": "32105d531c313596adbe67aea6c2351a85a2a39273663bece1bfc975cbb1050f"
+}

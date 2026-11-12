@@ -1,0 +1,45 @@
+# STEP 37 — Raw, nhãn, mẫu nguyên văn và hướng tiền xử lý để fine-tune (chuẩn bị trình bày thầy)
+
+Ngày: 2026-10-23. Gồm: (1) mô tả raw và trường nhãn của OpTC, THEIA, ATLASv2; (2) hai tệp mẫu nguyên văn `sample_THEIA_raw.txt`, `sample_ATLASv2_raw.txt`; (3) sơ đồ `visual_pipeline.html`; (4) hướng tiền xử lý. Mã: `01_code/pipeline_v2/s18_theia_sample.py`, `s18_atlas_sample.py`, `s18_assemble.py`. Mọi số liệu do mình đếm từ file thật (STEP 36 và STEP 22–34). Chưa dựng shards hay train gì cho THEIA/ATLASv2.
+
+## 1. Raw là file gì, định dạng gì
+| | OpTC (đã train) | THEIA | ATLASv2 |
+|---|---|---|---|
+| Hệ điều hành, quy mô | Windows, 743 máy, 9 ngày (17–25/9/2019), 92,045,755 flow sau ghép | Ubuntu, 1 máy (10.0.6.60), 4 lát cắt trong DARPA TC E3 (04-03 → 04-13/2018) | Windows 7 32-bit, 2 VM (h1, h2), 2022-07-15 → 20; ~29,700 netconn |
+| File raw | `bro/<ngày>/conn.*.log.gz` (Zeek TSV, dòng `#fields`); `ecar-bro/**/ecarbro.json.gz` (mỗi dòng một JSON eCAR) | `RAW/ta1-theia-e3-official-{1r,3,5m,6r}.json.tar.gz` → các file `.json` ~3.7 GB, **mỗi dòng một JSON CDM18** | `atlasv2.tar.gz` (12.2 GB) → `data/{benign,attack}/{h1,h2}/{cbc-edr/*.jsonl, cbc-edr-alerts/*.jsonl, cbc-ngav/*.jsonl, sysmon/*.xml, msft-security/*.xml, dns/*, firefox/*}` |
+| Đơn vị bản ghi | 1 dòng conn = 1 kết nối; 1 dòng eCAR FLOW = 1 kết nối kèm tiến trình | Một dòng = một bản ghi đồ thị: `Subject` (tiến trình), `Event` (syscall), `NetFlowObject` (ổ cắm), `Principal`, `FileObject`, `MemoryObject`, `Host` | `cbc-edr`: một dòng = một sự kiện endpoint (`netconn`, `procstart`, `filemod`, ...); `sysmon`/`msft-security`: `<Event>` xml |
+| Trường mạng | conn: `ts, uid, id.orig_h/p, id.resp_h/p, proto, service, duration, orig_bytes, resp_bytes, conn_state, local_orig/resp, missed_bytes, history, orig_pkts, orig_ip_bytes, resp_pkts, resp_ip_bytes, tunnel_parents, label` | `NetFlowObject`: `localAddress, localPort, remoteAddress, remotePort` (`ipProtocol` luôn null); `Event`: `type, timestampNanos, subject, predicateObject, size` | `netconn`: `remote_ip, remote_port, local_ip, local_port, netconn_protocol, netconn_inbound, netconn_domain, action, netconn_community_id, device_timestamp` |
+| Trường tiến trình | eCAR FLOW: `actorID, pid, ppid, principal, properties.image_path, properties.bro_uid` | `Subject`: `uuid, cid, cmdLine, parentSubject, localPrincipal, properties.{path, ppid, tgid}` | cùng dòng netconn: `process_guid, process_path, process_cmdline, process_username, parent_guid, parent_path, parent_cmdline` |
+| **Nhãn nằm ở đâu** | **Trong raw**: cột cuối `label` (0/1) của conn.log; nhãn theo IP C2 + giờ (bài A New Hope) | **Ngoài raw** (không dòng JSON nào có trường nhãn) — repo REAPr: `theia_labels.csv` (cột `attack_chain, uuid, process_name, label`, khóa **Subject.uuid**) và `theia_edge_labels.tar.gz` → `edge_labels.csv` (cột `attack_chain, vertex_uuid, vertex_label, edge_uuid`, khóa **Event.uuid**) | **Ngoài raw** — REAPr: `atlasv2/<máy>-<kịch bản>.labels` (cột `attack, process_name, process_id, process_uuid, label`, khóa **process_guid** của cbc-edr); `*.seeds` (cột `vertex_name, seed_label`); Security: `msft-security/groundtruth/h*_m*` (danh sách `EventRecordID` độc hại) |
+| Giá trị nhãn | 0, 1 | `attack`, `contaminated`, và **benign = không được liệt kê** | `attack` và **benign = không được liệt kê**; seed: `root_cause`, `impact` (đỉnh IP/tệp, không phải tiến trình) |
+| Mức nhãn | từng flow | tiến trình (125 attack, 1 contaminated) và cạnh/sự kiện (68,925 attack, 4 contaminated) | tiến trình (191 attack / 16 cặp máy-kịch bản) |
+Ghi chú: không có "loại tấn công" nào khác trong trường nhãn; `attack_chain` (THEIA) chỉ cho biết đợt (3.3, 3.11, 4.8, thành công/thất bại). Chuỗi thất bại tác giả khuyên không dùng để test.
+
+## 2. Hai tệp mẫu nguyên văn
+- `sample_THEIA_raw.txt`: nhãn `attack` 3 mẫu (3 tiến trình thuộc chuỗi 3.3, 3.11 và một tiến trình quét), `contaminated` (chỉ có 1 tiến trình và 2 sự kiện khác nhau, không thể đủ 3, và không có flow), `benign` 5 mẫu (tiến trình không có trong hai file nhãn). Mỗi mẫu = dòng `Subject`, dòng `Principal`, các dòng `NetFlowObject`, các dòng `Event` (theo thời gian), kèm dòng nhãn trích nguyên văn.
+- `sample_ATLASv2_raw.txt`: nhãn `attack` 5 mẫu (toàn bộ 5 tiến trình có nhãn và có netconn trong `h1-m1`), `benign` 5 mẫu (tiến trình trong file benign 4 ngày). Mỗi mẫu = nhiều hàng `netconn` liên tiếp (nguyên dòng jsonl). Phụ lục: một sự kiện Security 5156 và 4688, Sysmon EventID 1 và 5, 8 dòng DNS, 6 dòng groundtruth.
+- Quy ước tệp: dòng không bắt đầu bằng `#` hoặc `===` là dòng raw giữ nguyên từng ký tự; dòng `#`/`===` là chú thích của mình, kể cả dòng "nhãn" (nội dung bên trong là trích nguyên văn từ file nhãn).
+Chi tiết các mẫu đã lấy:
+- THEIA attack 1: chuỗi `3.3_success_gatech_profile`, tiến trình `7F1FD92F-...` (nhãn ghi `/usr/bin/firefox`), 8 sự kiện `CONNECT`/`SENDTO`... tới `141.43.176.203:80`. Attack 2: chuỗi `3.11_success`, `B73501B6-...`, tới `146.153.68.151:80`. Attack 3: chuỗi `3.11_success`, tiến trình quét `283847BC-...`: 5 `CONNECT` tới ổ cắm đầu xa `NA`/cổng 0 và 3 sự kiện tới `149.52.198.23:80` (minh họa rằng nhãn attack gồm cả ổ cắm không có đầu xa).
+- THEIA contaminated: tiến trình `3A3530B4-...` (firefox) với 2 sự kiện `EVENT_CLONE` (nó sinh ra hai tiến trình attack `7235B0B4-...` và `B33501B6-...`), mỗi sự kiện có hai dòng nhãn cạnh (hai chuỗi `3.11_fail`, `3.11_success`). Không có sự kiện mạng.
+- THEIA benign: 1 `firefox`, 2 `thunderbird` (cùng khoảng 04-10 18:20–19:20 UTC của lát cắt 6r, loại bỏ mọi sự kiện/tiến trình có nhãn); 3 `sshd`, 4 `python2.7` (lát cắt `3`, 04-05) và 5 `bash` (lát cắt `5m`, 04-09). Ba mẫu cuối lấy từ lát cắt không có nhãn vì lượt quét 6r chỉ cho đủ điều kiện (đầu xa thật, ≥ 4 sự kiện) hai tiến trình.
+- ATLASv2 attack: cả 5 tiến trình có nhãn mà có `netconn` trong `h1-m1`: `python.exe` (3 hàng, tới `10.193.66.115`), `payload.exe` (1 hàng, `10.193.66.115:9999`), `firefox.exe` chính (12 trong 1,415 hàng, duyệt web tới IP công cộng nhưng vẫn mang nhãn attack), `firefox.exe` thứ hai (3 hàng loopback/rỗng), `plugin-container.exe` (1 hàng, `10.193.66.115:8443`). Benign: 5 tiến trình của file benign 4 ngày (firefox, svchost, discord, ...).
+- Kiểm tra định dạng: mọi dòng không có `#`/`===` trong hai tệp đều đọc được bằng `json.loads` (THEIA 105 dòng JSON, ATLASv2 72 dòng JSON; còn lại là chú thích, dòng xml ở phụ lục và DNS).
+
+## 3. Hướng tiền xử lý để fine-tune
+Sơ đồ ở `visual_pipeline.html` (mục 2–5). Tóm tắt:
+1. **Dựng flow từng dataset** về cùng 5 trường bản B + nhãn: OpTC đã có (`flows_joined.parquet`); ATLASv2: mỗi hàng `netconn` là một flow; THEIA: gom `Event` theo `NetFlowObject`, bỏ ổ cắm không có đầu xa/`LOCAL`/`NETLINK`/127.0.0.1.
+2. **Gán nhãn flow**: THEIA = `Event.uuid ∈ edge_labels` (hoặc `Subject.uuid ∈ theia_labels`); ATLASv2 = `process_guid ∈ .labels`. OpTC giữ nhãn `label` của conn.log.
+3. **Bản B của OpTC**: giữ `app_family`, `proto`, `resp_port_class`, `image_dir_class`, `delta_t`; **bỏ** `principal_class`, `service`, `conn_state`, 7 cột số, `has_missed_bytes` (không có hoặc không so sánh được ở dữ liệu mới). Mô hình đã train sẵn (OpTC TEST F1 0.988 cho cả hai), không train lại.
+4. **Cửa sổ** theo máy 15 phút, tối đa 512 flow; nhãn cửa sổ = có ít nhất 1 flow dương; preprocessing fit chỉ trên TRAIN OpTC; **từ điển mở rộng** bằng token mới của TRAIN dữ liệu mới (hàng mới = bản sao `<UNK>`), kiểm tra mô hình mở rộng chưa train khớp zero-shot.
+5. **Fine-tune incremental**: TRAIN dữ liệu mới (chia trộn theo cửa sổ, 3 fold) + replay OpTC (150 dương + 450 âm mỗi epoch); giai đoạn A 3 epoch (lr 1e-3, chỉ embedding mới + đầu phân loại), giai đoạn B 3 epoch (lr 1e-4 BiLSTM, 3e-5 Mixed-Type). Cấu hình đã dùng ở STEP 33; STEP 34 cho thấy BiLSTM cần học lâu hơn mới khớp TRAIN, nên có thể phải đổi cấu hình và nếu đổi sau khi thấy TEST thì ghi rõ TEST đã mở lần hai.
+6. **Số đo**: F1 OpTC TEST trước/sau (BWT); F1 dữ liệu mới trước (zero-shot) và sau (out-of-fold ghép); stability theo fold/seed; luôn đặt cạnh luật token và mức nền.
+
+## 4. Hạn chế phải nêu khi trình bày
+- Nhãn THEIA/ATLASv2 là mức tiến trình hoặc cạnh, không phải nhãn từng flow chuẩn như OpTC. ATLASv2: 86% netconn trong file tấn công là dương (mọi kết nối của tiến trình bị nhiễm), giống benign về đặc trưng mô hình thấy; 10 cuộc tấn công gần như giống nhau → chia trộn rò rỉ mạnh. THEIA: sau khi bỏ ổ cắm không có đầu xa chỉ còn 20 netflow dương (hai đợt); 97% cạnh netflow có nhãn là một tiến trình quét (`NA:0`).
+- Chưa dựng cửa sổ nên chưa có số mẫu dương; chưa chạy zero-shot trên hai bộ này; THEIA thiếu `proto` và từ điển lệch (Linux vs Windows).
+- Số liệu OpTC dựa trên một seed; fine-tune trước đây chỉ có 16 mẫu dương, 7 đợt.
+
+
+## ĐÍNH CHÍNH 2026-10-24
+`app_family` của THEIA phải lấy từ `cmdLine` của `EVENT_EXECUTE` (hoặc `process_name` REAPr), không từ `Subject.properties.map.path` (tên lúc fork). Chi tiết ở STEP 36 (mục Đính chính). Dòng THEIA sau preprocessing ở `38_slide_records_v1/2_sau_preprocess_...json` đã dùng `firefox` thay vì `fluxbox`.

@@ -1,0 +1,262 @@
+{
+  "schema_version": "network-event-schema-v1.0",
+  "description": "Từ điển field của một network event (một flow) và vai trò của từng field trong pipeline Network DL. File này là nguồn duy nhất cho danh sách feature categorical/numeric, ID đặc biệt và bảng cổng, được 08b (preprocess) và 04a (dựng shard) đọc trực tiếp qua network_schema.py. Các phần còn lại (meaning_vi, example, notes) là tài liệu mô tả để đọc.",
+  "pipeline_reads": [
+    "categorical.base_fields",
+    "categorical.derived_fields",
+    "categorical.reserved_ids",
+    "numeric.fields",
+    "port_class.common_ports"
+  ],
+  "roles": {
+    "join_audit": "Chỉ để ghép, gom, sắp xếp, chia split; KHÔNG là feature",
+    "target": "Đáp án (nhãn); KHÔNG là feature",
+    "categorical": "Feature phân loại: chuỗi -> ID nguyên (0 = <UNK>, 1 = <MISSING>) -> embedding",
+    "numeric": "Feature số: log1p -> z-score (fit TRAIN) -> cắt +-10, kèm cờ thiếu",
+    "binary": "Feature 0/1",
+    "time": "Khoảng cách thời gian giữa 2 flow liên tiếp trong cùng chunk",
+    "graph_only": "Chỉ để dẫn xuất feature khác hoặc dựng đồ thị; KHÔNG là feature trực tiếp",
+    "cross_check": "Chỉ để đối chiếu chéo giữa hai nguồn",
+    "not_used": "Không dùng"
+  },
+  "fields": [
+    {
+      "name": "uid", "source": "Bro conn.uid = eCAR-Bro properties.bro_uid", "dtype": "string", "role": "join_audit",
+      "meaning_vi": "Mã định danh duy nhất của một kết nối Bro; khóa nối eCAR-Bro với Bro conn.",
+      "example": "CcUrXX1KFnhO6S8Xa9",
+      "notes": "Dùng khử trùng và sắp xếp phụ (ORDER BY ts, uid)."
+    },
+    {
+      "name": "ts", "source": "Bro conn.ts", "dtype": "double", "role": "join_audit",
+      "meaning_vi": "Thời điểm bắt đầu kết nối, epoch giây theo UTC.",
+      "example": 1569355215.846942,
+      "notes": "Dùng chia cửa sổ 15 phút (floor(ts/900)*900), sắp thứ tự flow và tính delta_t_log1p. Không là feature. Giờ địa phương của eCAR là EDT = UTC - 4."
+    },
+    {
+      "name": "hostname", "source": "eCAR-Bro hostname (chữ thường, bỏ đuôi domain)", "dtype": "string", "role": "join_audit",
+      "meaning_vi": "Tên máy host sinh ra kết nối.",
+      "example": "sysclient0618",
+      "notes": "Khóa gom sample (host, cửa sổ 15 phút) và đơn vị chia TRAIN/VAL/TEST (host-disjoint)."
+    },
+    {
+      "name": "label", "source": "Bro conn.label", "dtype": "int", "role": "target",
+      "meaning_vi": "0 = benign, 1 = flow thuộc hoạt động tấn công (nhãn của bài A New Hope: IP máy bị chiếm + IP C2 + thời gian, kiểm tay).",
+      "example": 1,
+      "notes": "Nhãn sample = 1 nếu chunk có ít nhất một flow label = 1. Không đưa vào tensor đầu vào."
+    },
+    {
+      "name": "app_family", "source": "eCAR-Bro properties.image_path (tên file thực thi, chữ thường)", "dtype": "string", "role": "categorical",
+      "meaning_vi": "Process (ứng dụng) trên host đã tạo ra kết nối.",
+      "example": "powershell.exe",
+      "notes": "Trong dữ liệu 99.8% là firefox.exe; powershell.exe luôn là flow tấn công, nên là 'đường tắt' (shortcut). Có thể bỏ bằng tuỳ chọn DROP_APP_FAMILY ở notebook."
+    },
+    {
+      "name": "direction", "source": "eCAR-Bro properties.direction", "dtype": "string", "role": "categorical",
+      "meaning_vi": "Hướng flow theo eCAR: outbound hoặc inbound.",
+      "example": "outbound",
+      "notes": "Hằng số trên TRAIN (outbound) nên bị loại khỏi feature thực dùng."
+    },
+    {
+      "name": "ecar_l4protocol", "source": "eCAR-Bro properties.l4protocol", "dtype": "string", "role": "cross_check",
+      "meaning_vi": "Số hiệu giao thức IP theo eCAR: 6 = TCP, 17 = UDP.",
+      "example": "6",
+      "notes": "Chỉ để đối chiếu với proto của Bro."
+    },
+    {
+      "name": "orig_h", "source": "Bro conn id.orig_h", "dtype": "string", "role": "graph_only",
+      "meaning_vi": "Địa chỉ IP nguồn (máy host).",
+      "example": "142.20.58.107",
+      "notes": "Dẫn xuất orig_ip_scope. Không là feature (IP cụ thể không học được và dễ gây rò rỉ)."
+    },
+    {
+      "name": "orig_p", "source": "Bro conn id.orig_p", "dtype": "int", "role": "graph_only",
+      "meaning_vi": "Cổng nguồn (thường là cổng tạm thời, ephemeral).",
+      "example": 49265,
+      "notes": "Dẫn xuất orig_port_class."
+    },
+    {
+      "name": "resp_h", "source": "Bro conn id.resp_h", "dtype": "string", "role": "graph_only",
+      "meaning_vi": "Địa chỉ IP đích (máy chủ ở Internet giả lập hoặc C2).",
+      "example": "202.6.172.98",
+      "notes": "Dẫn xuất resp_ip_scope; dùng làm nút REMOTE_ENDPOINT cục bộ trong sample cho model đồ thị. Không là feature."
+    },
+    {
+      "name": "resp_p", "source": "Bro conn id.resp_p", "dtype": "int", "role": "graph_only",
+      "meaning_vi": "Cổng đích.",
+      "example": 443,
+      "notes": "Dẫn xuất resp_port_class (feature chính)."
+    },
+    {
+      "name": "proto", "source": "Bro conn.proto", "dtype": "string", "role": "categorical",
+      "meaning_vi": "Giao thức tầng giao vận: tcp, udp, icmp.",
+      "example": "tcp",
+      "notes": ""
+    },
+    {
+      "name": "service", "source": "Bro conn.service", "dtype": "string", "role": "categorical",
+      "meaning_vi": "Dịch vụ tầng ứng dụng Bro nhận diện: ssl, http, dns...; '-' nếu không nhận diện được.",
+      "example": "ssl",
+      "notes": "Dấu '-' được xem là <MISSING>."
+    },
+    {
+      "name": "duration", "source": "Bro conn.duration", "dtype": "double", "role": "numeric",
+      "meaning_vi": "Thời lượng kết nối (giây).",
+      "example": 0.063495,
+      "notes": ""
+    },
+    {
+      "name": "orig_bytes", "source": "Bro conn.orig_bytes", "dtype": "int", "role": "numeric",
+      "meaning_vi": "Số byte dữ liệu ứng dụng gửi đi từ nguồn (host).",
+      "example": 667,
+      "notes": ""
+    },
+    {
+      "name": "resp_bytes", "source": "Bro conn.resp_bytes", "dtype": "int", "role": "numeric",
+      "meaning_vi": "Số byte dữ liệu ứng dụng nhận về từ đích.",
+      "example": 2277,
+      "notes": ""
+    },
+    {
+      "name": "conn_state", "source": "Bro conn.conn_state", "dtype": "string", "role": "categorical",
+      "meaning_vi": "Trạng thái kết thúc kết nối: SF = bình thường, S0 = chỉ có SYN không phản hồi, REJ = bị từ chối, RSTO = nguồn reset, RSTR = đích reset...",
+      "example": "SF",
+      "notes": "Chuyển thành chữ thường khi mã hóa (sf, rej...)."
+    },
+    {
+      "name": "local_orig", "source": "Bro conn.local_orig", "dtype": "string", "role": "categorical",
+      "meaning_vi": "Nguồn có thuộc mạng nội bộ do Bro cấu hình hay không (T/F).",
+      "example": "F",
+      "notes": "Hằng số trên TRAIN nên bị loại."
+    },
+    {
+      "name": "local_resp", "source": "Bro conn.local_resp", "dtype": "string", "role": "categorical",
+      "meaning_vi": "Đích có thuộc mạng nội bộ do Bro cấu hình hay không (T/F).",
+      "example": "F",
+      "notes": "Hằng số trên TRAIN nên bị loại."
+    },
+    {
+      "name": "missed_bytes", "source": "Bro conn.missed_bytes", "dtype": "int", "role": "numeric",
+      "meaning_vi": "Số byte Bro bỏ lỡ (mất gói).",
+      "example": 0,
+      "notes": "Gần như luôn 0 nên độ lệch chuẩn quá nhỏ; không dùng z-score mà thay bằng cờ has_missed_bytes."
+    },
+    {
+      "name": "history", "source": "Bro conn.history", "dtype": "string", "role": "not_used",
+      "meaning_vi": "Chuỗi cờ TCP theo thứ tự xuất hiện (ví dụ ShADadfF).",
+      "example": "ShADadfF",
+      "notes": "Chưa dùng làm feature."
+    },
+    {
+      "name": "orig_pkts", "source": "Bro conn.orig_pkts", "dtype": "int", "role": "numeric",
+      "meaning_vi": "Số gói tin gửi đi từ nguồn.",
+      "example": 6,
+      "notes": ""
+    },
+    {
+      "name": "orig_ip_bytes", "source": "Bro conn.orig_ip_bytes", "dtype": "int", "role": "numeric",
+      "meaning_vi": "Tổng byte tầng IP từ nguồn (gồm header).",
+      "example": 919,
+      "notes": ""
+    },
+    {
+      "name": "resp_pkts", "source": "Bro conn.resp_pkts", "dtype": "int", "role": "numeric",
+      "meaning_vi": "Số gói tin gửi về từ đích.",
+      "example": 8,
+      "notes": ""
+    },
+    {
+      "name": "resp_ip_bytes", "source": "Bro conn.resp_ip_bytes", "dtype": "int", "role": "numeric",
+      "meaning_vi": "Tổng byte tầng IP từ đích (gồm header).",
+      "example": 2609,
+      "notes": ""
+    },
+    {
+      "name": "ecar_occurrence_count", "source": "STEP 04B", "dtype": "int", "role": "join_audit",
+      "meaning_vi": "Số lần uid xuất hiện trong eCAR-Bro trước khi khử trùng.",
+      "example": 1,
+      "notes": "Chỉ để kiểm tra; không là feature."
+    },
+    {
+      "name": "date", "source": "partition STEP 04B", "dtype": "date", "role": "join_audit",
+      "meaning_vi": "Ngày của partition parquet (theo file eCAR-Bro).",
+      "example": "2019-09-24",
+      "notes": "Không phải ngày UTC chuẩn của ts; không là feature."
+    },
+    {
+      "name": "split", "source": "partition STEP 04B (split STEP 02)", "dtype": "string", "role": "join_audit",
+      "meaning_vi": "Split gốc của host (train/val/test/unmatched_split) ở STEP 02.",
+      "example": "train",
+      "notes": "Khi chia lại split (LOSO hoặc ngẫu nhiên), split mới được map lại theo hostname."
+    },
+    {
+      "name": "orig_ip_scope", "source": "dẫn xuất từ orig_h", "dtype": "string", "role": "categorical", "derived_from": "orig_h",
+      "meaning_vi": "Loại địa chỉ IP nguồn: PRIVATE, PUBLIC_IPV4, LOOPBACK...",
+      "example": "PUBLIC_IPV4",
+      "notes": "Hằng số trên TRAIN nên bị loại."
+    },
+    {
+      "name": "resp_ip_scope", "source": "dẫn xuất từ resp_h", "dtype": "string", "role": "categorical", "derived_from": "resp_h",
+      "meaning_vi": "Loại địa chỉ IP đích.",
+      "example": "PUBLIC_IPV4",
+      "notes": "Hằng số trên TRAIN nên bị loại."
+    },
+    {
+      "name": "orig_port_class", "source": "dẫn xuất từ orig_p", "dtype": "string", "role": "categorical", "derived_from": "orig_p",
+      "meaning_vi": "Nhóm cổng nguồn.",
+      "example": "EPHEMERAL",
+      "notes": "Hằng số trên TRAIN nên bị loại."
+    },
+    {
+      "name": "resp_port_class", "source": "dẫn xuất từ resp_p", "dtype": "string", "role": "categorical", "derived_from": "resp_p",
+      "meaning_vi": "Nhóm cổng đích: cổng phổ biến có tên riêng (PORT_443_HTTPS...) hoặc nhóm dải cổng.",
+      "example": "PORT_443_HTTPS",
+      "notes": "Quy tắc nằm ở mục port_class."
+    },
+    {
+      "name": "has_missed_bytes", "source": "dẫn xuất từ missed_bytes", "dtype": "uint8", "role": "binary", "derived_from": "missed_bytes",
+      "meaning_vi": "1 nếu missed_bytes > 0, ngược lại 0.",
+      "example": 0,
+      "notes": ""
+    },
+    {
+      "name": "delta_t_log1p", "source": "dẫn xuất từ ts khi dựng sample", "dtype": "float32", "role": "time", "derived_from": "ts",
+      "meaning_vi": "ln(1 + số giây từ flow liền trước trong cùng chunk); flow đầu chunk = 0.",
+      "example": 3.438,
+      "notes": "Beacon 30 giây cho giá trị lặp lại ~3.44."
+    }
+  ],
+  "categorical": {
+    "base_fields": ["app_family", "direction", "proto", "service", "conn_state", "local_orig", "local_resp"],
+    "derived_fields": ["orig_ip_scope", "resp_ip_scope", "orig_port_class", "resp_port_class"],
+    "reserved_ids": {"<UNK>": 0, "<MISSING>": 1},
+    "normalization_vi": "Cắt khoảng trắng và đổi chữ thường; rỗng, '-', '(empty)', 'null', 'none', 'nan' thành <MISSING>; giá trị chưa thấy ở TRAIN thành <UNK>."
+  },
+  "numeric": {
+    "fields": ["duration", "orig_bytes", "resp_bytes", "missed_bytes", "orig_pkts", "orig_ip_bytes", "resp_pkts", "resp_ip_bytes"],
+    "transform_vi": "x -> log1p(x) -> (log1p(x) - mean_TRAIN) / std_TRAIN -> cắt về [-10, 10]; thiếu thì điền 0 và bật cờ thiếu.",
+    "drop_rule_vi": "Loại trường có độ lệch chuẩn log1p trên TRAIN < 0.01 (ví dụ missed_bytes, thay bằng has_missed_bytes)."
+  },
+  "port_class": {
+    "common_ports": {
+      "20": "FTP_DATA", "21": "FTP", "22": "SSH", "23": "TELNET", "25": "SMTP", "53": "DNS", "80": "HTTP", "110": "POP3",
+      "123": "NTP", "135": "RPC", "139": "NETBIOS", "143": "IMAP", "389": "LDAP", "443": "HTTPS", "445": "SMB",
+      "636": "LDAPS", "1433": "MSSQL", "3306": "MYSQL", "3389": "RDP", "5432": "POSTGRES", "5985": "WINRM_HTTP",
+      "5986": "WINRM_HTTPS", "8080": "HTTP_ALT", "8443": "HTTPS_ALT"
+    },
+    "label_pattern": "PORT_<port>_<NAME>",
+    "ranges_vi": "Cổng khác: 0-1023 = WELL_KNOWN_OTHER, 1024-49151 = REGISTERED, 49152-65535 = EPHEMERAL, còn lại = OTHER; thiếu = <MISSING>. (Phần dải cổng nằm trong code SQL, ở đây chỉ để mô tả.)"
+  },
+  "sample": {
+    "unit_vi": "Một sample = chuỗi tối đa 512 flow của một host trong một cửa sổ 15 phút (sắp theo thời gian); window dài hơn 512 flow được cắt thành chunk.",
+    "window_seconds": 900,
+    "max_events": 512,
+    "label_rule_vi": "Sample = 1 nếu có ít nhất một flow label = 1."
+  },
+  "model_input_groups": {
+    "categorical": "x_cat  [B,T,5]: app_family, proto, service, conn_state, resp_port_class (5 cột thực dùng)",
+    "numeric": "x_num [B,T,7] + x_num_missing [B,T,7]: 7 cột số thực dùng",
+    "binary": "x_bin [B,T,1]: has_missed_bytes",
+    "time": "delta_t_log1p [B,T,1]",
+    "note": "Danh sách thực dùng của từng split nằm ở network_preprocess_spec.json (loại các trường hằng số trên TRAIN)."
+  }
+}

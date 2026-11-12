@@ -1,0 +1,6 @@
+direction,proto,service,n_all,n_pos
+outbound,tcp,ssl,85700103,13411.0
+outbound,tcp,http,5981531,11116.0
+outbound,tcp,,364018,192.0
+outbound,tcp,ssh,1,1.0
+inbound,tcp,ssl,1,1.0

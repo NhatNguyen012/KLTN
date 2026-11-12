@@ -1,0 +1,90 @@
+﻿field,nhóm,ý_nghĩa
+id,định danh luồng,Số thứ tự luồng
+expiration_id,định danh luồng,Lý do NFStream kết thúc luồng
+src_ip,định danh luồng,IP nguồn
+src_mac,định danh luồng,
+src_oui,định danh luồng,
+src_port,định danh luồng,Cổng nguồn
+dst_ip,định danh luồng,IP đích
+dst_mac,định danh luồng,
+dst_oui,định danh luồng,
+dst_port,định danh luồng,Cổng đích
+protocol,định danh luồng,"Số giao thức IP (6 = TCP, 17 = UDP)"
+ip_version,định danh luồng,
+vlan_id,định danh luồng,
+tunnel_id,định danh luồng,
+bidirectional_first_seen_ms,hai chiều (bidirectional),
+bidirectional_last_seen_ms,hai chiều (bidirectional),
+bidirectional_duration_ms,hai chiều (bidirectional),
+bidirectional_packets,hai chiều (bidirectional),
+bidirectional_bytes,hai chiều (bidirectional),
+src2dst_first_seen_ms,chiều nguồn → đích,
+src2dst_last_seen_ms,chiều nguồn → đích,
+src2dst_duration_ms,chiều nguồn → đích,
+src2dst_packets,chiều nguồn → đích,
+src2dst_bytes,chiều nguồn → đích,
+dst2src_first_seen_ms,chiều đích → nguồn,
+dst2src_last_seen_ms,chiều đích → nguồn,
+dst2src_duration_ms,chiều đích → nguồn,
+dst2src_packets,chiều đích → nguồn,
+dst2src_bytes,chiều đích → nguồn,
+bidirectional_min_ps,hai chiều (bidirectional),
+bidirectional_mean_ps,hai chiều (bidirectional),
+bidirectional_stddev_ps,hai chiều (bidirectional),
+bidirectional_max_ps,hai chiều (bidirectional),
+src2dst_min_ps,chiều nguồn → đích,
+src2dst_mean_ps,chiều nguồn → đích,
+src2dst_stddev_ps,chiều nguồn → đích,
+src2dst_max_ps,chiều nguồn → đích,
+dst2src_min_ps,chiều đích → nguồn,
+dst2src_mean_ps,chiều đích → nguồn,
+dst2src_stddev_ps,chiều đích → nguồn,
+dst2src_max_ps,chiều đích → nguồn,
+bidirectional_min_piat_ms,hai chiều (bidirectional),
+bidirectional_mean_piat_ms,hai chiều (bidirectional),
+bidirectional_stddev_piat_ms,hai chiều (bidirectional),
+bidirectional_max_piat_ms,hai chiều (bidirectional),
+src2dst_min_piat_ms,chiều nguồn → đích,
+src2dst_mean_piat_ms,chiều nguồn → đích,
+src2dst_stddev_piat_ms,chiều nguồn → đích,
+src2dst_max_piat_ms,chiều nguồn → đích,
+dst2src_min_piat_ms,chiều đích → nguồn,
+dst2src_mean_piat_ms,chiều đích → nguồn,
+dst2src_stddev_piat_ms,chiều đích → nguồn,
+dst2src_max_piat_ms,chiều đích → nguồn,
+bidirectional_syn_packets,hai chiều (bidirectional),
+bidirectional_cwr_packets,hai chiều (bidirectional),
+bidirectional_ece_packets,hai chiều (bidirectional),
+bidirectional_urg_packets,hai chiều (bidirectional),
+bidirectional_ack_packets,hai chiều (bidirectional),
+bidirectional_psh_packets,hai chiều (bidirectional),
+bidirectional_rst_packets,hai chiều (bidirectional),
+bidirectional_fin_packets,hai chiều (bidirectional),
+src2dst_syn_packets,chiều nguồn → đích,
+src2dst_cwr_packets,chiều nguồn → đích,
+src2dst_ece_packets,chiều nguồn → đích,
+src2dst_urg_packets,chiều nguồn → đích,
+src2dst_ack_packets,chiều nguồn → đích,
+src2dst_psh_packets,chiều nguồn → đích,
+src2dst_rst_packets,chiều nguồn → đích,
+src2dst_fin_packets,chiều nguồn → đích,
+dst2src_syn_packets,chiều đích → nguồn,
+dst2src_cwr_packets,chiều đích → nguồn,
+dst2src_ece_packets,chiều đích → nguồn,
+dst2src_urg_packets,chiều đích → nguồn,
+dst2src_ack_packets,chiều đích → nguồn,
+dst2src_psh_packets,chiều đích → nguồn,
+dst2src_rst_packets,chiều đích → nguồn,
+dst2src_fin_packets,chiều đích → nguồn,
+application_name,tầng ứng dụng (nDPI),"Ứng dụng nDPI nhận diện (TLS, DNS, SSH, HTTP...)"
+application_category_name,tầng ứng dụng (nDPI),Nhóm ứng dụng nDPI
+application_is_guessed,tầng ứng dụng (nDPI),
+requested_server_name,tầng ứng dụng (nDPI),Tên máy chủ yêu cầu (SNI/Host)
+client_fingerprint,tầng ứng dụng (nDPI),Dấu vân tay client (JA3 hoặc danh sách option DHCP)
+server_fingerprint,tầng ứng dụng (nDPI),Dấu vân tay server
+user_agent,tầng ứng dụng (nDPI),Chuỗi User-Agent
+content_type,tầng ứng dụng (nDPI),Loại nội dung HTTP
+Activity,NHÃN,Kỹ thuật MITRE ATT&CK của kẻ tấn công ('Normal' nếu bình thường)
+Stage,NHÃN,"Giai đoạn APT: Reconnaissance, Establish Foothold, Lateral Movement, Data Exfiltration, Cover up, hoặc Benign"
+DefenderResponse,NHÃN,Phản ứng của bên phòng thủ: Detected hoặc Benign (không có Mitigated trong dữ liệu)
+Signature,NHÃN,"Nhóm kẻ tấn công: AA (nghiệp dư), APT; None nếu bình thường"

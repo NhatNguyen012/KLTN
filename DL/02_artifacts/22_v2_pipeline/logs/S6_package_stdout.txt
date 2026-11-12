@@ -1,0 +1,34 @@
+[ZIP] shards.zip: 86 file, 4.97 GB
+[ZIP] split.zip: 2 file, 0.04 GB
+[ZIP] preprocessing.zip: 6 file, 0.00 GB
+[ZIP] integrity.zip: 6 file, 0.00 GB
+{
+ "stats": {
+  "train": {
+   "samples": 160210,
+   "positive_samples": 401,
+   "negative_samples": 159809,
+   "events": 59902514,
+   "positive_events": 17682
+  },
+  "val": {
+   "samples": 34361,
+   "positive_samples": 83,
+   "negative_samples": 34278,
+   "events": 12836373,
+   "positive_events": 3495
+  },
+  "test": {
+   "samples": 34413,
+   "positive_samples": 82,
+   "negative_samples": 34331,
+   "events": 12887298,
+   "positive_events": 3544
+  }
+ },
+ "json_sha": {
+  "build_config.json": "f2beb8a154b27726",
+  "dataset_manifest.json": "0531386dc0510d64"
+ }
+}
+S6 package xong (15s): D:\UIT\KLTNv2\03_datasets\v2_network_dl_kaggle_upload

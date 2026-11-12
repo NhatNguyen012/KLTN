@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-10-01T03:18:44.610165",
+  "script_version": "step10b-random-split-train-only-preprocess-v1.0",
+  "experiment": "Random scenario-stratified host split",
+  "heldout_scenario": "seed_2",
+  "fit_split": "train",
+  "fit_scope": "random-split fold TRAIN only",
+  "val_used_for_fit": false,
+  "test_used_for_fit": false,
+  "heldout_scenario_used_for_fit": false,
+  "label_used_for_feature_selection": false,
+  "split_contract_sha256": "a29c0c07fbc7ab05878fe6a7c468a9d8f610bf02abd560814c370c8a2bf40de1",
+  "split_mapping_sha256": "5600ab2a4c5656fa8f8ec866a961b3d547fd9ce604928246fe4aa35fd6eab6be",
+  "report04b_sha256": "4f4136992804f2235d4bef2add0eeadbc635dbd3abafd3d8bc071c016e574ac9",
+  "candidate_fingerprint_sha256": "27293b02ff6b4f7643481e447bff55b2a629f9eb0e179ba561cfc29b71e21459",
+  "category_maps_sha256": "d271114685e67fb451465080eb36c868d08940b52c5979b7ac16a1de6d33a039",
+  "numeric_stats_sha256": "f666fc7a4309598a0381d0b63e81574f18c58cf8776c09d3ef9dc04acc3a762d",
+  "preprocess_spec_sha256": "15256f10590089306eae5934b8241dcb58c8cc88d7eddb7dabdf065031767de4",
+  "experiment_mode": "random",
+  "frozen_fingerprint_sha256": "6305d03c30c626d6c533f3af56c3705d58a3900842a0a84cf4178d527cc9af5c"
+}

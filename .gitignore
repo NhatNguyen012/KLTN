@@ -60,6 +60,21 @@ IL/*/output/
 event_replay_cache/
 **/event_replay_cache/
 
+# Generated ML/DL arrays, checkpoints & compressed event streams
+*.npy
+*.pt
+*.pth
+*.ckpt
+*.ubj
+*.jsonl.gz
+*.csv.gz
+
+# DL pipeline scratch state and generated feature matrices
+/DL/02_artifacts/**/work/
+/DL/02_artifacts/**/_work/
+/DL/02_artifacts/**/matrices/
+/DL/02_artifacts/**/features/
+
 # Audit results & Archives
 /code/kaggle/mission4_audit_results_final/
 /ML/code/kaggle/mission4_audit_results_final/

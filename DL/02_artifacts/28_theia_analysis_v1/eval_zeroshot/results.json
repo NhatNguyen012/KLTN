@@ -1,0 +1,144 @@
+{
+ "thresholds_from_optc_val": {
+  "bilstm": 0.99560546875,
+  "mixed": 1.0
+ },
+ "verification_optc": {
+  "bilstm": {
+   "samples": 682,
+   "max_abs_diff": 0.0,
+   "mean_abs_diff": 0.0,
+   "n_diff_gt_0.01": 0,
+   "decision_agreement_at_threshold": 1.0,
+   "positives_pred_cpu": 80,
+   "positives_pred_kaggle": 80,
+   "seconds": 5
+  },
+  "mixed": {
+   "samples": 682,
+   "max_abs_diff": 0.0,
+   "mean_abs_diff": 0.0,
+   "n_diff_gt_0.01": 0,
+   "decision_agreement_at_threshold": 1.0,
+   "positives_pred_cpu": 80,
+   "positives_pred_kaggle": 80,
+   "seconds": 8
+  }
+ },
+ "datasets": {
+  "theia": {
+   "samples": 700,
+   "positive_samples": 11,
+   "flows": 186100,
+   "positive_flows": 627,
+   "models": {
+    "bilstm": {
+     "threshold": 0.99560546875,
+     "at_frozen_threshold": {
+      "threshold": 0.99560546875,
+      "tp": 11,
+      "fp": 664,
+      "fn": 0,
+      "tn": 25,
+      "precision": 0.0163,
+      "recall": 1.0,
+      "f1": 0.0321,
+      "fpr": 0.963716
+     },
+     "rank_metrics_by_logit": {
+      "pr_auc": 0.0187,
+      "roc_auc": 0.5584
+     },
+     "score_stats": {
+      "positive_median_prob": 0.9990234375,
+      "negative_median_prob": 0.99853515625,
+      "n_pred_positive": 675,
+      "max_negative_prob": 1.0,
+      "max_positive_prob": 1.0,
+      "n_negative_prob_ge_0.5": 689
+     },
+     "by_group": {
+      "theia_e3": {
+       "samples": 700,
+       "positive_samples": 11,
+       "detected": 11,
+       "false_positives": 664
+      }
+     },
+     "seconds": 4,
+     "oracle_best_threshold_diagnostic_only": {
+      "threshold": 0.998046875,
+      "tp": 10,
+      "fp": 460,
+      "fn": 1,
+      "tn": 229,
+      "precision": 0.0213,
+      "recall": 0.9091,
+      "f1": 0.0416,
+      "fpr": 0.667634
+     }
+    },
+    "mixed": {
+     "threshold": 1.0,
+     "at_frozen_threshold": {
+      "threshold": 1.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 11,
+      "tn": 689,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "fpr": 0.0
+     },
+     "rank_metrics_by_logit": {
+      "pr_auc": 0.0166,
+      "roc_auc": 0.5176
+     },
+     "score_stats": {
+      "positive_median_prob": 0.00130462646484375,
+      "negative_median_prob": 0.0011653900146484375,
+      "n_pred_positive": 0,
+      "max_negative_prob": 0.5537109375,
+      "max_positive_prob": 0.0083160400390625,
+      "n_negative_prob_ge_0.5": 1
+     },
+     "by_group": {
+      "theia_e3": {
+       "samples": 700,
+       "positive_samples": 11,
+       "detected": 0,
+       "false_positives": 0
+      }
+     },
+     "seconds": 6,
+     "oracle_best_threshold_diagnostic_only": {
+      "threshold": 0.0011968612670898438,
+      "tp": 7,
+      "fp": 326,
+      "fn": 4,
+      "tn": 363,
+      "precision": 0.021,
+      "recall": 0.6364,
+      "f1": 0.0407,
+      "fpr": 0.473149
+     }
+    }
+   },
+   "rule_has_powershell": {
+    "threshold": 0.5,
+    "tp": 0,
+    "fp": 0,
+    "fn": 11,
+    "tn": 689,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "fpr": 0.0
+   },
+   "share_app_unk_positive": 1.0,
+   "share_app_unk_negative": 1.0
+  }
+ },
+ "seconds": 24
+}

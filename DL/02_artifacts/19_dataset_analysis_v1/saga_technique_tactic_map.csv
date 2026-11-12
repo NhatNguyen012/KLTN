@@ -1,0 +1,59 @@
+﻿technique,technique_name,tactics_mapped,n_tactics,events,files
+T1005,Data from Local System,Collection,1,70440,5
+T1046,Network Service Discovery,Discovery,1,2046,2
+T1105,Ingress Tool Transfer,Command and Control,1,922,21
+T1059.001,PowerShell,Execution,1,802,15
+T1566.001,Spearphishing Attachment,Initial Access,1,522,38
+T1496,Resource Hijacking,Impact,1,450,5
+T1003.001,LSASS Memory,Credential Access,1,316,8
+T1219,Remote Access Software,Command and Control,1,200,2
+T1204.002,Malicious File,Execution,1,190,38
+T1083,File and Directory Discovery,Discovery,1,147,7
+T1574.001,DLL Search Order Hijacking,Persistence; Privilege Escalation; Defense Evasion,3,128,2
+T1071.001,Web Protocols,Command and Control,1,105,5
+T1547.001,Registry Run Keys / Startup Folder,Persistence; Privilege Escalation,2,95,17
+T1036.003,Rename System Utilities,Defense Evasion,1,69,3
+T1003.002,Security Account Manager,Credential Access,1,67,11
+T1112,Modify Registry,Defense Evasion,1,54,14
+T1490,Inhibit System Recovery,Impact,1,53,23
+T1548.002,Bypass User Account Control,Privilege Escalation; Defense Evasion,2,48,10
+T1040,Network Sniffing,Credential Access; Discovery,2,48,6
+T1003,OS Credential Dumping,Credential Access,1,35,5
+T1547.009,Shortcut Modification,Persistence; Privilege Escalation,2,30,3
+T1137,Office Application Startup,Persistence,1,26,2
+T1491,Defacement,Impact,1,22,3
+T1217,Browser Information Discovery,Discovery,1,21,5
+T1567,Exfiltration Over Web Service,Exfiltration,1,18,3
+T1007,System Service Discovery,Discovery,1,14,2
+T1021.001,Remote Desktop Protocol,Lateral Movement,1,14,2
+T1120,Peripheral Device Discovery,Discovery,1,14,2
+T1562.004,Disable or Modify System Firewall,Defense Evasion,1,13,3
+T1518,Software Discovery,Discovery,1,12,4
+T1137.002,Office Test,Persistence,1,12,2
+T1016,System Network Configuration Discovery,Discovery,1,12,10
+T1087.001,Local Account,Discovery,1,10,8
+T1047,Windows Management Instrumentation,Execution,1,9,6
+T1003.003,NTDS,Credential Access,1,9,9
+T1033,System Owner/User Discovery,Discovery,1,8,6
+T1053.005,Scheduled Task,Execution; Persistence; Privilege Escalation,3,8,7
+T1562.001,Disable or Modify Tools,Defense Evasion,1,8,2
+T1547.004,Winlogon Helper DLL,Persistence; Privilege Escalation,2,8,2
+T1562.002,Disable Windows Event Logging,Defense Evasion,1,8,6
+T1057,Process Discovery,Discovery,1,8,8
+T1082,System Information Discovery,Discovery,1,7,7
+T1125,Video Capture,Collection,1,7,1
+T1123,Audio Capture,Collection,1,7,1
+T1078.001,Default Accounts,Defense Evasion; Persistence; Privilege Escalation; Initial Access,4,6,5
+T1564.003,Hidden Window,Defense Evasion,1,5,2
+T1036.004,Masquerade Task or Service,Defense Evasion,1,4,4
+T1069.001,Local Groups,Discovery,1,4,4
+T1055.002,Portable Executable Injection,Defense Evasion; Privilege Escalation,2,4,4
+T1049,System Network Connections Discovery,Discovery,1,4,4
+T1090.001,Internal Proxy,Command and Control,1,4,2
+T1518.001,Security Software Discovery,Discovery,1,4,4
+T1482,Domain Trust Discovery,Discovery,1,3,3
+T1055.001,Dynamic-link Library Injection,Defense Evasion; Privilege Escalation,2,2,2
+T1201,Password Policy Discovery,Discovery,1,2,2
+T1135,Network Share Discovery,Discovery,1,2,2
+T1499,Endpoint Denial of Service,Impact,1,2,2
+T1552.002,Credentials in Registry,Credential Access,1,2,2

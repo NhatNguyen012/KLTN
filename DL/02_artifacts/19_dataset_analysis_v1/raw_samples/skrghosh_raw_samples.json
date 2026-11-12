@@ -1,0 +1,1503 @@
+{
+    "action": "CREATE",
+    "actorID": "72d5c1ab-8cf8-47db-a96c-dba3eb9d6e81",
+    "hostname": "localhost",
+    "id": "4c73123a-750e-4cb5-95b7-f7a6b2c57ad1",
+    "object": "FILE",
+    "objectID": "397d20da-3770-43cf-8afd-dddbec3397dd",
+    "pid": 4480,
+    "ppid": 4216,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\sisl\\Desktop\\SimulatedFiles\\SampleFile_20230829143825.pdf",
+        "image_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.1264.0_x64__qbz5n2kfra8p0\\python3.11.exe"
+    },
+    "tid": 3888,
+    "timestamp": "2023-08-29T14:38:25.2636931-07:00"
+}
+{
+    "action": "RENAME",
+    "actorID": "81eb757a-e4b2-4674-9167-6ce9bf5bab30",
+    "hostname": "localhost",
+    "id": "1124c2fd-8a41-49fa-ba58-46699b9b21ef",
+    "object": "FILE",
+    "objectID": "320aa008-54fc-489a-b5d0-5e91893bb3f4",
+    "pid": 6140,
+    "ppid": 656,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.1264.0_x64__qbz5n2kfra8p0\\Lib\\site-packages\\pip\\_internal\\utils\\__pycache__\\urls.cpython-311.pyc",
+        "image_path": "C:\\WINDOWS\\system32\\SearchIndexer.exe",
+        "new_path": ""
+    },
+    "tid": 9924,
+    "timestamp": "2023-08-30T03:27:34.7200076-07:00"
+}
+{
+    "action": "WRITE",
+    "actorID": "7d23ca7c-3d18-4397-b080-e5ad9f5114c4",
+    "hostname": "localhost",
+    "id": "779da945-e38a-41be-b6a3-e593d8a53bf9",
+    "object": "FILE",
+    "objectID": "aeb1de4d-a33f-4598-bb02-6a6dac20d229",
+    "pid": 4,
+    "ppid": 0,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\sisl\\AppData\\Local\\Temp\\FC63BCB1-1113-4AEA-B559-EF9935BEB428\\en-US\\SetupPlatformProvider.dll.mui",
+        "image_path": "System",
+        "size": "5632"
+    },
+    "tid": 1144,
+    "timestamp": "2023-08-30T05:00:29.8246334-07:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "f4cbb3e7-acd0-4bba-8a73-6d6d4ba2201f",
+    "hostname": "localhost",
+    "id": "4336e5ec-2cf2-45f9-b796-3f313898020a",
+    "object": "FLOW",
+    "objectID": "3a736a67-0eac-4c8c-8c84-c37a8ee01909",
+    "pid": 6452,
+    "ppid": 8632,
+    "principal": "",
+    "properties": {
+        "dest_ip": "192.168.1.139",
+        "dest_port": "61535",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "l4_protocol": "17",
+        "src_ip": "142.250.190.10",
+        "src_port": "443",
+        "size": "1250"
+    },
+    "tid": -1,
+    "timestamp": "2023-08-29T15:02:43.7097828-07:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "72d5c1ab-8cf8-47db-a96c-dba3eb9d6e81",
+    "hostname": "localhost",
+    "id": "f525c916-f817-4591-9b22-58bb02d98a6e",
+    "object": "FLOW",
+    "objectID": "9434ecf2-cba2-4ff2-84c8-03fdd01d960d",
+    "pid": 4480,
+    "ppid": 4216,
+    "principal": "",
+    "properties": {
+        "dest_ip": "152.19.134.47",
+        "dest_port": "443",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.1264.0_x64__qbz5n2kfra8p0\\python3.11.exe",
+        "l4_protocol": "6",
+        "src_ip": "192.168.1.139",
+        "src_port": "52579",
+        "size": "14979"
+    },
+    "tid": -1,
+    "timestamp": "2023-08-30T01:01:10.1073258-07:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "72d5c1ab-8cf8-47db-a96c-dba3eb9d6e81",
+    "hostname": "localhost",
+    "id": "7815a7e4-fba4-4fe0-bbc9-bcdde7f71927",
+    "object": "FLOW",
+    "objectID": "818327b9-6fcf-43d0-82f8-d8d90d681912",
+    "pid": 4480,
+    "ppid": 4216,
+    "principal": "",
+    "properties": {
+        "dest_ip": "152.19.134.47",
+        "dest_port": "443",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.1264.0_x64__qbz5n2kfra8p0\\python3.11.exe",
+        "l4_protocol": "6",
+        "src_ip": "192.168.1.139",
+        "src_port": "52895",
+        "size": "1380"
+    },
+    "tid": -1,
+    "timestamp": "2023-08-30T01:39:39.1750128-07:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "cc1430e4-0280-426c-b604-5f4718de1bab",
+    "hostname": "localhost",
+    "id": "f18c3948-f5ce-4c1b-a7f4-24e556ebb489",
+    "object": "MODULE",
+    "objectID": "3a6414b4-73f7-45c1-a7ec-b4cb150a2a91",
+    "pid": 8352,
+    "ppid": 4480,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "module_path": "C:\\Windows\\System32\\dnsapi.dll"
+    },
+    "tid": 3888,
+    "timestamp": "2023-08-29T15:37:21.14188-07:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "ef6ba94a-6a35-4852-8505-b3ed060f1acb",
+    "hostname": "localhost",
+    "id": "00bc8e16-8995-429f-bda4-ac8c1ff9edd8",
+    "object": "MODULE",
+    "objectID": "c85e1d1e-e052-4859-a074-0016ecb1f319",
+    "pid": 7552,
+    "ppid": 4804,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\systeminfo.exe",
+        "module_path": "C:\\Windows\\System32\\rpcrt4.dll"
+    },
+    "tid": 3888,
+    "timestamp": "2023-08-29T22:37:49.7386193-07:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "42945df8-20d9-4c08-88cf-7e770cc5b392",
+    "hostname": "localhost",
+    "id": "6ac1f4e0-84db-430e-a4c2-20cf90ab6bcd",
+    "object": "MODULE",
+    "objectID": "643beb82-8a2f-44d4-b7a8-564448afa538",
+    "pid": 9712,
+    "ppid": 8284,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\systeminfo.exe",
+        "module_path": "C:\\Windows\\System32\\ole32.dll"
+    },
+    "tid": 3888,
+    "timestamp": "2023-08-30T02:47:40.2932523-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "5d461fd3-536e-41ca-8fa0-c39d01229855",
+    "hostname": "localhost",
+    "id": "0b5278da-bffc-466d-a830-726308069a6f",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-96b8-64ee-1417-000000000d00",
+    "pid": 9436,
+    "ppid": 800,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\winsxs\\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_10.0.19041.3266_none_7e25389a7c7bcadb\\TiWorker.exe",
+        "parent_image_path": "C:\\WINDOWS\\servicing\\TrustedInstaller.exe",
+        "target_pid": "3508",
+        "granted_access": "40",
+        "source_user": "NT AUTHORITY\\SYSTEM",
+        "target_user": "NT AUTHORITY\\SYSTEM"
+    },
+    "tid": 2128,
+    "timestamp": "2023-08-29T18:09:40.4335785-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "39df0d49-99e0-4f7a-addd-da94e9e2a9d6",
+    "hostname": "localhost",
+    "id": "3da53e59-0e58-4567-b095-38110ebd9a43",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-3096-64ee-0c00-000000000d00",
+    "pid": 700,
+    "ppid": 548,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\system32\\lsass.exe",
+        "parent_image_path": "C:\\WINDOWS\\system32\\SearchProtocolHost.exe",
+        "target_pid": "7620",
+        "granted_access": "1000",
+        "source_user": "NT AUTHORITY\\SYSTEM",
+        "target_user": "NT AUTHORITY\\SYSTEM"
+    },
+    "tid": 6296,
+    "timestamp": "2023-08-29T18:31:38.8170344-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "db5a1c0d-d0dc-4319-8386-8c4749a6c2c7",
+    "hostname": "localhost",
+    "id": "315da61c-9e4c-4d8a-9890-d1bae00a048e",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-3096-64ee-1100-000000000d00",
+    "pid": 992,
+    "ppid": 656,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\system32\\svchost.exe",
+        "parent_image_path": "C:\\WINDOWS\\system32\\tasklist.exe",
+        "target_pid": "9664",
+        "granted_access": "1000",
+        "source_user": "NT AUTHORITY\\SYSTEM",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 4424,
+    "timestamp": "2023-08-30T00:44:19.3178358-07:00"
+}
+{
+    "action": "ADD",
+    "actorID": "6098459e-e942-47ff-849b-081e4fb42951",
+    "hostname": "localhost",
+    "id": "77615033-3cc4-4363-81fe-5110c0d0ed28",
+    "object": "REGISTRY",
+    "objectID": "cf9a4d65-cbbe-4a34-afbc-c1fad36bc2b7",
+    "pid": 6268,
+    "ppid": 4480,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Program Files\\Windows Media Player\\wmplayer.exe",
+        "key": "HKU\\S-1-5-21-975766542-2260380091-1688062466-1001\\SOFTWARE\\Microsoft\\MediaPlayer\\Player\\Tasks\\NowPlaying",
+        "type": "",
+        "value": ""
+    },
+    "tid": 3888,
+    "timestamp": "2023-08-29T20:02:56.8129861-07:00"
+}
+{
+    "action": "ADD",
+    "actorID": "60b9e55d-7b5d-48fd-80f6-e6fd9bbc8cd1",
+    "hostname": "localhost",
+    "id": "b52d16a9-b304-4c0b-bff1-2759b30716bc",
+    "object": "REGISTRY",
+    "objectID": "bce30cc3-5c75-450e-939f-d1d0bb6b9a92",
+    "pid": 2880,
+    "ppid": 656,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Windows\\Sysmon64.exe",
+        "key": "HKLM\\SOFTWARE\\Microsoft\\SystemCertificates\\Disallowed",
+        "type": "",
+        "value": ""
+    },
+    "tid": 3888,
+    "timestamp": "2023-08-29T20:48:03.3807054-07:00"
+}
+{
+    "action": "ADD",
+    "actorID": "64e7c603-d875-4ee0-9ff5-7635e1b6d30b",
+    "hostname": "localhost",
+    "id": "8b9dd976-f7f1-4f70-9779-fe712ff5df7c",
+    "object": "REGISTRY",
+    "objectID": "4deba5f8-1c3b-4473-b0fc-a61c6080b038",
+    "pid": 8284,
+    "ppid": 4480,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Program Files\\Windows Media Player\\wmplayer.exe",
+        "key": "HKU\\S-1-5-21-975766542-2260380091-1688062466-1001\\SOFTWARE\\Microsoft\\MediaPlayer\\Player\\Skins",
+        "type": "",
+        "value": ""
+    },
+    "tid": 3888,
+    "timestamp": "2023-08-30T02:56:33.8980292-07:00"
+}
+{
+    "action": "DELETE",
+    "actorID": "4a402976-995c-4cc9-a5a4-9eb09c69ea95",
+    "hostname": "localhost",
+    "id": "310abaee-a42e-49c5-b7f0-6fdb42a28cb1",
+    "object": "FILE",
+    "objectID": "8789b886-a1d2-4f2a-813f-b7c472f88e67",
+    "pid": 1424,
+    "ppid": 660,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Windows\\Prefetch\\PYTHON3.11.EXE-D14F6FFA.pf",
+        "image_path": "C:\\WINDOWS\\system32\\svchost.exe"
+    },
+    "tid": 3820,
+    "timestamp": "2023-07-25T10:25:20.3074636-07:00"
+}
+{
+    "action": "CREATE",
+    "actorID": "00000000-0000-0000-0000-000000000000",
+    "hostname": "localhost",
+    "id": "b48516fb-5640-49c8-b94d-e033cf7e06e2",
+    "object": "FILE",
+    "objectID": "6aa1136e-e8a0-433e-9d40-48ff7dd938c4",
+    "pid": -1,
+    "ppid": -1,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\sisl\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Session Storage\\LOG.old",
+        "image_path": ""
+    },
+    "tid": -1,
+    "timestamp": "2023-07-25T11:18:48.7542818-07:00"
+}
+{
+    "action": "CREATE",
+    "actorID": "6e068663-3411-4315-a67c-dcb2ce89a5b3",
+    "hostname": "localhost",
+    "id": "ed9ef95a-3a6f-4f3c-93b5-18eb97755496",
+    "object": "FILE",
+    "objectID": "9f4de318-abe7-4574-bf6b-a3a795d03786",
+    "pid": 11156,
+    "ppid": 5024,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\sisl\\AppData\\Local\\Google\\Chrome\\User Data\\CrashpadMetrics.pma~RF13756405.TMP",
+        "image_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+    },
+    "tid": 3820,
+    "timestamp": "2023-07-25T12:25:36.7227616-07:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "efa3f1a8-6589-4d54-9ea3-bed3a2769967",
+    "hostname": "localhost",
+    "id": "f4763de0-0871-4595-b002-77c60f1c094f",
+    "object": "FLOW",
+    "objectID": "8766907c-c1f7-4c35-86b3-0bbf399532f6",
+    "pid": 4432,
+    "ppid": 340,
+    "principal": "",
+    "properties": {
+        "dest_ip": "104.119.189.49",
+        "dest_port": "443",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "l4_protocol": "4",
+        "src_ip": "192.168.1.139",
+        "src_port": "53062",
+        "size": "1380"
+    },
+    "tid": -1,
+    "timestamp": "2023-07-25T08:53:15.9865792-07:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "417fbf6d-fe53-4009-892e-b0f7f2915bb9",
+    "hostname": "localhost",
+    "id": "da48f219-1fa8-4a3c-842d-7b111f54c2e9",
+    "object": "FLOW",
+    "objectID": "03766192-1ae5-4de7-955c-2f8a4eb434b2",
+    "pid": 7316,
+    "ppid": 9688,
+    "principal": "",
+    "properties": {
+        "dest_ip": "152.19.134.47",
+        "dest_port": "443",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.1264.0_x64__qbz5n2kfra8p0\\python3.11.exe",
+        "l4_protocol": "4",
+        "src_ip": "192.168.1.139",
+        "src_port": "56084",
+        "size": "571"
+    },
+    "tid": -1,
+    "timestamp": "2023-07-25T14:13:09.2325786-07:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "417fbf6d-fe53-4009-892e-b0f7f2915bb9",
+    "hostname": "localhost",
+    "id": "45124c40-6613-4e24-a892-e9e08e0bbd16",
+    "object": "FLOW",
+    "objectID": "1fd758b3-1b74-449d-8851-57587e27c302",
+    "pid": 7316,
+    "ppid": 9688,
+    "principal": "",
+    "properties": {
+        "dest_ip": "152.19.134.47",
+        "dest_port": "443",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.1264.0_x64__qbz5n2kfra8p0\\python3.11.exe",
+        "l4_protocol": "4",
+        "src_ip": "192.168.1.139",
+        "src_port": "58579",
+        "size": "14037"
+    },
+    "tid": -1,
+    "timestamp": "2023-07-25T18:15:54.182834-07:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "46c25662-c3d1-4691-a149-00218dfc8a42",
+    "hostname": "localhost",
+    "id": "630e9856-2622-4eb5-9deb-7a6df8b18844",
+    "object": "MODULE",
+    "objectID": "a70fd867-2e41-4370-bc86-49c2e8e67c3c",
+    "pid": 9208,
+    "ppid": 340,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "module_path": "C:\\Windows\\System32\\ntmarta.dll"
+    },
+    "tid": 3820,
+    "timestamp": "2023-07-25T10:04:31.8239869-07:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "da1ad8e5-740d-4ac0-a484-66e09aba2568",
+    "hostname": "localhost",
+    "id": "9c4a3d14-fbcc-441d-956e-9b5299dd44ae",
+    "object": "MODULE",
+    "objectID": "0a594e72-1881-4ac7-9d71-9f60f6bff52f",
+    "pid": 5872,
+    "ppid": 660,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\svchost.exe",
+        "module_path": "C:\\Windows\\System32\\ntdll.dll"
+    },
+    "tid": 3820,
+    "timestamp": "2023-07-25T15:58:46.7134462-07:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "9860f201-43b1-46b3-9f12-8a7bded8d96f",
+    "hostname": "localhost",
+    "id": "76b46436-64ba-4deb-b590-32353a20ca59",
+    "object": "MODULE",
+    "objectID": "c8db74fa-bf55-4dd7-8415-d64419d0bc34",
+    "pid": 2780,
+    "ppid": 800,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\backgroundTaskHost.exe",
+        "module_path": "C:\\Windows\\System32\\UserMgrProxy.dll"
+    },
+    "tid": 3820,
+    "timestamp": "2023-07-25T17:47:07.7984399-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "97be1cb5-8c04-4bee-b0b4-bf6b3e6b2b53",
+    "hostname": "localhost",
+    "id": "63ac8acb-f160-423e-81ec-2f81526c64aa",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-2684-64bb-1000-000000000900",
+    "pid": 944,
+    "ppid": 660,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\system32\\svchost.exe",
+        "parent_image_path": "C:\\WINDOWS\\system32\\tasklist.exe",
+        "target_pid": "5104",
+        "granted_access": "4096",
+        "source_user": "NT AUTHORITY\\SYSTEM",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 9504,
+    "timestamp": "2023-07-25T08:59:46.1937314-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "5c387385-fd31-4215-8d2d-4f58c772263b",
+    "hostname": "localhost",
+    "id": "a80ba7e3-17e0-4817-bd0f-d48bdba2da08",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-269d-64bb-8800-000000000900",
+    "pid": 5096,
+    "ppid": 5020,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "parent_image_path": "C:\\Windows\\ImmersiveControlPanel\\SystemSettings.exe",
+        "target_pid": "1700",
+        "granted_access": "8192",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 4280,
+    "timestamp": "2023-07-25T13:47:53.7868646-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "97be1cb5-8c04-4bee-b0b4-bf6b3e6b2b53",
+    "hostname": "localhost",
+    "id": "b5eadeae-4281-487a-9931-b8ac43ca2703",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-2684-64bb-1000-000000000900",
+    "pid": 944,
+    "ppid": 660,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\system32\\svchost.exe",
+        "parent_image_path": "C:\\WINDOWS\\system32\\tasklist.exe",
+        "target_pid": "1444",
+        "granted_access": "4096",
+        "source_user": "NT AUTHORITY\\SYSTEM",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 3196,
+    "timestamp": "2023-07-25T14:09:45.1969696-07:00"
+}
+{
+    "action": "ADD",
+    "actorID": "0cd5bae5-d216-4394-ae8b-7a8616983601",
+    "hostname": "localhost",
+    "id": "db3d8534-3b75-4709-a4eb-0821c5fb979a",
+    "object": "REGISTRY",
+    "objectID": "f4d01ab6-78bc-4a69-9d3e-92729fb953c7",
+    "pid": 2820,
+    "ppid": 660,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Windows\\Sysmon64.exe",
+        "key": "HKLM\\SOFTWARE\\Microsoft\\EnterpriseCertificates\\Disallowed\\CRLs",
+        "type": "",
+        "value": "CRLs"
+    },
+    "tid": 3820,
+    "timestamp": "2023-07-25T11:49:34.6510344-07:00"
+}
+{
+    "action": "ADD",
+    "actorID": "0cd5bae5-d216-4394-ae8b-7a8616983601",
+    "hostname": "localhost",
+    "id": "95935133-7fa1-486c-aa4e-5344e564f3c3",
+    "object": "REGISTRY",
+    "objectID": "d705466a-c596-4674-b27f-4596d511c410",
+    "pid": 2820,
+    "ppid": 660,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Windows\\Sysmon64.exe",
+        "key": "HKLM\\SOFTWARE\\Microsoft\\SystemCertificates\\Disallowed",
+        "type": "",
+        "value": "Disallowed"
+    },
+    "tid": 3820,
+    "timestamp": "2023-07-25T11:52:06.3044299-07:00"
+}
+{
+    "action": "ADD",
+    "actorID": "5c387385-fd31-4215-8d2d-4f58c772263b",
+    "hostname": "localhost",
+    "id": "51d2846d-940f-4d28-aca9-c9ac66c139d8",
+    "object": "REGISTRY",
+    "objectID": "1c283774-1ec3-444b-9494-2fa82dec0d33",
+    "pid": 5096,
+    "ppid": 5020,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "key": "HKU\\S-1-5-21-975766542-2260380091-1688062466-1001_Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\BagMRU",
+        "type": "",
+        "value": "BagMRU"
+    },
+    "tid": 3820,
+    "timestamp": "2023-07-25T14:46:02.6356276-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "5c387385-fd31-4215-8d2d-4f58c772263b",
+    "hostname": "localhost",
+    "id": "bf1f3628-e5d7-4554-9967-c254403b7d2a",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-269d-64bb-8800-000000000900",
+    "pid": 5096,
+    "ppid": 5020,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "parent_image_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "target_pid": "10380",
+        "granted_access": "8192",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 4280,
+    "timestamp": "2023-07-25T11:12:33.7722246-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "5c387385-fd31-4215-8d2d-4f58c772263b",
+    "hostname": "localhost",
+    "id": "8694c07c-3a1b-46e7-ba65-d63acc981d45",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-269d-64bb-8800-000000000900",
+    "pid": 5096,
+    "ppid": 5020,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "parent_image_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "target_pid": "10380",
+        "granted_access": "8192",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 4280,
+    "timestamp": "2023-07-25T11:12:35.17632-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "5c387385-fd31-4215-8d2d-4f58c772263b",
+    "hostname": "localhost",
+    "id": "a9e30a32-19a6-4aa7-b70c-c3786fcb3f88",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-269d-64bb-8800-000000000900",
+    "pid": 5096,
+    "ppid": 5020,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "parent_image_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "target_pid": "10380",
+        "granted_access": "8192",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 10172,
+    "timestamp": "2023-07-25T11:12:37.6679751-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "5c387385-fd31-4215-8d2d-4f58c772263b",
+    "hostname": "localhost",
+    "id": "7a8c34d2-51e1-4814-9e22-105daf17ae69",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-269d-64bb-8800-000000000900",
+    "pid": 5096,
+    "ppid": 5020,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "parent_image_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "target_pid": "10380",
+        "granted_access": "8192",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 4280,
+    "timestamp": "2023-07-25T11:12:46.5468294-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "5c387385-fd31-4215-8d2d-4f58c772263b",
+    "hostname": "localhost",
+    "id": "6632f841-e1e2-4a32-9ed3-e69d726cbea3",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-269d-64bb-8800-000000000900",
+    "pid": 5096,
+    "ppid": 5020,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "parent_image_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "target_pid": "10380",
+        "granted_access": "8192",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 4280,
+    "timestamp": "2023-07-25T11:12:49.1456629-07:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "5c387385-fd31-4215-8d2d-4f58c772263b",
+    "hostname": "localhost",
+    "id": "65bab060-318b-42ba-82d1-0153b0cf1786",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-269d-64bb-8800-000000000900",
+    "pid": 5096,
+    "ppid": 5020,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "parent_image_path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "target_pid": "10380",
+        "granted_access": "8192",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 10172,
+    "timestamp": "2023-07-25T11:12:51.4577331-07:00"
+}
+{
+    "action": "WRITE",
+    "actorID": "2a7e4c94-b206-43dc-980e-13ea41b2c00f",
+    "hostname": "localhost",
+    "id": "126acf3a-bdc2-4a01-a86b-fcb69a199281",
+    "object": "FILE",
+    "objectID": "97937ce7-83ba-4b2a-84ce-10d2be6cd13b",
+    "pid": 4,
+    "ppid": 0,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\judy\\Desktop\\SimulatedFiles\\document_20240312152203.docx",
+        "image_path": "System",
+        "size": "36864"
+    },
+    "tid": 56112,
+    "timestamp": "2024-03-12T15:23:56.9945446-05:00"
+}
+{
+    "action": "READ",
+    "actorID": "8fc7da41-7da4-4d36-b388-704f64f2d9e5",
+    "hostname": "localhost",
+    "id": "f52ad476-d3f7-400b-b64f-0e87414297cb",
+    "object": "FILE",
+    "objectID": "431c6270-3879-4cee-ac6b-d10d9d553111",
+    "pid": 31800,
+    "ppid": 30180,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\judy\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Network\\TransportSecurity~RFbb25c8a9.TMP",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "size": "2"
+    },
+    "tid": 45448,
+    "timestamp": "2024-03-12T20:27:23.9063441-05:00"
+}
+{
+    "action": "WRITE",
+    "actorID": "a39591a3-3bc2-4ca9-9ca7-a2c914346afd",
+    "hostname": "localhost",
+    "id": "3dd408c7-ff49-4e45-a0de-313af9dc8146",
+    "object": "FILE",
+    "objectID": "7570e6bc-799e-4558-aff0-0e62f8e13a9d",
+    "pid": 47720,
+    "ppid": 45488,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Windows\\CbsTemp\\31088585_2119135928\\Windows10.0-KB5034763-x64.cab\\amd64_microsoft-windowsphone-ufx_31bf3856ad364e35_10.0.19041.3636_none_a525a1ae2dce5f33\\f\\ufx01000.sys",
+        "image_path": "C:\\Users\\judy\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
+        "size": "1006"
+    },
+    "tid": 46024,
+    "timestamp": "2024-03-12T23:16:27.077735-05:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "e1dfc865-8731-465c-85d8-1daf850f6c58",
+    "hostname": "localhost",
+    "id": "9dc5c439-551a-4874-b31e-3b1677f91c0b",
+    "object": "MODULE",
+    "objectID": "b75d8d4a-6550-46f5-b4da-ca269abb165b",
+    "pid": 12612,
+    "ppid": 47720,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\mspaint.exe",
+        "module_path": "C:\\Windows\\System32\\dwmapi.dll"
+    },
+    "tid": 4048,
+    "timestamp": "2024-03-12T23:35:28.9503774-05:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "06c0783f-4b30-4fac-a008-b454b1fe560f",
+    "hostname": "localhost",
+    "id": "4dc9d014-4cf1-4b14-a5ec-12573a6e99f8",
+    "object": "MODULE",
+    "objectID": "1363b9bf-178c-4628-81e0-8c77b94f86b5",
+    "pid": 58712,
+    "ppid": 47720,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\cmd.exe",
+        "module_path": "C:\\Windows\\System32\\bcrypt.dll"
+    },
+    "tid": 4048,
+    "timestamp": "2024-03-13T00:16:06.6641914-05:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "f2d760a1-de0c-4930-988f-a7f39b0cceb2",
+    "hostname": "localhost",
+    "id": "ee3a6cd5-0daf-454f-a780-6e908cfdc63e",
+    "object": "MODULE",
+    "objectID": "51620993-15bb-44fb-ab38-6f42f29f3efe",
+    "pid": 4340,
+    "ppid": 47720,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\cmd.exe",
+        "module_path": "C:\\Windows\\System32\\ntdll.dll"
+    },
+    "tid": 4048,
+    "timestamp": "2024-03-13T00:16:59.8653779-05:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "57df7213-975d-41eb-b4ed-f13c11ff6e91",
+    "hostname": "localhost",
+    "id": "9b626512-c1f1-4c06-a158-176007c1ab48",
+    "object": "PROCESS",
+    "objectID": "5379cbe2-182f-65c1-3e00-000000001900",
+    "pid": 2728,
+    "ppid": 636,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\Windows\\system32\\svchost.exe",
+        "parent_image_path": "C:\\Windows\\explorer.exe",
+        "target_pid": "7140",
+        "granted_access": "1000",
+        "source_user": "NT AUTHORITY\\LOCAL SERVICE",
+        "target_user": "DESKTOP-FCQMC5B\\judy"
+    },
+    "tid": 49116,
+    "timestamp": "2024-03-12T13:57:36.4508862-05:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "57df7213-975d-41eb-b4ed-f13c11ff6e91",
+    "hostname": "localhost",
+    "id": "69aba496-f2ba-40bb-9152-0effe2c730c9",
+    "object": "PROCESS",
+    "objectID": "5379cbe2-182f-65c1-3e00-000000001900",
+    "pid": 2728,
+    "ppid": 636,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\Windows\\system32\\svchost.exe",
+        "parent_image_path": "C:\\Windows\\explorer.exe",
+        "target_pid": "7140",
+        "granted_access": "1000",
+        "source_user": "NT AUTHORITY\\LOCAL SERVICE",
+        "target_user": "DESKTOP-FCQMC5B\\judy"
+    },
+    "tid": 44756,
+    "timestamp": "2024-03-12T14:29:04.9541204-05:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "57df7213-975d-41eb-b4ed-f13c11ff6e91",
+    "hostname": "localhost",
+    "id": "e069cce2-e360-42ac-be16-f4a89f1f09f2",
+    "object": "PROCESS",
+    "objectID": "5379cbe2-182f-65c1-3e00-000000001900",
+    "pid": 2728,
+    "ppid": 636,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\Windows\\system32\\svchost.exe",
+        "parent_image_path": "C:\\Windows\\explorer.exe",
+        "target_pid": "7140",
+        "granted_access": "1000",
+        "source_user": "NT AUTHORITY\\LOCAL SERVICE",
+        "target_user": "DESKTOP-FCQMC5B\\judy"
+    },
+    "tid": 25364,
+    "timestamp": "2024-03-12T14:31:45.5936197-05:00"
+}
+{
+    "action": "ADD",
+    "actorID": "b83bbbe7-91b5-44a6-8c42-66e704c224e4",
+    "hostname": "localhost",
+    "id": "21aa3b7c-11bc-4b83-b94e-b594261fb62f",
+    "object": "REGISTRY",
+    "objectID": "2405bb36-2dff-4f2c-9315-55d551bb638e",
+    "pid": 49008,
+    "ppid": 47720,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Windows\\System32\\mspaint.exe",
+        "key": "HKU\\S-1-5-21-4014771774-2426142214-2331279987-1002\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Applets",
+        "type": "",
+        "value": ""
+    },
+    "tid": 4048,
+    "timestamp": "2024-03-12T13:20:28.1201324-05:00"
+}
+{
+    "action": "ADD",
+    "actorID": "7857e974-5b69-42a0-8f37-eec09445f518",
+    "hostname": "localhost",
+    "id": "108a1319-e79a-42c1-9c4b-adf3e8faefaf",
+    "object": "REGISTRY",
+    "objectID": "bf9a6919-e0ca-4f3b-a466-1874b3d5278f",
+    "pid": 46516,
+    "ppid": 47720,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "key": "HKU\\S-1-5-21-4014771774-2426142214-2331279987-1002\\SOFTWARE",
+        "type": "",
+        "value": ""
+    },
+    "tid": 4048,
+    "timestamp": "2024-03-12T15:40:06.6238803-05:00"
+}
+{
+    "action": "ADD",
+    "actorID": "89be046c-4986-4bc9-b5e4-cb7fb8b035c6",
+    "hostname": "localhost",
+    "id": "a4b3b1ba-763e-44a1-9153-4f619144783c",
+    "object": "REGISTRY",
+    "objectID": "64db3446-33d2-462d-9642-717586d7b345",
+    "pid": 44996,
+    "ppid": 6912,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Windows\\explorer.exe",
+        "key": "HKU\\S-1-5-21-4014771774-2426142214-2331279987-1002_Classes\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\BagMRU\\6",
+        "type": "",
+        "value": ""
+    },
+    "tid": 4048,
+    "timestamp": "2024-03-12T19:23:11.0266358-05:00"
+}
+{
+    "action": "READ",
+    "actorID": "4bff6187-dd30-4372-a5c4-6994231a8b38",
+    "hostname": "localhost",
+    "id": "6f838cac-a4e1-4bf1-9fac-e153d07a498d",
+    "object": "FILE",
+    "objectID": "8c38a685-ec60-4650-9799-6bd565557cc4",
+    "pid": 2672,
+    "ppid": 696,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Program Files\\WindowsApps\\Deleted\\Microsoft.YourPhone_1.23062.153.0_x64__8wekyb3d8bbwee2564433-9636-4ca5-b1cb-66533d163952\\Assets\\Messaging\\contrast-white\\Message.png",
+        "image_path": "",
+        "size": "2"
+    },
+    "tid": 1020,
+    "timestamp": "2024-01-16T08:55:27.5452064-08:00"
+}
+{
+    "action": "READ",
+    "actorID": "f8f81f7c-8158-4fca-883a-2a5538a5015b",
+    "hostname": "localhost",
+    "id": "1217292d-c0f8-487e-b004-dab92db7c239",
+    "object": "FILE",
+    "objectID": "57a81874-13d6-4a65-80fb-c070c9b05806",
+    "pid": 8328,
+    "ppid": 9204,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\sisl\\Desktop\\SimulatedFiles\\SampleFolder_20230830020322",
+        "image_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2032.0_x64__qbz5n2kfra8p0\\python3.11.exe",
+        "size": "8192"
+    },
+    "tid": 5872,
+    "timestamp": "2024-01-16T10:24:33.167839-08:00"
+}
+{
+    "action": "DELETE",
+    "actorID": "f8f81f7c-8158-4fca-883a-2a5538a5015b",
+    "hostname": "localhost",
+    "id": "b0ddb0c5-46d7-4659-ba3f-723c5a4c9225",
+    "object": "FILE",
+    "objectID": "35fcb3d2-454f-4c5d-97be-68dfed05cfe1",
+    "pid": 8328,
+    "ppid": 9204,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\sisl\\AppData\\Local\\Temp\\openpyxl.0vr2vsv3",
+        "image_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2032.0_x64__qbz5n2kfra8p0\\python3.11.exe"
+    },
+    "tid": 3844,
+    "timestamp": "2024-01-16T19:06:47.7486612-08:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "f0beb612-df84-4143-97d5-02b2ff1b1e5f",
+    "hostname": "localhost",
+    "id": "3f62cf51-a009-4cd9-8ceb-533209e2cfca",
+    "object": "FLOW",
+    "objectID": "0e00020e-0885-43f5-8582-2ebe39a8e78e",
+    "pid": 7048,
+    "ppid": 7932,
+    "principal": "",
+    "properties": {
+        "dest_ip": "192.168.1.139",
+        "dest_port": "62748",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "l4_protocol": "17",
+        "src_ip": "23.215.9.137",
+        "src_port": "443",
+        "size": "1250"
+    },
+    "tid": -1,
+    "timestamp": "2024-01-16T12:21:05.6185599-08:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "c1b7685f-6d88-430e-9c6d-10a0a4601edc",
+    "hostname": "localhost",
+    "id": "c0756c10-0276-482b-82d9-08cbab212c65",
+    "object": "FLOW",
+    "objectID": "dbebf227-9757-436c-bc7d-fd247747c599",
+    "pid": 7840,
+    "ppid": 6760,
+    "principal": "",
+    "properties": {
+        "dest_ip": "192.168.1.139",
+        "dest_port": "59661",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "l4_protocol": "17",
+        "src_ip": "23.213.203.66",
+        "src_port": "443",
+        "size": "1250"
+    },
+    "tid": -1,
+    "timestamp": "2024-01-16T14:43:58.9794218-08:00"
+}
+{
+    "action": "MESSAGE",
+    "actorID": "f5de5856-6e70-4091-8149-2d45a2504c14",
+    "hostname": "localhost",
+    "id": "f0342f0d-9cca-463f-a37a-4fa2e93744cc",
+    "object": "FLOW",
+    "objectID": "fea9dac9-4a62-429e-b62f-ae7d0662e8df",
+    "pid": 6196,
+    "ppid": 2328,
+    "principal": "",
+    "properties": {
+        "dest_ip": "152.19.134.47",
+        "dest_port": "443",
+        "direction": "inbound",
+        "image_path": "C:\\Program Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_3.11.2032.0_x64__qbz5n2kfra8p0\\python3.11.exe",
+        "l4_protocol": "6",
+        "src_ip": "192.168.1.139",
+        "src_port": "65093",
+        "size": "1380"
+    },
+    "tid": -1,
+    "timestamp": "2024-01-16T22:29:43.9372309-08:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "caca8ff9-9e81-4d7c-b0d8-2e071d887c1c",
+    "hostname": "localhost",
+    "id": "520b2c5b-e39c-497e-b869-f486425bff20",
+    "object": "MODULE",
+    "objectID": "0ff53aa0-1d96-4008-a2a1-1e306bd532e8",
+    "pid": 5200,
+    "ppid": 820,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\backgroundTaskHost.exe",
+        "module_path": "C:\\Windows\\System32\\ntasn1.dll"
+    },
+    "tid": 3084,
+    "timestamp": "2024-01-16T09:42:29.2550261-08:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "f456ba49-12cd-49d4-bc09-3104d29d8ceb",
+    "hostname": "localhost",
+    "id": "3a7c8b14-4a57-4abf-a1cc-f1fce2ab23e7",
+    "object": "MODULE",
+    "objectID": "330f3391-b589-497b-91c3-1a132d55bdab",
+    "pid": 7980,
+    "ppid": 8328,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\cmd.exe",
+        "module_path": "C:\\Windows\\System32\\rpcrt4.dll"
+    },
+    "tid": 3844,
+    "timestamp": "2024-01-16T14:39:07.5783472-08:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "2d4c7007-43c0-4074-89d8-4fc752c3bf81",
+    "hostname": "localhost",
+    "id": "25f0e1d4-88a9-4b9c-883b-2a094abaf9c1",
+    "object": "MODULE",
+    "objectID": "3ce9b649-d7b3-4493-9d3f-ef45fdff0cc1",
+    "pid": 420,
+    "ppid": 820,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\dllhost.exe",
+        "module_path": "C:\\Windows\\System32\\msvcp_win.dll"
+    },
+    "tid": 3844,
+    "timestamp": "2024-01-16T22:55:10.4260212-08:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "a39ab27a-f06b-4a16-807e-60de1fc7d560",
+    "hostname": "localhost",
+    "id": "96cd39a0-cde7-4dd5-ab9d-5ea065f3c72b",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-e53d-65a6-5415-000000000f00",
+    "pid": 5284,
+    "ppid": 820,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "parent_image_path": "C:\\WINDOWS\\SystemApps\\Microsoft.Windows.Search_cw5n1h2txyewy\\SearchApp.exe",
+        "target_pid": "2696",
+        "granted_access": "1000",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 6396,
+    "timestamp": "2024-01-16T12:21:48.0427687-08:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "52a56ddb-868a-48d8-b07d-57ddce2e1ba3",
+    "hostname": "localhost",
+    "id": "2ac2dc72-dd68-4acb-81f0-5b78c5b3ed27",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-af1f-65a6-1000-000000000f00",
+    "pid": 956,
+    "ppid": 696,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\system32\\svchost.exe",
+        "parent_image_path": "C:\\WINDOWS\\system32\\tasklist.exe",
+        "target_pid": "1064",
+        "granted_access": "1000",
+        "source_user": "NT AUTHORITY\\SYSTEM",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 608,
+    "timestamp": "2024-01-16T13:52:43.5986686-08:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "02440c4b-f300-4c76-a2b9-84fe9c215f7d",
+    "hostname": "localhost",
+    "id": "bd995661-edb5-4c9c-ac98-d1ded54cb2e1",
+    "object": "PROCESS",
+    "objectID": "a68c5c41-b119-65a6-0f01-000000000f00",
+    "pid": 1864,
+    "ppid": 4304,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\WINDOWS\\system32\\ctfmon.exe",
+        "parent_image_path": "C:\\Windows\\notepad.exe",
+        "target_pid": "8796",
+        "granted_access": "1000",
+        "source_user": "DESKTOP-UVGHVIF\\sisl",
+        "target_user": "DESKTOP-UVGHVIF\\sisl"
+    },
+    "tid": 3260,
+    "timestamp": "2024-01-16T19:28:39.75233-08:00"
+}
+{
+    "action": "ADD",
+    "actorID": "996050dc-d30d-43a9-883e-feca394015e0",
+    "hostname": "localhost",
+    "id": "5dbdcefb-2d2d-4922-808e-141d4296f8f9",
+    "object": "REGISTRY",
+    "objectID": "75c6695f-1886-4904-a9d8-e9cb5022e589",
+    "pid": 5208,
+    "ppid": 5164,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "key": "HKLM\\System\\CurrentControlSet\\Control\\Hvsi",
+        "type": "",
+        "value": ""
+    },
+    "tid": 3844,
+    "timestamp": "2024-01-16T11:55:09.304455-08:00"
+}
+{
+    "action": "ADD",
+    "actorID": "996050dc-d30d-43a9-883e-feca394015e0",
+    "hostname": "localhost",
+    "id": "0a7fdd1c-ac9a-45a2-8bc1-69d080d49d8b",
+    "object": "REGISTRY",
+    "objectID": "75c6695f-1886-4904-a9d8-e9cb5022e589",
+    "pid": 5208,
+    "ppid": 5164,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\WINDOWS\\Explorer.EXE",
+        "key": "HKLM\\System\\CurrentControlSet\\Control\\Hvsi",
+        "type": "",
+        "value": ""
+    },
+    "tid": 3844,
+    "timestamp": "2024-01-16T12:04:01.8831846-08:00"
+}
+{
+    "action": "ADD",
+    "actorID": "61a0fc36-1865-409e-af33-e31239dde9fb",
+    "hostname": "localhost",
+    "id": "dbe5dc2d-e418-4337-a137-48778771004d",
+    "object": "REGISTRY",
+    "objectID": "a1354695-b6d1-4bcc-a6c5-86ff6d81cf2d",
+    "pid": 2996,
+    "ppid": 696,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Windows\\Sysmon64.exe",
+        "key": "HKU\\.DEFAULT\\Software\\Microsoft\\SystemCertificates\\Disallowed",
+        "type": "",
+        "value": ""
+    },
+    "tid": 3844,
+    "timestamp": "2024-01-16T22:37:41.798224-08:00"
+}
+{
+    "action": "CREATE",
+    "actorID": "d36f66b4-2cb9-489b-a9ca-372019c1a26a",
+    "hostname": "localhost",
+    "id": "d9bc6515-9106-4973-b3b2-8a1666a20fa6",
+    "object": "FILE",
+    "objectID": "77b50f09-4f96-465d-9052-71035ae767e0",
+    "pid": 4692,
+    "ppid": 7920,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\judy\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Network\\3f8c7ed0-90ad-4aed-87e0-4cc4f9a186a0.tmp",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+    },
+    "tid": 4048,
+    "timestamp": "2024-02-09T16:20:07.4077069-06:00"
+}
+{
+    "action": "READ",
+    "actorID": "495685f9-5296-4473-8b1b-05dc6f1cadd1",
+    "hostname": "localhost",
+    "id": "fc968bb4-8d3d-42ee-ae11-6a529c49fcdf",
+    "object": "FILE",
+    "objectID": "3f293295-d18c-4e4f-975d-3d5d6c11374e",
+    "pid": 15704,
+    "ppid": 1224,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Program Files\\WindowsApps\\Microsoft.UI.Xaml.2.0_2.1810.18004.0_x86__8wekyb3d8bbwe",
+        "image_path": "C:\\Windows\\System32\\CompatTelRunner.exe",
+        "size": "4096"
+    },
+    "tid": 3020,
+    "timestamp": "2024-02-10T05:48:22.795008-06:00"
+}
+{
+    "action": "RENAME",
+    "actorID": "a832212a-826e-4d01-91d7-3c7515dfb201",
+    "hostname": "localhost",
+    "id": "7d2ac099-dbc1-4d25-a8e7-80f2092c3365",
+    "object": "FILE",
+    "objectID": "b00a43ac-2961-4a7e-862f-9a5984fe2109",
+    "pid": 17772,
+    "ppid": 0,
+    "principal": "",
+    "properties": {
+        "file_path": "C:\\Users\\sisl\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Secure Preferences",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "new_path": ""
+    },
+    "tid": 9292,
+    "timestamp": "2024-02-10T06:12:32.9189409-06:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "10423b02-6b32-43e4-b652-9d20a80f95f1",
+    "hostname": "localhost",
+    "id": "27cfe680-c93e-48bc-ab63-c87c358d179e",
+    "object": "MODULE",
+    "objectID": "0efe3a9a-6c88-4c1a-a60e-6ed643a05976",
+    "pid": 3472,
+    "ppid": 15764,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\calc.exe",
+        "module_path": "C:\\Windows\\System32\\sspicli.dll"
+    },
+    "tid": 4048,
+    "timestamp": "2024-02-09T15:09:43.1934888-06:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "99aaff70-5cdd-459e-9c2e-c7536d1b7578",
+    "hostname": "localhost",
+    "id": "2b13625b-e13b-4d57-a761-a328cdfd6046",
+    "object": "MODULE",
+    "objectID": "ee2ade05-8225-4930-9281-161b1d7ea3fd",
+    "pid": 9436,
+    "ppid": 188,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\systeminfo.exe",
+        "module_path": "C:\\Windows\\System32\\wbem\\wbemsvc.dll"
+    },
+    "tid": 4048,
+    "timestamp": "2024-02-09T16:33:00.3329814-06:00"
+}
+{
+    "action": "LOAD",
+    "actorID": "05ddf63d-f0c6-4771-a578-eb0f963bc36c",
+    "hostname": "localhost",
+    "id": "bc4ab8b7-e051-4a2a-a988-399ec3c56010",
+    "object": "MODULE",
+    "objectID": "bde36ac3-efe8-45b9-812f-ac85b208e34a",
+    "pid": 6548,
+    "ppid": 15764,
+    "principal": "",
+    "properties": {
+        "base_Address": "0x0",
+        "image_path": "C:\\Windows\\System32\\mspaint.exe",
+        "module_path": "C:\\Windows\\System32\\combase.dll"
+    },
+    "tid": 4048,
+    "timestamp": "2024-02-10T10:30:10.1274243-06:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "f1e6afa9-07e8-4e5e-b9ca-95ee00c3f24e",
+    "hostname": "localhost",
+    "id": "73431ccc-b41a-4045-b0e9-aff65df808ff",
+    "object": "PROCESS",
+    "objectID": "5379cbe2-182c-65c1-1100-000000001900",
+    "pid": 980,
+    "ppid": 636,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\Windows\\system32\\svchost.exe",
+        "parent_image_path": "C:\\Windows\\system32\\tasklist.exe",
+        "target_pid": "3608",
+        "granted_access": "1000",
+        "source_user": "NT AUTHORITY\\SYSTEM",
+        "target_user": "DESKTOP-FCQMC5B\\judy"
+    },
+    "tid": 16756,
+    "timestamp": "2024-02-09T13:47:50.9939783-06:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "0e562b90-794b-4659-a9ea-9d18569a3370",
+    "hostname": "localhost",
+    "id": "a8e0ec86-9438-4f4d-815a-89acd52664ce",
+    "object": "PROCESS",
+    "objectID": "5379cbe2-9ea0-65c3-9913-000000001900",
+    "pid": 12100,
+    "ppid": 868,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\Windows\\System32\\RuntimeBroker.exe",
+        "parent_image_path": "C:\\Windows\\Explorer.EXE",
+        "target_pid": "6092",
+        "granted_access": "40",
+        "source_user": "DESKTOP-FCQMC5B\\judy",
+        "target_user": "DESKTOP-FCQMC5B\\judy"
+    },
+    "tid": 15784,
+    "timestamp": "2024-02-09T18:11:50.6845052-06:00"
+}
+{
+    "action": "OPEN",
+    "actorID": "f1e6afa9-07e8-4e5e-b9ca-95ee00c3f24e",
+    "hostname": "localhost",
+    "id": "75565aa7-01ac-4e66-8d90-ac9218b15ec3",
+    "object": "PROCESS",
+    "objectID": "5379cbe2-182c-65c1-1100-000000001900",
+    "pid": 980,
+    "ppid": 636,
+    "principal": "",
+    "properties": {
+        "command_line": "",
+        "image_path": "C:\\Windows\\system32\\svchost.exe",
+        "parent_image_path": "C:\\Windows\\system32\\tasklist.exe",
+        "target_pid": "7860",
+        "granted_access": "1000",
+        "source_user": "NT AUTHORITY\\SYSTEM",
+        "target_user": "DESKTOP-FCQMC5B\\judy"
+    },
+    "tid": 3348,
+    "timestamp": "2024-02-10T10:38:35.5253142-06:00"
+}
+{
+    "action": "ADD",
+    "actorID": "28c96a18-f210-4bb9-868e-6083abf933fc",
+    "hostname": "localhost",
+    "id": "55adf661-a692-4d2a-b263-5d13e10c93ac",
+    "object": "REGISTRY",
+    "objectID": "48ce8d78-73ba-4923-8de6-362c17c82073",
+    "pid": 2212,
+    "ppid": 636,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Windows\\Sysmon.exe",
+        "key": "HKU\\.DEFAULT\\Software\\Policies\\Microsoft\\SystemCertificates\\Disallowed",
+        "type": "",
+        "value": ""
+    },
+    "tid": 4048,
+    "timestamp": "2024-02-09T13:15:07.1596227-06:00"
+}
+{
+    "action": "ADD",
+    "actorID": "28c96a18-f210-4bb9-868e-6083abf933fc",
+    "hostname": "localhost",
+    "id": "287e4c4d-d213-4e4c-bc65-87b30752096e",
+    "object": "REGISTRY",
+    "objectID": "156f30ca-295d-41a3-8ba2-76d0c21bb5b9",
+    "pid": 2212,
+    "ppid": 636,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Windows\\Sysmon.exe",
+        "key": "HKLM\\SOFTWARE\\Microsoft\\SystemCertificates\\Disallowed\\CRLs",
+        "type": "",
+        "value": ""
+    },
+    "tid": 4048,
+    "timestamp": "2024-02-09T23:08:41.7651998-06:00"
+}
+{
+    "action": "ADD",
+    "actorID": "81ee4dd8-08bb-49d7-b242-44381666c37a",
+    "hostname": "localhost",
+    "id": "4e9c8378-437d-4d51-9384-8181af02c562",
+    "object": "REGISTRY",
+    "objectID": "7b2a6f37-aa63-408b-b97d-5cfb18a84112",
+    "pid": 18980,
+    "ppid": 636,
+    "principal": "",
+    "properties": {
+        "data": "",
+        "image_path": "C:\\Program Files (x86)\\Microsoft\\EdgeUpdate\\MicrosoftEdgeUpdate.exe",
+        "key": "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\EdgeUpdate\\ClientState\\{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}\\CurrentState",
+        "type": "",
+        "value": ""
+    },
+    "tid": 4048,
+    "timestamp": "2024-02-10T09:44:32.6620299-06:00"
+}

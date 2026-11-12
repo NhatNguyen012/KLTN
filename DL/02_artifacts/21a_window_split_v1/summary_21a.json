@@ -1,0 +1,226 @@
+{
+  "windows": 110402,
+  "samples": 228984,
+  "positive_windows": 541,
+  "hosts": 620,
+  "seeds": {
+    "1": {
+      "positive_windows_by_scenario_new": {
+        "scenario_1": {
+          "train": 43,
+          "val": 9,
+          "test": 9
+        },
+        "scenario_2": {
+          "train": 332,
+          "val": 71,
+          "test": 71
+        },
+        "scenario_3": {
+          "train": 4,
+          "val": 1,
+          "test": 1
+        }
+      },
+      "positive_windows_by_scenario_hostdisjoint": {
+        "scenario_1": {
+          "train": 45,
+          "val": 10,
+          "test": 6
+        },
+        "scenario_2": {
+          "train": 374,
+          "val": 29,
+          "test": 71
+        },
+        "scenario_3": {
+          "train": 2,
+          "val": 0,
+          "test": 4
+        }
+      },
+      "new_split_totals": {
+        "test": {
+          "windows": 16560,
+          "positive_windows": 81,
+          "samples": 34413,
+          "events": 12887298
+        },
+        "train": {
+          "windows": 77281,
+          "positive_windows": 379,
+          "samples": 160210,
+          "events": 59902514
+        },
+        "val": {
+          "windows": 16561,
+          "positive_windows": 81,
+          "samples": 34361,
+          "events": 12836373
+        }
+      },
+      "hosts_present_in_n_splits": {
+        "2": 7,
+        "3": 613
+      },
+      "neighbor_leakage_new": {
+        "test_positive_windows": 81,
+        "same_host_positive_in_train": 80,
+        "within_15min": 65,
+        "within_60min": 79
+      },
+      "neighbor_leakage_hostdisjoint": {
+        "test_positive_windows": 81,
+        "same_host_positive_in_train": 0,
+        "within_15min": 0,
+        "within_60min": 0
+      }
+    },
+    "2": {
+      "positive_windows_by_scenario_new": {
+        "scenario_1": {
+          "train": 43,
+          "val": 9,
+          "test": 9
+        },
+        "scenario_2": {
+          "train": 332,
+          "val": 71,
+          "test": 71
+        },
+        "scenario_3": {
+          "train": 4,
+          "val": 1,
+          "test": 1
+        }
+      },
+      "positive_windows_by_scenario_hostdisjoint": {
+        "scenario_1": {
+          "train": 37,
+          "val": 18,
+          "test": 6
+        },
+        "scenario_2": {
+          "train": 258,
+          "val": 144,
+          "test": 72
+        },
+        "scenario_3": {
+          "train": 2,
+          "val": 0,
+          "test": 4
+        }
+      },
+      "new_split_totals": {
+        "test": {
+          "windows": 16560,
+          "positive_windows": 81,
+          "samples": 34441,
+          "events": 12895072
+        },
+        "train": {
+          "windows": 77281,
+          "positive_windows": 379,
+          "samples": 160297,
+          "events": 59939110
+        },
+        "val": {
+          "windows": 16561,
+          "positive_windows": 81,
+          "samples": 34246,
+          "events": 12792003
+        }
+      },
+      "hosts_present_in_n_splits": {
+        "1": 1,
+        "2": 7,
+        "3": 612
+      },
+      "neighbor_leakage_new": {
+        "test_positive_windows": 81,
+        "same_host_positive_in_train": 79,
+        "within_15min": 69,
+        "within_60min": 78
+      },
+      "neighbor_leakage_hostdisjoint": {
+        "test_positive_windows": 82,
+        "same_host_positive_in_train": 0,
+        "within_15min": 0,
+        "within_60min": 0
+      }
+    },
+    "3": {
+      "positive_windows_by_scenario_new": {
+        "scenario_1": {
+          "train": 43,
+          "val": 9,
+          "test": 9
+        },
+        "scenario_2": {
+          "train": 332,
+          "val": 71,
+          "test": 71
+        },
+        "scenario_3": {
+          "train": 4,
+          "val": 1,
+          "test": 1
+        }
+      },
+      "positive_windows_by_scenario_hostdisjoint": {
+        "scenario_1": {
+          "train": 45,
+          "val": 10,
+          "test": 6
+        },
+        "scenario_2": {
+          "train": 328,
+          "val": 74,
+          "test": 72
+        },
+        "scenario_3": {
+          "train": 2,
+          "val": 0,
+          "test": 4
+        }
+      },
+      "new_split_totals": {
+        "test": {
+          "windows": 16560,
+          "positive_windows": 81,
+          "samples": 33934,
+          "events": 12637095
+        },
+        "train": {
+          "windows": 77281,
+          "positive_windows": 379,
+          "samples": 160672,
+          "events": 60130047
+        },
+        "val": {
+          "windows": 16561,
+          "positive_windows": 81,
+          "samples": 34378,
+          "events": 12859043
+        }
+      },
+      "hosts_present_in_n_splits": {
+        "1": 1,
+        "2": 3,
+        "3": 616
+      },
+      "neighbor_leakage_new": {
+        "test_positive_windows": 81,
+        "same_host_positive_in_train": 81,
+        "within_15min": 72,
+        "within_60min": 80
+      },
+      "neighbor_leakage_hostdisjoint": {
+        "test_positive_windows": 82,
+        "same_host_positive_in_train": 0,
+        "within_15min": 0,
+        "within_60min": 0
+      }
+    }
+  }
+}

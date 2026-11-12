@@ -1,0 +1,32 @@
+cửa sổ: 110,402 (1s); máy: 620
+{
+ "hosts": 620,
+ "windows": 110402,
+ "positive_windows": 541,
+ "flows_in_windows": 85626185,
+ "samples_expected": 228984,
+ "flows_conserved": true,
+ "each_scenario_in_all_splits": true,
+ "proportions_train_val_test_windows": {
+  "test": 0.15,
+  "train": 0.7,
+  "val": 0.15
+ },
+ "no_pos_other": true,
+ "vs_21a_same_window_universe": true,
+ "vs_21a_windows_only_new": 0,
+ "vs_21a_windows_only_old": 0,
+ "vs_21a_split_identical": true,
+ "PASS": true
+}
+split       train  val  test
+scenario                    
+scenario_1     43    9     9
+scenario_2    332   71    71
+scenario_3      4    1     1
+       windows  positive_windows     flows  positive_flows  samples
+split                                                              
+test     16560                81  12887298            3544    34413
+train    77281               379  59902514           17682   160210
+val      16561                81  12836373            3495    34361
+S2 xong (3s) PASS=True

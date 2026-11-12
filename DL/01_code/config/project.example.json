@@ -1,0 +1,12 @@
+{
+  "input_root": "E:\\DARPA_OpTC",
+  "output_root": "D:\\UIT\\KLTN",
+  "raw_policy": "read_compressed_in_place_no_bulk_extract",
+  "host": {
+    "include_flow_events": false,
+    "exclude_raw_identity_fields": true,
+    "decode_powershell_encoded_command": true,
+    "min_lexical_count": 5,
+    "max_lexical_tokens": 8000
+  }
+}

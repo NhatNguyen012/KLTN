@@ -1,0 +1,11 @@
+group,files,compressed_gb,avg_file_mb
+benign/17-18Sep19,14,1.469,107.429
+benign/18-19Sep19,19,0.986,53.156
+benign/19Sep19,19,0.275,14.833
+benign/20-23Sep19,19,2.716,146.384
+evaluation/23Sep-Night,10,0.002,0.183
+evaluation/23Sep-night,10,0.002,0.183
+evaluation/23Sep19-red,20,0.307,15.696
+evaluation/24Sep19,20,0.302,15.47
+evaluation/25Sept,20,0.002,0.117
+short/17-18Sep19,5,0.454,93.045

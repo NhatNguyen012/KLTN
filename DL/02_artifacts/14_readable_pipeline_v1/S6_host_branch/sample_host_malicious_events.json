@@ -1,0 +1,93 @@
+{
+  "PROCESS_CREATE_dropper_tu_notepad_updater": {
+    "action": "CREATE",
+    "actorID": "4986cc39-9cde-46cf-a6b1-d851afe7b42f",
+    "hostname": "SysClient0051.systemia.com",
+    "id": "5ceee15b-fe47-4d5f-8380-473107941e93",
+    "object": "PROCESS",
+    "objectID": "0c38ecf1-faac-4464-8905-ca951cc96f32",
+    "pid": 2712,
+    "ppid": 256,
+    "principal": "SYSTEMIACOM\\dcoombes",
+    "properties": {
+      "acuity_level": "1",
+      "command_line": "\"C:\\Users\\dcoombes\\AppData\\Local\\Temp\\cKfGW.exe\" ",
+      "image_path": "\\Device\\HarddiskVolume1\\Users\\dcoombes\\AppData\\Local\\Temp\\cKfGW.exe",
+      "parent_image_path": "\\Device\\HarddiskVolume1\\Program Files (x86)\\Notepad++\\updater\\gup.exe",
+      "sid": "S-1-5-21-4190936083-3304963419-1584388968-3196",
+      "user": "SYSTEMIACOM\\dcoombes"
+    },
+    "tid": -1,
+    "timestamp": "2019-09-25T10:28:11.850-04:00"
+  },
+  "THREAD_REMOTE_CREATE": {
+    "action": "REMOTE_CREATE",
+    "actorID": "4986cc39-9cde-46cf-a6b1-d851afe7b42f",
+    "hostname": "SysClient0051.systemia.com",
+    "id": "095fd1b0-70db-4cc7-91b0-911ee7813163",
+    "object": "THREAD",
+    "objectID": "48ab499f-3ae1-42ba-a33c-49bd37028b82",
+    "pid": 256,
+    "ppid": 3288,
+    "principal": "SYSTEMIACOM\\dcoombes",
+    "properties": {
+      "acuity_level": "3",
+      "image_path": "\\Device\\HarddiskVolume1\\Program Files (x86)\\Notepad++\\updater\\gup.exe",
+      "src_pid": "256",
+      "src_tid": "5212",
+      "stack_base": "ffffe001de54e000",
+      "stack_limit": "ffffe001de548000",
+      "start_address": "40adb8",
+      "subprocess_tag": "0",
+      "tgt_pid": "2712",
+      "tgt_pid_uuid": "0c38ecf1-faac-4464-8905-ca951cc96f32",
+      "tgt_tid": "5476",
+      "user_stack_base": "9fd20",
+      "user_stack_limit": "98000"
+    },
+    "tid": 5212,
+    "timestamp": "2019-09-25T10:28:11.877-04:00"
+  },
+  "REGISTRY_ADD_khoa_Run_persistence": {
+    "action": "ADD",
+    "actorID": "39be10bb-2c30-4eeb-ba8b-e5685f72ef80",
+    "hostname": "SysClient0051.systemia.com",
+    "id": "fa8b1706-4550-4715-bf6b-8ffba87c709b",
+    "object": "REGISTRY",
+    "objectID": "ba739c57-7f1c-40c8-b4ed-3a80ff20d78a",
+    "pid": 568,
+    "ppid": 460,
+    "principal": "NT AUTHORITY\\SYSTEM",
+    "properties": {
+      "acuity_level": "3",
+      "data": "C:\\Windows\\TEMP\\myHbYXTpViwX.vbs",
+      "image_path": "\\Device\\HarddiskVolume1\\Windows\\system32\\lsass.exe",
+      "key": "\\REGISTRY\\MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\RTqWaEHv",
+      "type": "REG_SZ",
+      "value": "RTqWaEHv"
+    },
+    "tid": -1,
+    "timestamp": "2019-09-25T10:47:13.718-04:00"
+  },
+  "PROCESS_CREATE_net_user_cha_la_lsass": {
+    "action": "CREATE",
+    "actorID": "39be10bb-2c30-4eeb-ba8b-e5685f72ef80",
+    "hostname": "SysClient0051.systemia.com",
+    "id": "2cdd6c2b-e19c-4004-b81d-38aafd7a7234",
+    "object": "PROCESS",
+    "objectID": "13fdaf32-75db-4624-af24-d12628cb6726",
+    "pid": 1868,
+    "ppid": 568,
+    "principal": "NT AUTHORITY\\SYSTEM",
+    "properties": {
+      "acuity_level": "1",
+      "command_line": "cmd.exe /c net user admin supersecret /add",
+      "image_path": "cmd.exe",
+      "parent_image_path": "\\Device\\HarddiskVolume1\\Windows\\system32\\lsass.exe",
+      "sid": "S-1-5-18",
+      "user": "NT AUTHORITY\\SYSTEM"
+    },
+    "tid": -1,
+    "timestamp": "2019-09-25T11:06:32.804-04:00"
+  }
+}

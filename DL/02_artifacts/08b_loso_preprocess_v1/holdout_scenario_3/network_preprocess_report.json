@@ -1,0 +1,640 @@
+{
+  "generated_at": "2026-09-24T02:31:30.391483",
+  "script_version": "step05f-c-loso-train-only-preprocess-v1.0",
+  "status": "CANDIDATE_READY_FOR_REVIEW",
+  "heldout_scenario": "scenario_3",
+  "fit_policy": {
+    "fit_split": "train",
+    "fit_scope": "LOSO fold TRAIN only",
+    "val_used_for_fit": false,
+    "test_used_for_fit": false,
+    "heldout_scenario_used_for_fit": false,
+    "label_used_for_feature_selection": false
+  },
+  "split_stats": {
+    "train": {
+      "hosts": 434,
+      "event_rows": 61292090,
+      "positive_event_rows": 18981
+    },
+    "val": {
+      "hosts": 94,
+      "event_rows": 13693955,
+      "positive_event_rows": 5551
+    },
+    "test": {
+      "hosts": 92,
+      "event_rows": 10640140,
+      "positive_event_rows": 189
+    }
+  },
+  "active_categorical_features": [
+    "app_family",
+    "proto",
+    "service",
+    "conn_state",
+    "resp_port_class"
+  ],
+  "inactive_categorical_features": {
+    "direction": "constant_on_fold_train; kept only for audit/reproducibility",
+    "local_orig": "constant_on_fold_train; kept only for audit/reproducibility",
+    "local_resp": "constant_on_fold_train; kept only for audit/reproducibility",
+    "orig_ip_scope": "constant_on_fold_train; kept only for audit/reproducibility",
+    "resp_ip_scope": "constant_on_fold_train; kept only for audit/reproducibility",
+    "orig_port_class": "constant_on_fold_train; kept only for audit/reproducibility"
+  },
+  "active_numerical_features": [
+    "duration",
+    "orig_bytes",
+    "resp_bytes",
+    "orig_pkts",
+    "orig_ip_bytes",
+    "resp_pkts",
+    "resp_ip_bytes"
+  ],
+  "inactive_numerical_features": {
+    "missed_bytes": "TRAIN log1p std=0.002412817 < 0.01; raw z-score would be unstable for rare non-zero values"
+  },
+  "derived_binary_features": [
+    {
+      "name": "has_missed_bytes",
+      "source": "missed_bytes",
+      "rule": "1.0 if missed_bytes > 0 else 0.0",
+      "fit_required": false,
+      "reason": "Preserve rare missed-bytes signal without unstable z-score."
+    }
+  ],
+  "category_diagnostics": {
+    "app_family": {
+      "train_unique_values_including_missing": 66,
+      "mapping_size_including_reserved": 61,
+      "min_train_frequency": 5,
+      "max_values_excluding_reserved": 5000,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 22053,
+          "missing_rate": 0.00035980172971748883,
+          "mapped_to_UNK": 14,
+          "UNK_rate": 2.2841446587969183e-07
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 3865,
+          "missing_rate": 0.0002822413247305106,
+          "mapped_to_UNK": 1136,
+          "UNK_rate": 8.295631174485385e-05
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 3712,
+          "missing_rate": 0.00034886759008810034,
+          "mapped_to_UNK": 927,
+          "UNK_rate": 8.712291379624704e-05
+        }
+      }
+    },
+    "direction": {
+      "train_unique_values_including_missing": 1,
+      "mapping_size_including_reserved": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 1,
+          "UNK_rate": 9.398372577804427e-08
+        }
+      }
+    },
+    "proto": {
+      "train_unique_values_including_missing": 2,
+      "mapping_size_including_reserved": 4,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        }
+      }
+    },
+    "service": {
+      "train_unique_values_including_missing": 5,
+      "mapping_size_including_reserved": 5,
+      "min_train_frequency": 5,
+      "max_values_excluding_reserved": 1000,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 248229,
+          "missing_rate": 0.004049935317917859,
+          "mapped_to_UNK": 1,
+          "UNK_rate": 1.631531899140656e-08
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 51031,
+          "missing_rate": 0.0037265348104327787,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 44228,
+          "missing_rate": 0.004156712223711342,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        }
+      }
+    },
+    "conn_state": {
+      "train_unique_values_including_missing": 6,
+      "mapping_size_including_reserved": 8,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        }
+      }
+    },
+    "local_orig": {
+      "train_unique_values_including_missing": 1,
+      "mapping_size_including_reserved": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        }
+      }
+    },
+    "local_resp": {
+      "train_unique_values_including_missing": 1,
+      "mapping_size_including_reserved": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        }
+      }
+    },
+    "orig_ip_scope": {
+      "train_unique_values_including_missing": 1,
+      "mapping_size_including_reserved": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        }
+      }
+    },
+    "resp_ip_scope": {
+      "train_unique_values_including_missing": 1,
+      "mapping_size_including_reserved": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        }
+      }
+    },
+    "orig_port_class": {
+      "train_unique_values_including_missing": 1,
+      "mapping_size_including_reserved": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        }
+      }
+    },
+    "resp_port_class": {
+      "train_unique_values_including_missing": 8,
+      "mapping_size_including_reserved": 10,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "by_split": {
+        "train": {
+          "rows": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "val": {
+          "rows": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 0,
+          "UNK_rate": 0.0
+        },
+        "test": {
+          "rows": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "mapped_to_UNK": 1,
+          "UNK_rate": 9.398372577804427e-08
+        }
+      }
+    }
+  },
+  "numeric_profile_by_split": {
+    "train": {
+      "row_count": 61292090,
+      "features": {
+        "duration": {
+          "observed": 61286922,
+          "missing": 5168,
+          "missing_rate": 8.43175685475891e-05,
+          "log1p_mean": 0.08517366626428043,
+          "log1p_std": 0.4171137876799004,
+          "raw_min": 0.00067,
+          "raw_max": 10801.14967
+        },
+        "orig_bytes": {
+          "observed": 61286922,
+          "missing": 5168,
+          "missing_rate": 8.43175685475891e-05,
+          "log1p_mean": 6.826652857579611,
+          "log1p_std": 0.5516620971519409,
+          "raw_min": 0,
+          "raw_max": 3551160539
+        },
+        "resp_bytes": {
+          "observed": 61286922,
+          "missing": 5168,
+          "missing_rate": 8.43175685475891e-05,
+          "log1p_mean": 7.904421051593012,
+          "log1p_std": 1.775853641498061,
+          "raw_min": 0,
+          "raw_max": 31471762
+        },
+        "missed_bytes": {
+          "observed": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 8.154008511009242e-07,
+          "log1p_std": 0.002412816704525803,
+          "raw_min": 0,
+          "raw_max": 1260
+        },
+        "orig_pkts": {
+          "observed": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 2.2384888838405774,
+          "log1p_std": 0.3774487255949217,
+          "raw_min": 1,
+          "raw_max": 3052533
+        },
+        "orig_ip_bytes": {
+          "observed": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 7.170824849325474,
+          "log1p_std": 0.3583378513066031,
+          "raw_min": 52,
+          "raw_max": 3697274608
+        },
+        "resp_pkts": {
+          "observed": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 2.5855729998345636,
+          "log1p_std": 0.7950412648188167,
+          "raw_min": 0,
+          "raw_max": 437853
+        },
+        "resp_ip_bytes": {
+          "observed": 61292090,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 8.144311164401483,
+          "log1p_std": 1.596601942811074,
+          "raw_min": 0,
+          "raw_max": 32471334
+        }
+      }
+    },
+    "val": {
+      "row_count": 13693955,
+      "features": {
+        "duration": {
+          "observed": 13693048,
+          "missing": 907,
+          "missing_rate": 6.623360453572397e-05,
+          "log1p_mean": 0.08277171495442352,
+          "log1p_std": 0.4116181710941774,
+          "raw_min": 0.000825,
+          "raw_max": 384.801163
+        },
+        "orig_bytes": {
+          "observed": 13693048,
+          "missing": 907,
+          "missing_rate": 6.623360453572397e-05,
+          "log1p_mean": 6.828340371122614,
+          "log1p_std": 0.5365409019044958,
+          "raw_min": 0,
+          "raw_max": 45773
+        },
+        "resp_bytes": {
+          "observed": 13693048,
+          "missing": 907,
+          "missing_rate": 6.623360453572397e-05,
+          "log1p_mean": 7.878034483051764,
+          "log1p_std": 1.7581725837035462,
+          "raw_min": 0,
+          "raw_max": 15299409
+        },
+        "missed_bytes": {
+          "observed": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 5.213731413579875e-07,
+          "log1p_std": 0.0019293591852636207,
+          "raw_min": 0,
+          "raw_max": 1260
+        },
+        "orig_pkts": {
+          "observed": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 2.2349606769288926,
+          "log1p_std": 0.37317597011831083,
+          "raw_min": 1,
+          "raw_max": 805
+        },
+        "orig_ip_bytes": {
+          "observed": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 7.169869110645007,
+          "log1p_std": 0.35300053588026575,
+          "raw_min": 52,
+          "raw_max": 70892
+        },
+        "resp_pkts": {
+          "observed": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 2.574965980989613,
+          "log1p_std": 0.7869209312666271,
+          "raw_min": 0,
+          "raw_max": 12164
+        },
+        "resp_ip_bytes": {
+          "observed": 13693955,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 8.119013245178497,
+          "log1p_std": 1.5830432653189355,
+          "raw_min": 0,
+          "raw_max": 15787241
+        }
+      }
+    },
+    "test": {
+      "row_count": 10640140,
+      "features": {
+        "duration": {
+          "observed": 10639152,
+          "missing": 988,
+          "missing_rate": 9.285592106870775e-05,
+          "log1p_mean": 0.08274342860777868,
+          "log1p_std": 0.41143889808197054,
+          "raw_min": 0.000719,
+          "raw_max": 9299.805878
+        },
+        "orig_bytes": {
+          "observed": 10639152,
+          "missing": 988,
+          "missing_rate": 9.285592106870775e-05,
+          "log1p_mean": 6.825936502405615,
+          "log1p_std": 0.5522342020303922,
+          "raw_min": 0,
+          "raw_max": 88228
+        },
+        "resp_bytes": {
+          "observed": 10639152,
+          "missing": 988,
+          "missing_rate": 9.285592106870775e-05,
+          "log1p_mean": 7.8667147875971235,
+          "log1p_std": 1.7655032405836488,
+          "raw_min": 0,
+          "raw_max": 15820726
+        },
+        "missed_bytes": {
+          "observed": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 0.0,
+          "log1p_std": 0.0,
+          "raw_min": 0,
+          "raw_max": 0
+        },
+        "orig_pkts": {
+          "observed": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 2.2348335398553303,
+          "log1p_std": 0.37193321143035496,
+          "raw_min": 1,
+          "raw_max": 1070
+        },
+        "orig_ip_bytes": {
+          "observed": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 7.169153570453224,
+          "log1p_std": 0.354265575530257,
+          "raw_min": 52,
+          "raw_max": 143876
+        },
+        "resp_pkts": {
+          "observed": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 2.5736455296006753,
+          "log1p_std": 0.7856162010987753,
+          "raw_min": 0,
+          "raw_max": 13883
+        },
+        "resp_ip_bytes": {
+          "observed": 10640140,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "log1p_mean": 8.110711125055479,
+          "log1p_std": 1.5851311406479802,
+          "raw_min": 0,
+          "raw_max": 16542638
+        }
+      }
+    }
+  },
+  "gates": {
+    "mapping_sha_matches_contract": true,
+    "hostname_profile_exact_match": true,
+    "event_conservation": true,
+    "train_rows_exist": true,
+    "val_rows_exist": true,
+    "test_rows_exist": true,
+    "train_positive_exists": true,
+    "val_positive_exists": true,
+    "test_positive_exists": true,
+    "all_category_maps_nonempty": true,
+    "all_numeric_stats_present": true,
+    "val_not_used_for_fit": true,
+    "test_not_used_for_fit": true,
+    "heldout_scenario_not_used_for_fit": true,
+    "label_not_used_for_feature_selection": true
+  },
+  "warnings": [],
+  "candidate_fingerprint_sha256": "6a5cd69f86a8b2f2cc3db10df633b97d03b4bd315fcabd061ed0705a52743cdd"
+}

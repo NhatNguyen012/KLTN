@@ -1,0 +1,100 @@
+{
+ "flows": 186100,
+ "label_A_flows": 25303,
+ "label_B_flows": 19,
+ "label_C_flows": 627,
+ "windows": 469,
+ "windows_pos_A": 189,
+ "windows_pos_B": 8,
+ "windows_pos_C": 9,
+ "resp_port_missing_share": 0.1566684578183772,
+ "proto_missing_share": 1.0,
+ "app_family_distinct": 25,
+ "top_app_family": [
+  [
+   "firefox",
+   177413,
+   163
+  ],
+  [
+   "whoopsie",
+   4534,
+   0
+  ],
+  [
+   "sshd",
+   1632,
+   0
+  ],
+  [
+   "python2.7",
+   1134,
+   0
+  ],
+  [
+   "thunderbird",
+   552,
+   0
+  ],
+  [
+   "mail",
+   453,
+   453
+  ],
+  [
+   "bash",
+   301,
+   0
+  ],
+  [
+   "ubuntu-geoip-provider",
+   40,
+   0
+  ],
+  [
+   "apache2",
+   5,
+   0
+  ],
+  [
+   "gtcache",
+   4,
+   4
+  ]
+ ],
+ "label_C_by_app": [
+  [
+   "mail",
+   453
+  ],
+  [
+   "firefox",
+   163
+  ],
+  [
+   "gtcache",
+   4
+  ],
+  [
+   "fluxbox",
+   4
+  ],
+  [
+   "profile",
+   1
+  ],
+  [
+   "clean",
+   1
+  ],
+  [
+   "dash",
+   1
+  ]
+ ],
+ "label_C_resp_port_missing": [
+  604,
+  627
+ ],
+ "note": "label_C là cột `label`; B và A giữ để đối chiếu độ nhạy của nhãn"
+}

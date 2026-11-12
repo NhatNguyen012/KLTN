@@ -1,0 +1,81 @@
+{
+ "name": "skrghosh",
+ "flows_parquet": 46646,
+ "events_in_shards": 46646,
+ "positive_flows_parquet": 282,
+ "positive_events_in_shards": 282,
+ "samples_expected": 196,
+ "samples": 196,
+ "positive_samples": 8,
+ "windows": 181,
+ "positive_windows": 8,
+ "hosts": 3,
+ "max_event_count": 512,
+ "unique_sample_id": true,
+ "recheck_python_vs_shard": {
+  "checked": 300,
+  "mismatch": 0
+ },
+ "share_unk_by_field": {
+  "app_family": 0.7451,
+  "proto": 0.0,
+  "service": 0.0,
+  "conn_state": 0.0,
+  "resp_port_class": 0.0593,
+  "image_dir_class": 0.0,
+  "principal_class": 0.0
+ },
+ "share_missing_by_field": {
+  "app_family": 0.0013,
+  "proto": 0.0,
+  "service": 1.0,
+  "conn_state": 1.0,
+  "resp_port_class": 0.0,
+  "image_dir_class": 0.0,
+  "principal_class": 0.0
+ },
+ "top_app_family": [
+  [
+   "msedge.exe",
+   19666,
+   0
+  ],
+  [
+   "python3.11.exe",
+   14316,
+   0
+  ],
+  [
+   "svchost.exe",
+   10060,
+   14
+  ],
+  [
+   "chrome.exe",
+   992,
+   0
+  ],
+  [
+   "ping.exe",
+   330,
+   0
+  ],
+  [
+   "backgroundtaskhost.exe",
+   262,
+   0
+  ],
+  [
+   "nbtscan.exe",
+   254,
+   254
+  ],
+  [
+   "msedgewebview2.exe",
+   206,
+   0
+  ]
+ ],
+ "PASS": true,
+ "seconds": 5
+}

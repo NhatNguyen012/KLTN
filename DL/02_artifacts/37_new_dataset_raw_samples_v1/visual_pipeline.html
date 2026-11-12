@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raw, nhãn, tiền xử lý và fine-tune</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5b6470;--line:#c9ced6;--card:#fff;--ok:#d7f0dd;--okt:#14532d;--part:#fdf0c7;--partt:#6b4e00;--no:#f9d7d7;--not:#7a1f1f;--blue:#dbe8fb;--bluet:#1b3d73;--acc:#2f5fb3;--lab:#e6dcf7;--labt:#43266f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15181c;--fg:#e6e8eb;--mut:#9aa4af;--line:#394049;--card:#1d2127;--ok:#1d3b27;--okt:#a8e3b9;--part:#43361a;--partt:#f0d58a;--no:#4a2323;--not:#f2b4b4;--blue:#20304d;--bluet:#b5cdf5;--acc:#7aa5ee;--lab:#34284d;--labt:#d6c2f5}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,Segoe UI,Roboto,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:20px 16px 70px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:36px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+p.sub{color:var(--mut);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--fg);font:13px system-ui,Segoe UI,sans-serif}svg .m{fill:var(--mut);font-size:12px}svg .b{font-weight:600}svg .t{font-size:14px;font-weight:700}
+svg .box{fill:var(--card);stroke:var(--line);stroke-width:1.5}svg .blue{fill:var(--blue);stroke:var(--acc);stroke-width:1.5}svg .ok{fill:var(--ok);stroke:var(--okt);stroke-width:1.2}svg .part{fill:var(--part);stroke:var(--partt);stroke-width:1.2}svg .no{fill:var(--no);stroke:var(--not);stroke-width:1.2}svg .lab{fill:var(--lab);stroke:var(--labt);stroke-width:1.5}
+svg .ar{stroke:var(--acc);stroke-width:2;fill:none;marker-end:url(#h)}svg .ard{stroke:var(--labt);stroke-width:2;fill:none;stroke-dasharray:6 4;marker-end:url(#h2)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}th{background:var(--card)}
+td.ok{background:var(--ok);color:var(--okt)}td.part{background:var(--part);color:var(--partt)}td.no{background:var(--no);color:var(--not)}td.lab{background:var(--lab);color:var(--labt)}
+code{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:13px}
+.tw{overflow-x:auto}.legend span{display:inline-block;padding:1px 8px;border-radius:5px;margin-right:8px;font-size:13px}
+.legend .ok{background:var(--ok);color:var(--okt)}.legend .part{background:var(--part);color:var(--partt)}.legend .no{background:var(--no);color:var(--not)}.legend .lab{background:var(--lab);color:var(--labt)}
+
+.flowgrid{display:grid;grid-template-columns:92px repeat(4,1fr);gap:8px 22px;min-width:900px;align-items:stretch}
+.fh{font-weight:700;font-size:13px;color:var(--mut);text-align:center;padding-bottom:2px}
+.fh b{display:block;color:var(--fg);font-size:14px}
+.rowname{display:flex;align-items:center;justify-content:center;font-weight:700;border-radius:8px;padding:8px;text-align:center;font-size:14px}
+.rowname.o{background:var(--ok);color:var(--okt)}.rowname.t{background:var(--part);color:var(--partt)}.rowname.a{background:var(--blue);color:var(--bluet)}
+.cell{position:relative;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;line-height:1.45}
+.cell:not(:last-child)::after{content:"\25B6";position:absolute;right:-19px;top:50%;transform:translateY(-50%);color:var(--acc);font-size:13px}
+.cell .tt{font-weight:700;display:block;margin-bottom:3px}
+.chip{display:inline-block;border-radius:5px;padding:0 6px;margin:2px 3px 2px 0;font-size:12.5px;white-space:nowrap}
+.chip.g{background:var(--ok);color:var(--okt)}.chip.y{background:var(--part);color:var(--partt)}.chip.r{background:var(--no);color:var(--not)}.chip.p{background:var(--lab);color:var(--labt)}
+.funnel{text-align:center;color:var(--acc);font-size:15px;margin:10px 0 4px}
+.unif th,.unif td{font-size:13px}
+.steps2{display:flex;flex-wrap:wrap;gap:10px 26px;align-items:stretch;margin-top:10px}
+.steps2 .st{flex:1 1 220px;position:relative;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 10px;font-size:13px}
+.steps2 .st:not(:last-child)::after{content:"\25B6";position:absolute;right:-19px;top:50%;transform:translateY(-50%);color:var(--acc);font-size:13px}
+.steps2 .st b{display:block}
+</style>
+</head>
+<body>
+<main>
+<h1>Raw, nhãn, tiền xử lý và hướng fine-tune (incremental learning)</h1>
+<p class="sub">OpTC (đã train) và hai dataset mới THEIA, ATLASv2. Mọi số liệu lấy từ file thật ở <code>E:\</code> và các STEP 22–37. Ô tím = nằm <b>ngoài</b> file raw.</p>
+
+<h2>1. Raw là file gì và nhãn nằm ở đâu</h2>
+<div class="card">
+<svg viewBox="0 0 980 560" role="img" aria-label="Raw và nhãn của ba dataset">
+ <defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--acc)"/></marker><marker id="h2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--labt)"/></marker></defs>
+ <!-- OpTC -->
+ <text class="t" x="10" y="22">OpTC (Windows, 743 máy, 92 triệu flow)</text>
+ <rect class="blue" x="10" y="32" width="270" height="110" rx="8"/><text class="b" x="22" y="54">bro/ngày/conn.*.log.gz</text><text class="m" x="22" y="73">Zeek TSV (dòng #fields), 22 cột:</text><text class="m" x="22" y="90">ts, uid, id.orig_h/p, id.resp_h/p, proto,</text><text class="m" x="22" y="106">service, duration, orig/resp_bytes, conn_state,</text><text class="m" x="22" y="122">history, pkts, ip_bytes, ..., <tspan class="b">label</tspan></text>
+ <rect class="blue" x="300" y="32" width="270" height="110" rx="8"/><text class="b" x="312" y="54">ecar-bro/**/ecarbro.json.gz</text><text class="m" x="312" y="73">JSON mỗi dòng, object = FLOW:</text><text class="m" x="312" y="90">hostname, actorID, pid, ppid, principal,</text><text class="m" x="312" y="106">properties{bro_uid, image_path, dest_ip/port,</text><text class="m" x="312" y="122">direction, l4protocol}</text>
+ <path class="ar" d="M570 87 L640 87"/><rect class="ok" x="642" y="52" width="150" height="70" rx="8"/><text class="b" x="654" y="76">INNER JOIN</text><text class="m" x="654" y="94">uid = bro_uid</text><text class="m" x="654" y="110">1 dòng = 1 flow</text>
+ <rect class="ok" x="812" y="32" width="160" height="110" rx="8"/><text class="b" x="824" y="54">Nhãn trong raw</text><text class="m" x="824" y="74">cột <tspan class="b">label</tspan> (0/1)</text><text class="m" x="824" y="90">của conn.log, mức flow,</text><text class="m" x="824" y="106">suy từ IP C2 + giờ</text><text class="m" x="824" y="122">(A New Hope)</text>
+ <!-- THEIA -->
+ <text class="t" x="10" y="182">THEIA (Linux Ubuntu, 1 máy, DARPA TC E3)</text>
+ <rect class="blue" x="10" y="192" width="400" height="140" rx="8"/><text class="b" x="22" y="214">RAW/ta1-theia-e3-official-{1r,3,5m,6r}.json.tar.gz</text><text class="m" x="22" y="233">mỗi tar chứa nhiều .json (~3.7 GB), JSON mỗi dòng:</text><text class="m" x="22" y="251">{"datum":{"...cdm18.&lt;Loại&gt;":{...}},"CDMVersion":"18",...}</text><text class="m" x="22" y="271">Loại: Subject (tiến trình), Event (syscall), NetFlowObject,</text><text class="m" x="22" y="287">Principal, FileObject, MemoryObject, Host</text><text class="m" x="22" y="307">Không có trường nhãn trong bất kỳ bản ghi nào</text>
+ <rect class="lab" x="440" y="192" width="300" height="140" rx="8"/><text class="b" x="452" y="214">REAPr (repo nhãn, ngoài raw)</text><text class="m" x="452" y="233">theia_labels.csv: attack_chain, uuid,</text><text class="m" x="452" y="249">process_name, <tspan class="b">label</tspan>  → khóa Subject.uuid</text><text class="m" x="452" y="269">edge_labels.csv: attack_chain, vertex_uuid,</text><text class="m" x="452" y="285"><tspan class="b">vertex_label</tspan>, edge_uuid → khóa Event.uuid</text><text class="m" x="452" y="305">giá trị: attack, contaminated (còn lại = benign)</text>
+ <path class="ard" d="M440 262 L412 262"/>
+ <rect class="part" x="760" y="192" width="212" height="140" rx="8"/><text class="b" x="772" y="214">Số nhãn (đếm thật)</text><text class="m" x="772" y="233">tiến trình: attack 125,</text><text class="m" x="772" y="249">contaminated 2 (1 tiến trình)</text><text class="m" x="772" y="269">cạnh: attack 68,925,</text><text class="m" x="772" y="285">contaminated 4</text><text class="m" x="772" y="305">tất cả nằm trong file 6r</text>
+ <!-- ATLAS -->
+ <text class="t" x="10" y="372">ATLASv2 (Windows 7, 2 VM, ngày 2022-07-15 → 20)</text>
+ <rect class="blue" x="10" y="382" width="400" height="160" rx="8"/><text class="b" x="22" y="404">atlasv2.tar.gz → data/{benign,attack}/{h1,h2}/...</text><text class="m" x="22" y="423">cbc-edr/*.jsonl (Carbon Black: netconn, procstart, filemod...)</text><text class="m" x="22" y="441">sysmon/*.xml, msft-security/*.xml (Windows Event Log)</text><text class="m" x="22" y="459">dns/* (Wireshark txt), firefox/* (log gỡ lỗi)</text><text class="m" x="22" y="477">cbc-edr-alerts, cbc-ngav (cảnh báo/antivirus, jsonl)</text><text class="m" x="22" y="497">netconn = 1 hàng JSON đã có IP, cổng, process_*, parent_*</text><text class="m" x="22" y="517">Raw không có trường nhãn (trừ cảnh báo EDR, không dùng làm nhãn)</text>
+ <rect class="lab" x="440" y="382" width="300" height="160" rx="8"/><text class="b" x="452" y="404">REAPr + ground truth (ngoài raw)</text><text class="m" x="452" y="423">atlasv2/h1-m1.labels: attack, process_name,</text><text class="m" x="452" y="439">process_id, <tspan class="b">process_uuid</tspan>, <tspan class="b">label</tspan></text><text class="m" x="452" y="455">→ khóa process_guid của cbc-edr</text><text class="m" x="452" y="475">*.seeds: vertex_name, seed_label (root_cause/impact)</text><text class="m" x="452" y="495">msft-security/groundtruth: EventRecordID độc hại</text><text class="m" x="452" y="515">giá trị: attack (còn lại = benign)</text>
+ <path class="ard" d="M440 440 L412 440"/>
+ <rect class="part" x="760" y="382" width="212" height="160" rx="8"/><text class="b" x="772" y="404">Số nhãn (đếm thật)</text><text class="m" x="772" y="423">191 tiến trình attack</text><text class="m" x="772" y="439">/ 16 cặp (máy, kịch bản)</text><text class="m" x="772" y="459">netconn: 9,068 (tấn công)</text><text class="m" x="772" y="475">trong đó 7,793 (86%) từ</text><text class="m" x="772" y="491">tiến trình có nhãn;</text><text class="m" x="772" y="507">benign: 20,676, 0 dương</text>
+</svg>
+</div>
+<p class="legend"><span class="ok">nhãn nằm trong raw</span><span class="lab">nhãn nằm ngoài raw (file REAPr)</span><span class="blue">raw</span></p>
+
+<h2>2. Xử lý từng dataset thành "bảng flow" thống nhất</h2>
+<p class="legend"><span class="ok">✓ có, cùng ý nghĩa</span><span class="part">◐ khác / phải suy / phải tự dựng</span><span class="no">✗ không có</span><span class="lab">nhãn nằm ngoài raw</span></p>
+<div class="tw"><div class="flowgrid">
+ <div></div>
+ <div class="fh"><b>① Raw dùng</b>đọc file nào</div>
+ <div class="fh"><b>② Dựng flow</b>1 dòng = 1 kết nối</div>
+ <div class="fh"><b>③ Lấy 5 đầu vào</b>cho mô hình bản B</div>
+ <div class="fh"><b>④ Gán nhãn</b>nhãn lấy ở đâu</div>
+
+ <div class="rowname o">OpTC<br>Windows</div>
+ <div class="cell"><span class="tt">Bro conn.log (TSV)<br>+ eCAR-Bro FLOW (JSON)</span>cùng một kết nối xuất hiện ở cả hai file</div>
+ <div class="cell"><span class="tt">INNER JOIN <code>uid = bro_uid</code></span>92,045,755 flow, 743 máy<br><span class="chip g">raw gần như đã là flow</span></div>
+ <div class="cell"><span class="chip g">✓ app_family</span><span class="chip g">✓ image_dir_class</span><span class="chip g">✓ proto</span><span class="chip g">✓ resp_port_class</span><span class="chip g">✓ delta_t</span></div>
+ <div class="cell"><span class="tt">Cột <code>label</code> (0/1)</span>ngay trong conn.log, mức flow<br><span class="chip g">nhãn trong raw</span></div>
+
+ <div class="rowname t">THEIA<br>Linux</div>
+ <div class="cell"><span class="tt">Event + NetFlowObject<br>+ Subject + Principal</span>JSON CDM18, lát cắt <code>6r</code> có nhãn</div>
+ <div class="cell"><span class="tt">Tự dựng</span>gom <code>Event</code> theo <code>NetFlowObject</code>; bỏ ổ cắm không có đầu xa, LOCAL, NETLINK, 127.0.0.1<br><span class="chip y">◐ phải tự dựng</span></div>
+ <div class="cell"><span class="chip y">◐ app_family (từ EVENT_EXECUTE; tên Linux → UNK)</span><span class="chip y">◐ image_dir_class (lớp Linux)</span><span class="chip r">✗ proto (null)</span><span class="chip y">◐ resp_port_class</span><span class="chip g">✓ delta_t</span></div>
+ <div class="cell"><span class="tt"><code>Event.uuid</code> ∈ edge_labels</span>hoặc <code>Subject.uuid</code> ∈ theia_labels<br><span class="chip p">nhãn ngoài raw</span><span class="chip y">20 netflow dương</span></div>
+
+ <div class="rowname a">ATLASv2<br>Windows 7</div>
+ <div class="cell"><span class="tt">cbc-edr <code>.jsonl</code></span>hàng <code>endpoint.event.netconn</code><br>(Sysmon không có sự kiện mạng)</div>
+ <div class="cell"><span class="tt">1 hàng netconn = 1 flow</span>đã kèm <code>process_*</code>, <code>parent_*</code>, người dùng<br><span class="chip g">không cần ghép nguồn khác</span></div>
+ <div class="cell"><span class="chip g">✓ app_family</span><span class="chip g">✓ image_dir_class</span><span class="chip g">✓ proto</span><span class="chip g">✓ resp_port_class</span><span class="chip g">✓ delta_t</span></div>
+ <div class="cell"><span class="tt"><code>process_guid</code> ∈ .labels</span>mức tiến trình<br><span class="chip p">nhãn ngoài raw</span><span class="chip y">86% flow tấn công là dương</span></div>
+</div></div>
+
+<div class="funnel">▼ cả ba dataset được đưa về cùng một dạng bảng ▼</div>
+<div class="tw"><table class="unif">
+<tr><th>nguồn</th><th>hostname</th><th>ts (UTC)</th><th>app_family</th><th>proto</th><th>resp_port_class</th><th>image_dir_class</th><th>label</th></tr>
+<tr><td>OpTC</td><td>sysclient0255</td><td>2019-09-23 19:15:53</td><td>powershell.exe</td><td>tcp</td><td>PORT_80_HTTP</td><td>BARE_NAME</td><td>1</td></tr>
+<tr><td>THEIA</td><td>ta1-theia</td><td>2018-04-10 18:54:16</td><td>firefox</td><td class="no">&lt;MISSING&gt;</td><td>PORT_80_HTTP</td><td class="part">lớp Linux (cần thêm)</td><td>1 (attack)</td></tr>
+<tr><td>ATLASv2</td><td>WIN-32-H1</td><td>2022-07-19 16:18:11</td><td>firefox.exe</td><td>tcp</td><td>PORT_443_HTTPS</td><td>PROGRAM_FILES</td><td>1 (attack)</td></tr>
+</table></div>
+<p style="color:var(--mut);font-size:13px;margin:4px 0 10px">Dòng ví dụ lấy từ các mẫu raw ở <code>sample_*_raw.txt</code> (OpTC từ <code>preview_record.json</code>) sau khi áp dụng quy tắc xử lý; giá trị raw gốc: THEIA <code>EVENT_EXECUTE cmdLine = /usr/bin/firefox</code> (Subject.path ghi tên lúc fork là fluxbox), đầu xa <code>141.43.176.203:80</code>; ATLASv2 <code>process_path = c:\program files\mozilla firefox\firefox.exe</code>, <code>PROTO_TCP</code>, <code>remote_port 443</code>. Cột audit không vào mô hình: uid/uuid, IP, pid, ppid, cmdline, parent. Hai dòng THEIA/ATLASv2 ví dụ đều là flow dương theo nhãn tiến trình/cạnh.</p>
+<div class="funnel">▼</div>
+<div class="steps2">
+ <div class="st"><b>Cửa sổ 15 phút theo máy</b>tối đa 512 flow; nhãn cửa sổ = có ít nhất 1 flow dương. ATLASv2 có 2 máy, THEIA 1 máy; số mẫu dương sẽ đếm khi dựng.</div>
+ <div class="st"><b>Shards .npz</b>theo <code>preprocess_spec</code> của OpTC (fit chỉ trên TRAIN OpTC) + từ điển mở rộng token mới.</div>
+ <div class="st"><b>Vào mô hình</b>BiLSTM / Mixed-Type: 4 cột phân loại + <code>delta_t_log1p</code>.</div>
+</div>
+
+<h2>3. Tiền xử lý OpTC đầy đủ, phần bỏ và phần giữ (bản B)</h2>
+<div class="tw"><table>
+<tr><th>Nhóm</th><th>Cột OpTC đầy đủ (mô hình v2, F1 0.988/0.994)</th><th>Bản B (dùng cho fine-tune)</th><th>Lý do</th></tr>
+<tr><td>Phân loại, từ host (eCAR-Bro)</td><td><code>app_family</code>, <code>image_dir_class</code>, <code>principal_class</code></td><td class="ok">giữ <code>app_family</code>, <code>image_dir_class</code></td><td><code>principal_class</code>: <code>ADMINISTRATOR</code> = tài khoản Red Team (đường tắt); THEIA không có username</td></tr>
+<tr><td>Phân loại, từ Bro</td><td><code>proto</code>, <code>service</code>, <code>conn_state</code>, <code>resp_port_class</code></td><td class="ok">giữ <code>proto</code>, <code>resp_port_class</code></td><td class="no"><code>service</code>, <code>conn_state</code> không có ở THEIA/ATLASv2</td></tr>
+<tr><td>Số (log1p + z-score)</td><td><code>duration</code>, <code>orig_bytes</code>, <code>resp_bytes</code>, <code>orig_pkts</code>, <code>orig_ip_bytes</code>, <code>resp_pkts</code>, <code>resp_ip_bytes</code></td><td class="no">bỏ hết</td><td>ATLASv2 không có byte/gói/thời lượng; THEIA chỉ xấp xỉ byte</td></tr>
+<tr><td>Cờ</td><td><code>has_missed_bytes</code></td><td class="no">bỏ</td><td>Chỉ có ở Bro</td></tr>
+<tr><td>Thời gian</td><td><code>delta_t_log1p</code></td><td class="ok">giữ</td><td>Có ở mọi dataset</td></tr>
+<tr><td>Không vào mô hình (audit)</td><td><code>uid, hostname, label, ts, actor_id, pid, ppid, principal, IP</code></td><td>như cũ</td><td>—</td></tr>
+</table></div>
+<p>Quy tắc dùng chung: cửa sổ 15 phút theo máy tối đa 512 flow; từ điển, mean/std <b>chỉ fit trên TRAIN OpTC</b>; dữ liệu mới chỉ được <b>nối thêm token</b> (hàng embedding mới khởi tạo bằng bản sao <code>&lt;UNK&gt;</code>, id cũ không đổi). Kiểm tra bắt buộc: mô hình mở rộng chưa train phải cho đúng dự đoán zero-shot (chênh logit ~1e-6 đã đạt ở STEP 33).</p>
+
+<h2>4. Mức độ khớp của từng dataset với 5 đầu vào</h2>
+<p class="legend"><span class="ok">có, cùng ý nghĩa</span><span class="part">có nhưng khác/yếu hoặc phải suy</span><span class="no">không có</span></p>
+<div class="tw"><table>
+<tr><th>Đầu vào</th><th>OpTC</th><th>THEIA</th><th>ATLASv2</th></tr>
+<tr><td><code>app_family</code></td><td class="ok">tên file image_path</td><td class="part">tên Linux, từ điển OpTC không có → gần như toàn UNK</td><td class="ok">tên .exe, khớp từ điển ~97–99%</td></tr>
+<tr><td><code>image_dir_class</code></td><td class="ok">8 lớp Windows</td><td class="part">đường dẫn Linux: thêm lớp hoặc dồn OTHER</td><td class="ok">dùng đúng 8 lớp</td></tr>
+<tr><td><code>proto</code></td><td class="ok">tcp/udp</td><td class="no">ipProtocol null</td><td class="ok">PROTO_TCP/UDP</td></tr>
+<tr><td><code>resp_port_class</code></td><td class="ok">resp_p</td><td class="part">remotePort, hướng suy từ CONNECT</td><td class="ok">remote_port + netconn_inbound</td></tr>
+<tr><td><code>delta_t</code></td><td class="ok">ts</td><td class="ok">timestampNanos</td><td class="ok">device_timestamp</td></tr>
+<tr><td>Nhãn</td><td class="ok">flow, trong raw</td><td class="part">cạnh/tiến trình, ngoài raw; 20 netflow dương có đầu xa</td><td class="part">tiến trình, ngoài raw; 86% flow tấn công là dương, giống benign</td></tr>
+</table></div>
+
+<h2>5. Hướng incremental learning (fine-tune) và các số đo</h2>
+<div class="card">
+<svg viewBox="0 0 980 510" role="img" aria-label="Quy trình fine-tune">
+ <defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--acc)"/></marker></defs>
+ <rect class="ok" x="10" y="14" width="210" height="104" rx="8"/><text class="b" x="22" y="38">0. Mô hình gốc (OpTC)</text><text class="m" x="22" y="58">bản B, train Kaggle, seed 42</text><text class="m" x="22" y="76">BiLSTM F1 0.988</text><text class="m" x="22" y="92">Mixed-Type F1 0.988</text><text class="m" x="22" y="108">(OpTC TEST, ngưỡng VAL)</text>
+ <path class="ar" d="M222 66 L262 66"/>
+ <rect class="part" x="264" y="14" width="210" height="104" rx="8"/><text class="b" x="276" y="38">1. Zero-shot</text><text class="m" x="276" y="58">chạy nguyên mô hình gốc trên</text><text class="m" x="276" y="76">dữ liệu mới, chưa học gì;</text><text class="m" x="276" y="92">đã làm cho skrghosh,</text><text class="m" x="276" y="108">FiveDirections (F1 ~0–0.2)</text>
+ <path class="ar" d="M476 66 L516 66"/>
+ <rect class="blue" x="518" y="14" width="210" height="104" rx="8"/><text class="b" x="530" y="38">2a. Mở rộng từ điển</text><text class="m" x="530" y="58">token mới ở TRAIN dữ liệu mới</text><text class="m" x="530" y="76">(app_family, image_dir_class)</text><text class="m" x="530" y="92">hàng mới = bản sao &lt;UNK&gt;</text><text class="m" x="530" y="108">kiểm tra khớp zero-shot</text>
+ <path class="ar" d="M730 66 L770 66"/>
+ <rect class="blue" x="772" y="14" width="198" height="104" rx="8"/><text class="b" x="784" y="38">2b. Dữ liệu học</text><text class="m" x="784" y="58">TRAIN dữ liệu mới (trộn theo</text><text class="m" x="784" y="76">cửa sổ, 3 fold) + replay OpTC</text><text class="m" x="784" y="92">mỗi epoch: 150 dương + 450 âm</text><text class="m" x="784" y="108">chống quên</text>
+ <path class="ar" d="M871 120 L871 150 L110 150 L110 172"/>
+ <rect class="blue" x="10" y="174" width="300" height="104" rx="8"/><text class="b" x="22" y="198">3a. Giai đoạn A (3 epoch, lr 1e-3)</text><text class="m" x="22" y="218">chỉ học hàng embedding mới + đầu phân loại,</text><text class="m" x="22" y="234">phần còn lại đóng băng</text>
+ <path class="ar" d="M312 226 L352 226"/>
+ <rect class="blue" x="354" y="174" width="300" height="104" rx="8"/><text class="b" x="366" y="198">3b. Giai đoạn B (3 epoch)</text><text class="m" x="366" y="218">mở khóa toàn bộ; lr 1e-4 (BiLSTM),</text><text class="m" x="366" y="234">3e-5 (Mixed-Type). Không early stopping</text><text class="m" x="366" y="250">theo dữ liệu mới; ngưỡng cố định.</text>
+ <path class="ar" d="M656 226 L696 226"/>
+ <rect class="ok" x="698" y="174" width="272" height="104" rx="8"/><text class="b" x="710" y="198">4. Đánh giá (một lần)</text><text class="m" x="710" y="218">test fold của dữ liệu mới (out-of-fold ghép)</text><text class="m" x="710" y="234">OpTC TEST (đo quên)</text><text class="m" x="710" y="250">ngưỡng: VAL OpTC cũ và 0.5</text>
+ <path class="ar" d="M834 280 L834 308"/>
+ <rect class="box" x="10" y="310" width="960" height="190" rx="8"/><text class="b" x="22" y="334">Các số thầy yêu cầu và cách đo</text>
+ <text class="m" x="22" y="356">• F1 OpTC trước/sau: OpTC TEST (34,413 mẫu, 82 dương); BWT = F1 sau − F1 trước.</text>
+ <text class="m" x="36" y="372">Lệch ±2 mẫu dương chưa phân biệt được với dao động.</text>
+ <text class="m" x="22" y="394">• F1 dữ liệu mới trước (zero-shot) / sau (fine-tune): dự đoán out-of-fold ghép của 3 fold,</text>
+ <text class="m" x="36" y="410">kèm ROC-AUC, PR-AUC, khoảng tin cậy Clopper–Pearson.</text>
+ <text class="m" x="22" y="432">• Stability: dao động giữa fold (và giữa seed nếu thêm); hiện 3 fold × 1 seed (42).</text>
+ <text class="m" x="36" y="448">Đặt cạnh luật token "có powershell.exe" và mức nền ngẫu nhiên.</text>
+ <text class="m" x="22" y="470">• Cảnh báo: chia trộn theo cửa sổ nên cửa sổ kề cùng đợt nằm ở fold khác (rò rỉ có chủ ý theo yêu cầu thầy):</text>
+ <text class="m" x="36" y="486">điểm đo khả năng nhận ra đợt đã thấy, không đo phát hiện đợt mới. ATLASv2: 10 tấn công gần như giống nhau.</text>
+</svg>
+</div>
+
+<h2>6. Kết quả fine-tune đã có (skrghosh + FiveDirections) để tham chiếu</h2>
+<p><b>Trên dữ liệu mới, kết quả thấp.</b> Số cao (0.98–0.99) ở cột cuối là <b>OpTC</b>: chỉ cho biết mô hình <b>không quên</b> dữ liệu cũ, không phải kết quả trên dữ liệu mới.</p>
+<div class="tw"><table>
+<tr><th rowspan="2">Mô hình</th><th colspan="3">Dữ liệu mới (1,126 mẫu, 16 dương; out-of-fold ghép)</th><th>OpTC TEST (đo quên)</th></tr>
+<tr><th>Bắt được / 16 (ngưỡng 0.5)</th><th>F1 trước → sau (ngưỡng 0.5)</th><th>ROC-AUC trước → sau</th><th>F1 trước → sau (ngưỡng VAL)</th></tr>
+<tr><td>BiLSTM</td><td class="no">0/16 (FP 0)</td><td class="no">0.025 → 0.000</td><td class="no">0.421 → 0.550</td><td class="ok">0.9877 → 0.9814</td></tr>
+<tr><td>Mixed-Type</td><td class="part">4/16 (FP 0), toàn là cửa sổ có <code>powershell.exe</code></td><td class="part">0.118 → 0.400</td><td class="part">0.479 → 0.568</td><td class="ok">0.9877 → 0.9939</td></tr>
+</table></div>
+<p>Đọc đúng: fine-tune <b>không</b> giúp mô hình bắt được tấn công mới. Mixed-Type chỉ bắt thêm các cửa sổ có <code>powershell.exe</code> mà luật token một dòng cũng bắt (F1 0.476). ROC-AUC ~0.55 gần mức ngẫu nhiên. Chẩn đoán TRAIN (STEP 34): BiLSTM học 20 epoch, lr 1e-3 thì khớp 8/9 mẫu dương TRAIN, nên cấu hình cũ (6 epoch, lr nhỏ) chủ yếu quá ngắn; chưa chứng minh khái quát. Chỉ 16 mẫu dương, 7 đợt, một seed.</p>
+</main>
+</body>
+</html>

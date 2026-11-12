@@ -1,0 +1,36 @@
+{
+  "cua_so_tan_cong_SC3": {
+    "hostname": "sysclient0051",
+    "day": "2019-09-25",
+    "window_start_edt": "2019-09-25 10:45",
+    "window_start_utc": "2019-09-25 14:45",
+    "split_seed1": "test",
+    "n_events": 52695,
+    "n_flow_start": 28410,
+    "n_proc_create": 54,
+    "n_proc_writable": 12,
+    "n_parent_lsass": 2,
+    "n_remote_thread": 150,
+    "n_reg_persist": 1,
+    "n_exec_drop": 51,
+    "n_cmd_susp": 0,
+    "n_host_mal_events": 1052
+  },
+  "cua_so_binh_thuong_cung_gio_ngay_22_9_host_TRAIN_khac": {
+    "hostname": "sysclient0053",
+    "day": "2019-09-22",
+    "window_start_edt": "2019-09-22 10:45",
+    "window_start_utc": "2019-09-22 14:45",
+    "split_seed1": "train",
+    "n_events": 51129,
+    "n_flow_start": 28931,
+    "n_proc_create": 42,
+    "n_proc_writable": 0,
+    "n_parent_lsass": 0,
+    "n_remote_thread": 119,
+    "n_reg_persist": 0,
+    "n_exec_drop": 0,
+    "n_cmd_susp": 0,
+    "n_host_mal_events": 0
+  }
+}

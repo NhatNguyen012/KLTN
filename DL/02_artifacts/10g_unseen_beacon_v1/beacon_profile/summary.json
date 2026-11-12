@@ -1,0 +1,34 @@
+{
+  "beacon_endpoints": [
+    "132.197.158.98:80",
+    "202.6.172.98:443"
+  ],
+  "positive_windows_total": 541,
+  "beacon_windows": 530,
+  "non_beacon_windows": 11,
+  "non_beacon_by_scenario": {
+    "scenario_2": 5,
+    "scenario_3": 6
+  },
+  "beacon_windows_by_scenario": {
+    "scenario_1": 61,
+    "scenario_2": 469
+  },
+  "beacon_templates": {
+    "132.197.158.98:80": {
+      "hosts": 19,
+      "interval_median_s": 5.13,
+      "orig_bytes_median": 199.0,
+      "resp_bytes_median": 1443.0,
+      "events_per_window_median": 169.0
+    },
+    "202.6.172.98:443": {
+      "hosts": 7,
+      "interval_median_s": 30.14,
+      "orig_bytes_median": 667.0,
+      "resp_bytes_median": 2277.0,
+      "events_per_window_median": 30.0
+    }
+  },
+  "note": "Window = (hostname, 15 phut); mot window co the tach nhieu chunk >512 event nen so sample trong manifest co the lon hon."
+}

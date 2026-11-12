@@ -1,0 +1,36 @@
+{
+  "frozen_at": "2026-10-02T17:58:50.761814",
+  "script_version": "step10a-random-scenario-split-v1.0",
+  "derived_by": "step11a-nobeacon-split-v1.0",
+  "experiment": "random_scenario_host_split_without_beacon",
+  "seed": 1,
+  "joined_root": "D:\\UIT\\KLTN\\artifacts\\step04_network_joined_v1\\joined",
+  "joined_supervised_events": 85612773,
+  "joined_positive_events": 11309,
+  "source_supervised_events_before_exclusion": 85626185,
+  "source_positive_events_before_exclusion": 24721,
+  "excluded_resp_ips": [
+    "202.6.172.98"
+  ],
+  "excluded_event_rows": 13412,
+  "excluded_positive_event_rows": 13412,
+  "derived_from": {
+    "seed_contract_sha256": "0183e79847708b25e3429ffdeab4f490e7855ba7358fdfbfadaf90911e4655c8",
+    "host_split_frozen_sha256": "98165cec18bdd5ef6276394f2fc8c2a15793b693278d0b70b7f74f57f11dc161"
+  },
+  "folds": {
+    "seed_1": {
+      "file": "seed_1/host_split_frozen.csv",
+      "sha256": "c3fd7c4f320b464dd07a92e738cd8ff489c8950e40e5e40b3a675212a6115f97"
+    }
+  },
+  "rules": {
+    "unit": "hostname",
+    "ratios": "70/15/15",
+    "split": "giu nguyen host -> split cua STEP 10A (khong chia lai)",
+    "event_exclusion": "event co resp_h trong excluded_resp_ips bi loai khoi preprocessing va shards",
+    "heldout_scenario": null,
+    "physical_joined_copy": false
+  },
+  "contract_sha256": "32105d531c313596adbe67aea6c2351a85a2a39273663bece1bfc975cbb1050f"
+}

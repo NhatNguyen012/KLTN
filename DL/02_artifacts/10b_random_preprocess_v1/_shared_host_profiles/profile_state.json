@@ -1,0 +1,12 @@
+{
+  "profile_version": "step05f-c-host-profile-v1.0",
+  "joined_root": "D:\\UIT\\KLTNv2\\02_artifacts\\02_network_joined_v1\\joined",
+  "joined_dataset_signature": {
+    "parquet_files": 29,
+    "compressed_bytes": 3148862423,
+    "metadata_sha256": "1db4acccffa744df738f1f5b4a1d653ee8b698a845a965b05051c8e3e3fe9b38"
+  },
+  "report04b_sha256": "4f4136992804f2235d4bef2add0eeadbc635dbd3abafd3d8bc071c016e574ac9",
+  "split_contract_file_sha256": "a29c0c07fbc7ab05878fe6a7c468a9d8f610bf02abd560814c370c8a2bf40de1",
+  "expected_supervised_rows": 85626185
+}

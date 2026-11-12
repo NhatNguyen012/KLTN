@@ -1,0 +1,61 @@
+{
+  "schema_version": "network-event-schema-v1.0",
+  "schema_sha256": "9ab2587fc6a94bd418381c98104f2d2785836ba30a12f0be62f7e616e29591d1",
+  "dataset": "D:\\UIT\\KLTNv2\\03_datasets\\random_network_dl_v1_1_15m\\seed_1",
+  "dataset_version": "random-network-dl-v1.1-15m",
+  "all_pass": true,
+  "checks": {
+    "parquet_columns_match_schema_source_fields": {
+      "pass": true,
+      "detail": "parquet=28 cot, schema=28 field nguon; khac nhau: []"
+    },
+    "spec_profiled_categorical_equals_schema": {
+      "pass": true,
+      "detail": ""
+    },
+    "spec_profiled_numerical_equals_schema": {
+      "pass": true,
+      "detail": ""
+    },
+    "category_maps_fields_equal_schema": {
+      "pass": true,
+      "detail": ""
+    },
+    "numeric_stats_fields_equal_schema": {
+      "pass": true,
+      "detail": ""
+    },
+    "active_categorical_subset_of_schema": {
+      "pass": true,
+      "detail": "app_family,proto,service,conn_state,resp_port_class"
+    },
+    "active_numerical_subset_of_schema": {
+      "pass": true,
+      "detail": "duration,orig_bytes,resp_bytes,orig_pkts,orig_ip_bytes,resp_pkts,resp_ip_bytes"
+    },
+    "binary_features_have_role_binary": {
+      "pass": true,
+      "detail": "has_missed_bytes"
+    },
+    "reserved_ids_equal_schema": {
+      "pass": true,
+      "detail": ""
+    },
+    "common_ports_equal_schema": {
+      "pass": true,
+      "detail": ""
+    },
+    "all_schema_fields_documented": {
+      "pass": true,
+      "detail": "34 field"
+    },
+    "shard_array_shapes_match_active_features": {
+      "pass": true,
+      "detail": "test_2019-09-17_0000.npz: {'x_cat': [249748, 5], 'x_num': [249748, 7], 'x_num_missing': [249748, 7], 'x_bin': [249748, 1], 'delta_t_log1p': [249748]}"
+    },
+    "no_join_target_graph_field_in_active_features": {
+      "pass": true,
+      "detail": "lot vao: []"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+ "flows": 226692,
+ "flows_positive": 127,
+ "windows": 306,
+ "windows_positive": 11,
+ "windows_over_512_flows": 144,
+ "max_flows_per_window": 3325,
+ "exec_found_share_all": 0.0036,
+ "exec_found_share_positive": 0.1339,
+ "positive_windows_by_day": {
+  "2018-04-10": 4,
+  "2018-04-11": 2,
+  "2018-04-12": 5
+ },
+ "app_family_null": 503,
+ "top_app_family": {
+  "firefox": 213290,
+  "python2.7": 10253,
+  "thunderbird": 1551,
+  "": 503,
+  "wget": 419,
+  "sshd": 371,
+  "ubuntu-geoip-provider": 186,
+  "profile (deleted)": 38,
+  "gtcache": 35,
+  "clean (deleted)": 16
+ },
+ "top_app_family_positive": {
+  "profile (deleted)": 38,
+  "gtcache": 35,
+  "firefox": 23,
+  "clean (deleted)": 16,
+  "mail": 9,
+  "clean": 2,
+  "profile": 2,
+  "pass_mgr": 2
+ },
+ "image_dir_values": null,
+ "fold_window_counts": {
+  "0": {
+   "0": 101,
+   "1": 97,
+   "2": 97
+  },
+  "1": {
+   "0": 5,
+   "1": 4,
+   "2": 2
+  }
+ },
+ "val_windows_fold0_test": {
+  "0": 39,
+  "1": 2
+ },
+ "seed": 42
+}

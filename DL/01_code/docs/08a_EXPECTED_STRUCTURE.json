@@ -1,0 +1,21 @@
+{
+  "candidate_source": "STEP_05F_SCENARIO_GENERALIZATION",
+  "expected_current_supervised_events_from_04B": 85626185,
+  "fold_host_counts": {
+    "scenario_1": {
+      "train": 426,
+      "test": 107,
+      "val": 92
+    },
+    "scenario_2": {
+      "train": 432,
+      "test": 100,
+      "val": 93
+    },
+    "scenario_3": {
+      "train": 439,
+      "val": 94,
+      "test": 92
+    }
+  }
+}

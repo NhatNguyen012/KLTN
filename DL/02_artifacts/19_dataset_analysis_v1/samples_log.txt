@@ -1,0 +1,57 @@
+WinAPT sample rows 36
+Counter({'Execution': 20342, 'Defense Evasion': 18776, 'Command and Control': 18365, 'Privilege Escalation': 11948, 'Persistence': 9165, 'Discovery': 7944, 'Lateral Movement': 4884, 'Initial Access': 3626, 'Impact': 3397, 'Credential Access': 49})
+scanned C1.json labels so far 7
+scanned C2.json labels so far 13
+scanned C3.json labels so far 16
+scanned C4.json labels so far 19
+scanned C5.json labels so far 21
+scanned C6.json labels so far 25
+scanned C7.json labels so far 30
+scanned C8.json labels so far 35
+scanned G1.json labels so far 42
+scanned G2.json labels so far 49
+scanned G3.json labels so far 53
+scanned G4.json labels so far 57
+scanned G5.json labels so far 63
+scanned G6.json labels so far 65
+scanned G7.json labels so far 66
+scanned G8.json labels so far 70
+scanned G9.json labels so far 73
+scanned G10.json labels so far 75
+scanned G11.json labels so far 77
+scanned G12.json labels so far 82
+scanned G13.json labels so far 84
+scanned G14.json labels so far 84
+scanned G15.json labels so far 85
+scanned G16.json labels so far 89
+scanned G17.json labels so far 89
+scanned G18.json labels so far 91
+scanned G19.json labels so far 92
+scanned G20.json labels so far 97
+scanned M1.json labels so far 97
+scanned M2.json labels so far 97
+scanned M3.json labels so far 97
+scanned M4.json labels so far 97
+scanned M5.json labels so far 97
+scanned M6.json labels so far 97
+scanned M7.json labels so far 97
+scanned M8.json labels so far 97
+scanned M9.json labels so far 98
+scanned M10.json labels so far 98
+SAGA sample rows 276 labels 98
+technique chưa có trong bảng ánh xạ: []
+                      techniques  events  events_without_T1005
+tactic                                                        
+Discovery                     18    2366                  2366
+Command and Control            4    1231                  1231
+Execution                      4    1009                  1009
+Initial Access                 2     528                   528
+Impact                         4     527                   527
+Credential Access              6     477                   477
+Defense Evasion               12     349                   349
+Privilege Escalation           9     329                   329
+Persistence                    8     313                   313
+Exfiltration                   1      18                    18
+Collection                     3   70454                    14
+Lateral Movement               1      14                    14
+DONE

@@ -1,0 +1,102 @@
+{
+  "heldout_scenario": "scenario_2",
+  "status": "PASS_READY_TO_FREEZE",
+  "gates": {
+    "candidate_hostname_unique": true,
+    "loso_split_values_valid": true,
+    "joined_hostname_one_original_split": true,
+    "candidate_covers_all_joined_hosts": true,
+    "candidate_extra_hosts_safe_zero_network_rows": true,
+    "candidate_original_split_matches_joined": true,
+    "heldout_positive_hosts_only_test": true,
+    "seen_positive_hosts_not_test": true,
+    "pure_benign_hosts_keep_original_split": true,
+    "event_conservation": true
+  },
+  "total_original_supervised_event_rows": 85626185,
+  "total_remapped_supervised_event_rows": 85626185,
+  "split_stats": {
+    "train": {
+      "hosts": 427,
+      "event_rows": 60551078,
+      "positive_event_rows": 6226
+    },
+    "val": {
+      "hosts": 93,
+      "event_rows": 13474646,
+      "positive_event_rows": 2993
+    },
+    "test": {
+      "hosts": 100,
+      "event_rows": 11600461,
+      "positive_event_rows": 15502
+    }
+  },
+  "scenario_stats": {
+    "scenario_1": {
+      "train": {
+        "hosts": 14,
+        "event_rows": 1891734,
+        "positive_event_rows": 6200
+      },
+      "val": {
+        "hosts": 3,
+        "event_rows": 418794,
+        "positive_event_rows": 2830
+      },
+      "test": {
+        "hosts": 0,
+        "event_rows": 0,
+        "positive_event_rows": 0
+      }
+    },
+    "scenario_2": {
+      "train": {
+        "hosts": 0,
+        "event_rows": 0,
+        "positive_event_rows": 0
+      },
+      "val": {
+        "hosts": 0,
+        "event_rows": 0,
+        "positive_event_rows": 0
+      },
+      "test": {
+        "hosts": 10,
+        "event_rows": 1131662,
+        "positive_event_rows": 15502
+      }
+    },
+    "scenario_3": {
+      "train": {
+        "hosts": 1,
+        "event_rows": 119220,
+        "positive_event_rows": 26
+      },
+      "val": {
+        "hosts": 1,
+        "event_rows": 52121,
+        "positive_event_rows": 163
+      },
+      "test": {
+        "hosts": 0,
+        "event_rows": 0,
+        "positive_event_rows": 0
+      }
+    }
+  },
+  "errors": {
+    "duplicate_candidate_hostnames": [],
+    "joined_hosts_missing_from_candidate": [],
+    "candidate_zero_network_row_hosts": [
+      "sysclient0341",
+      "sysclient0346",
+      "sysclient0389",
+      "sysclient0395",
+      "sysclient0440"
+    ],
+    "candidate_zero_network_row_positive_hosts": [],
+    "original_split_mismatch_hosts": [],
+    "multi_original_split_hosts": []
+  }
+}

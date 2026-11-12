@@ -1,0 +1,81 @@
+{
+ "name": "fivedirections",
+ "flows_parquet": 87167,
+ "events_in_shards": 87167,
+ "positive_flows_parquet": 307,
+ "positive_events_in_shards": 307,
+ "samples_expected": 930,
+ "samples": 930,
+ "positive_samples": 8,
+ "windows": 854,
+ "positive_windows": 7,
+ "hosts": 1,
+ "max_event_count": 512,
+ "unique_sample_id": true,
+ "recheck_python_vs_shard": {
+  "checked": 300,
+  "mismatch": 0
+ },
+ "share_unk_by_field": {
+  "app_family": 0.0444,
+  "proto": 0.0,
+  "service": 0.0,
+  "conn_state": 0.0,
+  "resp_port_class": 0.0072,
+  "image_dir_class": 0.0,
+  "principal_class": 0.0
+ },
+ "share_missing_by_field": {
+  "app_family": 0.0016,
+  "proto": 1.0,
+  "service": 1.0,
+  "conn_state": 1.0,
+  "resp_port_class": 0.0002,
+  "image_dir_class": 0.0,
+  "principal_class": 0.0
+ },
+ "top_app_family": [
+  [
+   "svchost.exe",
+   54401,
+   0
+  ],
+  [
+   "firefox.exe",
+   28612,
+   303
+  ],
+  [
+   "tvnserver.exe",
+   3533,
+   0
+  ],
+  [
+   "thunderbird.exe",
+   286,
+   0
+  ],
+  [
+   null,
+   143,
+   0
+  ],
+  [
+   "mpcmdrun.exe",
+   66,
+   0
+  ],
+  [
+   "python.exe",
+   57,
+   0
+  ],
+  [
+   "onedrivestandaloneupdater.exe",
+   9,
+   0
+  ]
+ ],
+ "PASS": true,
+ "seconds": 6
+}

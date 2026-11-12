@@ -1,0 +1,58 @@
+{
+  "version": "1.0",
+  "model_feature_fields": [
+    "action",
+    "object",
+    "principal(normalized role)",
+    "properties.image_path(normalized app family/name)",
+    "properties.parent_image_path(normalized app family/name)",
+    "properties.command_line(normalized semantic tokens; never execute)",
+    "properties.file_path(normalized scope + extension)",
+    "properties.module_path(normalized scope + extension)",
+    "properties.path(normalized scope + extension)",
+    "properties.key(normalized registry hive/path class)",
+    "properties.task_name(normalized lexical token with frequency cutoff)",
+    "properties.info_class(categorical)",
+    "properties.size(log2 bucket)"
+  ],
+  "linkage_or_order_only": [
+    "timestamp",
+    "hostname",
+    "id",
+    "actorID",
+    "objectID",
+    "pid",
+    "ppid",
+    "properties.bro_uid",
+    "properties.src_ip",
+    "properties.dest_ip",
+    "properties.src_port",
+    "properties.dest_port"
+  ],
+  "excluded_by_default": [
+    "tid",
+    "properties.sid(raw)",
+    "properties.logon_id(raw)",
+    "properties.requesting_logon_id(raw)",
+    "properties.stack_base",
+    "properties.stack_limit",
+    "properties.user_stack_base",
+    "properties.user_stack_limit",
+    "properties.start_address",
+    "properties.base_address",
+    "properties.tgt_pid",
+    "properties.tgt_tid",
+    "properties.tgt_pid_uuid",
+    "properties.task_pid",
+    "properties.task_process_uuid",
+    "properties.subprocess_tag",
+    "properties.acuity_level"
+  ],
+  "notes": [
+    "Raw IDs/PIDs are unstable identities and must not become predictive tokens.",
+    "hostname and timestamp are retained for correlation/splitting/order, not as direct host-model tokens.",
+    "FLOW is excluded from the host feature stream by default to keep host and network branches distinct; eCAR-Bro is used for cross-source correlation.",
+    "acuity_level is excluded initially because it may encode sensor/vendor severity heuristics; add only as a controlled ablation.",
+    "Command lines and payloads are parsed as inert text only. Never execute any command or script from the dataset."
+  ]
+}

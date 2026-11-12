@@ -1,0 +1,1234 @@
+{
+ "attack/h2/m3": {
+  "n_lines": 9223,
+  "netconn": 161,
+  "pos_netconn": 88,
+  "pos_procs_with_netconn": 2,
+  "protocol": {
+   "PROTO_TCP": 129,
+   "PROTO_UDP": 32
+  },
+  "inbound": {
+   "0.0": 146,
+   "1.0": 15
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 147,
+   "ACTION_CONNECTION_ESTABLISHED": 10,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-19 15:13:29.4294435 +0000 UTC",
+  "ts_max": "2022-07-19 20:41:07.6180519 +0000 UTC",
+  "pos_targets": {
+   "142.250.190.35:80": 4,
+   "34.107.221.82:80": 4,
+   "142.250.190.36:443": 3,
+   "142.250.191.142:443": 2,
+   "142.250.191.109:443": 2,
+   "10.193.242.113:9997": 2,
+   "172.217.2.46:443": 2,
+   "172.217.4.74:443": 2,
+   "142.250.191.206:443": 2,
+   "172.217.2.37:443": 2,
+   "142.250.191.110:443": 2,
+   "172.253.122.189:443": 2
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 119,
+   "c:\\windows\\system32\\svchost.exe": 36,
+   "c:\\windows\\system32\\lsass.exe": 4,
+   "c:\\windows\\system32\\mmc.exe": 1,
+   "c:\\users\\aalsahee\\downloads\\payload.exe": 1
+  },
+  "remote_port": {
+   "443.0": 89,
+   "80.0": 21,
+   "1900.0": 8,
+   "3702.0": 4,
+   "0.0": 4,
+   "53.0": 4,
+   "5355.0": 4,
+   "9997.0": 2,
+   "123.0": 2,
+   "58526.0": 2,
+   "58528.0": 2,
+   "547.0": 2
+  },
+  "users": {
+   "WIN-32-H2\\aalsahee": 121,
+   "NT AUTHORITY\\LOCAL SERVICE": 24,
+   "NT AUTHORITY\\NETWORK SERVICE": 12,
+   "NT AUTHORITY\\SYSTEM": 4
+  },
+  "has_domain": 89,
+  "windows": 4,
+  "pos_windows": 3,
+  "n_labeled_procs": 5
+ },
+ "attack/h2/m2": {
+  "n_lines": 26370,
+  "netconn": 1086,
+  "pos_netconn": 929,
+  "pos_procs_with_netconn": 2,
+  "protocol": {
+   "PROTO_TCP": 1022,
+   "PROTO_UDP": 64
+  },
+  "inbound": {
+   "0.0": 1056,
+   "1.0": 30
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 1034,
+   "ACTION_CONNECTION_ESTABLISHED": 48,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-19 13:58:03.023331 +0000 UTC",
+  "ts_max": "2022-07-19 20:00:04.066012 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 18,
+   "34.107.221.82:80": 14,
+   "142.250.190.35:80": 13,
+   "18.160.250.74:80": 9,
+   "184.51.220.134:443": 8,
+   "142.250.190.36:443": 7,
+   "188.240.13.2:443": 7,
+   "18.204.72.172:443": 7,
+   "142.250.190.67:443": 7,
+   "172.217.4.34:443": 6,
+   "34.107.162.27:443": 6,
+   "142.250.190.138:443": 6
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 999,
+   "c:\\windows\\system32\\svchost.exe": 70,
+   "c:\\windows\\system32\\lsass.exe": 5,
+   "c:\\program files\\windows media player\\setup_wm.exe": 4,
+   "c:\\windows\\sysmon.exe": 2,
+   "c:\\program files\\windows media player\\wmpnetwk.exe": 2,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 1,
+   "c:\\windows\\system32\\mmc.exe": 1,
+   "c:\\users\\aalsahee\\downloads\\payload.exe": 1,
+   "SYSTEM": 1
+  },
+  "remote_port": {
+   "443.0": 872,
+   "80.0": 117,
+   "1900.0": 16,
+   "53.0": 9,
+   "3702.0": 8,
+   "5355.0": 8,
+   "49180.0": 6,
+   "0.0": 4,
+   "123.0": 4,
+   "547.0": 4,
+   "2869.0": 4,
+   "64642.0": 2
+  },
+  "users": {
+   "WIN-32-H2\\aalsahee": 1005,
+   "NT AUTHORITY\\LOCAL SERVICE": 49,
+   "NT AUTHORITY\\NETWORK SERVICE": 23,
+   "NT AUTHORITY\\SYSTEM": 9
+  },
+  "has_domain": 369,
+  "windows": 7,
+  "pos_windows": 5,
+  "n_labeled_procs": 5
+ },
+ "attack/h2/m6": {
+  "n_lines": 10542,
+  "netconn": 265,
+  "pos_netconn": 197,
+  "pos_procs_with_netconn": 2,
+  "protocol": {
+   "PROTO_TCP": 230,
+   "PROTO_UDP": 35
+  },
+  "inbound": {
+   "0.0": 239,
+   "1.0": 26
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 238,
+   "ACTION_CONNECTION_ESTABLISHED": 19,
+   "ACTION_CONNECTION_LISTEN": 8
+  },
+  "ts_min": "2022-07-19 23:53:51.1292645 +0000 UTC",
+  "ts_max": "2022-07-20 00:24:51.5508254 +0000 UTC",
+  "pos_targets": {
+   "142.250.190.35:80": 6,
+   "34.107.221.82:80": 6,
+   "72.21.91.29:80": 6,
+   "18.160.250.199:80": 5,
+   "172.64.155.188:80": 4,
+   "142.250.190.36:443": 4,
+   "142.250.190.110:443": 3,
+   "142.250.191.206:443": 3,
+   "142.250.190.67:443": 3,
+   "172.217.2.46:443": 3,
+   "142.250.191.225:443": 3,
+   "142.250.191.110:443": 3
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 219,
+   "c:\\windows\\system32\\svchost.exe": 40,
+   "c:\\program files\\internet explorer\\iexplore.exe": 3,
+   "c:\\windows\\system32\\mmc.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\users\\aalsahee\\downloads\\payload.exe": 1
+  },
+  "remote_port": {
+   "443.0": 155,
+   "80.0": 40,
+   "0.0": 8,
+   "1900.0": 8,
+   "3702.0": 8,
+   "1688.0": 4,
+   "51727.0": 3,
+   "53.0": 3,
+   "51729.0": 3,
+   "5355.0": 2,
+   "9997.0": 2,
+   "49440.0": 1
+  },
+  "users": {
+   "WIN-32-H2\\aalsahee": 224,
+   "NT AUTHORITY\\LOCAL SERVICE": 34,
+   "NT AUTHORITY\\NETWORK SERVICE": 7
+  },
+  "has_domain": 167,
+  "windows": 3,
+  "pos_windows": 3,
+  "n_labeled_procs": 5
+ },
+ "attack/h2/m4": {
+  "n_lines": 12043,
+  "netconn": 372,
+  "pos_netconn": 331,
+  "pos_procs_with_netconn": 2,
+  "protocol": {
+   "PROTO_TCP": 344,
+   "PROTO_UDP": 28
+  },
+  "inbound": {
+   "0.0": 359,
+   "1.0": 13
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 342,
+   "ACTION_CONNECTION_ESTABLISHED": 29,
+   "ACTION_CONNECTION_LISTEN": 1
+  },
+  "ts_min": "2022-07-19 17:26:19.8207925 +0000 UTC",
+  "ts_max": "2022-07-19 23:02:55.5719766 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 11,
+   "142.250.190.35:80": 9,
+   "172.64.155.188:80": 8,
+   "34.107.221.82:80": 7,
+   "18.160.250.74:80": 6,
+   "142.250.191.99:443": 6,
+   "142.250.190.110:443": 6,
+   "142.250.190.129:443": 4,
+   "172.253.62.189:443": 4,
+   "142.250.191.174:443": 4,
+   "142.250.190.36:443": 4,
+   "172.217.2.42:443": 4
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 335,
+   "c:\\windows\\system32\\svchost.exe": 32,
+   "c:\\windows\\sysmon.exe": 2,
+   "c:\\windows\\system32\\mmc.exe": 1,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 1,
+   "c:\\users\\aalsahee\\downloads\\payload.exe": 1
+  },
+  "remote_port": {
+   "443.0": 262,
+   "80.0": 67,
+   "53.0": 4,
+   "1900.0": 4,
+   "3702.0": 4,
+   "45437.0": 2,
+   "49159.0": 2,
+   "49160.0": 2,
+   "52554.0": 2,
+   "9997.0": 2,
+   "123.0": 2,
+   "5355.0": 2
+  },
+  "users": {
+   "WIN-32-H2\\aalsahee": 337,
+   "NT AUTHORITY\\LOCAL SERVICE": 22,
+   "NT AUTHORITY\\NETWORK SERVICE": 10,
+   "NT AUTHORITY\\SYSTEM": 3
+  },
+  "has_domain": 197,
+  "windows": 5,
+  "pos_windows": 5,
+  "n_labeled_procs": 5
+ },
+ "attack/h2/m5": {
+  "n_lines": 9910,
+  "netconn": 189,
+  "pos_netconn": 138,
+  "pos_procs_with_netconn": 2,
+  "protocol": {
+   "PROTO_TCP": 161,
+   "PROTO_UDP": 28
+  },
+  "inbound": {
+   "0.0": 169,
+   "1.0": 20
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 174,
+   "ACTION_CONNECTION_ESTABLISHED": 11,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-19 23:10:59.9281587 +0000 UTC",
+  "ts_max": "2022-07-19 23:47:47.5439021 +0000 UTC",
+  "pos_targets": {
+   "34.107.221.82:80": 7,
+   "142.250.191.99:443": 4,
+   "142.250.191.206:443": 4,
+   "142.251.32.5:443": 4,
+   "142.250.191.110:443": 4,
+   "172.217.2.37:443": 4,
+   "142.250.190.35:80": 4,
+   "172.217.0.170:443": 3,
+   "142.250.191.174:443": 3,
+   "142.250.190.36:443": 3,
+   "142.250.190.67:443": 3,
+   "142.250.191.225:443": 3
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 151,
+   "c:\\windows\\system32\\svchost.exe": 32,
+   "c:\\windows\\system32\\mmc.exe": 2,
+   "c:\\windows\\system32\\lsass.exe": 1,
+   "c:\\windows\\sysmon.exe": 1,
+   "c:\\users\\aalsahee\\downloads\\payload.exe": 1,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 1
+  },
+  "remote_port": {
+   "443.0": 112,
+   "80.0": 26,
+   "53.0": 8,
+   "1900.0": 4,
+   "5355.0": 4,
+   "0.0": 4,
+   "3702.0": 4,
+   "135.0": 2,
+   "9997.0": 2,
+   "49162.0": 1,
+   "49163.0": 1,
+   "49299.0": 1
+  },
+  "users": {
+   "WIN-32-H2\\aalsahee": 154,
+   "NT AUTHORITY\\LOCAL SERVICE": 23,
+   "NT AUTHORITY\\NETWORK SERVICE": 9,
+   "NT AUTHORITY\\SYSTEM": 3
+  },
+  "has_domain": 114,
+  "windows": 4,
+  "pos_windows": 4,
+  "n_labeled_procs": 5
+ },
+ "attack/h2/m1": {
+  "n_lines": 23341,
+  "netconn": 739,
+  "pos_netconn": 613,
+  "pos_procs_with_netconn": 2,
+  "protocol": {
+   "PROTO_TCP": 687,
+   "PROTO_UDP": 52
+  },
+  "inbound": {
+   "0.0": 716,
+   "1.0": 23
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 697,
+   "ACTION_CONNECTION_ESTABLISHED": 37,
+   "ACTION_CONNECTION_LISTEN": 5
+  },
+  "ts_min": "2022-07-19 12:09:41.8041017 +0000 UTC",
+  "ts_max": "2022-07-19 17:55:14.7379915 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 14,
+   "34.107.221.82:80": 8,
+   "18.160.250.199:80": 8,
+   "142.250.190.35:80": 6,
+   "172.64.155.188:80": 6,
+   "142.250.191.225:443": 5,
+   "192.124.249.36:80": 5,
+   "142.250.190.67:443": 5,
+   "23.64.114.214:80": 5,
+   "142.250.191.206:443": 4,
+   "52.45.33.138:443": 4,
+   "142.250.191.109:443": 4
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 675,
+   "c:\\windows\\system32\\svchost.exe": 57,
+   "c:\\windows\\system32\\lsass.exe": 2,
+   "c:\\windows\\system32\\mmc.exe": 2,
+   "c:\\users\\aalsahee\\downloads\\payload.exe": 1,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1
+  },
+  "remote_port": {
+   "443.0": 585,
+   "80.0": 75,
+   "5355.0": 12,
+   "1900.0": 12,
+   "547.0": 5,
+   "0.0": 5,
+   "3702.0": 4,
+   "53.0": 3,
+   "51669.0": 2,
+   "54586.0": 2,
+   "54584.0": 2,
+   "9997.0": 2
+  },
+  "users": {
+   "WIN-32-H2\\aalsahee": 678,
+   "NT AUTHORITY\\LOCAL SERVICE": 37,
+   "NT AUTHORITY\\NETWORK SERVICE": 21,
+   "NT AUTHORITY\\SYSTEM": 3
+  },
+  "has_domain": 306,
+  "windows": 5,
+  "pos_windows": 4,
+  "n_labeled_procs": 5
+ },
+ "attack/h1/m4": {
+  "n_lines": 14916,
+  "netconn": 400,
+  "pos_netconn": 335,
+  "pos_procs_with_netconn": 4,
+  "protocol": {
+   "PROTO_TCP": 368,
+   "PROTO_UDP": 32
+  },
+  "inbound": {
+   "0.0": 362,
+   "1.0": 38
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 367,
+   "ACTION_CONNECTION_ESTABLISHED": 27,
+   "ACTION_CONNECTION_LISTEN": 6
+  },
+  "ts_min": "2022-07-19 22:32:54.1416452 +0000 UTC",
+  "ts_max": "2022-07-19 23:05:02.572086 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 9,
+   "104.18.32.68:80": 6,
+   "172.64.155.188:80": 5,
+   "142.250.190.35:80": 5,
+   "127.0.0.1:49201": 4,
+   "192.124.249.41:80": 4,
+   "18.160.250.165:80": 4,
+   "34.107.221.82:80": 4,
+   "142.250.191.206:443": 3,
+   "64.22.183.28:443": 3,
+   "104.18.21.226:80": 3,
+   "142.250.190.138:443": 3
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 335,
+   "c:\\windows\\system32\\svchost.exe": 54,
+   "c:\\program files\\microsoft office\\office14\\winword.exe": 3,
+   "c:\\windows\\system32\\mmc.exe": 2,
+   "c:\\windows\\system32\\lsass.exe": 2,
+   "c:\\python27\\python.exe": 2,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\users\\aalsahee\\payload.exe": 1
+  },
+  "remote_port": {
+   "443.0": 286,
+   "80.0": 55,
+   "0.0": 6,
+   "53.0": 5,
+   "49201.0": 4,
+   "5355.0": 4,
+   "1900.0": 4,
+   "3702.0": 4,
+   "1688.0": 3,
+   "135.0": 2,
+   "67.0": 2,
+   "68.0": 2
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 343,
+   "NT AUTHORITY\\LOCAL SERVICE": 45,
+   "NT AUTHORITY\\NETWORK SERVICE": 10,
+   "NT AUTHORITY\\SYSTEM": 2
+  },
+  "has_domain": 193,
+  "windows": 3,
+  "pos_windows": 3,
+  "n_labeled_procs": 9
+ },
+ "attack/h1/s4": {
+  "n_lines": 15659,
+  "netconn": 392,
+  "pos_netconn": 338,
+  "pos_procs_with_netconn": 9,
+  "protocol": {
+   "PROTO_TCP": 374,
+   "PROTO_UDP": 18
+  },
+  "inbound": {
+   "0.0": 371,
+   "1.0": 21
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 362,
+   "ACTION_CONNECTION_ESTABLISHED": 26,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-20 00:31:59.6450991 +0000 UTC",
+  "ts_max": "2022-07-20 01:02:37.2046205 +0000 UTC",
+  "pos_targets": {
+   "10.193.66.115:8080": 8,
+   "72.21.91.29:80": 8,
+   "23.64.114.213:80": 5,
+   "104.88.193.35:443": 4,
+   "127.0.0.1:49288": 4,
+   "18.160.250.88:80": 4,
+   "34.107.221.82:80": 4,
+   "142.250.190.35:80": 4,
+   "104.88.193.16:443": 3,
+   "23.7.112.165:443": 3,
+   "104.88.193.40:443": 3,
+   "172.64.155.188:80": 3
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 354,
+   "c:\\windows\\system32\\svchost.exe": 22,
+   "c:\\program files\\microsoft office\\office14\\winword.exe": 6,
+   "c:\\windows\\system32\\mshta.exe": 2,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "SYSTEM": 1,
+   "c:\\users\\aalsahee\\payload.exe": 1,
+   "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe": 1,
+   "c:\\windows\\explorer.exe": 1,
+   "c:\\windows\\system32\\mmc.exe": 1,
+   "c:\\python27\\python.exe": 1
+  },
+  "remote_port": {
+   "443.0": 293,
+   "80.0": 48,
+   "8080.0": 8,
+   "53.0": 6,
+   "49288.0": 4,
+   "0.0": 4,
+   "1688.0": 2,
+   "123.0": 2,
+   "547.0": 2,
+   "1900.0": 2,
+   "5355.0": 2,
+   "49260.0": 1
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 367,
+   "NT AUTHORITY\\LOCAL SERVICE": 17,
+   "NT AUTHORITY\\NETWORK SERVICE": 6,
+   "NT AUTHORITY\\SYSTEM": 2
+  },
+  "has_domain": 179,
+  "windows": 3,
+  "pos_windows": 3,
+  "n_labeled_procs": 23
+ },
+ "attack/h1/m3": {
+  "n_lines": 11981,
+  "netconn": 462,
+  "pos_netconn": 381,
+  "pos_procs_with_netconn": 3,
+  "protocol": {
+   "PROTO_TCP": 434,
+   "PROTO_UDP": 28
+  },
+  "inbound": {
+   "0.0": 398,
+   "1.0": 64
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 435,
+   "ACTION_CONNECTION_ESTABLISHED": 23,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-19 20:07:48.3638914 +0000 UTC",
+  "ts_max": "2022-07-19 20:36:05.732304 +0000 UTC",
+  "pos_targets": {
+   "18.160.250.74:80": 7,
+   "72.21.91.29:80": 6,
+   "142.250.190.35:80": 5,
+   "34.107.221.82:80": 4,
+   "68.67.161.183:443": 4,
+   "172.64.155.188:80": 4,
+   "127.0.0.1:49296": 4,
+   "192.124.249.36:80": 4,
+   "104.88.193.16:443": 3,
+   "104.89.241.106:443": 3,
+   "104.88.193.49:443": 3,
+   "54.86.58.225:443": 3
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 385,
+   "c:\\windows\\system32\\svchost.exe": 70,
+   "c:\\python27\\python.exe": 2,
+   "c:\\program files\\mozilla firefox\\plugin-container.exe": 1,
+   "SYSTEM": 1,
+   "c:\\users\\aalsahee\\payload.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\windows\\system32\\mmc.exe": 1
+  },
+  "remote_port": {
+   "443.0": 363,
+   "80.0": 45,
+   "53.0": 9,
+   "1900.0": 4,
+   "9573.0": 4,
+   "49296.0": 4,
+   "3702.0": 4,
+   "0.0": 4,
+   "8080.0": 2,
+   "5355.0": 2,
+   "67.0": 1,
+   "68.0": 1
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 390,
+   "NT AUTHORITY\\LOCAL SERVICE": 66,
+   "NT AUTHORITY\\NETWORK SERVICE": 5,
+   "NT AUTHORITY\\SYSTEM": 1
+  },
+  "has_domain": 215,
+  "windows": 3,
+  "pos_windows": 3,
+  "n_labeled_procs": 8
+ },
+ "attack/h1/m6": {
+  "n_lines": 16504,
+  "netconn": 603,
+  "pos_netconn": 569,
+  "pos_procs_with_netconn": 6,
+  "protocol": {
+   "PROTO_TCP": 585,
+   "PROTO_UDP": 18
+  },
+  "inbound": {
+   "0.0": 583,
+   "1.0": 20
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 571,
+   "ACTION_CONNECTION_ESTABLISHED": 28,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-19 23:54:13.4951695 +0000 UTC",
+  "ts_max": "2022-07-20 00:26:35.1762259 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 10,
+   "172.64.155.188:80": 10,
+   "34.107.221.82:80": 8,
+   "142.250.190.35:80": 7,
+   "172.217.2.46:443": 6,
+   "127.0.0.1:49293": 6,
+   "69.147.65.252:443": 6,
+   "69.147.65.251:443": 6,
+   "18.160.250.74:80": 5,
+   "142.250.191.129:443": 5,
+   "104.18.20.226:80": 5,
+   "142.250.190.67:443": 4
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 570,
+   "c:\\windows\\system32\\svchost.exe": 20,
+   "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe": 3,
+   "c:\\windows\\system32\\mmc.exe": 2,
+   "c:\\python27\\python.exe": 2,
+   "c:\\windows\\system32\\regsvr32.exe": 2,
+   "c:\\windows\\explorer.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\users\\aalsahee\\payload.exe": 1,
+   "SYSTEM": 1
+  },
+  "remote_port": {
+   "443.0": 483,
+   "80.0": 71,
+   "49293.0": 6,
+   "1900.0": 4,
+   "0.0": 4,
+   "8080.0": 4,
+   "53.0": 3,
+   "56330.0": 3,
+   "135.0": 2,
+   "5355.0": 2,
+   "123.0": 2,
+   "49292.0": 2
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 581,
+   "NT AUTHORITY\\LOCAL SERVICE": 15,
+   "NT AUTHORITY\\NETWORK SERVICE": 6,
+   "NT AUTHORITY\\SYSTEM": 1
+  },
+  "has_domain": 253,
+  "windows": 3,
+  "pos_windows": 3,
+  "n_labeled_procs": 14
+ },
+ "attack/h1/s3": {
+  "n_lines": 20550,
+  "netconn": 790,
+  "pos_netconn": 727,
+  "pos_procs_with_netconn": 7,
+  "protocol": {
+   "PROTO_TCP": 764,
+   "PROTO_UDP": 26
+  },
+  "inbound": {
+   "0.0": 738,
+   "1.0": 52
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 751,
+   "ACTION_CONNECTION_ESTABLISHED": 35,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-19 14:21:38.3165098 +0000 UTC",
+  "ts_max": "2022-07-19 15:01:10.544188 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 11,
+   "172.64.155.188:80": 11,
+   "34.107.221.82:80": 9,
+   "142.250.190.35:80": 9,
+   "142.250.190.67:443": 7,
+   "127.0.0.1:49277": 6,
+   "142.250.191.129:443": 6,
+   "18.160.250.74:80": 6,
+   "192.124.249.41:80": 6,
+   "142.250.190.138:443": 5,
+   "172.217.4.34:443": 5,
+   "35.211.178.172:443": 5
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 720,
+   "c:\\windows\\system32\\svchost.exe": 58,
+   "c:\\windows\\system32\\regsvr32.exe": 3,
+   "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe": 3,
+   "c:\\windows\\system32\\mmc.exe": 2,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\windows\\explorer.exe": 1,
+   "c:\\python27\\python.exe": 1,
+   "c:\\users\\aalsahee\\payload.exe": 1
+  },
+  "remote_port": {
+   "443.0": 656,
+   "80.0": 79,
+   "49277.0": 6,
+   "53.0": 6,
+   "8080.0": 5,
+   "0.0": 4,
+   "1900.0": 4,
+   "3702.0": 4,
+   "1688.0": 3,
+   "49276.0": 2,
+   "123.0": 2,
+   "135.0": 2
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 731,
+   "NT AUTHORITY\\LOCAL SERVICE": 54,
+   "NT AUTHORITY\\NETWORK SERVICE": 5
+  },
+  "has_domain": 316,
+  "windows": 4,
+  "pos_windows": 3,
+  "n_labeled_procs": 17
+ },
+ "attack/h1/s1": {
+  "n_lines": 19307,
+  "netconn": 780,
+  "pos_netconn": 661,
+  "pos_procs_with_netconn": 6,
+  "protocol": {
+   "PROTO_TCP": 763,
+   "PROTO_UDP": 17
+  },
+  "inbound": {
+   "0.0": 695,
+   "1.0": 85
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 739,
+   "ACTION_CONNECTION_ESTABLISHED": 35,
+   "ACTION_CONNECTION_LISTEN": 6
+  },
+  "ts_min": "2022-07-19 13:08:56.9431092 +0000 UTC",
+  "ts_max": "2022-07-19 13:35:18.0204737 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 10,
+   "192.124.249.41:80": 8,
+   "104.18.32.68:80": 8,
+   "34.107.221.82:80": 6,
+   "172.64.155.188:80": 6,
+   "18.160.250.88:80": 6,
+   "142.250.190.36:443": 5,
+   "3.218.90.66:443": 5,
+   "35.211.178.172:443": 5,
+   "142.250.190.35:80": 5,
+   "23.64.114.213:80": 5,
+   "172.217.2.46:443": 4
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 687,
+   "c:\\windows\\system32\\svchost.exe": 84,
+   "c:\\python27\\python.exe": 3,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 2,
+   "c:\\program files\\mozilla firefox\\plugin-container.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\windows\\system32\\mmc.exe": 1,
+   "c:\\users\\aalsahee\\payload.exe": 1
+  },
+  "remote_port": {
+   "443.0": 649,
+   "80.0": 83,
+   "53.0": 11,
+   "0.0": 6,
+   "1688.0": 3,
+   "49254.0": 2,
+   "8443.0": 2,
+   "49280.0": 2,
+   "49281.0": 2,
+   "8080.0": 2,
+   "5355.0": 2,
+   "547.0": 1
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 693,
+   "NT AUTHORITY\\LOCAL SERVICE": 80,
+   "NT AUTHORITY\\NETWORK SERVICE": 5,
+   "NT AUTHORITY\\SYSTEM": 2
+  },
+  "has_domain": 318,
+  "windows": 3,
+  "pos_windows": 3,
+  "n_labeled_procs": 21
+ },
+ "attack/h1/m1": {
+  "n_lines": 36688,
+  "netconn": 1519,
+  "pos_netconn": 1415,
+  "pos_procs_with_netconn": 5,
+  "protocol": {
+   "PROTO_TCP": 1492,
+   "PROTO_UDP": 27
+  },
+  "inbound": {
+   "0.0": 1452,
+   "1.0": 67
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 1428,
+   "ACTION_CONNECTION_ESTABLISHED": 86,
+   "ACTION_CONNECTION_LISTEN": 5
+  },
+  "ts_min": "2022-07-19 16:00:18.4795582 +0000 UTC",
+  "ts_max": "2022-07-19 17:47:24.0031604 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 29,
+   "172.64.155.188:80": 17,
+   "142.250.190.35:80": 16,
+   "192.124.249.22:80": 16,
+   "34.107.221.82:80": 13,
+   "50.116.194.21:443": 10,
+   "142.250.191.194:443": 9,
+   "142.250.190.97:443": 9,
+   "172.217.4.34:443": 9,
+   "69.173.151.100:443": 9,
+   "142.250.191.129:443": 9,
+   "35.207.24.140:443": 8
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 1432,
+   "c:\\windows\\system32\\svchost.exe": 78,
+   "c:\\python27\\python.exe": 2,
+   "c:\\windows\\explorer.exe": 1,
+   "c:\\windows\\system32\\mmc.exe": 1,
+   "c:\\users\\aalsahee\\payload.exe": 1,
+   "SYSTEM": 1,
+   "c:\\program files\\mozilla firefox\\plugin-container.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 1
+  },
+  "remote_port": {
+   "443.0": 1284,
+   "80.0": 175,
+   "53.0": 9,
+   "0.0": 5,
+   "1900.0": 4,
+   "3702.0": 4,
+   "10001.0": 2,
+   "5355.0": 2,
+   "49284.0": 2,
+   "49285.0": 2,
+   "8080.0": 2,
+   "55712.0": 1
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 1438,
+   "NT AUTHORITY\\LOCAL SERVICE": 67,
+   "NT AUTHORITY\\NETWORK SERVICE": 12,
+   "NT AUTHORITY\\SYSTEM": 2
+  },
+  "has_domain": 651,
+  "windows": 8,
+  "pos_windows": 8,
+  "n_labeled_procs": 18
+ },
+ "attack/h1/m2": {
+  "n_lines": 20333,
+  "netconn": 729,
+  "pos_netconn": 636,
+  "pos_procs_with_netconn": 3,
+  "protocol": {
+   "PROTO_TCP": 717,
+   "PROTO_UDP": 12
+  },
+  "inbound": {
+   "0.0": 673,
+   "1.0": 56
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 683,
+   "ACTION_CONNECTION_ESTABLISHED": 42,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-19 19:27:58.8206625 +0000 UTC",
+  "ts_max": "2022-07-19 20:01:11.2208636 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 15,
+   "104.18.20.226:80": 11,
+   "18.160.250.199:80": 11,
+   "172.64.155.188:80": 10,
+   "104.18.32.68:80": 9,
+   "34.107.221.82:80": 8,
+   "23.53.113.151:443": 7,
+   "192.124.249.41:80": 7,
+   "142.250.190.35:80": 6,
+   "23.64.114.213:80": 6,
+   "69.175.41.44:443": 6,
+   "104.88.200.24:443": 6
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 662,
+   "c:\\windows\\system32\\svchost.exe": 57,
+   "c:\\python27\\python.exe": 2,
+   "c:\\windows\\system32\\mmc.exe": 2,
+   "c:\\users\\aalsahee\\payload.exe": 1,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 1,
+   "SYSTEM": 1,
+   "c:\\windows\\explorer.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\program files\\mozilla firefox\\plugin-container.exe": 1
+  },
+  "remote_port": {
+   "443.0": 584,
+   "80.0": 109,
+   "53.0": 5,
+   "0.0": 4,
+   "135.0": 2,
+   "5355.0": 2,
+   "123.0": 2,
+   "8080.0": 2,
+   "67.0": 1,
+   "68.0": 1,
+   "49329.0": 1,
+   "49330.0": 1
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 669,
+   "NT AUTHORITY\\LOCAL SERVICE": 52,
+   "NT AUTHORITY\\NETWORK SERVICE": 6,
+   "NT AUTHORITY\\SYSTEM": 2
+  },
+  "has_domain": 325,
+  "windows": 4,
+  "pos_windows": 3,
+  "n_labeled_procs": 8
+ },
+ "attack/h1/s2": {
+  "n_lines": 15102,
+  "netconn": 369,
+  "pos_netconn": 288,
+  "pos_procs_with_netconn": 3,
+  "protocol": {
+   "PROTO_TCP": 346,
+   "PROTO_UDP": 23
+  },
+  "inbound": {
+   "0.0": 333,
+   "1.0": 36
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 344,
+   "ACTION_CONNECTION_ESTABLISHED": 21,
+   "ACTION_CONNECTION_LISTEN": 4
+  },
+  "ts_min": "2022-07-19 13:43:13.1715513 +0000 UTC",
+  "ts_max": "2022-07-19 14:15:52.2892362 +0000 UTC",
+  "pos_targets": {
+   "72.21.91.29:80": 9,
+   "34.107.221.82:80": 7,
+   "172.64.155.188:80": 6,
+   "142.250.190.35:80": 4,
+   "18.160.250.165:80": 4,
+   "142.250.190.138:443": 3,
+   "142.250.190.36:443": 3,
+   "69.147.65.252:443": 3,
+   "3.230.217.116:443": 3,
+   "52.45.33.138:443": 3,
+   "104.16.87.20:443": 3,
+   "50.116.194.21:443": 3
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 318,
+   "c:\\windows\\system32\\svchost.exe": 44,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 1,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 1,
+   "c:\\python27\\python.exe": 1,
+   "c:\\program files\\mozilla firefox\\plugin-container.exe": 1,
+   "c:\\users\\aalsahee\\payload.exe": 1,
+   "c:\\windows\\explorer.exe": 1,
+   "c:\\windows\\system32\\mmc.exe": 1
+  },
+  "remote_port": {
+   "443.0": 275,
+   "80.0": 46,
+   "1900.0": 4,
+   "3702.0": 4,
+   "0.0": 4,
+   "53.0": 3,
+   "1688.0": 2,
+   "49278.0": 2,
+   "49279.0": 2,
+   "123.0": 2,
+   "8080.0": 2,
+   "5355.0": 2
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 323,
+   "NT AUTHORITY\\LOCAL SERVICE": 40,
+   "NT AUTHORITY\\NETWORK SERVICE": 5,
+   "NT AUTHORITY\\SYSTEM": 1
+  },
+  "has_domain": 166,
+  "windows": 4,
+  "pos_windows": 3,
+  "n_labeled_procs": 8
+ },
+ "attack/h1/m5": {
+  "n_lines": 18523,
+  "netconn": 212,
+  "pos_netconn": 147,
+  "pos_procs_with_netconn": 17,
+  "protocol": {
+   "PROTO_TCP": 181,
+   "PROTO_UDP": 31
+  },
+  "inbound": {
+   "0.0": 190,
+   "1.0": 22
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 183,
+   "ACTION_CONNECTION_ESTABLISHED": 19,
+   "ACTION_CONNECTION_LISTEN": 10
+  },
+  "ts_min": "2022-07-19 23:14:11.1759769 +0000 UTC",
+  "ts_max": "2022-07-19 23:46:12.380763 +0000 UTC",
+  "pos_targets": {
+   "10.193.66.115:8080": 14,
+   ":0": 8,
+   "72.21.91.29:80": 6,
+   "34.107.221.82:80": 6,
+   "142.250.190.35:80": 4,
+   "142.250.191.99:443": 3,
+   "142.250.191.206:443": 3,
+   "172.217.4.197:80": 3,
+   "142.250.190.110:443": 3,
+   "172.217.2.46:443": 3,
+   "172.217.4.78:443": 2,
+   "142.250.191.110:443": 2
+  },
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 146,
+   "c:\\windows\\system32\\svchost.exe": 38,
+   "c:\\program files\\microsoft office\\office14\\winword.exe": 8,
+   "c:\\windows\\system32\\mshta.exe": 6,
+   "c:\\python27\\python.exe": 3,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 3,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 2,
+   "c:\\windows\\system32\\lsass.exe": 2,
+   "c:\\users\\aalsahee\\payload.exe": 1,
+   "SYSTEM": 1,
+   "c:\\windows\\system32\\windowspowershell\\v1.0\\powershell.exe": 1,
+   "c:\\windows\\system32\\mmc.exe": 1
+  },
+  "remote_port": {
+   "443.0": 105,
+   "80.0": 25,
+   "8080.0": 14,
+   "0.0": 10,
+   "1900.0": 8,
+   "5355.0": 6,
+   "53.0": 5,
+   "547.0": 3,
+   "1688.0": 2,
+   "49182.0": 2,
+   "49303.0": 2,
+   "49156.0": 2
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 166,
+   "NT AUTHORITY\\LOCAL SERVICE": 24,
+   "NT AUTHORITY\\NETWORK SERVICE": 16,
+   "NT AUTHORITY\\SYSTEM": 6
+  },
+  "has_domain": 120,
+  "windows": 4,
+  "pos_windows": 3,
+  "n_labeled_procs": 35
+ },
+ "benign/h2/benign": {
+  "n_lines": 579639,
+  "netconn": 5849,
+  "pos_netconn": 0,
+  "pos_procs_with_netconn": 0,
+  "protocol": {
+   "PROTO_TCP": 5459,
+   "PROTO_UDP": 390
+  },
+  "inbound": {
+   "0.0": 5699,
+   "1.0": 148,
+   "False": 2
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 5424,
+   "ACTION_CONNECTION_ESTABLISHED": 360,
+   "ACTION_CONNECTION_LISTEN": 65
+  },
+  "ts_min": "2022-07-15 13:12:47.4925757 +0000 UTC",
+  "ts_max": "2022-07-19 16:09:17.3834055 +0000 UTC",
+  "pos_targets": {},
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 5226,
+   "c:\\windows\\system32\\svchost.exe": 284,
+   "c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe": 278,
+   "c:\\program files\\internet explorer\\iexplore.exe": 10,
+   "c:\\program files\\sublime text 3\\sublime_text.exe": 10,
+   "c:\\users\\aalsahee\\appdata\\local\\programs\\python\\python38-32\\python.exe": 8,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 6,
+   "c:\\windows\\system32\\lsass.exe": 6,
+   "c:\\windows\\system32\\mmc.exe": 5,
+   "SYSTEM": 5,
+   "c:\\windows\\explorer.exe": 4,
+   "c:\\program files\\common files\\microsoft shared\\officesoftwareprotectionplatform\\osppsvc.exe": 3
+  },
+  "remote_port": {
+   "443.0": 4457,
+   "80.0": 746,
+   "0.0": 65,
+   "9997.0": 23,
+   "50004.0": 21,
+   "1900.0": 20,
+   "3702.0": 20,
+   "50002.0": 20,
+   "50003.0": 18,
+   "53079.0": 17,
+   "50001.0": 14,
+   "49820.0": 11
+  },
+  "users": {
+   "WIN-32-H2\\aalsahee": 5541,
+   "NT AUTHORITY\\LOCAL SERVICE": 245,
+   "NT AUTHORITY\\NETWORK SERVICE": 44,
+   "NT AUTHORITY\\SYSTEM": 19
+  },
+  "has_domain": 3722,
+  "windows": 197,
+  "pos_windows": 0,
+  "n_labeled_procs": 0
+ },
+ "benign/h1/benign": {
+  "n_lines": 997132,
+  "netconn": 14827,
+  "pos_netconn": 0,
+  "pos_procs_with_netconn": 0,
+  "protocol": {
+   "PROTO_TCP": 14501,
+   "PROTO_UDP": 326
+  },
+  "inbound": {
+   "0.0": 14410,
+   "1.0": 417
+  },
+  "action": {
+   "ACTION_CONNECTION_CREATE": 14116,
+   "ACTION_CONNECTION_ESTABLISHED": 674,
+   "ACTION_CONNECTION_LISTEN": 37
+  },
+  "ts_min": "2022-07-15 13:09:55.4911849 +0000 UTC",
+  "ts_max": "2022-07-19 13:00:40.5038971 +0000 UTC",
+  "pos_targets": {},
+  "paths": {
+   "c:\\program files\\mozilla firefox\\firefox.exe": 14106,
+   "c:\\windows\\system32\\svchost.exe": 474,
+   "c:\\users\\aalsahee\\appdata\\local\\discord\\app-1.0.9005\\discord.exe": 184,
+   "c:\\program files\\internet explorer\\iexplore.exe": 13,
+   "c:\\python27\\python.exe": 11,
+   "c:\\program files\\sublime text 3\\sublime_text.exe": 8,
+   "c:\\windows\\system32\\lsass.exe": 6,
+   "c:\\program files\\windows media player\\wmplayer.exe": 6,
+   "c:\\windows\\system32\\mmc.exe": 5,
+   "c:\\program files\\windows media player\\setup_wm.exe": 4,
+   "SYSTEM": 3,
+   "c:\\program files\\confer\\scanner\\scanhost.exe": 2
+  },
+  "remote_port": {
+   "443.0": 12840,
+   "80.0": 1408,
+   "53.0": 52,
+   "0.0": 37,
+   "57602.0": 31,
+   "64361.0": 24,
+   "59739.0": 24,
+   "9573.0": 22,
+   "50002.0": 21,
+   "50004.0": 19,
+   "54443.0": 18,
+   "50003.0": 17
+  },
+  "users": {
+   "WIN-32-H1\\aalsahee": 14338,
+   "NT AUTHORITY\\LOCAL SERVICE": 449,
+   "NT AUTHORITY\\NETWORK SERVICE": 27,
+   "NT AUTHORITY\\SYSTEM": 13
+  },
+  "has_domain": 8323,
+  "windows": 194,
+  "pos_windows": 0,
+  "n_labeled_procs": 0
+ }
+}

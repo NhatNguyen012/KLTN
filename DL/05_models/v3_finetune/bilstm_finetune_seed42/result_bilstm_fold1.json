@@ -1,0 +1,368 @@
+{
+ "fold": 1,
+ "cardinalities_old": [
+  61,
+  4,
+  11,
+  10
+ ],
+ "cardinalities_ext": [
+  78,
+  4,
+  15,
+  10
+ ],
+ "equivalence_max_logit_diff": 3.994506837301515e-06,
+ "zero_shot_on_test": {
+  "n": 380,
+  "positives": 5,
+  "at": {
+   "optc_val_threshold": {
+    "threshold": 0.99560546875,
+    "tp": 0,
+    "fp": 110,
+    "fn": 5,
+    "tn": 265,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+   },
+   "0.5": {
+    "threshold": 0.5,
+    "tp": 2,
+    "fp": 185,
+    "fn": 3,
+    "tn": 190,
+    "precision": 0.0107,
+    "recall": 0.4,
+    "f1": 0.0208
+   }
+  },
+  "pr_auc": 0.0132,
+  "roc_auc": 0.4213
+ },
+ "added_tokens": {
+  "app_family": [
+   {
+    "value": "msedge.exe",
+    "id": 61,
+    "train_flows": 13110
+   },
+   {
+    "value": "python3.11.exe",
+    "id": 62,
+    "train_flows": 9174
+   },
+   {
+    "value": "tvnserver.exe",
+    "id": 63,
+    "train_flows": 2278
+   },
+   {
+    "value": "nbtscan.exe",
+    "id": 64,
+    "train_flows": 254
+   },
+   {
+    "value": "thunderbird.exe",
+    "id": 65,
+    "train_flows": 190
+   },
+   {
+    "value": "searchapp.exe",
+    "id": 66,
+    "train_flows": 156
+   },
+   {
+    "value": "msedgewebview2.exe",
+    "id": 67,
+    "train_flows": 84
+   },
+   {
+    "value": "system",
+    "id": 68,
+    "train_flows": 12
+   },
+   {
+    "value": "onedrivestandaloneupdater.exe",
+    "id": 69,
+    "train_flows": 10
+   },
+   {
+    "value": "wermgr.exe",
+    "id": 70,
+    "train_flows": 9
+   },
+   {
+    "value": "nslookup.exe",
+    "id": 71,
+    "train_flows": 8
+   },
+   {
+    "value": "smartscreen.exe",
+    "id": 72,
+    "train_flows": 8
+   },
+   {
+    "value": "sshd.exe",
+    "id": 73,
+    "train_flows": 8
+   },
+   {
+    "value": "backgroundtransferhost.exe",
+    "id": 74,
+    "train_flows": 7
+   },
+   {
+    "value": "sysmon64.exe",
+    "id": 75,
+    "train_flows": 7
+   },
+   {
+    "value": "microsoftedgeupdate.exe",
+    "id": 76,
+    "train_flows": 6
+   },
+   {
+    "value": "microsoft.sharepoint.exe",
+    "id": 77,
+    "train_flows": 5
+   }
+  ],
+  "proto": [],
+  "resp_port_class": [
+   {
+    "value": "EPHEMERAL",
+    "id": 11,
+    "train_flows": 1973
+   },
+   {
+    "value": "PORT_143_IMAP",
+    "id": 12,
+    "train_flows": 110
+   },
+   {
+    "value": "PORT_25_SMTP",
+    "id": 13,
+    "train_flows": 29
+   },
+   {
+    "value": "PORT_135_RPC",
+    "id": 14,
+    "train_flows": 6
+   }
+  ],
+  "image_dir_class": []
+ },
+ "history": [
+  {
+   "stage": "A",
+   "epoch": 1,
+   "train_loss": 1.44819,
+   "seconds": 2.0
+  },
+  {
+   "stage": "A",
+   "epoch": 2,
+   "train_loss": 0.53249,
+   "seconds": 2.0
+  },
+  {
+   "stage": "A",
+   "epoch": 3,
+   "train_loss": 0.42882,
+   "seconds": 1.9
+  },
+  {
+   "stage": "B",
+   "epoch": 4,
+   "train_loss": 0.32732,
+   "seconds": 2.0
+  },
+  {
+   "stage": "B",
+   "epoch": 5,
+   "train_loss": 0.27891,
+   "seconds": 2.0
+  },
+  {
+   "stage": "B",
+   "epoch": 6,
+   "train_loss": 0.29784,
+   "seconds": 2.1
+  }
+ ],
+ "after_on_test": {
+  "n": 380,
+  "positives": 5,
+  "at": {
+   "optc_val_threshold": {
+    "threshold": 0.99560546875,
+    "tp": 0,
+    "fp": 0,
+    "fn": 5,
+    "tn": 375,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+   },
+   "0.5": {
+    "threshold": 0.5,
+    "tp": 0,
+    "fp": 0,
+    "fn": 5,
+    "tn": 375,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0
+   }
+  },
+  "pr_auc": 0.0537,
+  "roc_auc": 0.6464
+ },
+ "after_on_test_by_dataset": {
+  "skrghosh": {
+   "n": 67,
+   "positives": 3,
+   "at": {
+    "optc_val_threshold": {
+     "threshold": 0.99560546875,
+     "tp": 0,
+     "fp": 0,
+     "fn": 3,
+     "tn": 64,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "0.5": {
+     "threshold": 0.5,
+     "tp": 0,
+     "fp": 0,
+     "fn": 3,
+     "tn": 64,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    }
+   },
+   "pr_auc": 0.1177,
+   "roc_auc": 0.5937
+  },
+  "fivedirections": {
+   "n": 313,
+   "positives": 2,
+   "at": {
+    "optc_val_threshold": {
+     "threshold": 0.99560546875,
+     "tp": 0,
+     "fp": 0,
+     "fn": 2,
+     "tn": 311,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "0.5": {
+     "threshold": 0.5,
+     "tp": 0,
+     "fp": 0,
+     "fn": 2,
+     "tn": 311,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    }
+   },
+   "pr_auc": 0.0098,
+   "roc_auc": 0.4309
+  }
+ },
+ "before_on_test_by_dataset": {
+  "skrghosh": {
+   "n": 67,
+   "positives": 3,
+   "at": {
+    "optc_val_threshold": {
+     "threshold": 0.99560546875,
+     "tp": 0,
+     "fp": 0,
+     "fn": 3,
+     "tn": 64,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "0.5": {
+     "threshold": 0.5,
+     "tp": 2,
+     "fp": 54,
+     "fn": 1,
+     "tn": 10,
+     "precision": 0.0357,
+     "recall": 0.6667,
+     "f1": 0.0678
+    }
+   },
+   "pr_auc": 0.1447,
+   "roc_auc": 0.625
+  },
+  "fivedirections": {
+   "n": 313,
+   "positives": 2,
+   "at": {
+    "optc_val_threshold": {
+     "threshold": 0.99560546875,
+     "tp": 0,
+     "fp": 110,
+     "fn": 2,
+     "tn": 201,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "0.5": {
+     "threshold": 0.5,
+     "tp": 0,
+     "fp": 131,
+     "fn": 2,
+     "tn": 180,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    }
+   },
+   "pr_auc": 0.0058,
+   "roc_auc": 0.1994
+  }
+ },
+ "optc_test": {
+  "n": 34413,
+  "positives": 82,
+  "at": {
+   "optc_val_threshold": {
+    "threshold": 0.99560546875,
+    "tp": 79,
+    "fp": 0,
+    "fn": 3,
+    "tn": 34331,
+    "precision": 1.0,
+    "recall": 0.9634,
+    "f1": 0.9814
+   },
+   "0.5": {
+    "threshold": 0.5,
+    "tp": 80,
+    "fp": 0,
+    "fn": 2,
+    "tn": 34331,
+    "precision": 1.0,
+    "recall": 0.9756,
+    "f1": 0.9877
+   }
+  },
+  "pr_auc": 0.9888,
+  "roc_auc": 0.9997,
+  "seconds": 7
+ }
+}
