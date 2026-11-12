@@ -1,0 +1,23 @@
+﻿field,zeek_type,meaning_vi,example
+ts,time,"Thời điểm bắt đầu kết nối, epoch UTC (giây)",1569301193.927285
+uid,string,Mã kết nối duy nhất; khóa nối với eCAR-Bro (bro_uid),C0t1yE1SczeTIdd0s4
+id.orig_h,addr,IP máy khởi tạo kết nối,142.20.58.179
+id.orig_p,port,Cổng máy khởi tạo,65329
+id.resp_h,addr,IP máy nhận,165.101.35.5
+id.resp_p,port,Cổng máy nhận,443
+proto,enum,"Giao thức: tcp, udp, icmp",tcp
+service,string,"Dịch vụ Zeek nhận diện: ssl, http, dns... ('-' nếu không nhận ra)",ssl
+duration,interval,Thời lượng kết nối (giây),0.008615
+orig_bytes,count,Số byte ứng dụng máy khởi tạo gửi,917
+resp_bytes,count,Số byte ứng dụng máy nhận gửi,752
+conn_state,string,"Trạng thái kết thúc: SF (bình thường), S0 (không trả lời), REJ (bị từ chối), RSTO, ...",SF
+local_orig,bool,Máy khởi tạo thuộc mạng nội bộ,F
+local_resp,bool,Máy nhận thuộc mạng nội bộ,F
+missed_bytes,count,Số byte bị mất gói trong lúc bắt,0
+history,string,"Chuỗi cờ TCP theo thời gian (S, H, A, D, F, R...)",ShADadfF
+orig_pkts,count,Số gói máy khởi tạo gửi,7
+orig_ip_bytes,count,Số byte tầng IP máy khởi tạo gửi,1209
+resp_pkts,count,Số gói máy nhận gửi,8
+resp_ip_bytes,count,Số byte tầng IP máy nhận gửi,1084
+tunnel_parents,set[string],Danh sách kết nối đường hầm cha ('(empty)' nếu không có),(empty)
+label,int,Nhãn 0/1 của bản OpTC đã gán nhãn (1 = kết nối độc hại),0

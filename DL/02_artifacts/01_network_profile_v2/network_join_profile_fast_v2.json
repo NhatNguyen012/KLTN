@@ -1,0 +1,1458 @@
+{
+  "generated_at": "2026-09-23T01:22:42.689709",
+  "script_version": "step04a-network-profile-fast-v2.0",
+  "profiling_policy": {
+    "full_scan_all_files": true,
+    "full_uid_index": false,
+    "uid_join_method": "deterministic_hash_sample",
+    "sample_rule": "blake2b64(uid) % 1000 == 0",
+    "reason": "Avoid tens of GB of temporary UID index in STEP 04A. Exact all-record join is deferred to STEP 04B where the joined table is materialized once."
+  },
+  "backends": {
+    "json": "orjson",
+    "gzip": "isal.igzip"
+  },
+  "inputs": {
+    "frozen_manifest": "D:\\UIT\\KLTN\\artifacts\\step02_label_split_v1_1\\split_manifest_frozen.csv",
+    "frozen_manifest_sha256": "dbc8467ea27ab8a47515ae816e5758d558a5994a2b74c5929b7a640bc4abcafe",
+    "ecar_bro_files_discovered": 156,
+    "bro_files_discovered": 3954
+  },
+  "ecar_bro": {
+    "files_completed": 156,
+    "compressed_size_bytes": 6995712643,
+    "records": 92097521,
+    "parse_errors": 0,
+    "uid_records": 92097521,
+    "sampled_or_matched_records": 91929,
+    "elapsed_seconds": 1584.6360001564026
+  },
+  "bro": {
+    "files_completed": 3954,
+    "compressed_size_bytes": 33962880813,
+    "records": 1012131447,
+    "parse_errors": 24243,
+    "uid_records": 886785286,
+    "sampled_or_matched_records": 207507,
+    "elapsed_seconds": 4545.473523139954
+  },
+  "sampled_join": {
+    "sample_mod": 1000,
+    "expected_sample_fraction": 0.001,
+    "sampled_unique_ecar_uid": 91903,
+    "sampled_unique_uid_seen_in_bro": 91880,
+    "estimated_match_rate_over_ecar_uid": 0.9997497361348379,
+    "sampled_uid_with_hostname": 91903,
+    "sampled_hostname_coverage": 1.0,
+    "sampled_uid_mapped_to_frozen_split": 85483,
+    "sampled_split_coverage": 0.930143738506904,
+    "sampled_split_counts": {
+      "test": 10647,
+      "train": 61677,
+      "val": 13159
+    },
+    "sampled_label_counts_by_split": {
+      "test": {
+        "missing": 10647
+      },
+      "train": {
+        "missing": 61677
+      },
+      "val": {
+        "missing": 13159
+      }
+    },
+    "sampled_uid_duplicate_in_ecar": 26,
+    "sampled_uid_hostname_conflicts": 0,
+    "sampled_uid_ecar_label_conflicts": 0,
+    "sampled_uid_bro_label_conflicts": 0
+  },
+  "top_values": {
+    "ecar_action": [
+      {
+        "value": "INFO",
+        "count": 92097521
+      }
+    ],
+    "ecar_object": [
+      {
+        "value": "FLOW",
+        "count": 92097521
+      }
+    ],
+    "ecar_label": [
+      {
+        "value": "missing",
+        "count": 92097521
+      }
+    ],
+    "ecar_app": [
+      {
+        "value": "firefox.exe",
+        "count": 91892064
+      },
+      {
+        "value": "conhost.exe",
+        "count": 34030
+      },
+      {
+        "value": "cmd.exe",
+        "count": 33693
+      },
+      {
+        "value": "powershell.exe",
+        "count": 24503
+      },
+      {
+        "value": "ping.exe",
+        "count": 22136
+      },
+      {
+        "value": "schtasks.exe",
+        "count": 7770
+      },
+      {
+        "value": "appidcertstorecheck.exe",
+        "count": 5703
+      },
+      {
+        "value": "reg.exe",
+        "count": 4888
+      },
+      {
+        "value": "svchost.exe",
+        "count": 4510
+      },
+      {
+        "value": "googleupdate.exe",
+        "count": 3579
+      },
+      {
+        "value": "onedrivesetup.exe",
+        "count": 2967
+      },
+      {
+        "value": "taskhostw.exe",
+        "count": 2594
+      },
+      {
+        "value": "taskkill.exe",
+        "count": 2035
+      },
+      {
+        "value": "python.exe",
+        "count": 2025
+      },
+      {
+        "value": "bcdedit.exe",
+        "count": 1584
+      },
+      {
+        "value": "wscript.exe",
+        "count": 1525
+      },
+      {
+        "value": "backgroundtaskhost.exe",
+        "count": 1331
+      },
+      {
+        "value": "mpcmdrun.exe",
+        "count": 1187
+      },
+      {
+        "value": "geckodriver.exe",
+        "count": 1153
+      },
+      {
+        "value": "sppsvc.exe",
+        "count": 1054
+      },
+      {
+        "value": "searchprotocolhost.exe",
+        "count": 1023
+      },
+      {
+        "value": "searchfilterhost.exe",
+        "count": 956
+      },
+      {
+        "value": "reader_sl.exe",
+        "count": 838
+      },
+      {
+        "value": "winword.exe",
+        "count": 674
+      },
+      {
+        "value": "splwow64.exe",
+        "count": 616
+      },
+      {
+        "value": "acrord32.exe",
+        "count": 599
+      },
+      {
+        "value": "runtimebroker.exe",
+        "count": 589
+      },
+      {
+        "value": "mobsync.exe",
+        "count": 571
+      },
+      {
+        "value": "explorer.exe",
+        "count": 531
+      },
+      {
+        "value": "adobearm.exe",
+        "count": 493
+      },
+      {
+        "value": "vgauthservice.exe",
+        "count": 493
+      },
+      {
+        "value": "searchui.exe",
+        "count": 390
+      },
+      {
+        "value": "vmtoolsd.exe",
+        "count": 359
+      },
+      {
+        "value": "msascuil.exe",
+        "count": 350
+      },
+      {
+        "value": "mscorsvw.exe",
+        "count": 339
+      },
+      {
+        "value": "qwinsta.exe",
+        "count": 317
+      },
+      {
+        "value": "tiworker.exe",
+        "count": 315
+      },
+      {
+        "value": "smartscreen.exe",
+        "count": 314
+      },
+      {
+        "value": "msoia.exe",
+        "count": 261
+      },
+      {
+        "value": "dsregcmd.exe",
+        "count": 242
+      },
+      {
+        "value": "powerpnt.exe",
+        "count": 233
+      },
+      {
+        "value": "sc.exe",
+        "count": 229
+      },
+      {
+        "value": "logonui.exe",
+        "count": 225
+      },
+      {
+        "value": "shutdown.exe",
+        "count": 208
+      },
+      {
+        "value": "wmiprvse.exe",
+        "count": 203
+      },
+      {
+        "value": "installagent.exe",
+        "count": 160
+      },
+      {
+        "value": "tasklist.exe",
+        "count": 146
+      },
+      {
+        "value": "biguwcmnsucig.exe",
+        "count": 140
+      },
+      {
+        "value": "excel.exe",
+        "count": 126
+      },
+      {
+        "value": "ngen.exe",
+        "count": 117
+      },
+      {
+        "value": "applicationframehost.exe",
+        "count": 110
+      },
+      {
+        "value": "chrome.exe",
+        "count": 106
+      },
+      {
+        "value": "gpupdate.exe",
+        "count": 97
+      },
+      {
+        "value": "devicecensus.exe",
+        "count": 95
+      },
+      {
+        "value": "spoolsv.exe",
+        "count": 92
+      },
+      {
+        "value": "netstat.exe",
+        "count": 76
+      },
+      {
+        "value": "onedrive.exe",
+        "count": 69
+      },
+      {
+        "value": "compattelrunner.exe",
+        "count": 62
+      },
+      {
+        "value": "searchindexer.exe",
+        "count": 62
+      },
+      {
+        "value": "userinit.exe",
+        "count": 62
+      },
+      {
+        "value": "winstore.app.exe",
+        "count": 62
+      },
+      {
+        "value": "cliprenew.exe",
+        "count": 55
+      },
+      {
+        "value": "trustedinstaller.exe",
+        "count": 46
+      },
+      {
+        "value": "shellexperiencehost.exe",
+        "count": 38
+      },
+      {
+        "value": "mantra.exe",
+        "count": 33
+      },
+      {
+        "value": "msdtc.exe",
+        "count": 31
+      },
+      {
+        "value": "sihost.exe",
+        "count": 24
+      },
+      {
+        "value": "dllhost.exe",
+        "count": 11
+      },
+      {
+        "value": "ckfgw.exe",
+        "count": 10
+      },
+      {
+        "value": "gup.exe",
+        "count": 7
+      },
+      {
+        "value": "microsoftedgecp.exe",
+        "count": 7
+      },
+      {
+        "value": "microsoftedge.exe",
+        "count": 4
+      },
+      {
+        "value": "filetransfer1000.exe",
+        "count": 3
+      },
+      {
+        "value": "movingonup.exe",
+        "count": 3
+      },
+      {
+        "value": "notepad++.exe",
+        "count": 2
+      },
+      {
+        "value": "wermgr.exe",
+        "count": 2
+      },
+      {
+        "value": "f.exe",
+        "count": 1
+      },
+      {
+        "value": "lwabeat.exe",
+        "count": 1
+      },
+      {
+        "value": "plink.exe",
+        "count": 1
+      }
+    ],
+    "ecar_direction": [
+      {
+        "value": "outbound",
+        "count": 92097519
+      },
+      {
+        "value": "inbound",
+        "count": 2
+      }
+    ],
+    "ecar_protocol": [
+      {
+        "value": "6",
+        "count": 92097420
+      },
+      {
+        "value": "17",
+        "count": 101
+      }
+    ],
+    "ecar_top_fields": [
+      {
+        "value": "action",
+        "count": 92097521
+      },
+      {
+        "value": "actorID",
+        "count": 92097521
+      },
+      {
+        "value": "hostname",
+        "count": 92097521
+      },
+      {
+        "value": "id",
+        "count": 92097521
+      },
+      {
+        "value": "object",
+        "count": 92097521
+      },
+      {
+        "value": "objectID",
+        "count": 92097521
+      },
+      {
+        "value": "pid",
+        "count": 92097521
+      },
+      {
+        "value": "ppid",
+        "count": 92097521
+      },
+      {
+        "value": "principal",
+        "count": 92097521
+      },
+      {
+        "value": "properties",
+        "count": 92097521
+      },
+      {
+        "value": "tid",
+        "count": 92097521
+      },
+      {
+        "value": "timestamp",
+        "count": 92097521
+      }
+    ],
+    "ecar_property_fields": [
+      {
+        "value": "acuity_level",
+        "count": 92097521
+      },
+      {
+        "value": "bro_uid",
+        "count": 92097521
+      },
+      {
+        "value": "dest_ip",
+        "count": 92097521
+      },
+      {
+        "value": "dest_port",
+        "count": 92097521
+      },
+      {
+        "value": "direction",
+        "count": 92097521
+      },
+      {
+        "value": "l4protocol",
+        "count": 92097521
+      },
+      {
+        "value": "src_ip",
+        "count": 92097521
+      },
+      {
+        "value": "src_port",
+        "count": 92097521
+      },
+      {
+        "value": "image_path",
+        "count": 92063560
+      }
+    ],
+    "bro_fields": [
+      {
+        "value": "label",
+        "count": 3255
+      },
+      {
+        "value": "ts",
+        "count": 3244
+      },
+      {
+        "value": "id.orig_h",
+        "count": 1754
+      },
+      {
+        "value": "id.orig_p",
+        "count": 1754
+      },
+      {
+        "value": "id.resp_h",
+        "count": 1754
+      },
+      {
+        "value": "id.resp_p",
+        "count": 1754
+      },
+      {
+        "value": "uid",
+        "count": 1754
+      },
+      {
+        "value": "peer",
+        "count": 646
+      },
+      {
+        "value": "proto",
+        "count": 627
+      },
+      {
+        "value": "duration",
+        "count": 606
+      },
+      {
+        "value": "local_orig",
+        "count": 606
+      },
+      {
+        "value": "level",
+        "count": 603
+      },
+      {
+        "value": "message",
+        "count": 603
+      },
+      {
+        "value": "version",
+        "count": 581
+      },
+      {
+        "value": "subject",
+        "count": 513
+      },
+      {
+        "value": "trans_depth",
+        "count": 511
+      },
+      {
+        "value": "user_agent",
+        "count": 511
+      },
+      {
+        "value": "connected_peer_addr",
+        "count": 330
+      },
+      {
+        "value": "connected_peer_desc",
+        "count": 330
+      },
+      {
+        "value": "connected_peer_port",
+        "count": 330
+      },
+      {
+        "value": "src_name",
+        "count": 330
+      },
+      {
+        "value": "name",
+        "count": 328
+      },
+      {
+        "value": "addl",
+        "count": 316
+      },
+      {
+        "value": "notice",
+        "count": 316
+      },
+      {
+        "value": "rtt",
+        "count": 315
+      },
+      {
+        "value": "service",
+        "count": 314
+      },
+      {
+        "value": "AA",
+        "count": 313
+      },
+      {
+        "value": "RA",
+        "count": 313
+      },
+      {
+        "value": "RD",
+        "count": 313
+      },
+      {
+        "value": "TC",
+        "count": 313
+      },
+      {
+        "value": "TTLs",
+        "count": 313
+      },
+      {
+        "value": "Z",
+        "count": 313
+      },
+      {
+        "value": "answers",
+        "count": 313
+      },
+      {
+        "value": "conn_state",
+        "count": 313
+      },
+      {
+        "value": "history",
+        "count": 313
+      },
+      {
+        "value": "local_resp",
+        "count": 313
+      },
+      {
+        "value": "missed_bytes",
+        "count": 313
+      },
+      {
+        "value": "orig_bytes",
+        "count": 313
+      },
+      {
+        "value": "orig_ip_bytes",
+        "count": 313
+      },
+      {
+        "value": "orig_pkts",
+        "count": 313
+      },
+      {
+        "value": "qclass",
+        "count": 313
+      },
+      {
+        "value": "qclass_name",
+        "count": 313
+      },
+      {
+        "value": "qtype",
+        "count": 313
+      },
+      {
+        "value": "qtype_name",
+        "count": 313
+      },
+      {
+        "value": "query",
+        "count": 313
+      },
+      {
+        "value": "rcode",
+        "count": 313
+      },
+      {
+        "value": "rcode_name",
+        "count": 313
+      },
+      {
+        "value": "rejected",
+        "count": 313
+      },
+      {
+        "value": "resp_bytes",
+        "count": 313
+      },
+      {
+        "value": "resp_ip_bytes",
+        "count": 313
+      },
+      {
+        "value": "resp_pkts",
+        "count": 313
+      },
+      {
+        "value": "trans_id",
+        "count": 313
+      },
+      {
+        "value": "tunnel_parents",
+        "count": 313
+      },
+      {
+        "value": "fuid",
+        "count": 294
+      },
+      {
+        "value": "analyzers",
+        "count": 293
+      },
+      {
+        "value": "conn_uids",
+        "count": 293
+      },
+      {
+        "value": "depth",
+        "count": 293
+      },
+      {
+        "value": "extracted",
+        "count": 293
+      },
+      {
+        "value": "extracted_cutoff",
+        "count": 293
+      },
+      {
+        "value": "extracted_size",
+        "count": 293
+      },
+      {
+        "value": "filename",
+        "count": 293
+      },
+      {
+        "value": "is_orig",
+        "count": 293
+      },
+      {
+        "value": "md5",
+        "count": 293
+      },
+      {
+        "value": "mime_type",
+        "count": 293
+      },
+      {
+        "value": "missing_bytes",
+        "count": 293
+      },
+      {
+        "value": "overflow_bytes",
+        "count": 293
+      },
+      {
+        "value": "parent_fuid",
+        "count": 293
+      },
+      {
+        "value": "rx_hosts",
+        "count": 293
+      },
+      {
+        "value": "seen_bytes",
+        "count": 293
+      },
+      {
+        "value": "sha1",
+        "count": 293
+      },
+      {
+        "value": "sha256",
+        "count": 293
+      },
+      {
+        "value": "source",
+        "count": 293
+      },
+      {
+        "value": "timedout",
+        "count": 293
+      },
+      {
+        "value": "total_bytes",
+        "count": 293
+      },
+      {
+        "value": "tx_hosts",
+        "count": 293
+      },
+      {
+        "value": "basic_constraints.ca",
+        "count": 291
+      },
+      {
+        "value": "basic_constraints.path_len",
+        "count": 291
+      },
+      {
+        "value": "cert_chain_fuids",
+        "count": 291
+      },
+      {
+        "value": "certificate.curve",
+        "count": 291
+      },
+      {
+        "value": "certificate.exponent",
+        "count": 291
+      },
+      {
+        "value": "certificate.issuer",
+        "count": 291
+      },
+      {
+        "value": "certificate.key_alg",
+        "count": 291
+      },
+      {
+        "value": "certificate.key_length",
+        "count": 291
+      },
+      {
+        "value": "certificate.key_type",
+        "count": 291
+      },
+      {
+        "value": "certificate.not_valid_after",
+        "count": 291
+      },
+      {
+        "value": "certificate.not_valid_before",
+        "count": 291
+      },
+      {
+        "value": "certificate.serial",
+        "count": 291
+      },
+      {
+        "value": "certificate.sig_alg",
+        "count": 291
+      },
+      {
+        "value": "certificate.subject",
+        "count": 291
+      },
+      {
+        "value": "certificate.version",
+        "count": 291
+      },
+      {
+        "value": "cipher",
+        "count": 291
+      },
+      {
+        "value": "client_cert_chain_fuids",
+        "count": 291
+      },
+      {
+        "value": "client_issuer",
+        "count": 291
+      },
+      {
+        "value": "client_subject",
+        "count": 291
+      },
+      {
+        "value": "curve",
+        "count": 291
+      },
+      {
+        "value": "established",
+        "count": 291
+      },
+      {
+        "value": "id",
+        "count": 291
+      },
+      {
+        "value": "issuer",
+        "count": 291
+      },
+      {
+        "value": "last_alert",
+        "count": 291
+      },
+      {
+        "value": "next_protocol",
+        "count": 291
+      },
+      {
+        "value": "resumed",
+        "count": 291
+      },
+      {
+        "value": "san.dns",
+        "count": 291
+      },
+      {
+        "value": "san.email",
+        "count": 291
+      },
+      {
+        "value": "san.ip",
+        "count": 291
+      },
+      {
+        "value": "san.uri",
+        "count": 291
+      },
+      {
+        "value": "server_name",
+        "count": 291
+      },
+      {
+        "value": "username",
+        "count": 291
+      },
+      {
+        "value": "host",
+        "count": 289
+      },
+      {
+        "value": "info_code",
+        "count": 289
+      },
+      {
+        "value": "info_msg",
+        "count": 289
+      },
+      {
+        "value": "method",
+        "count": 289
+      },
+      {
+        "value": "orig_filenames",
+        "count": 289
+      },
+      {
+        "value": "orig_fuids",
+        "count": 289
+      },
+      {
+        "value": "orig_mime_types",
+        "count": 289
+      },
+      {
+        "value": "password",
+        "count": 289
+      },
+      {
+        "value": "proxied",
+        "count": 289
+      },
+      {
+        "value": "referrer",
+        "count": 289
+      },
+      {
+        "value": "request_body_len",
+        "count": 289
+      },
+      {
+        "value": "resp_filenames",
+        "count": 289
+      },
+      {
+        "value": "resp_fuids",
+        "count": 289
+      },
+      {
+        "value": "resp_mime_types",
+        "count": 289
+      },
+      {
+        "value": "response_body_len",
+        "count": 289
+      },
+      {
+        "value": "status_code",
+        "count": 289
+      },
+      {
+        "value": "status_msg",
+        "count": 289
+      },
+      {
+        "value": "tags",
+        "count": 289
+      },
+      {
+        "value": "uri",
+        "count": 289
+      },
+      {
+        "value": "html_count",
+        "count": 287
+      },
+      {
+        "value": "js_count",
+        "count": 287
+      },
+      {
+        "value": "wasm_count",
+        "count": 287
+      },
+      {
+        "value": "whitelisted_count",
+        "count": 287
+      },
+      {
+        "value": "location",
+        "count": 273
+      },
+      {
+        "value": "path",
+        "count": 224
+      },
+      {
+        "value": "cc",
+        "count": 222
+      },
+      {
+        "value": "date",
+        "count": 222
+      },
+      {
+        "value": "first_received",
+        "count": 222
+      },
+      {
+        "value": "from",
+        "count": 222
+      },
+      {
+        "value": "helo",
+        "count": 222
+      },
+      {
+        "value": "in_reply_to",
+        "count": 222
+      },
+      {
+        "value": "last_reply",
+        "count": 222
+      },
+      {
+        "value": "mailfrom",
+        "count": 222
+      },
+      {
+        "value": "msg_id",
+        "count": 222
+      },
+      {
+        "value": "rcptto",
+        "count": 222
+      },
+      {
+        "value": "reply_to",
+        "count": 222
+      },
+      {
+        "value": "second_received",
+        "count": 222
+      },
+      {
+        "value": "tls",
+        "count": 222
+      },
+      {
+        "value": "to",
+        "count": 222
+      },
+      {
+        "value": "x_originating_ip",
+        "count": 222
+      },
+      {
+        "value": "success",
+        "count": 18
+      },
+      {
+        "value": "filter",
+        "count": 16
+      },
+      {
+        "value": "init",
+        "count": 16
+      },
+      {
+        "value": "node",
+        "count": 16
+      },
+      {
+        "value": "cert_count",
+        "count": 2
+      },
+      {
+        "value": "cert_permanent",
+        "count": 2
+      },
+      {
+        "value": "cert_type",
+        "count": 2
+      },
+      {
+        "value": "client_build",
+        "count": 2
+      },
+      {
+        "value": "client_dig_product_id",
+        "count": 2
+      },
+      {
+        "value": "client_name",
+        "count": 2
+      },
+      {
+        "value": "cookie",
+        "count": 2
+      },
+      {
+        "value": "desktop_height",
+        "count": 2
+      },
+      {
+        "value": "desktop_width",
+        "count": 2
+      },
+      {
+        "value": "domainname",
+        "count": 2
+      },
+      {
+        "value": "encryption_level",
+        "count": 2
+      },
+      {
+        "value": "encryption_method",
+        "count": 2
+      },
+      {
+        "value": "endpoint",
+        "count": 2
+      },
+      {
+        "value": "hostname",
+        "count": 2
+      },
+      {
+        "value": "keyboard_layout",
+        "count": 2
+      },
+      {
+        "value": "named_pipe",
+        "count": 2
+      },
+      {
+        "value": "operation",
+        "count": 2
+      },
+      {
+        "value": "requested_color_depth",
+        "count": 2
+      },
+      {
+        "value": "result",
+        "count": 2
+      },
+      {
+        "value": "security_protocol",
+        "count": 2
+      },
+      {
+        "value": "status",
+        "count": 2
+      },
+      {
+        "value": "action",
+        "count": 1
+      },
+      {
+        "value": "analyzer",
+        "count": 1
+      },
+      {
+        "value": "auth_attempts",
+        "count": 1
+      },
+      {
+        "value": "auth_success",
+        "count": 1
+      },
+      {
+        "value": "cipher_alg",
+        "count": 1
+      },
+      {
+        "value": "client",
+        "count": 1
+      },
+      {
+        "value": "compression_alg",
+        "count": 1
+      },
+      {
+        "value": "direction",
+        "count": 1
+      },
+      {
+        "value": "failure_reason",
+        "count": 1
+      },
+      {
+        "value": "host_key",
+        "count": 1
+      },
+      {
+        "value": "host_key_alg",
+        "count": 1
+      },
+      {
+        "value": "kex_alg",
+        "count": 1
+      },
+      {
+        "value": "mac_alg",
+        "count": 1
+      },
+      {
+        "value": "native_file_system",
+        "count": 1
+      },
+      {
+        "value": "prev_name",
+        "count": 1
+      },
+      {
+        "value": "server",
+        "count": 1
+      },
+      {
+        "value": "share_type",
+        "count": 1
+      },
+      {
+        "value": "size",
+        "count": 1
+      },
+      {
+        "value": "times.accessed",
+        "count": 1
+      },
+      {
+        "value": "times.changed",
+        "count": 1
+      },
+      {
+        "value": "times.created",
+        "count": 1
+      },
+      {
+        "value": "times.modified",
+        "count": 1
+      }
+    ],
+    "bro_proto": [
+      {
+        "value": "tcp",
+        "count": 397963652
+      },
+      {
+        "value": "udp",
+        "count": 2825237
+      },
+      {
+        "value": "icmp",
+        "count": 37296
+      }
+    ],
+    "bro_service": [
+      {
+        "value": "ssl",
+        "count": 372423800
+      },
+      {
+        "value": "http",
+        "count": 23695468
+      },
+      {
+        "value": "-",
+        "count": 1563826
+      },
+      {
+        "value": "dns",
+        "count": 1409328
+      },
+      {
+        "value": "ssl,smtp",
+        "count": 173228
+      },
+      {
+        "value": "smtp,ssl",
+        "count": 146790
+      },
+      {
+        "value": "ntlm,gssapi,smb",
+        "count": 5
+      },
+      {
+        "value": "smb,gssapi,ntlm",
+        "count": 4
+      },
+      {
+        "value": "dce_rpc,ntlm",
+        "count": 3
+      },
+      {
+        "value": "gssapi,ntlm,smb",
+        "count": 3
+      },
+      {
+        "value": "ntlm,dce_rpc",
+        "count": 3
+      },
+      {
+        "value": "smb,ntlm,gssapi",
+        "count": 3
+      },
+      {
+        "value": "ntlm,smb,gssapi",
+        "count": 2
+      },
+      {
+        "value": "ntlm,smb,gssapi,dce_rpc",
+        "count": 2
+      },
+      {
+        "value": "dce_rpc",
+        "count": 1
+      },
+      {
+        "value": "gssapi,dce_rpc,ntlm,smb",
+        "count": 1
+      },
+      {
+        "value": "gssapi,smb,ntlm",
+        "count": 1
+      },
+      {
+        "value": "gssapi,smb,ntlm,dce_rpc",
+        "count": 1
+      },
+      {
+        "value": "ntlm,gssapi,smb,dce_rpc",
+        "count": 1
+      },
+      {
+        "value": "smb,gssapi,ntlm,dce_rpc",
+        "count": 1
+      },
+      {
+        "value": "smb,ntlm,dce_rpc,gssapi",
+        "count": 1
+      },
+      {
+        "value": "ssh",
+        "count": 1
+      }
+    ],
+    "bro_conn_state": [
+      {
+        "value": "SF",
+        "count": 396276403
+      },
+      {
+        "value": "RSTO",
+        "count": 2791325
+      },
+      {
+        "value": "S0",
+        "count": 248021
+      },
+      {
+        "value": "RSTR",
+        "count": 45500
+      },
+      {
+        "value": "OTH",
+        "count": 37312
+      },
+      {
+        "value": "REJ",
+        "count": 13145
+      },
+      {
+        "value": "RSTRH",
+        "count": 334
+      },
+      {
+        "value": "S3",
+        "count": 294
+      },
+      {
+        "value": "SHR",
+        "count": 66
+      },
+      {
+        "value": "S1",
+        "count": 17
+      },
+      {
+        "value": "RSTOS0",
+        "count": 2
+      }
+    ],
+    "bro_label": [
+      {
+        "value": "0",
+        "count": 1012059721
+      },
+      {
+        "value": "1",
+        "count": 71726
+      }
+    ]
+  },
+  "decision_gate": {
+    "status": "READY_FOR_REVIEW",
+    "note": "Join rate in STEP 04A FAST V2 is a deterministic-sample estimate. Exact full join is intentionally performed once in STEP 04B."
+  }
+}

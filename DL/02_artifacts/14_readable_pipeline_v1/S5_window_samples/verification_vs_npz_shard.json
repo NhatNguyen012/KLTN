@@ -1,0 +1,41 @@
+{
+  "beacon_SC2_bi_bat": {
+    "hostname": "sysclient0618",
+    "window_start_epoch": 1569355200,
+    "n_flows_tái_tạo": 30,
+    "n_flows_trong_shard": 30,
+    "x_cat_giống_hệt": true,
+    "x_num_sai_lệch_lớn_nhất": 2.273389532181369e-08,
+    "x_num_missing_giống_hệt": true,
+    "x_bin_giống_hệt": true,
+    "delta_t_sai_lệch_lớn_nhất": 1.1861654369837993e-07,
+    "shard": "shards/test/date=2019-09-24/test_2019-09-24_0001.npz",
+    "sample_index_trong_shard": 362
+  },
+  "binh_thuong": {
+    "hostname": "sysclient0618",
+    "window_start_epoch": 1568852100,
+    "n_flows_tái_tạo": 31,
+    "n_flows_trong_shard": 31,
+    "x_cat_giống_hệt": true,
+    "x_num_sai_lệch_lớn_nhất": 4.2881977257991366e-07,
+    "x_num_missing_giống_hệt": true,
+    "x_bin_giống_hệt": true,
+    "delta_t_sai_lệch_lớn_nhất": 5.316803930455194e-08,
+    "shard": "shards/test/date=2019-09-19/test_2019-09-19_0005.npz",
+    "sample_index_trong_shard": 282
+  },
+  "SC3_kho_bi_bo_sot": {
+    "hostname": "sysclient0051",
+    "window_start_epoch": 1569422700,
+    "n_flows_tái_tạo": 60,
+    "n_flows_trong_shard": 60,
+    "x_cat_giống_hệt": true,
+    "x_num_sai_lệch_lớn_nhất": 2.3850370212130656e-07,
+    "x_num_missing_giống_hệt": true,
+    "x_bin_giống_hệt": true,
+    "delta_t_sai_lệch_lớn_nhất": 2.3685021410813079e-07,
+    "shard": "shards/test/date=2019-09-25/test_2019-09-25_0000.npz",
+    "sample_index_trong_shard": 4
+  }
+}

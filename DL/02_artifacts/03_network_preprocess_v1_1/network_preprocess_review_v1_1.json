@@ -1,0 +1,103 @@
+{
+  "generated_at": "2026-09-23T14:26:05.623574",
+  "script_version": "step04c-network-preprocess-train-only-v1.1",
+  "status": "READY_TO_FREEZE",
+  "source_v1_candidate_fingerprint_sha256": "f24910f1b666f5e3ef36f41493f3d5ed2a1274f47dca018a4b7a48164d2de568",
+  "fit_policy": {
+    "fit_split": "train",
+    "val_used_for_fit": false,
+    "test_used_for_fit": false,
+    "unmatched_split_used_for_fit": false,
+    "label_used_for_feature_selection": false,
+    "min_numeric_log1p_std": 0.01,
+    "zscore_clip_abs": 10.0
+  },
+  "active_categorical_features": [
+    "app_family",
+    "proto",
+    "service",
+    "conn_state",
+    "resp_port_class"
+  ],
+  "inactive_categorical_features": {
+    "direction": "constant_on_train; kept only for audit/reproducibility",
+    "local_orig": "constant_on_train; kept only for audit/reproducibility",
+    "local_resp": "constant_on_train; kept only for audit/reproducibility",
+    "orig_ip_scope": "constant_on_train; kept only for audit/reproducibility",
+    "resp_ip_scope": "constant_on_train; kept only for audit/reproducibility",
+    "orig_port_class": "constant_on_train; kept only for audit/reproducibility"
+  },
+  "active_numerical_features": [
+    "duration",
+    "orig_bytes",
+    "resp_bytes",
+    "orig_pkts",
+    "orig_ip_bytes",
+    "resp_pkts",
+    "resp_ip_bytes"
+  ],
+  "inactive_numerical_features": {
+    "missed_bytes": "TRAIN log1p std=0.002403829 < 0.01; raw z-score would be unstable for rare non-zero values"
+  },
+  "derived_binary_features": [
+    {
+      "name": "has_missed_bytes",
+      "source": "missed_bytes",
+      "rule": "1.0 if missed_bytes > 0 else 0.0",
+      "fit_required": false,
+      "reason": "Preserve rare missed-bytes signal without dividing by near-zero TRAIN std."
+    }
+  ],
+  "oov_audit": {
+    "app_family": {
+      "val_UNK_rate": 8.735481345151705e-05,
+      "test_UNK_rate": 8.477905904954831e-05
+    },
+    "direction": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 9.336900776381974e-08
+    },
+    "proto": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 0.0
+    },
+    "service": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 0.0
+    },
+    "conn_state": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 0.0
+    },
+    "local_orig": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 0.0
+    },
+    "local_resp": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 0.0
+    },
+    "orig_ip_scope": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 0.0
+    },
+    "resp_ip_scope": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 0.0
+    },
+    "orig_port_class": {
+      "val_UNK_rate": 0.0,
+      "test_UNK_rate": 0.0
+    },
+    "resp_port_class": {
+      "val_UNK_rate": 1.0634499028880336e-06,
+      "test_UNK_rate": 9.336900776381974e-08
+    }
+  },
+  "notes": [
+    "v1.0 candidate passed leakage/OOV/missing checks but several categorical fields are constant on TRAIN.",
+    "Raw missed_bytes has near-zero TRAIN variance; v1.1 replaces its unstable z-score input with deterministic has_missed_bytes.",
+    "All active/inactive decisions use TRAIN statistics only. VAL/TEST OOV rates are audit-only."
+  ],
+  "candidate_v1_1_fingerprint_sha256": "72698db40deba6948c9e81e0cb318723a6d967d5fa4bc1b4cdee168cf8ec7da6"
+}

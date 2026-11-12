@@ -1,0 +1,266 @@
+{
+  "split": "val",
+  "warning": "Attention weights are diagnostic internal weights, not causal feature importance.",
+  "feature_attention_received": {
+    "positive": [
+      {
+        "field": "service",
+        "mean_attention_received": 0.26419807597994804
+      },
+      {
+        "field": "resp_port_class",
+        "mean_attention_received": 0.21818766556680202
+      },
+      {
+        "field": "app_family",
+        "mean_attention_received": 0.13701246120035648
+      },
+      {
+        "field": "delta_t_log1p",
+        "mean_attention_received": 0.13124689646065235
+      },
+      {
+        "field": "proto",
+        "mean_attention_received": 0.08210619259625673
+      },
+      {
+        "field": "has_missed_bytes",
+        "mean_attention_received": 0.06655796244740486
+      },
+      {
+        "field": "conn_state",
+        "mean_attention_received": 0.03307560691609979
+      },
+      {
+        "field": "orig_bytes",
+        "mean_attention_received": 0.025293556274846196
+      },
+      {
+        "field": "resp_pkts",
+        "mean_attention_received": 0.009842653176747262
+      },
+      {
+        "field": "resp_ip_bytes",
+        "mean_attention_received": 0.00725883775157854
+      },
+      {
+        "field": "orig_pkts",
+        "mean_attention_received": 0.00676395429763943
+      },
+      {
+        "field": "resp_bytes",
+        "mean_attention_received": 0.006660715851467103
+      },
+      {
+        "field": "orig_ip_bytes",
+        "mean_attention_received": 0.006621101521886885
+      },
+      {
+        "field": "duration",
+        "mean_attention_received": 0.005174359364900738
+      }
+    ],
+    "negative": [
+      {
+        "field": "app_family",
+        "mean_attention_received": 0.5040858164429665
+      },
+      {
+        "field": "resp_port_class",
+        "mean_attention_received": 0.14023650623857975
+      },
+      {
+        "field": "delta_t_log1p",
+        "mean_attention_received": 0.10517144482582808
+      },
+      {
+        "field": "has_missed_bytes",
+        "mean_attention_received": 0.08863476663827896
+      },
+      {
+        "field": "service",
+        "mean_attention_received": 0.031180295161902905
+      },
+      {
+        "field": "conn_state",
+        "mean_attention_received": 0.030928165884688497
+      },
+      {
+        "field": "orig_bytes",
+        "mean_attention_received": 0.023975373711436987
+      },
+      {
+        "field": "proto",
+        "mean_attention_received": 0.018205702770501375
+      },
+      {
+        "field": "orig_ip_bytes",
+        "mean_attention_received": 0.01081722800154239
+      },
+      {
+        "field": "resp_ip_bytes",
+        "mean_attention_received": 0.009665665216743946
+      },
+      {
+        "field": "duration",
+        "mean_attention_received": 0.009621384553611279
+      },
+      {
+        "field": "orig_pkts",
+        "mean_attention_received": 0.00950598658528179
+      },
+      {
+        "field": "resp_pkts",
+        "mean_attention_received": 0.009366026264615357
+      },
+      {
+        "field": "resp_bytes",
+        "mean_attention_received": 0.008605691022239625
+      }
+    ]
+  },
+  "temporal_attention_entropy": {
+    "positive": {
+      "n": 8,
+      "mean": 4.991976499557495,
+      "values": [
+        5.098308563232422,
+        5.138493537902832,
+        4.621304988861084,
+        5.0983123779296875,
+        5.132929801940918,
+        4.621294975280762,
+        5.092234134674072,
+        5.132933616638184
+      ]
+    },
+    "negative": {
+      "n": 8,
+      "mean": 5.013505160808563,
+      "values": [
+        4.349577903747559,
+        4.623356342315674,
+        4.904415130615234,
+        5.691105842590332,
+        5.338696479797363,
+        4.880169868469238,
+        5.743490219116211,
+        4.5772294998168945
+      ]
+    }
+  },
+  "samples": [
+    {
+      "sample_id": "1823c1ac34585559c2cd8d96",
+      "group": "positive",
+      "label": 1,
+      "probability": 1.0,
+      "event_count": 169
+    },
+    {
+      "sample_id": "1a642063f8f9b5447a1528ff",
+      "group": "positive",
+      "label": 1,
+      "probability": 1.0,
+      "event_count": 176
+    },
+    {
+      "sample_id": "4821d0caa9e2ed706c73ca45",
+      "group": "positive",
+      "label": 1,
+      "probability": 1.0,
+      "event_count": 105
+    },
+    {
+      "sample_id": "5e5302a39ef09ea58780d34c",
+      "group": "positive",
+      "label": 1,
+      "probability": 1.0,
+      "event_count": 169
+    },
+    {
+      "sample_id": "0a081c3398355ab84a7b1256",
+      "group": "positive",
+      "label": 1,
+      "probability": 1.0,
+      "event_count": 175
+    },
+    {
+      "sample_id": "7f6f189d5a590793d08e2eba",
+      "group": "positive",
+      "label": 1,
+      "probability": 1.0,
+      "event_count": 105
+    },
+    {
+      "sample_id": "1d385c73591138c88d62d5ef",
+      "group": "positive",
+      "label": 1,
+      "probability": 1.0,
+      "event_count": 168
+    },
+    {
+      "sample_id": "c6955dee0f557efb1166b2c8",
+      "group": "positive",
+      "label": 1,
+      "probability": 1.0,
+      "event_count": 175
+    },
+    {
+      "sample_id": "92fcdf1edaee3067d0ca4dd3",
+      "group": "negative",
+      "label": 0,
+      "probability": 7.775823007705185e-08,
+      "event_count": 154
+    },
+    {
+      "sample_id": "9b9141a0a37c4ed78c7571b8",
+      "group": "negative",
+      "label": 0,
+      "probability": 7.531241408287315e-08,
+      "event_count": 205
+    },
+    {
+      "sample_id": "b3ef86d15d28f426410a58a1",
+      "group": "negative",
+      "label": 0,
+      "probability": 7.140574354025375e-08,
+      "event_count": 261
+    },
+    {
+      "sample_id": "c4cdda1c72077411566aaa49",
+      "group": "negative",
+      "label": 0,
+      "probability": 6.79213627563513e-08,
+      "event_count": 490
+    },
+    {
+      "sample_id": "3fe51b57da28311aec103da6",
+      "group": "negative",
+      "label": 0,
+      "probability": 6.440386357553507e-08,
+      "event_count": 352
+    },
+    {
+      "sample_id": "b96f99e4ac044006eb03db2e",
+      "group": "negative",
+      "label": 0,
+      "probability": 7.109304789310045e-08,
+      "event_count": 257
+    },
+    {
+      "sample_id": "c97b29761f69603558415133",
+      "group": "negative",
+      "label": 0,
+      "probability": 6.827828968880567e-08,
+      "event_count": 512
+    },
+    {
+      "sample_id": "184d56b1476af21e23e88cf8",
+      "group": "negative",
+      "label": 0,
+      "probability": 7.785944688976087e-08,
+      "event_count": 196
+    }
+  ]
+}

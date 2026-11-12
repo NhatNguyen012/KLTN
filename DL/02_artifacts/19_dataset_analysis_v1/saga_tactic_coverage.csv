@@ -1,0 +1,13 @@
+﻿tactic,techniques,events,events_without_T1005
+Discovery,18,2366,2366
+Command and Control,4,1231,1231
+Execution,4,1009,1009
+Initial Access,2,528,528
+Impact,4,527,527
+Credential Access,6,477,477
+Defense Evasion,12,349,349
+Privilege Escalation,9,329,329
+Persistence,8,313,313
+Exfiltration,1,18,18
+Collection,3,70454,14
+Lateral Movement,1,14,14

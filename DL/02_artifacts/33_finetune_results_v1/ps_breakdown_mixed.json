@@ -1,0 +1,42 @@
+{
+ "model": "mixed",
+ "threshold": 1.0,
+ "out_of_fold": {
+  "has_powershell=0": {
+   "n_pos": 11,
+   "tp_at_optc_val": 0,
+   "tp_at_0.5": 0,
+   "max_prob": 0.0206
+  },
+  "has_powershell=1": {
+   "n_pos": 5,
+   "tp_at_optc_val": 3,
+   "tp_at_0.5": 4,
+   "max_prob": 1.0
+  },
+  "negatives_with_powershell": {
+   "n": 0,
+   "fp_at_0.5": 0
+  }
+ },
+ "train_fit_by_powershell": {
+  "has_powershell=0": {
+   "n_pos_instances": 22,
+   "tp_at_optc_val": 0,
+   "tp_at_0.5": 0,
+   "median_prob": 0.0085,
+   "max_prob": 0.0317
+  },
+  "has_powershell=1": {
+   "n_pos_instances": 10,
+   "tp_at_optc_val": 7,
+   "tp_at_0.5": 8,
+   "median_prob": 1.0,
+   "max_prob": 1.0
+  },
+  "negatives_with_powershell": {
+   "n_instances": 0,
+   "fp_at_0.5": 0
+  }
+ }
+}

@@ -1,0 +1,105 @@
+gốc giả: C:\Users\ADMIN\AppData\Local\Temp\smoke_root_0hfnr_kx
+Wrote: ['05b_train_bilstm.py', 'network_dl_dataset_v1_1.py']
+>> D:/UIT/KLTNv2/.venv-host/Scripts/python.exe C:\Users\ADMIN\AppData\Local\Temp\smoke_bilstm_yb_tox24\05b_train_bilstm.py --dataset-root C:\Users\ADMIN\AppData\Local\Temp\smoke_root_0hfnr_kx --output-dir C:\Users\ADMIN\AppData\Local\Temp\smoke_out_bilstm_jgnm_ffa --epochs 1 --batch-size 16 --max-train-batches 30 --max-eval-batches 10 --num-workers 0
+====================================================================================================
+STEP 05B — BiLSTM baseline
+====================================================================================================
+[DATASET] C:\Users\ADMIN\AppData\Local\Temp\smoke_root_0hfnr_kx
+[TRAIN] negative=159,809 | positive=401 | pos_weight=398.526185
+[CAT] [('app_family', 61), ('proto', 4), ('service', 5), ('conn_state', 8), ('resp_port_class', 11), ('image_dir_class', 10), ('principal_class', 7)]
+[NUM] ['duration', 'orig_bytes', 'resp_bytes', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
+[DEVICE] cpu | amp=False
+[PARAMS] 80,657
+[EPOCH 1] loss=4.604840 | val_PR_AUC=0.000000 | val_F1=0.000000 | thr=0.001397 | 2.4 min
+[CHECKPOINT] epoch=1
+
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+Traceback (most recent call last):
+  File "C:\Users\ADMIN\AppData\Local\Temp\smoke_bilstm_yb_tox24\05b_train_bilstm.py", line 475, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\ADMIN\AppData\Local\Temp\smoke_bilstm_yb_tox24\05b_train_bilstm.py", line 447, in main
+    save_curves(output_dir, y_true=val_true, y_prob=val_prob, prefix="val")
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ADMIN\AppData\Local\Temp\smoke_bilstm_yb_tox24\05b_train_bilstm.py", line 225, in save_curves
+    import matplotlib.pyplot as plt
+ModuleNotFoundError: No module named 'matplotlib'
+
+Wrote: ['05e_attention_audit.py', '05e_train_mixed_type_attention.py', 'mixed_type_attention_model.py', 'network_dl_dataset_v1_1.py']
+>> D:/UIT/KLTNv2/.venv-host/Scripts/python.exe C:\Users\ADMIN\AppData\Local\Temp\smoke_mixed_z2uvrhio\05e_train_mixed_type_attention.py --dataset-root C:\Users\ADMIN\AppData\Local\Temp\smoke_root_0hfnr_kx --output-dir C:\Users\ADMIN\AppData\Local\Temp\smoke_out_mixed_uat0bzk5 --epochs 1 --batch-size 8 --grad-accum 1 --max-train-batches 10 --max-eval-batches 5 --num-workers 0
+========================================================================================================
+STEP 05E — Mixed-Type Self-Attention
+========================================================================================================
+[DATASET] C:\Users\ADMIN\AppData\Local\Temp\smoke_root_0hfnr_kx
+[TRAIN] negative=159,809 | positive=401 | pos_weight=398.526185
+[CAT] [('app_family', 61), ('proto', 4), ('service', 5), ('conn_state', 8), ('resp_port_class', 11), ('image_dir_class', 10), ('principal_class', 7)]
+[NUM] ['duration', 'orig_bytes', 'resp_bytes', 'orig_pkts', 'orig_ip_bytes', 'resp_pkts', 'resp_ip_bytes']
+[MAX EVENTS] 512
+[DEVICE] cpu | amp=False
+[PARAMS] 147,329
+[ATTN] d_model=64 | heads=4 | feature_layers=1 | temporal_layers=2
+[BATCH] physical=8 | grad_accum=1 | effective≈8
+[EPOCH 1] training complete -> validating...
+[EPOCH 1] loss=0.553060 | val_PR_AUC=0.000000 | val_F1=0.000000 | thr=0.32819289 | 0.2 min
+[CHECKPOINT] best_model.pt epoch=1
+[FINAL] best checkpoint loaded -> selecting threshold on VAL...
+
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+D:\UIT\KLTNv2\.venv-host\Lib\site-packages\sklearn\metrics\_ranking.py:1033: UserWarning: No positive class found in y_true, recall is set to one for all thresholds.
+  warnings.warn(
+Traceback (most recent call last):
+  File "C:\Users\ADMIN\AppData\Local\Temp\smoke_mixed_z2uvrhio\05e_train_mixed_type_attention.py", line 927, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\ADMIN\AppData\Local\Temp\smoke_mixed_z2uvrhio\05e_train_mixed_type_attention.py", line 850, in main
+    save_curves(
+    ~~~~~~~~~~~^
+        output_dir,
+        ^^^^^^^^^^^
+    ...<2 lines>...
+        prefix="val",
+        ^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ADMIN\AppData\Local\Temp\smoke_mixed_z2uvrhio\05e_train_mixed_type_attention.py", line 356, in save_curves
+    import matplotlib.pyplot as plt
+ModuleNotFoundError: No module named 'matplotlib'
+
+{
+ "bilstm": {
+  "returncode": 1,
+  "outputs": [
+   "best_model.pt",
+   "config.json",
+   "history.csv",
+   "threshold.json",
+   "val_predictions.csv"
+  ]
+ },
+ "mixed": {
+  "returncode": 1,
+  "outputs": [
+   "best_model.pt",
+   "config.json",
+   "history.csv",
+   "threshold.json",
+   "val_predictions.csv"
+  ]
+ }
+}

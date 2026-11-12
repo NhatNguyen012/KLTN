@@ -1,0 +1,12 @@
+﻿mã_cột,tactic,attack_id,ý_nghĩa
+IA,Initial Access,TA0001,"Truy cập ban đầu: cách kẻ tấn công vào được máy đầu tiên (phishing, cập nhật giả mạo)"
+EX,Execution,TA0002,Thực thi mã độc trên máy nạn nhân
+PE,Persistence,TA0003,"Duy trì hiện diện: registry Run, WMI subscription, tài khoản mới"
+PR,Privilege Escalation,TA0004,"Leo thang đặc quyền: bypass UAC, getsystem, migrate vào LSASS"
+DE,Defense Evasion,TA0005,"Né tránh phòng thủ: timestomp, dọn dẹp dấu vết, chèn process"
+CA,Credential Access,TA0006,"Lấy thông tin xác thực: Mimikatz, lsadump"
+DI,Discovery,TA0007,"Dò thám: quét ARP, ping sweep, liệt kê domain, share"
+LM,Lateral Movement,TA0008,"Di chuyển ngang sang máy khác: WMI, RDP"
+CO,Collection,TA0009,"Thu thập dữ liệu: nén tài liệu, chụp màn hình"
+C2,Command and Control,TA0011,"Điều khiển từ xa: beacon, tải công cụ"
+EXF,Exfiltration,TA0010,Đánh cắp dữ liệu ra ngoài

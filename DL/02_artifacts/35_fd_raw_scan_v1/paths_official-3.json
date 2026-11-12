@@ -1,0 +1,94 @@
+{
+ "file": "03_datasets/ta1-fivedirections-e3-official-3.json.tar.gz",
+ "processes": {
+  "n": 582,
+  "cmd": 533,
+  "cmd_first_token_has_dir": 436,
+  "suspect_tokens_in_cmd": 19
+ },
+ "cmd_examples_without_dir": [
+  "System",
+  "lsass.exe",
+  "svchost.exe",
+  "svchost.exe",
+  "svchost.exe",
+  "svchost.exe",
+  "svchost.exe",
+  "svchost.exe",
+  "svchost.exe",
+  "LogonUI.exe",
+  "svchost.exe",
+  "taskhostw.exe"
+ ],
+ "events": {
+  "EVENT_EXECUTE": {
+   "n": 470,
+   "parsed": 470,
+   "path": 470
+  },
+  "EVENT_LOADLIBRARY": {
+   "n": 31332,
+   "parsed": 20000,
+   "path": 20000
+  },
+  "EVENT_FORK": {
+   "n": 358,
+   "parsed": 358,
+   "props": 358
+  }
+ },
+ "event_examples": {
+  "EVENT_EXECUTE": [
+   {
+    "path": "Idle",
+    "path2": null
+   },
+   {
+    "path": "System",
+    "path2": null
+   },
+   {
+    "path": "smss.exe",
+    "path2": null
+   },
+   {
+    "path": "csrss.exe",
+    "path2": null
+   }
+  ],
+  "EVENT_LOADLIBRARY": [
+   {
+    "path": "\\Device\\HarddiskVolume2\\Windows\\System32\\vertdll.dll",
+    "path2": null
+   },
+   {
+    "path": "\\Device\\HarddiskVolume2\\Windows\\SysWOW64\\ntdll.dll",
+    "path2": null
+   },
+   {
+    "path": "\\Device\\HarddiskVolume2\\Windows\\System32\\ntdll.dll",
+    "path2": null
+   },
+   {
+    "path": "\\SystemRoot\\system32\\kd.dll",
+    "path2": null
+   }
+  ],
+  "EVENT_FORK": []
+ },
+ "event_property_keys": {
+  "EVENT_FORK:ParentID": 358,
+  "EVENT_FORK:PackageFullName": 358,
+  "EVENT_FORK:UniqueProcessKey": 358,
+  "EVENT_FORK:Flags": 358,
+  "EVENT_FORK:UserSID": 358,
+  "EVENT_FORK:ExitStatus": 358,
+  "EVENT_FORK:CommandLine": 358,
+  "EVENT_FORK:Username": 358,
+  "EVENT_FORK:ImageFileName": 358,
+  "EVENT_FORK:ProcessID": 358,
+  "EVENT_FORK:ApplicationID": 358,
+  "EVENT_FORK:SessionID": 358,
+  "EVENT_FORK:DirectoryTableBase": 358
+ }
+}

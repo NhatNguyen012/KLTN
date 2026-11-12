@@ -1,0 +1,22 @@
+{
+  "reused_from": "02_artifacts\\08b_loso_preprocess_v1\\_shared_host_profiles",
+  "source_state": {
+    "profile_version": "step05f-c-host-profile-v1.0",
+    "joined_root": "D:\\UIT\\KLTN\\artifacts\\step04_network_joined_v1\\joined",
+    "joined_dataset_signature": {
+      "parquet_files": 29,
+      "compressed_bytes": 3148862423,
+      "metadata_sha256": "1db4acccffa744df738f1f5b4a1d653ee8b698a845a965b05051c8e3e3fe9b38"
+    },
+    "report04b_sha256": "4f4136992804f2235d4bef2add0eeadbc635dbd3abafd3d8bc071c016e574ac9",
+    "loso_contract_file_sha256": "b2071391f9e5281efb34e32e2e30e82bc643ca2e076ef10877f31e197538aa2b",
+    "expected_supervised_rows": 85626185
+  },
+  "validated_fields": [
+    "profile_version",
+    "report04b_sha256",
+    "expected_supervised_rows",
+    "parquet_files",
+    "compressed_bytes"
+  ]
+}

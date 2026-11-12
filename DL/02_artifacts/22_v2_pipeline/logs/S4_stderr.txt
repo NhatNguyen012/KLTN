@@ -1,0 +1,62 @@
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()
+D:\UIT\KLTNv2\01_code\pipeline_v2\s4_shards.py:101: DeprecationWarning: fetch_arrow_table() is deprecated, use to_arrow_table() instead.
+  t = con.execute(build_query(spec, hs)).fetch_arrow_table()

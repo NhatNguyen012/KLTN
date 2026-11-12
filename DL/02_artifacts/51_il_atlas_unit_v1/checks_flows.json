@@ -1,0 +1,35 @@
+{
+ "flows": 29565,
+ "units": 885,
+ "units_positive": 99,
+ "units_over_512_flows": 6,
+ "positive_by_app": {
+  "firefox.exe": 59,
+  "payload.exe": 16,
+  "plugin-container.exe": 5,
+  "winword.exe": 4,
+  "powershell.exe": 4,
+  "python.exe": 3,
+  "mshta.exe": 3,
+  "osppsvc.exe": 2,
+  "regsvr32.exe": 2,
+  "explorer.exe": 1
+ },
+ "fold_counts": {
+  "0": {
+   "0": 283,
+   "1": 259,
+   "2": 244
+  },
+  "1": {
+   "0": 34,
+   "1": 39,
+   "2": 26
+  }
+ },
+ "val_if_fold0_test": {
+  "0": 125,
+  "1": 27
+ },
+ "mixed_label_units_note": "unit co ca flow duong va am: 25"
+}

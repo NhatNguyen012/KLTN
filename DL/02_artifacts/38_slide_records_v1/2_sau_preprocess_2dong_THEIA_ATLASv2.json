@@ -1,0 +1,29 @@
+{
+    "hostname": "ta1-theia (10.0.6.60)",
+    "ts_utc": "2018-04-10 18:54:16.612",
+    "label": 1,
+    "app_family": "firefox",
+    "app_family_id": 61,
+    "proto": null,
+    "proto_id": 1,
+    "resp_port_class": "PORT_80_HTTP",
+    "resp_port_class_id": 3,
+    "image_dir_class": "SYSTEM_BIN",
+    "image_dir_class_id": 10,
+    "delta_t_log1p": 0.0
+}
+
+{
+    "hostname": "WIN-32-H1",
+    "ts_utc": "2022-07-19 16:18:11.019",
+    "label": 1,
+    "app_family": "firefox.exe",
+    "app_family_id": 2,
+    "proto": "tcp",
+    "proto_id": 2,
+    "resp_port_class": "PORT_443_HTTPS",
+    "resp_port_class_id": 2,
+    "image_dir_class": "PROGRAM_FILES",
+    "image_dir_class_id": 2,
+    "delta_t_log1p": 0.0
+}

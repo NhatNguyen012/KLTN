@@ -1,0 +1,10 @@
+﻿seed,split,n_hosts,n_hosts_with_attack_flows,n_SC1_hosts,n_SC2_hosts,n_SC3_hosts,n_hosts_with_host_log
+seed_1,train,434,20,12,7,1,434
+seed_1,val,93,4,3,2,0,93
+seed_1,test,93,4,2,1,1,93
+seed_2,train,434,19,12,7,1,434
+seed_2,val,93,5,3,2,0,93
+seed_2,test,93,4,2,1,1,93
+seed_3,train,434,19,12,7,1,434
+seed_3,val,93,5,3,2,0,93
+seed_3,test,93,4,2,1,1,93

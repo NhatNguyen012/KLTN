@@ -1,0 +1,22 @@
+attack,process_name,process_id,process_uuid,label,stage
+h1-s1,c:\program files\mozilla firefox\firefox.exe,2192,7DMF69PK-05e59b07-00000890-00000000-1d89b70f4572302,attack,Initial_Compromise
+h1-s1,c:\windows\system32\lsass.exe,991,7DMF69PK-05e59b07-000001fc-00000000-1d89b702c772df6,attack,Execution_Discovery
+h1-s1,c:\program files\microsoft office\office14\excel.exe,2044,7DMF69PK-05e59b07-000007fc-00000000-1d89b73610cd978,attack,Initial_Compromise
+h1-s1,c:\program files\mozilla firefox\plugin-container.exe,3408,7DMF69PK-05e59b07-00000d50-00000000-1d89b731f647157,attack,Initial_Compromise
+h1-s1,c:\program files\common files\microsoft shared\officesoftwareprotectionplatform\osppsvc.exe,3368,7DMF69PK-05e59b07-00000d28-00000000-1d89b73627b6d62,attack,Initial_Compromise
+h1-s1,c:\windows\system32\taskhost.exe,1196,7DMF69PK-05e59b07-000005ac-00000000-1d89b702d4645ae,attack,Execution_Discovery
+h1-s1,c:\windows\system32\conhost.exe,1200,7DMF69PK-05e59b07-00000f88-00000000-1d89b7034bed163,attack,Execution_Discovery
+h1-s1,c:\windows\system32\cmd.exe,1202,7DMF69PK-05e59b07-0000052c-00000000-1d89b70f324117f,attack,Execution_Discovery
+h1-s1,c:\windows\system32\conhost.exe,1203,7DMF69PK-05e59b07-00000fac-00000000-1d89b70f32672df,attack,Execution_Discovery
+h1-s1,c:\windows\system32\conhost.exe,1206,7DMF69PK-05e59b07-00000fb4-00000000-1d89b70f4b41fbd,attack,Execution_Discovery
+h1-s1,c:\program files\mozilla firefox\firefox.exe,1207,7DMF69PK-05e59b07-000008dc-00000000-1d89b714ab89bf0,attack,Initial_Compromise
+h1-s1,c:\windows\system32\cmd.exe,1208,7DMF69PK-05e59b07-000004a8-00000000-1d89b71821e05f6,attack,Execution_Discovery
+h1-s1,c:\windows\system32\conhost.exe,1209,7DMF69PK-05e59b07-00000790-00000000-1d89b718227f12b,attack,Execution_Discovery
+h1-s1,c:\python27\python.exe,1210,7DMF69PK-05e59b07-00000e3c-00000000-1d89b718991f056,attack,Lateral_Movement
+h1-s1,c:\windows\explorer.exe,1596,7DMF69PK-05e59b07-0000063c-00000000-1d89b702d548df0,attack,Execution_Discovery
+h1-s1,c:\windows\system32\cmd.exe,1260,7DMF69PK-05e59b07-000004ec-00000000-1d89b73f2bf2e9a,attack,Execution_Discovery
+h1-s1,c:\windows\system32\audiodg.exe,2792,7DMF69PK-05e59b07-00000ae8-00000000-1d89b72251eabf3,attack,Execution_Discovery
+h1-s1,c:\windows\system32\taskhost.exe,3700.0,7DMF69PK-05e59b07-00000e74-00000000-1d89b724869007b,attack,Execution_Discovery
+h1-s1,c:\windows\system32\conhost.exe,1300,7DMF69PK-05e59b07-00000514-00000000-1d89b73f2c19fa3,attack,Execution_Discovery
+h1-s1,c:\users\aalsahee\payload.exe,1504.0,7DMF69PK-05e59b07-000005e0-00000000-1d89b73f8b9e0f4,attack,Exfiltration
+h1-s1,c:\users\aalsahee\payload.exe,1204.0,7DMF69PK-05e59b07-000004b4-00000000-1d89b73f97eba76,attack,Exfiltration

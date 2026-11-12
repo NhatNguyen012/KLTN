@@ -1,0 +1,320 @@
+{
+  "generated_at": "2026-09-23T13:52:52.901828",
+  "script_version": "step04b-network-exact-join-v1.0",
+  "inputs": {
+    "frozen_manifest": "D:\\UIT\\KLTN\\artifacts\\step02_label_split_v1_1\\split_manifest_frozen.csv",
+    "frozen_manifest_sha256": "dbc8467ea27ab8a47515ae816e5758d558a5994a2b74c5929b7a640bc4abcafe",
+    "step04a_profile_json": "D:\\UIT\\KLTN\\artifacts\\step04_network_profile_fast_v2\\network_join_profile_fast_v2.json",
+    "step04a_profile_json_sha256": "6ec6644c3f8b913be18aa6e89c650f48219a06ecd9177afc6bc1d4e16d51b8ac",
+    "step04a_profile_db": "D:\\UIT\\KLTN\\artifacts\\step04_network_profile_fast_v2\\network_profile_fast_v2.sqlite3",
+    "ecar_bro_files": 156,
+    "bro_conn_files": 313
+  },
+  "join_policy": {
+    "key": "ecar_bro.properties.bro_uid == bro_conn.uid",
+    "bro_source": "canonical conn logs only",
+    "ecar_global_dedup": "one row per bro_uid; abort on hostname conflict",
+    "bro_duplicate_policy": "keep earliest conn row per uid after exact join",
+    "split_policy": "inherit frozen STEP 02 hostname split",
+    "unknown_hostname_policy": "unmatched_split; excluded from baseline supervised training",
+    "label_source": "Bro conn label"
+  },
+  "ecar_exact": {
+    "unique_uid": 92071089,
+    "raw_rows": 92097521,
+    "duplicate_uid": 26347,
+    "hostname_conflict_uid": 0,
+    "unmatched_split_uid": 6419570
+  },
+  "joined": {
+    "joined_unique_uid_rows": 92045755,
+    "exact_join_rate_over_ecar_unique_uid": 0.9997248430503521,
+    "rows_by_split": {
+      "test": 10710192,
+      "train": 61751292,
+      "unmatched_split": 6419570,
+      "val": 13164701
+    },
+    "labels_by_split": {
+      "test": {
+        "0": 10706992,
+        "1": 3200
+      },
+      "train": {
+        "0": 61733236,
+        "1": 18056
+      },
+      "unmatched_split": {
+        "0": 6419570
+      },
+      "val": {
+        "0": 13161236,
+        "1": 3465
+      }
+    },
+    "missing_label_rows": 0,
+    "top_app_family": [
+      {
+        "value": "firefox.exe",
+        "count": 91841872
+      },
+      {
+        "value": "",
+        "count": 33949
+      },
+      {
+        "value": "cmd.exe",
+        "count": 33434
+      },
+      {
+        "value": "conhost.exe",
+        "count": 32743
+      },
+      {
+        "value": "powershell.exe",
+        "count": 24503
+      },
+      {
+        "value": "ping.exe",
+        "count": 22134
+      },
+      {
+        "value": "schtasks.exe",
+        "count": 7770
+      },
+      {
+        "value": "appidcertstorecheck.exe",
+        "count": 5699
+      },
+      {
+        "value": "reg.exe",
+        "count": 4885
+      },
+      {
+        "value": "svchost.exe",
+        "count": 4509
+      },
+      {
+        "value": "googleupdate.exe",
+        "count": 3578
+      },
+      {
+        "value": "onedrivesetup.exe",
+        "count": 2967
+      },
+      {
+        "value": "taskhostw.exe",
+        "count": 2591
+      },
+      {
+        "value": "taskkill.exe",
+        "count": 2035
+      },
+      {
+        "value": "python.exe",
+        "count": 2025
+      },
+      {
+        "value": "bcdedit.exe",
+        "count": 1584
+      },
+      {
+        "value": "wscript.exe",
+        "count": 1525
+      },
+      {
+        "value": "backgroundtaskhost.exe",
+        "count": 1331
+      },
+      {
+        "value": "mpcmdrun.exe",
+        "count": 1187
+      },
+      {
+        "value": "geckodriver.exe",
+        "count": 1153
+      },
+      {
+        "value": "sppsvc.exe",
+        "count": 1054
+      },
+      {
+        "value": "searchprotocolhost.exe",
+        "count": 1022
+      },
+      {
+        "value": "searchfilterhost.exe",
+        "count": 956
+      },
+      {
+        "value": "reader_sl.exe",
+        "count": 838
+      },
+      {
+        "value": "winword.exe",
+        "count": 674
+      },
+      {
+        "value": "splwow64.exe",
+        "count": 616
+      },
+      {
+        "value": "acrord32.exe",
+        "count": 599
+      },
+      {
+        "value": "runtimebroker.exe",
+        "count": 589
+      },
+      {
+        "value": "mobsync.exe",
+        "count": 571
+      },
+      {
+        "value": "explorer.exe",
+        "count": 531
+      },
+      {
+        "value": "adobearm.exe",
+        "count": 493
+      },
+      {
+        "value": "vgauthservice.exe",
+        "count": 493
+      },
+      {
+        "value": "searchui.exe",
+        "count": 390
+      },
+      {
+        "value": "vmtoolsd.exe",
+        "count": 359
+      },
+      {
+        "value": "msascuil.exe",
+        "count": 350
+      },
+      {
+        "value": "mscorsvw.exe",
+        "count": 339
+      },
+      {
+        "value": "qwinsta.exe",
+        "count": 317
+      },
+      {
+        "value": "tiworker.exe",
+        "count": 315
+      },
+      {
+        "value": "smartscreen.exe",
+        "count": 314
+      },
+      {
+        "value": "msoia.exe",
+        "count": 261
+      },
+      {
+        "value": "dsregcmd.exe",
+        "count": 241
+      },
+      {
+        "value": "powerpnt.exe",
+        "count": 233
+      },
+      {
+        "value": "sc.exe",
+        "count": 229
+      },
+      {
+        "value": "logonui.exe",
+        "count": 225
+      },
+      {
+        "value": "shutdown.exe",
+        "count": 208
+      },
+      {
+        "value": "wmiprvse.exe",
+        "count": 203
+      },
+      {
+        "value": "installagent.exe",
+        "count": 160
+      },
+      {
+        "value": "tasklist.exe",
+        "count": 146
+      },
+      {
+        "value": "biguwcmnsucig.exe",
+        "count": 140
+      },
+      {
+        "value": "excel.exe",
+        "count": 126
+      }
+    ]
+  },
+  "feature_contract": {
+    "version": "network-feature-contract-v1.0",
+    "join_only_or_audit": [
+      "uid",
+      "hostname",
+      "ts",
+      "date",
+      "split",
+      "ecar_occurrence_count"
+    ],
+    "target_only": [
+      "label"
+    ],
+    "categorical_candidates": [
+      "app_family",
+      "direction",
+      "proto",
+      "service",
+      "conn_state",
+      "local_orig",
+      "local_resp"
+    ],
+    "numerical_candidates": [
+      "duration",
+      "orig_bytes",
+      "resp_bytes",
+      "missed_bytes",
+      "orig_pkts",
+      "orig_ip_bytes",
+      "resp_pkts",
+      "resp_ip_bytes"
+    ],
+    "graph_construction_only_initial": [
+      "orig_h",
+      "orig_p",
+      "resp_h",
+      "resp_p"
+    ],
+    "cross_source_validation_or_optional": [
+      "ecar_l4protocol"
+    ],
+    "never_predictive_directly": [
+      "uid",
+      "hostname",
+      "split",
+      "label",
+      "raw exact timestamp",
+      "raw global IP identity as learned category"
+    ],
+    "next_step": {
+      "step04c": "Derive IP scope/port buckets and fit categorical maps + numeric log/scale statistics on TRAIN only.",
+      "step04d": "Build shared (hostname,15-minute-window,chunk) graph/sequence samples."
+    }
+  },
+  "output": {
+    "joined_parquet_root": "D:\\UIT\\KLTN\\artifacts\\step04_network_joined_v1\\joined",
+    "partitioning": [
+      "split",
+      "date"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+attack,process_name,process_id,process_uuid,label,stage
+h1-s4,c:\program files\mozilla firefox\firefox.exe,3900,7DMF69PK-05e6ded8-00000f3c-00000000-1d89bd058b9c425,attack,Initial_Compromise
+h1-s4,c:\program files\microsoft office\office14\winword.exe,5980,7DMF69PK-05e6ded8-0000175c-00000000-1d89bd2ba571eab,attack,Initial_Compromise
+h1-s4,c:\windows\system32\lsass.exe,512,7DMF69PK-05e6ded8-0000021c-00000000-1d89bcfe36e9438,attack,Execution_Discovery
+h1-s4,c:\program files\microsoft office\office14\winword.exe,628,7DMF69PK-05e6ded8-00000a30-00000000-1d89bd3057b4c04,attack,Initial_Compromise
+h1-s4,c:\windows\system32\mshta.exe,4724.0,7DMF69PK-05e6ded8-00001274-00000000-1d89bd326becc74,attack,Initial_Compromise
+h1-s4,c:\windows\system32\taskhost.exe,1444,7DMF69PK-05e6ded8-000005a4-00000000-1d89bcfe3ef1e87,attack,Execution_Discovery
+h1-s4,c:\windows\system32\windowspowershell\v1.0\powershell.exe,2976.0,7DMF69PK-05e6ded8-00000ba0-00000000-1d89bd329522b2c,attack,Execution_Discovery
+h1-s4,c:\windows\system32\conhost.exe,5896.0,7DMF69PK-05e6ded8-00001708-00000000-1d89bd3295c1661,attack,Execution_Discovery
+h1-s4,c:\windows\system32\windowspowershell\v1.0\powershell.exe,3820.0,7DMF69PK-05e6ded8-00000eec-00000000-1d89bd32be9f6c4,attack,Execution_Discovery
+h1-s4,c:\windows\system32\conhost.exe,4492.0,7DMF69PK-05e6ded8-0000118c-00000000-1d89bd32c39295d,attack,Execution_Discovery
+h1-s4,c:\program files\mozilla firefox\firefox.exe,2656,7DMF69PK-05e6ded8-00000a60-00000000-1d89bd0676e6f1a,attack,Initial_Compromise
+h1-s4,c:\python27\python.exe,2752,7DMF69PK-05e6ded8-00000ac0-00000000-1d89bd056f57eb1,attack,Lateral_Movement
+h1-s4,c:\windows\system32\cmd.exe,5712.0,7DMF69PK-05e6ded8-00001650-00000000-1d89bd04effe4c7,attack,Execution_Discovery
+h1-s4,c:\windows\system32\conhost.exe,5664,7DMF69PK-05e6ded8-00001620-00000000-1d89bd04effe4c7,attack,Execution_Discovery
+h1-s4,c:\windows\system32\conhost.exe,4448,7DMF69PK-05e6ded8-00001160-00000000-1d89bd04bcaaa08,attack,Execution_Discovery
+h1-s4,c:\windows\system32\cmd.exe,2268.0,7DMF69PK-05e6ded8-000008dc-00000000-1d89bd04a54f1fd,attack,Execution_Discovery
+h1-s4,c:\windows\system32\conhost.exe,1900,7DMF69PK-05e6ded8-0000076c-00000000-1d89bd04a57535d,attack,Execution_Discovery
+h1-s4,c:\program files\microsoft office\office14\winword.exe,3236,7DMF69PK-05e6ded8-00000ca4-00000000-1d89bd27e259ba9,attack,Initial_Compromise
+h1-s4,c:\users\aalsahee\payload.exe,3652,7DMF69PK-05e6ded8-00000e44-00000000-1d89bd3511e5047,attack,Exfiltration
+h1-s4,c:\users\aalsahee\payload.exe,4184.0,7DMF69PK-05e6ded8-00001058-00000000-1d89bd350b5a1df,attack,Exfiltration
+h1-s4,c:\windows\system32\cmd.exe,2168.0,7DMF69PK-05e6ded8-00000878-00000000-1d89bd34f4395e4,attack,Execution_Discovery
+h1-s4,c:\windows\system32\conhost.exe,4744,7DMF69PK-05e6ded8-00001288-00000000-1d89bd34f445937,attack,Execution_Discovery
+h1-s4,c:\windows\system32\conhost.exe,6142,7DMF69PK-05e6ded8-00000f90-00000000-1d89bcfeb01da48,attack,Execution_Discovery

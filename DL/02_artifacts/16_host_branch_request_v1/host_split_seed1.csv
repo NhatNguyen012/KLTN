@@ -1,0 +1,621 @@
+﻿hostname,split,scenario,is_attacked_host,host_group
+sysclient0024,test,,0,D_23-25 (chi evaluation)
+sysclient0051,test,scenario_3,1,A_16-25 (xuyen suot)
+sysclient0057,test,,0,A_16-25 (xuyen suot)
+sysclient0058,test,,0,A_16-25 (xuyen suot)
+sysclient0059,test,,0,A_16-25 (xuyen suot)
+sysclient0104,test,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0113,test,,0,A_16-25 (xuyen suot)
+sysclient0118,test,,0,A_16-25 (xuyen suot)
+sysclient0125,test,,0,A_16-25 (xuyen suot)
+sysclient0153,test,,0,A_16-25 (xuyen suot)
+sysclient0168,test,,0,A_16-25 (xuyen suot)
+sysclient0171,test,,0,A_16-25 (xuyen suot)
+sysclient0175,test,,0,A_16-25 (xuyen suot)
+sysclient0208,test,,0,A_16-25 (xuyen suot)
+sysclient0216,test,,0,A_16-25 (xuyen suot)
+sysclient0218,test,,0,A_16-25 (xuyen suot)
+sysclient0222,test,,0,A_16-25 (xuyen suot)
+sysclient0253,test,,0,A_16-25 (xuyen suot)
+sysclient0255,test,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0260,test,,0,A_16-25 (xuyen suot)
+sysclient0270,test,,0,A_16-25 (xuyen suot)
+sysclient0279,test,,0,C_16-18 (chi benign)
+sysclient0289,test,,0,C_16-18 (chi benign)
+sysclient0300,test,,0,C_16-18 (chi benign)
+sysclient0310,test,,0,A_16-25 (xuyen suot)
+sysclient0324,test,,0,A_16-25 (xuyen suot)
+sysclient0327,test,,0,C_16-18 (chi benign)
+sysclient0331,test,,0,C_16-18 (chi benign)
+sysclient0334,test,,0,C_16-18 (chi benign)
+sysclient0335,test,,0,C_16-18 (chi benign)
+sysclient0336,test,,0,C_16-18 (chi benign)
+sysclient0337,test,,0,C_16-18 (chi benign)
+sysclient0339,test,,0,C_16-18 (chi benign)
+sysclient0356,test,,0,A_16-25 (xuyen suot)
+sysclient0360,test,,0,A_16-25 (xuyen suot)
+sysclient0362,test,,0,A_16-25 (xuyen suot)
+sysclient0376,test,,0,C_16-18 (chi benign)
+sysclient0377,test,,0,C_16-18 (chi benign)
+sysclient0378,test,,0,C_16-18 (chi benign)
+sysclient0383,test,,0,C_16-18 (chi benign)
+sysclient0388,test,,0,C_16-18 (chi benign)
+sysclient0392,test,,0,C_16-18 (chi benign)
+sysclient0423,test,,0,A_16-25 (xuyen suot)
+sysclient0447,test,,0,C_16-18 (chi benign)
+sysclient0453,test,,0,A_16-25 (xuyen suot)
+sysclient0457,test,,0,A_16-25 (xuyen suot)
+sysclient0471,test,,0,A_16-25 (xuyen suot)
+sysclient0476,test,,0,C_16-18 (chi benign)
+sysclient0480,test,,0,C_16-18 (chi benign)
+sysclient0482,test,,0,C_16-18 (chi benign)
+sysclient0487,test,,0,C_16-18 (chi benign)
+sysclient0496,test,,0,C_16-18 (chi benign)
+sysclient0498,test,,0,C_16-18 (chi benign)
+sysclient0500,test,,0,C_16-18 (chi benign)
+sysclient0507,test,,0,B_18-25
+sysclient0512,test,,0,B_18-25
+sysclient0515,test,,0,B_18-25
+sysclient0516,test,,0,B_18-25
+sysclient0518,test,,0,B_18-25
+sysclient0570,test,,0,B_18-25
+sysclient0571,test,,0,B_18-25
+sysclient0601,test,,0,B_18-25
+sysclient0605,test,,0,B_18-25
+sysclient0614,test,,0,B_18-25
+sysclient0618,test,scenario_2,1,B_18-25
+sysclient0653,test,,0,B_18-25
+sysclient0659,test,,0,B_18-25
+sysclient0662,test,,0,B_18-25
+sysclient0664,test,,0,B_18-25
+sysclient0704,test,,0,B_18-25
+sysclient0716,test,,0,B_18-25
+sysclient0718,test,,0,B_18-25
+sysclient0761,test,,0,B_18-25
+sysclient0767,test,,0,B_18-25
+sysclient0768,test,,0,B_18-25
+sysclient0773,test,,0,B_18-25
+sysclient0801,test,,0,B_18-25
+sysclient0802,test,,0,B_18-25
+sysclient0803,test,,0,B_18-25
+sysclient0805,test,,0,B_18-25
+sysclient0810,test,,0,B_18-25
+sysclient0824,test,,0,B_18-25
+sysclient0859,test,,0,B_18-25
+sysclient0860,test,,0,B_18-25
+sysclient0870,test,,0,B_18-25
+sysclient0905,test,,0,B_18-25
+sysclient0909,test,,0,B_18-25
+sysclient0920,test,,0,B_18-25
+sysclient0951,test,,0,B_18-25
+sysclient0961,test,,0,B_18-25
+sysclient0963,test,,0,B_18-25
+sysclient0964,test,,0,B_18-25
+sysclient0965,test,,0,B_18-25
+sysclient0002,train,,0,D_23-25 (chi evaluation)
+sysclient0003,train,,0,D_23-25 (chi evaluation)
+sysclient0004,train,,0,D_23-25 (chi evaluation)
+sysclient0005,train,scenario_2,1,D_23-25 (chi evaluation)
+sysclient0006,train,,0,D_23-25 (chi evaluation)
+sysclient0007,train,,0,D_23-25 (chi evaluation)
+sysclient0008,train,,0,D_23-25 (chi evaluation)
+sysclient0009,train,,0,D_23-25 (chi evaluation)
+sysclient0010,train,scenario_2,1,D_23-25 (chi evaluation)
+sysclient0011,train,,0,D_23-25 (chi evaluation)
+sysclient0012,train,,0,D_23-25 (chi evaluation)
+sysclient0013,train,,0,D_23-25 (chi evaluation)
+sysclient0014,train,,0,D_23-25 (chi evaluation)
+sysclient0015,train,,0,D_23-25 (chi evaluation)
+sysclient0016,train,,0,D_23-25 (chi evaluation)
+sysclient0017,train,,0,D_23-25 (chi evaluation)
+sysclient0018,train,,0,D_23-25 (chi evaluation)
+sysclient0019,train,,0,D_23-25 (chi evaluation)
+sysclient0020,train,,0,D_23-25 (chi evaluation)
+sysclient0021,train,,0,D_23-25 (chi evaluation)
+sysclient0022,train,,0,D_23-25 (chi evaluation)
+sysclient0023,train,,0,D_23-25 (chi evaluation)
+sysclient0025,train,,0,D_23-25 (chi evaluation)
+sysclient0052,train,,0,A_16-25 (xuyen suot)
+sysclient0053,train,,0,A_16-25 (xuyen suot)
+sysclient0055,train,,0,A_16-25 (xuyen suot)
+sysclient0061,train,,0,A_16-25 (xuyen suot)
+sysclient0062,train,,0,A_16-25 (xuyen suot)
+sysclient0063,train,,0,A_16-25 (xuyen suot)
+sysclient0064,train,,0,A_16-25 (xuyen suot)
+sysclient0065,train,,0,A_16-25 (xuyen suot)
+sysclient0067,train,,0,A_16-25 (xuyen suot)
+sysclient0068,train,,0,A_16-25 (xuyen suot)
+sysclient0069,train,scenario_2,1,A_16-25 (xuyen suot)
+sysclient0070,train,,0,A_16-25 (xuyen suot)
+sysclient0071,train,,0,A_16-25 (xuyen suot)
+sysclient0073,train,,0,A_16-25 (xuyen suot)
+sysclient0074,train,,0,A_16-25 (xuyen suot)
+sysclient0075,train,,0,A_16-25 (xuyen suot)
+sysclient0101,train,,0,A_16-25 (xuyen suot)
+sysclient0102,train,,0,A_16-25 (xuyen suot)
+sysclient0103,train,,0,A_16-25 (xuyen suot)
+sysclient0105,train,,0,A_16-25 (xuyen suot)
+sysclient0106,train,,0,A_16-25 (xuyen suot)
+sysclient0107,train,,0,A_16-25 (xuyen suot)
+sysclient0109,train,,0,A_16-25 (xuyen suot)
+sysclient0110,train,,0,A_16-25 (xuyen suot)
+sysclient0111,train,,0,A_16-25 (xuyen suot)
+sysclient0112,train,,0,A_16-25 (xuyen suot)
+sysclient0115,train,,0,A_16-25 (xuyen suot)
+sysclient0116,train,,0,A_16-25 (xuyen suot)
+sysclient0117,train,,0,A_16-25 (xuyen suot)
+sysclient0119,train,,0,A_16-25 (xuyen suot)
+sysclient0120,train,,0,A_16-25 (xuyen suot)
+sysclient0121,train,,0,A_16-25 (xuyen suot)
+sysclient0122,train,,0,A_16-25 (xuyen suot)
+sysclient0123,train,,0,A_16-25 (xuyen suot)
+sysclient0124,train,,0,A_16-25 (xuyen suot)
+sysclient0152,train,,0,A_16-25 (xuyen suot)
+sysclient0154,train,,0,A_16-25 (xuyen suot)
+sysclient0155,train,,0,A_16-25 (xuyen suot)
+sysclient0156,train,,0,A_16-25 (xuyen suot)
+sysclient0157,train,,0,A_16-25 (xuyen suot)
+sysclient0158,train,,0,A_16-25 (xuyen suot)
+sysclient0159,train,,0,A_16-25 (xuyen suot)
+sysclient0160,train,,0,A_16-25 (xuyen suot)
+sysclient0161,train,,0,A_16-25 (xuyen suot)
+sysclient0162,train,,0,A_16-25 (xuyen suot)
+sysclient0163,train,,0,A_16-25 (xuyen suot)
+sysclient0165,train,,0,A_16-25 (xuyen suot)
+sysclient0166,train,,0,A_16-25 (xuyen suot)
+sysclient0167,train,,0,A_16-25 (xuyen suot)
+sysclient0170,train,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0172,train,,0,A_16-25 (xuyen suot)
+sysclient0173,train,,0,A_16-25 (xuyen suot)
+sysclient0201,train,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0202,train,,0,A_16-25 (xuyen suot)
+sysclient0203,train,scenario_2,1,A_16-25 (xuyen suot)
+sysclient0204,train,,0,A_16-25 (xuyen suot)
+sysclient0205,train,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0207,train,,0,A_16-25 (xuyen suot)
+sysclient0210,train,,0,A_16-25 (xuyen suot)
+sysclient0211,train,,0,A_16-25 (xuyen suot)
+sysclient0212,train,,0,A_16-25 (xuyen suot)
+sysclient0213,train,,0,A_16-25 (xuyen suot)
+sysclient0215,train,,0,A_16-25 (xuyen suot)
+sysclient0217,train,,0,A_16-25 (xuyen suot)
+sysclient0219,train,,0,A_16-25 (xuyen suot)
+sysclient0220,train,,0,A_16-25 (xuyen suot)
+sysclient0221,train,,0,A_16-25 (xuyen suot)
+sysclient0223,train,,0,A_16-25 (xuyen suot)
+sysclient0251,train,,0,A_16-25 (xuyen suot)
+sysclient0254,train,,0,A_16-25 (xuyen suot)
+sysclient0256,train,,0,A_16-25 (xuyen suot)
+sysclient0258,train,,0,A_16-25 (xuyen suot)
+sysclient0259,train,,0,A_16-25 (xuyen suot)
+sysclient0261,train,,0,A_16-25 (xuyen suot)
+sysclient0262,train,,0,A_16-25 (xuyen suot)
+sysclient0263,train,,0,A_16-25 (xuyen suot)
+sysclient0264,train,,0,A_16-25 (xuyen suot)
+sysclient0265,train,,0,A_16-25 (xuyen suot)
+sysclient0266,train,,0,A_16-25 (xuyen suot)
+sysclient0267,train,,0,A_16-25 (xuyen suot)
+sysclient0268,train,,0,A_16-25 (xuyen suot)
+sysclient0269,train,,0,A_16-25 (xuyen suot)
+sysclient0271,train,,0,A_16-25 (xuyen suot)
+sysclient0273,train,,0,A_16-25 (xuyen suot)
+sysclient0274,train,,0,A_16-25 (xuyen suot)
+sysclient0275,train,,0,A_16-25 (xuyen suot)
+sysclient0276,train,,0,C_16-18 (chi benign)
+sysclient0280,train,,0,C_16-18 (chi benign)
+sysclient0281,train,,0,C_16-18 (chi benign)
+sysclient0282,train,,0,C_16-18 (chi benign)
+sysclient0283,train,,0,C_16-18 (chi benign)
+sysclient0284,train,,0,C_16-18 (chi benign)
+sysclient0285,train,,0,C_16-18 (chi benign)
+sysclient0286,train,,0,C_16-18 (chi benign)
+sysclient0288,train,,0,C_16-18 (chi benign)
+sysclient0290,train,,0,C_16-18 (chi benign)
+sysclient0291,train,,0,C_16-18 (chi benign)
+sysclient0292,train,,0,C_16-18 (chi benign)
+sysclient0293,train,,0,C_16-18 (chi benign)
+sysclient0294,train,,0,C_16-18 (chi benign)
+sysclient0295,train,,0,C_16-18 (chi benign)
+sysclient0296,train,,0,C_16-18 (chi benign)
+sysclient0297,train,,0,C_16-18 (chi benign)
+sysclient0298,train,,0,C_16-18 (chi benign)
+sysclient0299,train,,0,C_16-18 (chi benign)
+sysclient0301,train,,0,A_16-25 (xuyen suot)
+sysclient0302,train,,0,A_16-25 (xuyen suot)
+sysclient0303,train,,0,A_16-25 (xuyen suot)
+sysclient0305,train,,0,A_16-25 (xuyen suot)
+sysclient0306,train,,0,A_16-25 (xuyen suot)
+sysclient0307,train,,0,A_16-25 (xuyen suot)
+sysclient0308,train,,0,A_16-25 (xuyen suot)
+sysclient0309,train,,0,A_16-25 (xuyen suot)
+sysclient0311,train,,0,A_16-25 (xuyen suot)
+sysclient0312,train,,0,A_16-25 (xuyen suot)
+sysclient0313,train,,0,A_16-25 (xuyen suot)
+sysclient0314,train,,0,A_16-25 (xuyen suot)
+sysclient0315,train,,0,A_16-25 (xuyen suot)
+sysclient0316,train,,0,A_16-25 (xuyen suot)
+sysclient0317,train,,0,A_16-25 (xuyen suot)
+sysclient0318,train,,0,A_16-25 (xuyen suot)
+sysclient0321,train,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0322,train,,0,A_16-25 (xuyen suot)
+sysclient0323,train,,0,A_16-25 (xuyen suot)
+sysclient0325,train,,0,A_16-25 (xuyen suot)
+sysclient0326,train,,0,C_16-18 (chi benign)
+sysclient0328,train,,0,C_16-18 (chi benign)
+sysclient0329,train,,0,C_16-18 (chi benign)
+sysclient0330,train,,0,C_16-18 (chi benign)
+sysclient0332,train,,0,C_16-18 (chi benign)
+sysclient0333,train,,0,C_16-18 (chi benign)
+sysclient0338,train,,0,C_16-18 (chi benign)
+sysclient0340,train,,0,C_16-18 (chi benign)
+sysclient0343,train,,0,C_16-18 (chi benign)
+sysclient0344,train,,0,C_16-18 (chi benign)
+sysclient0345,train,,0,C_16-18 (chi benign)
+sysclient0347,train,,0,C_16-18 (chi benign)
+sysclient0348,train,,0,C_16-18 (chi benign)
+sysclient0351,train,scenario_3,1,A_16-25 (xuyen suot)
+sysclient0352,train,,0,A_16-25 (xuyen suot)
+sysclient0353,train,,0,A_16-25 (xuyen suot)
+sysclient0354,train,,0,A_16-25 (xuyen suot)
+sysclient0355,train,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0357,train,,0,A_16-25 (xuyen suot)
+sysclient0358,train,scenario_2,1,A_16-25 (xuyen suot)
+sysclient0359,train,,0,A_16-25 (xuyen suot)
+sysclient0361,train,,0,A_16-25 (xuyen suot)
+sysclient0363,train,,0,A_16-25 (xuyen suot)
+sysclient0364,train,,0,A_16-25 (xuyen suot)
+sysclient0365,train,,0,A_16-25 (xuyen suot)
+sysclient0367,train,,0,A_16-25 (xuyen suot)
+sysclient0368,train,,0,A_16-25 (xuyen suot)
+sysclient0369,train,,0,A_16-25 (xuyen suot)
+sysclient0371,train,,0,A_16-25 (xuyen suot)
+sysclient0372,train,,0,A_16-25 (xuyen suot)
+sysclient0373,train,,0,A_16-25 (xuyen suot)
+sysclient0374,train,,0,A_16-25 (xuyen suot)
+sysclient0379,train,,0,C_16-18 (chi benign)
+sysclient0380,train,,0,C_16-18 (chi benign)
+sysclient0381,train,,0,C_16-18 (chi benign)
+sysclient0382,train,,0,C_16-18 (chi benign)
+sysclient0384,train,,0,C_16-18 (chi benign)
+sysclient0385,train,,0,C_16-18 (chi benign)
+sysclient0386,train,,0,C_16-18 (chi benign)
+sysclient0387,train,,0,C_16-18 (chi benign)
+sysclient0390,train,,0,C_16-18 (chi benign)
+sysclient0391,train,,0,C_16-18 (chi benign)
+sysclient0393,train,,0,C_16-18 (chi benign)
+sysclient0396,train,,0,C_16-18 (chi benign)
+sysclient0397,train,,0,C_16-18 (chi benign)
+sysclient0398,train,,0,C_16-18 (chi benign)
+sysclient0400,train,,0,C_16-18 (chi benign)
+sysclient0403,train,,0,A_16-25 (xuyen suot)
+sysclient0404,train,,0,A_16-25 (xuyen suot)
+sysclient0405,train,,0,A_16-25 (xuyen suot)
+sysclient0406,train,,0,A_16-25 (xuyen suot)
+sysclient0407,train,,0,A_16-25 (xuyen suot)
+sysclient0408,train,,0,A_16-25 (xuyen suot)
+sysclient0409,train,,0,A_16-25 (xuyen suot)
+sysclient0412,train,,0,A_16-25 (xuyen suot)
+sysclient0414,train,,0,A_16-25 (xuyen suot)
+sysclient0415,train,,0,A_16-25 (xuyen suot)
+sysclient0416,train,,0,A_16-25 (xuyen suot)
+sysclient0417,train,,0,A_16-25 (xuyen suot)
+sysclient0419,train,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0421,train,,0,A_16-25 (xuyen suot)
+sysclient0422,train,,0,A_16-25 (xuyen suot)
+sysclient0424,train,,0,A_16-25 (xuyen suot)
+sysclient0425,train,,0,A_16-25 (xuyen suot)
+sysclient0426,train,,0,C_16-18 (chi benign)
+sysclient0427,train,,0,C_16-18 (chi benign)
+sysclient0428,train,,0,C_16-18 (chi benign)
+sysclient0429,train,,0,C_16-18 (chi benign)
+sysclient0430,train,,0,C_16-18 (chi benign)
+sysclient0431,train,,0,C_16-18 (chi benign)
+sysclient0432,train,,0,C_16-18 (chi benign)
+sysclient0433,train,,0,C_16-18 (chi benign)
+sysclient0434,train,,0,C_16-18 (chi benign)
+sysclient0435,train,,0,C_16-18 (chi benign)
+sysclient0436,train,,0,C_16-18 (chi benign)
+sysclient0437,train,,0,C_16-18 (chi benign)
+sysclient0438,train,,0,C_16-18 (chi benign)
+sysclient0439,train,,0,C_16-18 (chi benign)
+sysclient0441,train,,0,C_16-18 (chi benign)
+sysclient0442,train,,0,C_16-18 (chi benign)
+sysclient0444,train,,0,C_16-18 (chi benign)
+sysclient0445,train,,0,C_16-18 (chi benign)
+sysclient0448,train,,0,C_16-18 (chi benign)
+sysclient0450,train,,0,C_16-18 (chi benign)
+sysclient0451,train,,0,A_16-25 (xuyen suot)
+sysclient0452,train,,0,A_16-25 (xuyen suot)
+sysclient0454,train,,0,A_16-25 (xuyen suot)
+sysclient0456,train,,0,A_16-25 (xuyen suot)
+sysclient0459,train,,0,A_16-25 (xuyen suot)
+sysclient0461,train,,0,A_16-25 (xuyen suot)
+sysclient0462,train,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0463,train,,0,A_16-25 (xuyen suot)
+sysclient0464,train,,0,A_16-25 (xuyen suot)
+sysclient0465,train,,0,A_16-25 (xuyen suot)
+sysclient0466,train,,0,A_16-25 (xuyen suot)
+sysclient0467,train,,0,A_16-25 (xuyen suot)
+sysclient0468,train,,0,A_16-25 (xuyen suot)
+sysclient0469,train,,0,A_16-25 (xuyen suot)
+sysclient0470,train,,0,A_16-25 (xuyen suot)
+sysclient0472,train,,0,A_16-25 (xuyen suot)
+sysclient0473,train,,0,A_16-25 (xuyen suot)
+sysclient0474,train,,0,A_16-25 (xuyen suot)
+sysclient0475,train,,0,A_16-25 (xuyen suot)
+sysclient0477,train,,0,C_16-18 (chi benign)
+sysclient0478,train,,0,C_16-18 (chi benign)
+sysclient0479,train,,0,C_16-18 (chi benign)
+sysclient0481,train,,0,C_16-18 (chi benign)
+sysclient0484,train,,0,C_16-18 (chi benign)
+sysclient0486,train,,0,C_16-18 (chi benign)
+sysclient0488,train,,0,C_16-18 (chi benign)
+sysclient0489,train,,0,C_16-18 (chi benign)
+sysclient0490,train,,0,C_16-18 (chi benign)
+sysclient0491,train,,0,C_16-18 (chi benign)
+sysclient0494,train,,0,C_16-18 (chi benign)
+sysclient0495,train,,0,C_16-18 (chi benign)
+sysclient0497,train,,0,C_16-18 (chi benign)
+sysclient0499,train,,0,C_16-18 (chi benign)
+sysclient0502,train,,0,B_18-25
+sysclient0504,train,,0,B_18-25
+sysclient0505,train,,0,B_18-25
+sysclient0506,train,,0,B_18-25
+sysclient0508,train,,0,B_18-25
+sysclient0509,train,,0,B_18-25
+sysclient0510,train,,0,B_18-25
+sysclient0511,train,,0,B_18-25
+sysclient0513,train,,0,B_18-25
+sysclient0514,train,,0,B_18-25
+sysclient0519,train,,0,B_18-25
+sysclient0520,train,,0,B_18-25
+sysclient0521,train,,0,B_18-25
+sysclient0522,train,,0,B_18-25
+sysclient0523,train,,0,B_18-25
+sysclient0524,train,,0,B_18-25
+sysclient0525,train,,0,B_18-25
+sysclient0551,train,,0,B_18-25
+sysclient0552,train,,0,B_18-25
+sysclient0553,train,,0,B_18-25
+sysclient0554,train,,0,B_18-25
+sysclient0556,train,,0,B_18-25
+sysclient0557,train,,0,B_18-25
+sysclient0558,train,,0,B_18-25
+sysclient0559,train,scenario_1,1,B_18-25
+sysclient0560,train,,0,B_18-25
+sysclient0561,train,,0,B_18-25
+sysclient0563,train,,0,B_18-25
+sysclient0564,train,,0,B_18-25
+sysclient0565,train,,0,B_18-25
+sysclient0566,train,,0,B_18-25
+sysclient0567,train,,0,B_18-25
+sysclient0568,train,,0,B_18-25
+sysclient0572,train,,0,B_18-25
+sysclient0573,train,,0,B_18-25
+sysclient0574,train,,0,B_18-25
+sysclient0575,train,,0,B_18-25
+sysclient0604,train,,0,B_18-25
+sysclient0606,train,,0,B_18-25
+sysclient0607,train,,0,B_18-25
+sysclient0608,train,,0,B_18-25
+sysclient0609,train,scenario_1,1,B_18-25
+sysclient0610,train,,0,B_18-25
+sysclient0611,train,,0,B_18-25
+sysclient0613,train,,0,B_18-25
+sysclient0615,train,,0,B_18-25
+sysclient0616,train,,0,B_18-25
+sysclient0617,train,,0,B_18-25
+sysclient0620,train,,0,B_18-25
+sysclient0621,train,,0,B_18-25
+sysclient0622,train,,0,B_18-25
+sysclient0625,train,,0,B_18-25
+sysclient0652,train,,0,B_18-25
+sysclient0654,train,,0,B_18-25
+sysclient0655,train,,0,B_18-25
+sysclient0656,train,,0,B_18-25
+sysclient0658,train,,0,B_18-25
+sysclient0660,train,scenario_1,1,B_18-25
+sysclient0661,train,,0,B_18-25
+sysclient0663,train,,0,B_18-25
+sysclient0665,train,,0,B_18-25
+sysclient0666,train,,0,B_18-25
+sysclient0667,train,,0,B_18-25
+sysclient0668,train,,0,B_18-25
+sysclient0669,train,,0,B_18-25
+sysclient0670,train,,0,B_18-25
+sysclient0671,train,,0,B_18-25
+sysclient0672,train,,0,B_18-25
+sysclient0673,train,,0,B_18-25
+sysclient0674,train,,0,B_18-25
+sysclient0675,train,,0,B_18-25
+sysclient0701,train,,0,B_18-25
+sysclient0702,train,,0,B_18-25
+sysclient0703,train,,0,B_18-25
+sysclient0706,train,,0,B_18-25
+sysclient0707,train,,0,B_18-25
+sysclient0708,train,,0,B_18-25
+sysclient0709,train,,0,B_18-25
+sysclient0711,train,,0,B_18-25
+sysclient0712,train,,0,B_18-25
+sysclient0713,train,,0,B_18-25
+sysclient0714,train,,0,B_18-25
+sysclient0715,train,,0,B_18-25
+sysclient0717,train,,0,B_18-25
+sysclient0719,train,,0,B_18-25
+sysclient0720,train,,0,B_18-25
+sysclient0723,train,,0,B_18-25
+sysclient0724,train,,0,B_18-25
+sysclient0725,train,,0,B_18-25
+sysclient0752,train,,0,B_18-25
+sysclient0753,train,,0,B_18-25
+sysclient0755,train,,0,B_18-25
+sysclient0756,train,,0,B_18-25
+sysclient0757,train,,0,B_18-25
+sysclient0758,train,,0,B_18-25
+sysclient0759,train,,0,B_18-25
+sysclient0760,train,,0,B_18-25
+sysclient0762,train,,0,B_18-25
+sysclient0763,train,,0,B_18-25
+sysclient0765,train,,0,B_18-25
+sysclient0766,train,,0,B_18-25
+sysclient0769,train,,0,B_18-25
+sysclient0770,train,,0,B_18-25
+sysclient0771,train,scenario_1,1,B_18-25
+sysclient0772,train,,0,B_18-25
+sysclient0775,train,,0,B_18-25
+sysclient0806,train,,0,B_18-25
+sysclient0807,train,,0,B_18-25
+sysclient0809,train,,0,B_18-25
+sysclient0811,train,scenario_2,1,B_18-25
+sysclient0812,train,,0,B_18-25
+sysclient0813,train,,0,B_18-25
+sysclient0815,train,,0,B_18-25
+sysclient0816,train,,0,B_18-25
+sysclient0817,train,,0,B_18-25
+sysclient0818,train,,0,B_18-25
+sysclient0820,train,,0,B_18-25
+sysclient0821,train,,0,B_18-25
+sysclient0822,train,,0,B_18-25
+sysclient0823,train,,0,B_18-25
+sysclient0825,train,,0,B_18-25
+sysclient0851,train,scenario_2,1,B_18-25
+sysclient0853,train,,0,B_18-25
+sysclient0856,train,,0,B_18-25
+sysclient0858,train,,0,B_18-25
+sysclient0861,train,,0,B_18-25
+sysclient0862,train,,0,B_18-25
+sysclient0863,train,,0,B_18-25
+sysclient0865,train,,0,B_18-25
+sysclient0866,train,,0,B_18-25
+sysclient0868,train,,0,B_18-25
+sysclient0869,train,,0,B_18-25
+sysclient0872,train,,0,B_18-25
+sysclient0874,train,scenario_1,1,B_18-25
+sysclient0875,train,,0,B_18-25
+sysclient0902,train,,0,B_18-25
+sysclient0906,train,,0,B_18-25
+sysclient0907,train,,0,B_18-25
+sysclient0910,train,,0,B_18-25
+sysclient0911,train,,0,B_18-25
+sysclient0912,train,,0,B_18-25
+sysclient0913,train,,0,B_18-25
+sysclient0914,train,,0,B_18-25
+sysclient0915,train,,0,B_18-25
+sysclient0916,train,,0,B_18-25
+sysclient0917,train,,0,B_18-25
+sysclient0919,train,,0,B_18-25
+sysclient0921,train,,0,B_18-25
+sysclient0922,train,,0,B_18-25
+sysclient0923,train,,0,B_18-25
+sysclient0924,train,,0,B_18-25
+sysclient0925,train,,0,B_18-25
+sysclient0952,train,,0,B_18-25
+sysclient0953,train,,0,B_18-25
+sysclient0954,train,,0,B_18-25
+sysclient0956,train,,0,B_18-25
+sysclient0957,train,,0,B_18-25
+sysclient0958,train,,0,B_18-25
+sysclient0959,train,,0,B_18-25
+sysclient0962,train,,0,B_18-25
+sysclient0966,train,,0,B_18-25
+sysclient0967,train,,0,B_18-25
+sysclient0968,train,,0,B_18-25
+sysclient0969,train,,0,B_18-25
+sysclient0970,train,,0,B_18-25
+sysclient0971,train,,0,B_18-25
+sysclient0972,train,,0,B_18-25
+sysclient0973,train,,0,B_18-25
+sysclient0975,train,,0,B_18-25
+sysclient0001,val,,0,D_23-25 (chi evaluation)
+sysclient0054,val,,0,A_16-25 (xuyen suot)
+sysclient0056,val,,0,A_16-25 (xuyen suot)
+sysclient0060,val,,0,A_16-25 (xuyen suot)
+sysclient0066,val,,0,A_16-25 (xuyen suot)
+sysclient0072,val,,0,A_16-25 (xuyen suot)
+sysclient0108,val,,0,A_16-25 (xuyen suot)
+sysclient0114,val,,0,A_16-25 (xuyen suot)
+sysclient0151,val,,0,A_16-25 (xuyen suot)
+sysclient0164,val,,0,A_16-25 (xuyen suot)
+sysclient0169,val,,0,A_16-25 (xuyen suot)
+sysclient0174,val,,0,A_16-25 (xuyen suot)
+sysclient0206,val,,0,A_16-25 (xuyen suot)
+sysclient0209,val,,0,A_16-25 (xuyen suot)
+sysclient0214,val,,0,A_16-25 (xuyen suot)
+sysclient0224,val,,0,A_16-25 (xuyen suot)
+sysclient0225,val,,0,A_16-25 (xuyen suot)
+sysclient0252,val,,0,A_16-25 (xuyen suot)
+sysclient0257,val,,0,A_16-25 (xuyen suot)
+sysclient0272,val,,0,A_16-25 (xuyen suot)
+sysclient0277,val,,0,C_16-18 (chi benign)
+sysclient0278,val,,0,C_16-18 (chi benign)
+sysclient0287,val,,0,C_16-18 (chi benign)
+sysclient0304,val,,0,A_16-25 (xuyen suot)
+sysclient0319,val,,0,A_16-25 (xuyen suot)
+sysclient0320,val,,0,A_16-25 (xuyen suot)
+sysclient0342,val,,0,C_16-18 (chi benign)
+sysclient0349,val,,0,C_16-18 (chi benign)
+sysclient0350,val,,0,C_16-18 (chi benign)
+sysclient0366,val,,0,A_16-25 (xuyen suot)
+sysclient0370,val,,0,A_16-25 (xuyen suot)
+sysclient0375,val,,0,A_16-25 (xuyen suot)
+sysclient0394,val,,0,C_16-18 (chi benign)
+sysclient0399,val,,0,C_16-18 (chi benign)
+sysclient0401,val,,0,A_16-25 (xuyen suot)
+sysclient0402,val,scenario_1,1,A_16-25 (xuyen suot)
+sysclient0410,val,,0,A_16-25 (xuyen suot)
+sysclient0411,val,,0,A_16-25 (xuyen suot)
+sysclient0413,val,,0,A_16-25 (xuyen suot)
+sysclient0418,val,,0,A_16-25 (xuyen suot)
+sysclient0420,val,,0,A_16-25 (xuyen suot)
+sysclient0443,val,,0,C_16-18 (chi benign)
+sysclient0446,val,,0,C_16-18 (chi benign)
+sysclient0449,val,,0,C_16-18 (chi benign)
+sysclient0455,val,,0,A_16-25 (xuyen suot)
+sysclient0458,val,,0,A_16-25 (xuyen suot)
+sysclient0460,val,,0,A_16-25 (xuyen suot)
+sysclient0483,val,,0,C_16-18 (chi benign)
+sysclient0485,val,,0,C_16-18 (chi benign)
+sysclient0492,val,,0,C_16-18 (chi benign)
+sysclient0493,val,,0,C_16-18 (chi benign)
+sysclient0501,val,scenario_2,1,B_18-25
+sysclient0503,val,scenario_1,1,B_18-25
+sysclient0517,val,,0,B_18-25
+sysclient0555,val,,0,B_18-25
+sysclient0562,val,,0,B_18-25
+sysclient0569,val,,0,B_18-25
+sysclient0602,val,,0,B_18-25
+sysclient0603,val,,0,B_18-25
+sysclient0612,val,,0,B_18-25
+sysclient0619,val,,0,B_18-25
+sysclient0623,val,,0,B_18-25
+sysclient0624,val,,0,B_18-25
+sysclient0651,val,,0,B_18-25
+sysclient0657,val,,0,B_18-25
+sysclient0705,val,,0,B_18-25
+sysclient0710,val,,0,B_18-25
+sysclient0721,val,,0,B_18-25
+sysclient0722,val,,0,B_18-25
+sysclient0751,val,,0,B_18-25
+sysclient0754,val,,0,B_18-25
+sysclient0764,val,,0,B_18-25
+sysclient0774,val,,0,B_18-25
+sysclient0804,val,,0,B_18-25
+sysclient0808,val,,0,B_18-25
+sysclient0814,val,,0,B_18-25
+sysclient0819,val,,0,B_18-25
+sysclient0852,val,,0,B_18-25
+sysclient0854,val,,0,B_18-25
+sysclient0855,val,,0,B_18-25
+sysclient0857,val,,0,B_18-25
+sysclient0864,val,,0,B_18-25
+sysclient0867,val,,0,B_18-25
+sysclient0871,val,,0,B_18-25
+sysclient0873,val,,0,B_18-25
+sysclient0901,val,,0,B_18-25
+sysclient0903,val,,0,B_18-25
+sysclient0904,val,,0,B_18-25
+sysclient0908,val,,0,B_18-25
+sysclient0918,val,,0,B_18-25
+sysclient0955,val,scenario_1,1,B_18-25
+sysclient0960,val,,0,B_18-25
+sysclient0974,val,scenario_2,1,B_18-25

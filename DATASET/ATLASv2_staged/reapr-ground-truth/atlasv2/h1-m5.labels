@@ -1,0 +1,36 @@
+attack,process_name,process_id,process_uuid,label,stage
+h1-m5,c:\program files\mozilla firefox\firefox.exe,3956,7DMF69PK-05e6c23b-00000f74-00000000-1d89bc82c2355bf,attack,Initial_Compromise
+h1-m5,c:\windows\system32\windowspowershell\v1.0\powershell.exe,4200,7DMF69PK-05e6c23b-00001068-00000000-1d89bc8cda6aa5c,attack,Execution_Discovery
+h1-m5,c:\windows\system32\cmd.exe,5320.0,7DMF69PK-05e6c23b-000014c8-00000000-1d89bc91015785d,attack,Execution_Discovery
+h1-m5,c:\windows\system32\conhost.exe,5312.0,7DMF69PK-05e6c23b-000014c0-00000000-1d89bc91017d9be,attack,Execution_Discovery
+h1-m5,c:\users\aalsahee\payload.exe,5272.0,7DMF69PK-05e6c23b-00001498-00000000-1d89bc911c4516f,attack,Exfiltration
+h1-m5,c:\users\aalsahee\payload.exe,1720.0,7DMF69PK-05e6c23b-000006b8-00000000-1d89bc9121a02f9,attack,Exfiltration
+h1-m5,c:\python27\python.exe,3532,7DMF69PK-05e6c23b-00000dcc-00000000-1d89bc823a14aa4,attack,Lateral_Movement
+h1-m5,c:\windows\system32\windowspowershell\v1.0\powershell.exe,4252.0,7DMF69PK-05e6c23b-0000109c-00000000-1d89bc8cc9f2d22,attack,Execution_Discovery
+h1-m5,c:\windows\system32\conhost.exe,3572,7DMF69PK-05e6c23b-00000df4-00000000-1d89bc8cda90bbc,attack,Execution_Discovery
+h1-m5,c:\program files\microsoft office\office14\winword.exe,6020,7DMF69PK-05e6c23b-00001784-00000000-1d89bc8bf64d157,attack,Initial_Compromise
+h1-m5,c:\windows\explorer.exe,1568.0,7DMF69PK-05e6c23b-00000620-00000000-1d89bc80c8385bb,attack,Lateral_Movement
+h1-m5,c:\program files\mozilla firefox\firefox.exe,3256,7DMF69PK-05e6c23b-00000cb8-00000000-1d89bc5842569c4,attack,Initial_Compromise
+h1-m5,c:\program files\microsoft office\office14\excel.exe,5196,7DMF69PK-05e6c23b-0000144c-00000000-1d89bc5feb21945,attack,Initial_Compromise
+h1-m5,c:\program files\mozilla firefox\firefox.exe,606,7DMF69PK-05e6c23b-000009bc-00000000-1d89bc598c31358,attack,Initial_Compromise
+h1-m5,c:\program files\microsoft office\office14\winword.exe,1404,7DMF69PK-05e6c23b-0000057c-00000000-1d89bc842a101b5,attack,Initial_Compromise
+h1-m5,c:\program files\mozilla firefox\firefox.exe,832,7DMF69PK-05e6c23b-0000082c-00000000-1d89bc83affec2c,attack,Initial_Compromise
+h1-m5,c:\windows\system32\lsass.exe,1031,7DMF69PK-05e6c23b-000001f0-00000000-1d89bc80b129070,attack,Execution_Discovery
+h1-m5,c:\program files\common files\microsoft shared\officesoftwareprotectionplatform\osppsvc.exe,1164.0,7DMF69PK-05e6c23b-0000048c-00000000-1d89bc8c2f48060,attack,Initial_Compromise
+h1-m5,c:\windows\system32\mshta.exe,1984.0,7DMF69PK-05e6c23b-000007c0-00000000-1d89bc8cc40e072,attack,Initial_Compromise
+h1-m5,c:\windows\system32\taskhost.exe,1432,7DMF69PK-05e6c23b-00000598-00000000-1d89bc80c7a003a,attack,Execution_Discovery
+h1-m5,c:\windows\system32\conhost.exe,2404.0,7DMF69PK-05e6c23b-00000964-00000000-1d89bc8cca3c102,attack,Execution_Discovery
+h1-m5,c:\windows\system32\mshta.exe,5688,7DMF69PK-05e6c23b-00001638-00000000-1d89bc6ec697a46,attack,Initial_Compromise
+h1-m5,c:\windows\explorer.exe,1962,7DMF69PK-05e6c23b-00000690-00000000-1d89bc48e3ef789,attack,Lateral_Movement
+h1-m5,c:\windows\system32\dllhost.exe,4108.0,7DMF69PK-05e6c23b-0000100c-00000000-1d89bc84592d57e,attack,Execution_Discovery
+h1-m5,c:\program files\microsoft office\office14\winword.exe,4212.0,7DMF69PK-05e6c23b-00001074-00000000-1d89bc79b792d01,attack,Initial_Compromise
+h1-m5,c:\windows\system32\lsass.exe,2489,7DMF69PK-05e6c23b-00000214-00000000-1d89bc48c4653cf,attack,Execution_Discovery
+h1-m5,c:\windows\system32\mshta.exe,4284.0,7DMF69PK-05e6c23b-000010bc-00000000-1d89bc79eb418cd,attack,Initial_Compromise
+h1-m5,c:\program files\microsoft office\office14\winword.exe,3468,7DMF69PK-05e6c23b-00000d8c-00000000-1d89bc6e0ee506c,attack,Initial_Compromise
+h1-m5,c:\windows\system32\conhost.exe,1596,7DMF69PK-05e6c23b-0000063c-00000000-1d89bc8187ffb7c,attack,Execution_Discovery
+h1-m5,c:\windows\system32\cmd.exe,4076.0,7DMF69PK-05e6c23b-00000fec-00000000-1d89bc8154f837f,attack,Execution_Discovery
+h1-m5,c:\windows\system32\conhost.exe,4088,7DMF69PK-05e6c23b-00000ff8-00000000-1d89bc81554463f,attack,Execution_Discovery
+h1-m5,c:\windows\system32\cmd.exe,2624.0,7DMF69PK-05e6c23b-00000a40-00000000-1d89bc81700bdf0,attack,Execution_Discovery
+h1-m5,c:\windows\system32\conhost.exe,2664,7DMF69PK-05e6c23b-00000a68-00000000-1d89bc8170580b1,attack,Execution_Discovery
+h1-m5,c:\windows\system32\conhost.exe,4020.0,7DMF69PK-05e6c23b-00000fb4-00000000-1d89bc814c3124e,attack,Execution_Discovery
+h1-m5,c:\program files\mozilla firefox\firefox.exe,1356.0,7DMF69PK-05e6c23b-0000054c-00000000-1d89bc82d29542e,attack,Initial_Compromise

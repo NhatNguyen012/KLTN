@@ -1,0 +1,20 @@
+{
+  "selected_on": "val",
+  "policy": "maximize F1",
+  "threshold": 0.9287109375,
+  "best_epoch": 5,
+  "best_val_pr_auc": 0.9571517383967273,
+  "val_metrics_at_threshold": {
+    "threshold": 0.9287109375,
+    "precision": 1.0,
+    "recall": 0.9285714285714286,
+    "f1": 0.9629629629629629,
+    "fpr": 0.0,
+    "tn": 29851,
+    "fp": 0,
+    "fn": 12,
+    "tp": 156,
+    "pr_auc": 0.9571517383967273,
+    "roc_auc": 0.9970842286531041
+  }
+}

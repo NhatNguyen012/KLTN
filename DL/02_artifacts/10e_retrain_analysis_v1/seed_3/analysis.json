@@ -1,0 +1,860 @@
+{
+  "seed": 3,
+  "dataset": "D:\\UIT\\KLTNv2\\03_datasets\\random_network_dl_v1_1_15m\\seed_3",
+  "models": "D:\\UIT\\KLTNv2\\05_models\\10_random_seed3_v1",
+  "powershell_id": 5,
+  "runs": {
+    "bilstm_full": {
+      "run": "bilstm_full",
+      "drop_app_family": false,
+      "threshold": 0.0116424560546875,
+      "best_epoch": 1,
+      "trainable_parameters": 79781,
+      "val": {
+        "tp": 83,
+        "fp": 0,
+        "fn": 5,
+        "tn": 32209,
+        "precision": 1.0,
+        "recall": 0.9431818181818182,
+        "f1": 0.9707602339181286,
+        "pr_auc": 0.9851167067647886,
+        "roc_auc": 0.9887917761551683,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test": {
+        "tp": 80,
+        "fp": 0,
+        "fn": 7,
+        "tn": 35128,
+        "precision": 1.0,
+        "recall": 0.9195402298850575,
+        "f1": 0.9580838323353293,
+        "pr_auc": 0.9324076110726721,
+        "roc_auc": 0.9556379362698518,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "scenario": "scenario_3",
+          "positive_windows": 4,
+          "tp": 0,
+          "fp": 0,
+          "recall": 0.0
+        },
+        "sysclient0069": {
+          "scenario": "scenario_2",
+          "positive_windows": 77,
+          "tp": 74,
+          "fp": 0,
+          "recall": 0.961038961038961
+        },
+        "sysclient0104": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0503": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        }
+      },
+      "test_host_level": {
+        "positive_hosts": 4,
+        "hosts_detected": 3,
+        "macro_recall_over_positive_hosts": 0.7402597402597403,
+        "false_positive_hosts": 0
+      },
+      "test_scenarios": {
+        "scenario_1": {
+          "positive_windows": 6,
+          "tp": 6
+        },
+        "scenario_2": {
+          "positive_windows": 77,
+          "tp": 74
+        },
+        "scenario_3": {
+          "positive_windows": 4,
+          "tp": 0
+        }
+      },
+      "scores": {
+        "val_min_positive": 8.821487426757812e-05,
+        "val_max_negative": 0.00031757354736328125,
+        "threshold": 0.0116424560546875,
+        "val_threshold_equals_min_positive": false,
+        "test_min_positive": 7.200241088867188e-05,
+        "test_max_negative": 0.0004858970642089844,
+        "test_recall_at_fp0": 0.9195402298850575,
+        "test_recall_at_fp1": 0.9195402298850575,
+        "test_recall_at_fp5": 0.9310344827586207,
+        "test_recall_at_fp20": 0.9310344827586207
+      },
+      "test_missed_windows": [
+        {
+          "sample_id": "525623713751b50387bfdb2e",
+          "host": "sysclient0069",
+          "score": 0.00010150671005249023,
+          "negatives_scoring_above": 19400
+        },
+        {
+          "sample_id": "c619ace934a71ab2d82e5369",
+          "host": "sysclient0069",
+          "score": 0.00015473365783691406,
+          "negatives_scoring_above": 3
+        },
+        {
+          "sample_id": "d5b6510762af934a8d1824a7",
+          "host": "sysclient0069",
+          "score": 0.00010228157043457031,
+          "negatives_scoring_above": 17321
+        },
+        {
+          "sample_id": "d93b49081c407b538f69a878",
+          "host": "sysclient0051",
+          "score": 0.000110626220703125,
+          "negatives_scoring_above": 509
+        },
+        {
+          "sample_id": "186d474ea73e7e1ac56bbaca",
+          "host": "sysclient0051",
+          "score": 7.784366607666016e-05,
+          "negatives_scoring_above": 35016
+        },
+        {
+          "sample_id": "d1a2129ea288856e7b23b30b",
+          "host": "sysclient0051",
+          "score": 7.200241088867188e-05,
+          "negatives_scoring_above": 35037
+        },
+        {
+          "sample_id": "4f11e07c769d7f3775d86de8",
+          "host": "sysclient0051",
+          "score": 7.659196853637695e-05,
+          "negatives_scoring_above": 35019
+        }
+      ],
+      "history": {
+        "epochs_run": 4,
+        "val_pr_auc": [
+          0.9851167067647886,
+          0.9826506161603779,
+          0.9767738831488408,
+          0.9446201474896884
+        ],
+        "train_loss": [
+          0.59633016286175,
+          0.4599963109288412,
+          0.45494571997791844,
+          0.43163809881007037
+        ],
+        "val_pr_auc_range": [
+          0.9446201474896884,
+          0.9851167067647886
+        ],
+        "best_epoch_is_last": false,
+        "seconds_per_epoch": 147.6679836511612
+      }
+    },
+    "bilstm_noapp": {
+      "run": "bilstm_noapp",
+      "drop_app_family": true,
+      "threshold": 0.79248046875,
+      "best_epoch": 6,
+      "trainable_parameters": 79781,
+      "val": {
+        "tp": 81,
+        "fp": 0,
+        "fn": 7,
+        "tn": 32209,
+        "precision": 1.0,
+        "recall": 0.9204545454545454,
+        "f1": 0.9585798816568047,
+        "pr_auc": 0.9413826179215322,
+        "roc_auc": 0.9823129616510349,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test": {
+        "tp": 77,
+        "fp": 0,
+        "fn": 10,
+        "tn": 35128,
+        "precision": 1.0,
+        "recall": 0.8850574712643678,
+        "f1": 0.9390243902439025,
+        "pr_auc": 0.9495515118331461,
+        "roc_auc": 0.9830650533876765,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "scenario": "scenario_3",
+          "positive_windows": 4,
+          "tp": 0,
+          "fp": 0,
+          "recall": 0.0
+        },
+        "sysclient0069": {
+          "scenario": "scenario_2",
+          "positive_windows": 77,
+          "tp": 71,
+          "fp": 0,
+          "recall": 0.922077922077922
+        },
+        "sysclient0104": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0503": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        }
+      },
+      "test_host_level": {
+        "positive_hosts": 4,
+        "hosts_detected": 3,
+        "macro_recall_over_positive_hosts": 0.7305194805194806,
+        "false_positive_hosts": 0
+      },
+      "test_scenarios": {
+        "scenario_1": {
+          "positive_windows": 6,
+          "tp": 6
+        },
+        "scenario_2": {
+          "positive_windows": 77,
+          "tp": 71
+        },
+        "scenario_3": {
+          "positive_windows": 4,
+          "tp": 0
+        }
+      },
+      "scores": {
+        "val_min_positive": 3.159046173095703e-06,
+        "val_max_negative": 0.00669097900390625,
+        "threshold": 0.79248046875,
+        "val_threshold_equals_min_positive": false,
+        "test_min_positive": 2.384185791015625e-06,
+        "test_max_negative": 0.0069580078125,
+        "test_recall_at_fp0": 0.9195402298850575,
+        "test_recall_at_fp1": 0.9195402298850575,
+        "test_recall_at_fp5": 0.9195402298850575,
+        "test_recall_at_fp20": 0.9195402298850575
+      },
+      "test_missed_windows": [
+        {
+          "sample_id": "2cb63300b23141909588abbc",
+          "host": "sysclient0069",
+          "score": 0.00010639429092407227,
+          "negatives_scoring_above": 65
+        },
+        {
+          "sample_id": "7de447fba8139e63b3f6539d",
+          "host": "sysclient0069",
+          "score": 0.00016736984252929688,
+          "negatives_scoring_above": 34
+        },
+        {
+          "sample_id": "525623713751b50387bfdb2e",
+          "host": "sysclient0069",
+          "score": 2.384185791015625e-06,
+          "negatives_scoring_above": 24788
+        },
+        {
+          "sample_id": "c619ace934a71ab2d82e5369",
+          "host": "sysclient0069",
+          "score": 5.841255187988281e-06,
+          "negatives_scoring_above": 14304
+        },
+        {
+          "sample_id": "0702491a3998778d98fe843d",
+          "host": "sysclient0069",
+          "score": 0.00014889240264892578,
+          "negatives_scoring_above": 38
+        },
+        {
+          "sample_id": "d5b6510762af934a8d1824a7",
+          "host": "sysclient0069",
+          "score": 7.867813110351562e-06,
+          "negatives_scoring_above": 12683
+        },
+        {
+          "sample_id": "d93b49081c407b538f69a878",
+          "host": "sysclient0051",
+          "score": 0.00013136863708496094,
+          "negatives_scoring_above": 46
+        },
+        {
+          "sample_id": "186d474ea73e7e1ac56bbaca",
+          "host": "sysclient0051",
+          "score": 0.01422882080078125,
+          "negatives_scoring_above": 0
+        },
+        {
+          "sample_id": "d1a2129ea288856e7b23b30b",
+          "host": "sysclient0051",
+          "score": 0.01560211181640625,
+          "negatives_scoring_above": 0
+        },
+        {
+          "sample_id": "4f11e07c769d7f3775d86de8",
+          "host": "sysclient0051",
+          "score": 0.01406097412109375,
+          "negatives_scoring_above": 0
+        }
+      ],
+      "history": {
+        "epochs_run": 8,
+        "val_pr_auc": [
+          0.9067482564069173,
+          0.9120169103413064,
+          0.9242853531728207,
+          0.9395159390402839,
+          0.21539912924228005,
+          0.9413826179215322,
+          0.9348716583692382,
+          0.9271087841054473
+        ],
+        "train_loss": [
+          5.561007048843911,
+          0.7007041359134457,
+          0.5072144812011665,
+          0.6320856301561604,
+          0.5158941672240274,
+          0.6190436129061039,
+          0.47742730928566807,
+          0.5342594520778219
+        ],
+        "val_pr_auc_range": [
+          0.21539912924228005,
+          0.9413826179215322
+        ],
+        "best_epoch_is_last": false,
+        "seconds_per_epoch": 127.95996034145355
+      }
+    },
+    "mixed_full": {
+      "run": "mixed_full",
+      "drop_app_family": false,
+      "threshold": 0.00014770030975341797,
+      "best_epoch": 4,
+      "trainable_parameters": 145985,
+      "val": {
+        "tp": 88,
+        "fp": 0,
+        "fn": 0,
+        "tn": 32209,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "pr_auc": 1.0,
+        "roc_auc": 1.0,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test": {
+        "tp": 86,
+        "fp": 0,
+        "fn": 1,
+        "tn": 35128,
+        "precision": 1.0,
+        "recall": 0.9885057471264368,
+        "f1": 0.9942196531791908,
+        "pr_auc": 0.9996168582375479,
+        "roc_auc": 0.9999990183682925,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "scenario": "scenario_3",
+          "positive_windows": 4,
+          "tp": 3,
+          "fp": 0,
+          "recall": 0.75
+        },
+        "sysclient0069": {
+          "scenario": "scenario_2",
+          "positive_windows": 77,
+          "tp": 77,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0104": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0503": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        }
+      },
+      "test_host_level": {
+        "positive_hosts": 4,
+        "hosts_detected": 4,
+        "macro_recall_over_positive_hosts": 0.9375,
+        "false_positive_hosts": 0
+      },
+      "test_scenarios": {
+        "scenario_1": {
+          "positive_windows": 6,
+          "tp": 6
+        },
+        "scenario_2": {
+          "positive_windows": 77,
+          "tp": 77
+        },
+        "scenario_3": {
+          "positive_windows": 4,
+          "tp": 3
+        }
+      },
+      "scores": {
+        "val_min_positive": 0.00014770030975341797,
+        "val_max_negative": 0.00010639429092407227,
+        "threshold": 0.00014770030975341797,
+        "val_threshold_equals_min_positive": true,
+        "test_min_positive": 2.014636993408203e-05,
+        "test_max_negative": 7.486343383789062e-05,
+        "test_recall_at_fp0": 0.9885057471264368,
+        "test_recall_at_fp1": 0.9885057471264368,
+        "test_recall_at_fp5": 1.0,
+        "test_recall_at_fp20": 1.0
+      },
+      "test_missed_windows": [
+        {
+          "sample_id": "d93b49081c407b538f69a878",
+          "host": "sysclient0051",
+          "score": 2.014636993408203e-05,
+          "negatives_scoring_above": 3
+        }
+      ],
+      "history": {
+        "epochs_run": 7,
+        "val_pr_auc": [
+          0.4814757656821655,
+          0.9690859356732331,
+          0.9897127899011645,
+          1.0,
+          1.0,
+          0.9910549419427924,
+          1.0
+        ],
+        "train_loss": [
+          4.222167320924665,
+          0.12236430665717152,
+          0.14701542217478789,
+          0.14111731601650873,
+          0.13901263003683234,
+          0.10876214856407092,
+          0.2005483544265999
+        ],
+        "val_pr_auc_range": [
+          0.4814757656821655,
+          1.0
+        ],
+        "best_epoch_is_last": false,
+        "seconds_per_epoch": 384.0992429597037
+      }
+    },
+    "mixed_noapp": {
+      "run": "mixed_noapp",
+      "drop_app_family": true,
+      "threshold": 1.0,
+      "best_epoch": 8,
+      "trainable_parameters": 145985,
+      "val": {
+        "tp": 82,
+        "fp": 0,
+        "fn": 6,
+        "tn": 32209,
+        "precision": 1.0,
+        "recall": 0.9318181818181818,
+        "f1": 0.9647058823529412,
+        "pr_auc": 0.9446970937645903,
+        "roc_auc": 0.9800530413577233,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test": {
+        "tp": 77,
+        "fp": 0,
+        "fn": 10,
+        "tn": 35128,
+        "precision": 1.0,
+        "recall": 0.8850574712643678,
+        "f1": 0.9390243902439025,
+        "pr_auc": 0.9529495659564577,
+        "roc_auc": 0.9947968611344521,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "scenario": "scenario_3",
+          "positive_windows": 4,
+          "tp": 1,
+          "fp": 0,
+          "recall": 0.25
+        },
+        "sysclient0069": {
+          "scenario": "scenario_2",
+          "positive_windows": 77,
+          "tp": 70,
+          "fp": 0,
+          "recall": 0.9090909090909091
+        },
+        "sysclient0104": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0503": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        }
+      },
+      "test_host_level": {
+        "positive_hosts": 4,
+        "hosts_detected": 4,
+        "macro_recall_over_positive_hosts": 0.7897727272727273,
+        "false_positive_hosts": 0
+      },
+      "test_scenarios": {
+        "scenario_1": {
+          "positive_windows": 6,
+          "tp": 6
+        },
+        "scenario_2": {
+          "positive_windows": 77,
+          "tp": 70
+        },
+        "scenario_3": {
+          "positive_windows": 4,
+          "tp": 1
+        }
+      },
+      "scores": {
+        "val_min_positive": 2.086162567138672e-06,
+        "val_max_negative": 0.1400146484375,
+        "threshold": 1.0,
+        "val_threshold_equals_min_positive": false,
+        "test_min_positive": 7.62939453125e-06,
+        "test_max_negative": 0.99951171875,
+        "test_recall_at_fp0": 0.8850574712643678,
+        "test_recall_at_fp1": 0.8850574712643678,
+        "test_recall_at_fp5": 0.9080459770114943,
+        "test_recall_at_fp20": 0.9195402298850575
+      },
+      "test_missed_windows": [
+        {
+          "sample_id": "2cb63300b23141909588abbc",
+          "host": "sysclient0069",
+          "score": 0.0215301513671875,
+          "negatives_scoring_above": 6
+        },
+        {
+          "sample_id": "7b61b048548582b9d73492b7",
+          "host": "sysclient0069",
+          "score": 0.0016489028930664062,
+          "negatives_scoring_above": 21
+        },
+        {
+          "sample_id": "7de447fba8139e63b3f6539d",
+          "host": "sysclient0069",
+          "score": 0.00142669677734375,
+          "negatives_scoring_above": 22
+        },
+        {
+          "sample_id": "525623713751b50387bfdb2e",
+          "host": "sysclient0069",
+          "score": 0.00026726722717285156,
+          "negatives_scoring_above": 142
+        },
+        {
+          "sample_id": "c619ace934a71ab2d82e5369",
+          "host": "sysclient0069",
+          "score": 0.001628875732421875,
+          "negatives_scoring_above": 21
+        },
+        {
+          "sample_id": "d5b6510762af934a8d1824a7",
+          "host": "sysclient0069",
+          "score": 0.00016999244689941406,
+          "negatives_scoring_above": 272
+        },
+        {
+          "sample_id": "98d3351adf43e2cb129513b3",
+          "host": "sysclient0069",
+          "score": 2.6702880859375e-05,
+          "negatives_scoring_above": 2910
+        },
+        {
+          "sample_id": "d93b49081c407b538f69a878",
+          "host": "sysclient0051",
+          "score": 7.62939453125e-06,
+          "negatives_scoring_above": 12560
+        },
+        {
+          "sample_id": "186d474ea73e7e1ac56bbaca",
+          "host": "sysclient0051",
+          "score": 0.2122802734375,
+          "negatives_scoring_above": 2
+        },
+        {
+          "sample_id": "4f11e07c769d7f3775d86de8",
+          "host": "sysclient0051",
+          "score": 0.50830078125,
+          "negatives_scoring_above": 2
+        }
+      ],
+      "history": {
+        "epochs_run": 8,
+        "val_pr_auc": [
+          0.7882252432857545,
+          0.7901223792428358,
+          0.8944807399747934,
+          0.9038779544067443,
+          0.9326214731286759,
+          0.919897381208469,
+          0.9307069761603162,
+          0.9446970937645903
+        ],
+        "train_loss": [
+          5.9078737645001596,
+          3.1107565654100076,
+          0.9460425243962698,
+          0.6939694789548868,
+          0.5168525105729967,
+          0.48462073502394654,
+          0.2833419703793753,
+          0.2771254266401819
+        ],
+        "val_pr_auc_range": [
+          0.7882252432857545,
+          0.9446970937645903
+        ],
+        "best_epoch_is_last": true,
+        "seconds_per_epoch": 383.3716130256653
+      }
+    }
+  },
+  "baselines": {
+    "B1_rule_has_powershell": {
+      "val": {
+        "tp": 85,
+        "fp": 0,
+        "fn": 3,
+        "tn": 32209,
+        "precision": 1.0,
+        "recall": 0.9659090909090909,
+        "f1": 0.9826589595375723
+      },
+      "test": {
+        "tp": 83,
+        "fp": 0,
+        "fn": 4,
+        "tn": 35128,
+        "precision": 1.0,
+        "recall": 0.9540229885057471,
+        "f1": 0.976470588235294
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "positive_windows": 4,
+          "b1_tp": 0
+        },
+        "sysclient0069": {
+          "positive_windows": 77,
+          "b1_tp": 77
+        },
+        "sysclient0104": {
+          "positive_windows": 3,
+          "b1_tp": 3
+        },
+        "sysclient0503": {
+          "positive_windows": 3,
+          "b1_tp": 3
+        }
+      }
+    },
+    "B2lite_metadata_tree_depth3": {
+      "threshold_selected_on_val": 0.9956111490412136,
+      "val": {
+        "tp": 69,
+        "fp": 88,
+        "fn": 19,
+        "tn": 32121,
+        "precision": 0.4394904458598726,
+        "recall": 0.7840909090909091,
+        "f1": 0.563265306122449,
+        "pr_auc": 0.37495119869300075,
+        "roc_auc": 0.988960242619934
+      },
+      "test": {
+        "tp": 68,
+        "fp": 135,
+        "fn": 19,
+        "tn": 34993,
+        "precision": 0.33497536945812806,
+        "recall": 0.7816091954022989,
+        "f1": 0.4689655172413793,
+        "pr_auc": 0.2901651251418205,
+        "roc_auc": 0.9892316637741252
+      },
+      "note": "thay HGB cua STEP 09B (may local khong co sklearn): cay quyet dinh depth 3 tu cai bang numpy, feature = event_count, app_node_count, remote_node_count, chunk_index"
+    }
+  },
+  "paired_test_positive_windows": {
+    "bilstm: full vs noapp": {
+      "only_bilstm_full": 3,
+      "only_bilstm_noapp": 0,
+      "both": 77,
+      "neither": 7
+    },
+    "mixed: full vs noapp": {
+      "only_mixed_full": 9,
+      "only_mixed_noapp": 0,
+      "both": 77,
+      "neither": 1
+    },
+    "full: bilstm vs mixed": {
+      "only_bilstm_full": 0,
+      "only_mixed_full": 6,
+      "both": 80,
+      "neither": 1
+    },
+    "noapp: bilstm vs mixed": {
+      "only_bilstm_noapp": 2,
+      "only_mixed_noapp": 2,
+      "both": 75,
+      "neither": 8
+    },
+    "bilstm_full vs rule B1": {
+      "only_model": 0,
+      "only_rule": 3
+    }
+  },
+  "attention_top5": {
+    "mixed_full": {
+      "positive": [
+        [
+          "app_family",
+          0.6359
+        ],
+        [
+          "service",
+          0.0772
+        ],
+        [
+          "delta_t_log1p",
+          0.048
+        ],
+        [
+          "has_missed_bytes",
+          0.0317
+        ],
+        [
+          "resp_port_class",
+          0.0307
+        ]
+      ],
+      "negative": [
+        [
+          "app_family",
+          0.4842
+        ],
+        [
+          "service",
+          0.1421
+        ],
+        [
+          "delta_t_log1p",
+          0.0694
+        ],
+        [
+          "has_missed_bytes",
+          0.0507
+        ],
+        [
+          "resp_port_class",
+          0.0503
+        ]
+      ]
+    },
+    "mixed_noapp": {
+      "positive": [
+        [
+          "delta_t_log1p",
+          0.4301
+        ],
+        [
+          "orig_bytes",
+          0.4287
+        ],
+        [
+          "orig_ip_bytes",
+          0.0849
+        ],
+        [
+          "resp_port_class",
+          0.0179
+        ],
+        [
+          "has_missed_bytes",
+          0.0166
+        ]
+      ],
+      "negative": [
+        [
+          "orig_bytes",
+          0.4148
+        ],
+        [
+          "delta_t_log1p",
+          0.4137
+        ],
+        [
+          "orig_ip_bytes",
+          0.1025
+        ],
+        [
+          "has_missed_bytes",
+          0.0244
+        ],
+        [
+          "resp_port_class",
+          0.0178
+        ]
+      ]
+    }
+  }
+}

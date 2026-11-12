@@ -1,0 +1,116 @@
+subjects 169644 | subject có EXECUTE 66953 | subject nhãn REAPr 126
+(subject, netflow thật) khóa 226692 | dương (có cạnh nhãn hoặc subject nhãn) 127 | subject khác nhau 10409 | dương: subject 118 | netflow 20
+
+== cạnh có nhãn: n_labeled_events>0 (khóa) 127 | tổng sự kiện có nhãn 1701
+
+== top chương trình (EXECUTE) của subject dương, theo số khóa (subject,netflow) và sự kiện
+                   keys  events  subjects
+prog_any                                 
+profile (deleted)    38      78        37
+gtcache              35     211        35
+firefox              23     642        23
+clean (deleted)      16      32        16
+mail                  9      97         1
+clean                 2      42         2
+pass_mgr              2     422         2
+profile               2     177         2
+
+== top chương trình của subject benign (có flow thật), theo khóa
+                                      keys   events  subjects
+prog_any                                                     
+firefox                             213267  1071237      5739
+python2.7                            10253    30762      3851
+thunderbird                           1551    14793       198
+                                       503     1516        11
+wget                                   419     1150        44
+sshd                                   371     1113       371
+ubuntu-geoip-provider                  186      557        72
+ping                                     6       16         2
+netstat                                  5       15         1
+qt-opensource-linux-x64-5.10.1.run       3        9         1
+ssh                                      1        1         1
+
+== chương trình có cả dương và benign (số khóa dương / benign)
+          keys_pos  keys_benign
+prog_any                       
+firefox         23       213267
+
+== cha (chương trình) của subject dương vs benign
+parent_prog
+u:0        67
+init       34
+fluxbox    23
+firefox     2
+sh          1
+dtype: int64
+parent_prog
+fluxbox      214597
+init          10658
+firefox         503
+-bash           419
+sshd            371
+bash             14
+python2.7         2
+scp               1
+dtype: int64
+
+== đích: dương top; benign có cùng đích không
+                    keys  events
+remote                          
+141.43.176.203:80      4     868
+146.153.68.151:80     55     398
+161.116.88.72:80      57     327
+149.52.198.23:80       1      89
+61.130.69.232:80       1       9
+128.55.12.110:111      2       2
+128.55.12.110:22       2       2
+128.55.12.110:80       2       2
+128.55.12.110:5901     2       2
+7.149.198.40:80        1       2
+khóa benign có cùng đích với dương: 0 / 226565
+benign đến cổng 80: 113318 | dương đến cổng 80: 121
+
+== loại sự kiện (dương / benign)
+pos    types                                    
+False  EVENT_RECVFROM|EVENT_SENDTO                  112914
+       EVENT_CONNECT|EVENT_RECVFROM|EVENT_SENDTO    111191
+       EVENT_CONNECT|EVENT_SENDTO                     1575
+       EVENT_SENDTO                                    432
+       EVENT_CONNECT|EVENT_RECVFROM                    268
+       EVENT_RECVFROM                                  184
+True   EVENT_SENDTO                                    102
+       EVENT_CONNECT|EVENT_RECVFROM|EVENT_SENDTO        11
+       EVENT_CONNECT                                     8
+       EVENT_RECVFROM                                    5
+dtype: int64
+
+== cmdline mẫu của subject dương (EXECUTE cuối)
+                                   subject prog_any parent_prog
+4599  8B161C29-0000-0000-0000-000000000020  firefox     fluxbox
+4668  06187E2A-0000-0000-0000-000000000020  firefox     fluxbox
+4669  4E18B22A-0000-0000-0000-000000000020  firefox     fluxbox
+4755  4F18B22A-0000-0000-0000-000000000020  firefox     fluxbox
+4756  5318F12A-0000-0000-0000-000000000020  firefox     fluxbox
+4757  5418F32A-0000-0000-0000-000000000020  firefox     fluxbox
+4760  5518F72A-0000-0000-0000-000000000020  firefox     fluxbox
+4768  5618FB2A-0000-0000-0000-000000000020  firefox     fluxbox
+4773  5818FF2A-0000-0000-0000-000000000020  firefox     fluxbox
+4859  64189C2B-0000-0000-0000-000000000020  firefox     fluxbox
+4860  65189F2B-0000-0000-0000-000000000020  firefox     fluxbox
+4861  6618A32B-0000-0000-0000-000000000020  firefox     fluxbox
+4862  6718A92B-0000-0000-0000-000000000020  firefox     fluxbox
+4863  6818A92B-0000-0000-0000-000000000020    clean         u:0
+4870  6B18B82B-0000-0000-0000-000000000020  firefox     fluxbox
+
+== dương: subject, số lần EXECUTE, có exec cmdline chứa firefox/bash/sh
+exec_last
+                                                                109
+/usr/bin/firefox                                                  3
+/etc/firefox/native-messaging-hosts/pass_mgr /home/admin/.mo      2
+/home/admin/clean                                                 1
+/home/admin/profile                                               1
+./gtcache                                                         1
+/var/log/mail                                                     1
+Name: count, dtype: int64
+
+== nhãn subject REAPr (125 attack) có flow thật không: 118 / 126

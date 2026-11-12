@@ -1,0 +1,33 @@
+              lines      eligible       pos           neg    neg_kept
+split                                                                
+test   2.324894e+09  6.396345e+08   29210.0  6.396053e+08   3840062.0
+train  1.159944e+10  3.238802e+09  169298.0  3.238632e+09  12956829.0
+val    2.614954e+09  7.331475e+08   70226.0  7.330773e+08   4402100.0
+cắt u (xác suất giữ event âm cuối): {'train': np.float64(0.0015682360187532145), 'val': np.float64(0.0028738853410598822), 'test': np.float64(0.001370063738951723)}
+gộp từ điển từ 3274 file
+từ điển: {'vocab_size': 90011, 'fit_scope': 'TRAIN hosts only; 100% positive events + negative events sampled with prob 0.03 (deviation from Nguyen: not every TRAIN event)', 'min_frequency': 2, 'min_document_frequency': 1, 'tokens_by_group': {'command_line': 87045, 'object': 10, 'property_value': 2176, 'action': 21, 'structure_semantic': 759}}
+  train: 200/3274 files 15s
+  train: 400/3274 files 27s
+  train: 600/3274 files 40s
+  train: 800/3274 files 48s
+  train: 1000/3274 files 61s
+  train: 1200/3274 files 75s
+  train: 1400/3274 files 77s
+  train: 1600/3274 files 84s
+  train: 1800/3274 files 91s
+  train: 2000/3274 files 99s
+  train: 2200/3274 files 108s
+  train: 2400/3274 files 213s
+  train: 2600/3274 files 213s
+  train: 2800/3274 files 213s
+  train: 3000/3274 files 223s
+  train: 3200/3274 files 223s
+train: X=(5252104, 90011) nnz=74,972,854 pos=169,298
+  val: 200/734 files 43s
+  val: 400/734 files 63s
+  val: 600/734 files 95s
+val: X=(2179235, 90011) nnz=31,053,706 pos=70,226
+  test: 200/677 files 17s
+  test: 400/677 files 24s
+  test: 600/677 files 52s
+test: X=(907098, 90011) nnz=12,919,628 pos=29,210

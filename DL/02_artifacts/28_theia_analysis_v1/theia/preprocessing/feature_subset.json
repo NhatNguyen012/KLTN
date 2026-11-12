@@ -1,0 +1,19 @@
+{
+  "x_cat_columns_all": [
+    "app_family",
+    "proto",
+    "service",
+    "conn_state",
+    "resp_port_class",
+    "image_dir_class",
+    "principal_class"
+  ],
+  "keep_categorical": [
+    "app_family",
+    "proto",
+    "resp_port_class",
+    "image_dir_class"
+  ],
+  "drop_numeric": true,
+  "zero_binary": true
+}

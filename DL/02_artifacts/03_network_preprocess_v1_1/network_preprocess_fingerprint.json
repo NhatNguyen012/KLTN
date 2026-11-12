@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-09-23T14:26:05.630812",
+  "script_version": "step04c-network-preprocess-train-only-v1.1",
+  "source_v1_candidate_fingerprint_sha256": "f24910f1b666f5e3ef36f41493f3d5ed2a1274f47dca018a4b7a48164d2de568",
+  "candidate_v1_1_fingerprint_sha256": "72698db40deba6948c9e81e0cb318723a6d967d5fa4bc1b4cdee168cf8ec7da6",
+  "category_maps_sha256": "c542ec1835991e2741cebaca156a281f5a247a8e38125e9a2f039d3ae421caeb",
+  "numeric_stats_sha256": "cbfdc1d5f31041da6b35777fca2775854b90e96cbe3226e55cb7a0fb3cfdf858",
+  "preprocess_spec_sha256": "f20aefbae6f5854b8f18c8ac2d4edd895fc2047c9916a6f638a7fdba61e89932",
+  "fit_split": "train",
+  "val_used_for_fit": false,
+  "test_used_for_fit": false,
+  "unmatched_split_used_for_fit": false,
+  "label_used_for_feature_selection": false,
+  "frozen_fingerprint_sha256": "a24ef2cc96b8db8e80875971a1b2c348650bbfde103143811c33af3711ae0839"
+}

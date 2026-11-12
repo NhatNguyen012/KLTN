@@ -1,0 +1,23 @@
+Wrote: ['05b_train_bilstm.py', 'network_dl_dataset_v1_1.py']
+[diag] bilstm fold 0: TRAIN 753 mẫu (dương 9), lr 0.001, epoch 20, replay 0, batch 32, threads 8
+[diag] ep 1: loss 4.5090 (203.8s) TP@0.5 0/9 FP@0.5 0 ROC 0.3129 PR 0.0092
+[diag] ep 2: loss 4.0338 (247.1s)
+[diag] ep 3: loss 3.5749 (255.2s)
+[diag] ep 4: loss 2.8562 (163.5s) TP@0.5 0/9 FP@0.5 0 ROC 0.8407 PR 0.1611
+[diag] ep 5: loss 2.5732 (161.2s)
+[diag] ep 6: loss 2.2370 (255.7s)
+[diag] ep 7: loss 1.4570 (210.9s)
+[diag] ep 8: loss 1.5116 (205.7s) TP@0.5 6/9 FP@0.5 13 ROC 0.9079 PR 0.4733
+[diag] ep 9: loss 1.4997 (193.3s)
+[diag] ep 10: loss 1.2269 (180.3s)
+[diag] ep 11: loss 0.9918 (137.9s)
+[diag] ep 12: loss 1.1536 (81.2s) TP@0.5 7/9 FP@0.5 11 ROC 0.9827 PR 0.781
+[diag] ep 13: loss 0.7288 (74.2s)
+[diag] ep 14: loss 0.7334 (65.9s)
+[diag] ep 15: loss 0.6733 (62.9s)
+[diag] ep 16: loss 1.4561 (46.3s) TP@0.5 8/9 FP@0.5 6 ROC 0.996 PR 0.9167
+[diag] ep 17: loss 1.2538 (44.4s)
+[diag] ep 18: loss 0.7954 (32.3s)
+[diag] ep 19: loss 0.6294 (46.9s)
+[diag] ep 20: loss 0.4268 (64.0s) TP@0.5 8/9 FP@0.5 0 ROC 0.9984 PR 0.9389
+[xong] {"0.5": {"tp": 8, "fp": 0}, "optc_val": {"tp": 5, "fp": 0}, "roc_auc": 0.9984, "pr_auc": 0.9389, "median_prob_pos": 0.9971, "median_prob_neg": 0.00058}

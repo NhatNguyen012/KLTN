@@ -1,0 +1,42 @@
+﻿level,field,applies_to,type,meaning_vi,example
+top,timestamp,mọi event,string (ISO 8601),"Thời điểm event xảy ra, giờ EDT (UTC−4). Ví dụ 2019-09-24T13:58:59.137-04:00",2019-09-24T00:00:00.025-04:00
+top,id,mọi event,string (UUID),Mã duy nhất của event,a61c967d-f48f-4538-9313-daf986477aeb
+top,hostname,mọi event,string,"Máy sinh ra event, dạng SysClient0005.systemia.com",SysClient0618.systemia.com
+top,object,mọi event,string,"Loại đối tượng bị tác động: PROCESS, FILE, FLOW, MODULE, REGISTRY, THREAD, TASK, USER_SESSION, SHELL, SERVICE",THREAD
+top,action,mọi event,string,"Hành động trên đối tượng: CREATE, READ, WRITE, START, MESSAGE, LOAD, EDIT, REMOTE_CREATE, ...",REMOTE_CREATE
+top,actorID,mọi event,string (UUID),Mã tiến trình thực hiện hành động (khóa để lần theo process),c2e18a10-d049-4279-8f05-c4110b541f66
+top,objectID,mọi event,string (UUID),"Mã đối tượng bị tác động (file, process đích, flow...)",b600019e-47c8-4076-ad00-49479071d3e5
+top,pid,mọi event,int,Process ID của tiến trình thực hiện,4
+top,ppid,mọi event,int,Process ID của tiến trình cha,0
+top,tid,mọi event,int,Thread ID; −1 nếu không có,32
+top,principal,mọi event,string,"Tài khoản người dùng chạy tiến trình, ví dụ SYSTEMIACOM\sysadmin",NT AUTHORITY\SYSTEM
+top,label,"bản corrected (host-begnin, host-malicious)",int 0/1,Nhãn do A New Hope gán: 1 nếu event do tiến trình độc hại hoặc tiến trình con của nó tạo ra,0
+properties,acuity_level,mọi event,string,Mức quan trọng của event (1–5) do nền tảng thu thập gán,3
+properties,image_path,đa số object,string,Đường dẫn file thực thi của tiến trình thực hiện,System
+properties,parent_image_path,PROCESS,string,Đường dẫn file thực thi của tiến trình cha,\Device\HarddiskVolume1\Windows\system32\svchost.exe
+properties,command_line,PROCESS,string,Dòng lệnh dùng để chạy tiến trình,"C:\Windows\SYSTEM32\cmd.exe /c ""C:\ncr\DeleteArchiveSecurity.bat"""
+properties,user,"PROCESS, USER_SESSION",string,Tài khoản liên quan,NT AUTHORITY\SYSTEM
+properties,sid,PROCESS,string,Security ID của tài khoản,S-1-5-18
+properties,file_path,FILE,string,Đường dẫn file bị đọc/ghi/tạo/xóa,\Device\HarddiskVolume1\Windows\System32\npmproxy.dll
+properties,new_path,FILE RENAME,string,Đường dẫn mới sau khi đổi tên,
+properties,size,"FILE READ/WRITE, FLOW MESSAGE",string (số),Số byte đọc/ghi hoặc số byte của thông điệp mạng,39424
+properties,info_class,FILE MODIFY/DELETE,string,Loại thông tin file bị sửa,
+properties,key,REGISTRY,string,Đường dẫn khóa registry,\REGISTRY\MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks\{6772AC65-7600-4DF2-9BD5-F17292FAAE4B}\DynamicInfo
+properties,value,REGISTRY,string,Tên giá trị trong khóa registry,DynamicInfo
+properties,data,REGISTRY,string,Dữ liệu mới ghi vào giá trị registry,%%1800
+properties,type,REGISTRY,string,Kiểu dữ liệu registry (REG_SZ...),REG_BINARY
+properties,src_ip,"FLOW, USER_SESSION REMOTE",string,IP nguồn,fe80::141a:2712:7179:dc15
+properties,src_port,"FLOW, USER_SESSION REMOTE",string (số),Cổng nguồn,55466
+properties,dest_ip,FLOW,string,IP đích,ff02::1:3
+properties,dest_port,FLOW,string (số),Cổng đích,5355
+properties,direction,FLOW,string,Hướng kết nối: inbound hoặc outbound,inbound
+properties,l4protocol,FLOW,string,"Giao thức tầng 4: 6 = TCP, 17 = UDP",17
+properties,start_time / end_time,FLOW MESSAGE,string,Thời điểm bắt đầu/kết thúc của thông điệp (nếu có),
+properties,module_path,MODULE LOAD,string,Đường dẫn DLL được nạp,\Windows\System32\npmproxy.dll
+properties,base_address,MODULE LOAD,string,Địa chỉ nạp module,0x7ff9046f0000
+properties,src_pid / src_tid,THREAD,string (số),Process/thread tạo ra thread,4
+properties,tgt_pid / tgt_tid,THREAD,string (số),Process/thread đích (REMOTE_CREATE: process bị chèn thread),6140
+properties,start_address / stack_base / stack_limit / user_stack_base / user_stack_limit / subprocess_tag,THREAD,string,Thông số kỹ thuật của thread,7ff912154980
+properties,task_name / task_pid / task_process_uuid / user_name / path,TASK,string,Thông tin tác vụ Windows Task Scheduler,
+properties,logon_id / privileges / requesting_user / requesting_domain / requesting_logon_id,USER_SESSION,string,Thông tin phiên đăng nhập,0x3e7
+properties,bro_uid,FLOW INFO (eCAR-Bro),string,Mã kết nối Bro; khóa nối với Bro conn.uid,

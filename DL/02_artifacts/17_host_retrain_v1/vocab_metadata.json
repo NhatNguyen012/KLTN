@@ -1,0 +1,13 @@
+{
+  "vocab_size": 90011,
+  "fit_scope": "TRAIN hosts only; 100% positive events + negative events sampled with prob 0.03 (deviation from Nguyen: not every TRAIN event)",
+  "min_frequency": 2,
+  "min_document_frequency": 1,
+  "tokens_by_group": {
+    "command_line": 87045,
+    "object": 10,
+    "property_value": 2176,
+    "action": 21,
+    "structure_semantic": 759
+  }
+}

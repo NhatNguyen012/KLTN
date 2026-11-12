@@ -1,0 +1,6 @@
+[member] ta1-fivedirections-e3-official.json size=15847348862
+[progress] 5,000,000 dòng, 31s, Event 0, NetFlow 0, Subject 0
+[progress] 10,000,000 dòng, 61s, Event 0, NetFlow 0, Subject 0
+[progress] 15,000,000 dòng, 91s, Event 0, NetFlow 0, Subject 0
+[progress] 20,000,000 dòng, 123s, Event 0, NetFlow 0, Subject 0
+[xong] {"seconds": 134, "type_counts": {"?": 21817198}, "net_events": {"parsed_by_type": {}, "total": 0, "predicateObject_is_netflow": 0, "of_total_with_predicate": 0, "subject_known": 0, "subject_with_cmdLine": 0, "subject_with_parentSubject": 0}}

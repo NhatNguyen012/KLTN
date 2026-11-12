@@ -1,0 +1,72 @@
+{
+  "generated_at": "2026-10-02T17:59:43.918772",
+  "script_version": "step10b-random-split-train-only-preprocess-v1.0",
+  "mode": "freeze",
+  "joined_root": "D:\\UIT\\KLTNv2\\02_artifacts\\02_network_joined_v1\\joined",
+  "report04b": "D:\\UIT\\KLTNv2\\02_artifacts\\02_network_joined_v1\\network_join_exact_report.json",
+  "frozen_split_dir": "02_artifacts\\11a_nobeacon_split_v1",
+  "split_contract_file_sha256": "33084e41a241bc45ad04cd2aac37f158b4f2c3a8f34fb865c56693f1ec451757",
+  "joined_original_supervised_rows": {
+    "train": 61751292,
+    "val": 13164701,
+    "test": 10710192
+  },
+  "profile_state": {
+    "profile_version": "step05f-c-host-profile-v1.0",
+    "joined_root": "D:\\UIT\\KLTNv2\\02_artifacts\\02_network_joined_v1\\joined",
+    "joined_dataset_signature": {
+      "parquet_files": 29,
+      "compressed_bytes": 3148862423,
+      "metadata_sha256": "1db4acccffa744df738f1f5b4a1d653ee8b698a845a965b05051c8e3e3fe9b38"
+    },
+    "report04b_sha256": "4f4136992804f2235d4bef2add0eeadbc635dbd3abafd3d8bc071c016e574ac9",
+    "split_contract_file_sha256": "33084e41a241bc45ad04cd2aac37f158b4f2c3a8f34fb865c56693f1ec451757",
+    "expected_supervised_rows": 85612773,
+    "excluded_resp_ips": [
+      "202.6.172.98"
+    ]
+  },
+  "all_folds_ready": true,
+  "folds": {
+    "seed_1": {
+      "status": "FROZEN",
+      "split_stats": {
+        "train": {
+          "hosts": 434,
+          "event_rows": 62057568,
+          "positive_event_rows": 8721
+        },
+        "val": {
+          "hosts": 93,
+          "event_rows": 12337336,
+          "positive_event_rows": 1526
+        },
+        "test": {
+          "hosts": 93,
+          "event_rows": 11217869,
+          "positive_event_rows": 1062
+        }
+      },
+      "active_categorical_features": [
+        "app_family",
+        "proto",
+        "service",
+        "conn_state",
+        "resp_port_class"
+      ],
+      "active_numerical_features": [
+        "duration",
+        "orig_bytes",
+        "resp_bytes",
+        "orig_pkts",
+        "orig_ip_bytes",
+        "resp_pkts",
+        "resp_ip_bytes"
+      ],
+      "warnings": [],
+      "candidate_fingerprint_sha256": "ce94ac903298566b18645e1ea82bf334b8a5d49b71b30c19a9fcf3980c2b1514",
+      "frozen_fingerprint_sha256": "b5ac4f6a6fa1f925a982347090765e2a9d70aceca2f8713ee993802318369e45"
+    }
+  },
+  "next_step": "STEP 05F-D — build fold-specific 15m/512 shards"
+}

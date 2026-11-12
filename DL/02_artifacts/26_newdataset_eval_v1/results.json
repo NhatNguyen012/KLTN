@@ -1,0 +1,437 @@
+{
+ "thresholds_from_optc_val": {
+  "bilstm": 0.99560546875,
+  "mixed": 1.0
+ },
+ "verification_optc": {
+  "bilstm": {
+   "samples": 682,
+   "max_abs_diff": 0.0,
+   "mean_abs_diff": 0.0,
+   "n_diff_gt_0.01": 0,
+   "decision_agreement_at_threshold": 1.0,
+   "positives_pred_cpu": 80,
+   "positives_pred_kaggle": 80,
+   "seconds": 14
+  },
+  "mixed": {
+   "samples": 682,
+   "max_abs_diff": 0.0,
+   "mean_abs_diff": 0.0,
+   "n_diff_gt_0.01": 0,
+   "decision_agreement_at_threshold": 1.0,
+   "positives_pred_cpu": 80,
+   "positives_pred_kaggle": 80,
+   "seconds": 10
+  }
+ },
+ "datasets": {
+  "skrghosh": {
+   "samples": 196,
+   "positive_samples": 8,
+   "flows": 46646,
+   "positive_flows": 282,
+   "models": {
+    "bilstm": {
+     "threshold": 0.99560546875,
+     "at_frozen_threshold": {
+      "threshold": 0.99560546875,
+      "tp": 1,
+      "fp": 2,
+      "fn": 7,
+      "tn": 186,
+      "precision": 0.3333,
+      "recall": 0.125,
+      "f1": 0.1818,
+      "fpr": 0.010638
+     },
+     "rank_metrics_by_logit": {
+      "pr_auc": 0.1628,
+      "roc_auc": 0.6835
+     },
+     "score_stats": {
+      "positive_median_prob": 0.97900390625,
+      "negative_median_prob": 0.953369140625,
+      "n_pred_positive": 3,
+      "max_negative_prob": 0.9990234375,
+      "max_positive_prob": 0.99658203125,
+      "n_negative_prob_ge_0.5": 161
+     },
+     "by_group": {
+      "skr_apt29": {
+       "samples": 77,
+       "positive_samples": 2,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "skr_fin6": {
+       "samples": 45,
+       "positive_samples": 2,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "skr_menupass": {
+       "samples": 74,
+       "positive_samples": 4,
+       "detected": 1,
+       "false_positives": 2
+      }
+     },
+     "seconds": 3,
+     "oracle_best_threshold_diagnostic_only": {
+      "threshold": 0.99267578125,
+      "tp": 3,
+      "fp": 6,
+      "fn": 5,
+      "tn": 182,
+      "precision": 0.3333,
+      "recall": 0.375,
+      "f1": 0.3529,
+      "fpr": 0.031915
+     }
+    },
+    "mixed": {
+     "threshold": 1.0,
+     "at_frozen_threshold": {
+      "threshold": 1.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 8,
+      "tn": 188,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "fpr": 0.0
+     },
+     "rank_metrics_by_logit": {
+      "pr_auc": 0.5032,
+      "roc_auc": 0.8471
+     },
+     "score_stats": {
+      "positive_median_prob": 0.0005087852478027344,
+      "negative_median_prob": 0.00016605854034423828,
+      "n_pred_positive": 0,
+      "max_negative_prob": 0.027801513671875,
+      "max_positive_prob": 0.291259765625,
+      "n_negative_prob_ge_0.5": 0
+     },
+     "by_group": {
+      "skr_apt29": {
+       "samples": 77,
+       "positive_samples": 2,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "skr_fin6": {
+       "samples": 45,
+       "positive_samples": 2,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "skr_menupass": {
+       "samples": 74,
+       "positive_samples": 4,
+       "detected": 0,
+       "false_positives": 0
+      }
+     },
+     "seconds": 2,
+     "oracle_best_threshold_diagnostic_only": {
+      "threshold": 0.00043392181396484375,
+      "tp": 5,
+      "fp": 5,
+      "fn": 3,
+      "tn": 183,
+      "precision": 0.5,
+      "recall": 0.625,
+      "f1": 0.5556,
+      "fpr": 0.026596
+     }
+    }
+   },
+   "rule_has_powershell": {
+    "threshold": 0.5,
+    "tp": 4,
+    "fp": 0,
+    "fn": 4,
+    "tn": 188,
+    "precision": 1.0,
+    "recall": 0.5,
+    "f1": 0.6667,
+    "fpr": 0.0
+   },
+   "share_app_unk_positive": 0.622,
+   "share_app_unk_negative": 0.643
+  },
+  "ait": {
+   "samples": 8259,
+   "positive_samples": 302,
+   "flows": 884697,
+   "positive_flows": 133773,
+   "models": {
+    "bilstm": {
+     "threshold": 0.99560546875,
+     "at_frozen_threshold": {
+      "threshold": 0.99560546875,
+      "tp": 4,
+      "fp": 1405,
+      "fn": 298,
+      "tn": 6552,
+      "precision": 0.0028,
+      "recall": 0.0132,
+      "f1": 0.0047,
+      "fpr": 0.176574
+     },
+     "rank_metrics_by_logit": {
+      "pr_auc": 0.0216,
+      "roc_auc": 0.2149
+     },
+     "score_stats": {
+      "positive_median_prob": 0.006488800048828125,
+      "negative_median_prob": 0.0885009765625,
+      "n_pred_positive": 1409,
+      "max_negative_prob": 1.0,
+      "max_positive_prob": 1.0,
+      "n_negative_prob_ge_0.5": 2931
+     },
+     "by_group": {
+      "ait_fox_cloud_share": {
+       "samples": 561,
+       "positive_samples": 4,
+       "detected": 2,
+       "false_positives": 431
+      },
+      "ait_fox_inet-firewall": {
+       "samples": 592,
+       "positive_samples": 6,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_internal_share": {
+       "samples": 561,
+       "positive_samples": 4,
+       "detected": 2,
+       "false_positives": 313
+      },
+      "ait_fox_intranet_server": {
+       "samples": 569,
+       "positive_samples": 15,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_mail": {
+       "samples": 559,
+       "positive_samples": 2,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_vpn": {
+       "samples": 653,
+       "positive_samples": 90,
+       "detected": 0,
+       "false_positives": 44
+      },
+      "ait_fox_webserver": {
+       "samples": 569,
+       "positive_samples": 7,
+       "detected": 0,
+       "false_positives": 59
+      },
+      "ait_harrison_cloud_share": {
+       "samples": 570,
+       "positive_samples": 1,
+       "detected": 0,
+       "false_positives": 345
+      },
+      "ait_harrison_inet-firewall": {
+       "samples": 601,
+       "positive_samples": 5,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_internal_share": {
+       "samples": 570,
+       "positive_samples": 1,
+       "detected": 0,
+       "false_positives": 66
+      },
+      "ait_harrison_intranet_server": {
+       "samples": 577,
+       "positive_samples": 14,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_mail": {
+       "samples": 570,
+       "positive_samples": 1,
+       "detected": 0,
+       "false_positives": 1
+      },
+      "ait_harrison_vpn": {
+       "samples": 736,
+       "positive_samples": 145,
+       "detected": 0,
+       "false_positives": 71
+      },
+      "ait_harrison_webserver": {
+       "samples": 571,
+       "positive_samples": 7,
+       "detected": 0,
+       "false_positives": 75
+      }
+     },
+     "seconds": 30,
+     "oracle_best_threshold_diagnostic_only": {
+      "threshold": 0.00530242919921875,
+      "tp": 297,
+      "fp": 7587,
+      "fn": 5,
+      "tn": 370,
+      "precision": 0.0377,
+      "recall": 0.9834,
+      "f1": 0.0726,
+      "fpr": 0.9535
+     }
+    },
+    "mixed": {
+     "threshold": 1.0,
+     "at_frozen_threshold": {
+      "threshold": 1.0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 302,
+      "tn": 7957,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "fpr": 0.0
+     },
+     "rank_metrics_by_logit": {
+      "pr_auc": 0.0203,
+      "roc_auc": 0.1473
+     },
+     "score_stats": {
+      "positive_median_prob": 3.737211227416992e-05,
+      "negative_median_prob": 5.519390106201172e-05,
+      "n_pred_positive": 0,
+      "max_negative_prob": 0.0008692741394042969,
+      "max_positive_prob": 0.0001442432403564453,
+      "n_negative_prob_ge_0.5": 0
+     },
+     "by_group": {
+      "ait_fox_cloud_share": {
+       "samples": 561,
+       "positive_samples": 4,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_inet-firewall": {
+       "samples": 592,
+       "positive_samples": 6,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_internal_share": {
+       "samples": 561,
+       "positive_samples": 4,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_intranet_server": {
+       "samples": 569,
+       "positive_samples": 15,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_mail": {
+       "samples": 559,
+       "positive_samples": 2,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_vpn": {
+       "samples": 653,
+       "positive_samples": 90,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_fox_webserver": {
+       "samples": 569,
+       "positive_samples": 7,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_cloud_share": {
+       "samples": 570,
+       "positive_samples": 1,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_inet-firewall": {
+       "samples": 601,
+       "positive_samples": 5,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_internal_share": {
+       "samples": 570,
+       "positive_samples": 1,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_intranet_server": {
+       "samples": 577,
+       "positive_samples": 14,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_mail": {
+       "samples": 570,
+       "positive_samples": 1,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_vpn": {
+       "samples": 736,
+       "positive_samples": 145,
+       "detected": 0,
+       "false_positives": 0
+      },
+      "ait_harrison_webserver": {
+       "samples": 571,
+       "positive_samples": 7,
+       "detected": 0,
+       "false_positives": 0
+      }
+     },
+     "seconds": 44,
+     "oracle_best_threshold_diagnostic_only": {
+      "threshold": 3.4809112548828125e-05,
+      "tp": 302,
+      "fp": 7950,
+      "fn": 0,
+      "tn": 7,
+      "precision": 0.0366,
+      "recall": 1.0,
+      "f1": 0.0706,
+      "fpr": 0.99912
+     }
+    }
+   },
+   "rule_has_powershell": {
+    "threshold": 0.5,
+    "tp": 0,
+    "fp": 0,
+    "fn": 302,
+    "tn": 7957,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "fpr": 0.0
+   },
+   "share_app_unk_positive": 0.0,
+   "share_app_unk_negative": 0.0
+  }
+ },
+ "seconds": 107
+}

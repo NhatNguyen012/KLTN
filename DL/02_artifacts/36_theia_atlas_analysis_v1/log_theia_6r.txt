@@ -1,0 +1,42 @@
+[A] ta1-theia-e3-official-6r.json
+[A] 5,000,000 dòng 92s netflow 11,341 subject 5,782
+[A] ta1-theia-e3-official-6r.json.1
+[A] 5,000,000 dòng 214s netflow 32,340 subject 21,250
+[A] ta1-theia-e3-official-6r.json.10
+[A] 5,000,000 dòng 344s netflow 44,178 subject 27,990
+[A] ta1-theia-e3-official-6r.json.11
+[A] 5,000,000 dòng 471s netflow 57,327 subject 43,958
+[A] ta1-theia-e3-official-6r.json.12
+[A] ta1-theia-e3-official-6r.json.2
+[A] 5,000,000 dòng 707s netflow 85,349 subject 68,128
+[A] ta1-theia-e3-official-6r.json.3
+[A] 5,000,000 dòng 829s netflow 99,089 subject 83,368
+[A] ta1-theia-e3-official-6r.json.4
+[A] 5,000,000 dòng 955s netflow 111,717 subject 97,810
+[A] ta1-theia-e3-official-6r.json.5
+[A] 5,000,000 dòng 1081s netflow 122,223 subject 113,161
+[A] ta1-theia-e3-official-6r.json.6
+[A] 5,000,000 dòng 1194s netflow 132,688 subject 123,992
+[A] ta1-theia-e3-official-6r.json.7
+[A] 5,000,000 dòng 1307s netflow 143,391 subject 135,279
+[A] ta1-theia-e3-official-6r.json.8
+[A] 5,000,000 dòng 1421s netflow 156,381 subject 148,403
+[A] ta1-theia-e3-official-6r.json.9
+[A] 5,000,000 dòng 1519s netflow 168,156 subject 169,644
+[B] ta1-theia-e3-official-6r.json
+[B] ta1-theia-e3-official-6r.json.1
+[B] ta1-theia-e3-official-6r.json.10
+[B] ta1-theia-e3-official-6r.json.11
+[B] ta1-theia-e3-official-6r.json.12
+[B] ta1-theia-e3-official-6r.json.2
+[B] ta1-theia-e3-official-6r.json.3
+[B] ta1-theia-e3-official-6r.json.4
+[B] ta1-theia-e3-official-6r.json.5
+[B] ta1-theia-e3-official-6r.json.6
+[B] 5,000,000 dòng 2521s
+[B] ta1-theia-e3-official-6r.json.7
+[B] ta1-theia-e3-official-6r.json.8
+[B] 5,000,000 dòng 2702s
+[B] ta1-theia-e3-official-6r.json.9
+[B] 5,000,000 dòng 2792s
+[xong] {"seconds": 2792, "type_counts": {"Host": 1, "Event": 59634578, "Principal": 18, "Subject": 169644, "FileObject": 785675, "MemoryObject": 3094422, "NetFlowObject": 168156}, "netflow": {"n": 168156, "ipProtocol": {"None": 168156}, "remote_addr_empty": 0, "remote_port_top": {"80": 110601, "0": 28743, "53": 27969, "143": 296, "25": 98, "22": 7, "443": 4, "111": 2, "5901": 2, "33455": 1}, "example": [["7F000001-AF82-7F00-0001-AF8200000040", ["127.0.0.1", 33455, "127.0.0.1", 33455, null]], ["0A00063C-0000-FFFF-FFFF-000000000040", ["/com/ubuntu/upstart", 0, "NA", 0, null]], ["FEFFFFFF-0000-FFFF-FFFF-000000000040", ["LOCAL", 0, "NA", 0, null]]]}, "net_events": {"by_type": {"EVENT_SENDTO": {"n": 347071, "size_nonnull": 347071, "size_sum": 138120749, "size_max": 16777216}, "EVENT_RECVFROM": {"n": 9956382, "size_nonnull": 9956382, "size_sum": 16682558505, "size_max": 1279056}, "EVENT_SENDMSG": {"n": 975350, "size_nonnull": 975350, "size_sum": 661488198, "size_max": 208832}, "EVENT_RECVMSG": {"n": 1224165, "size_nonnull": 1224165, "size_sum": 648220549, "size_max": 4096}, "EVENT_CONNECT": {"n": 367182, "size_nonnull": 0, "size_sum": 0, "size_max": 0}, "EVENT_WRITE_SOCKET_PARAMS": {"n": 148394, "size_nonnull": 148394, "size_sum": 24762369, "size_max": 24128}, "EVENT_READ_SOCKET_PARAMS": {"n": 206538, "size_nonnull": 206538, "size_sum": 1068749502, "size_max": 24129}}, "total": 13225082, "subject_known": 13225082, "subject_with_path": 13203284, "subject_with_cmd_not_NA": 13203284, "subject_with_ppid": 9317854, "subject_principal_known": 13225082, "ts_nanos_range": [1523378673449671127, 1523653470864623838], "distinct_netflows_touched": 168156, "top_subject_paths": {"/usr/bin/fluxbox": 8189529, "/home/admin/Downloads/firefox/firefox": 2792543, "/usr/lib/thunderbird/thunderbird": 782119, "/usr/sbin/console-kit-daemon": 357487, "/usr/sbin/sshd": 268229, "/bin/dbus-daemon": 102904, "/usr/sbin/NetworkManager": 95347, "/usr/bin/pulseaudio": 75990, "/usr/bin/unity-2d-panel": 64387, "/usr/lib/unity/unity-panel-service": 64236, "/var/log/mail": 63658, "/usr/lib/postgresql/9.1/bin/postgres": 56870, "/usr/bin/python2.7": 52692, "/usr/bin/Xorg": 51626, "/usr/lib/rtkit/rtkit-daemon": 40275, "/usr/sbin/ntpd": 29454, "null": 21798, "/usr/lib/x86_64-linux-gnu/gconf/gconfd-2": 17136, "/usr/bin/metacity": 14131, "/usr/lib/gvfs/gvfsd": 10221, "/usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1": 8375, "/usr/lib/upower/upowerd": 8373, "/usr/bin/zeitgeist-daemon": 8373, "/usr/lib/udisks/udisks-daemon": 8372, "/usr/lib/accountsservice/accounts-daemon": 8372}}}

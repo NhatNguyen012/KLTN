@@ -1,0 +1,204 @@
+{
+  "version": "network-category-maps-v1.1",
+  "reserved_ids": {
+    "<UNK>": 0,
+    "<MISSING>": 1
+  },
+  "fit_split": "train",
+  "fields": {
+    "app_family": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "firefox.exe": 2,
+        "conhost.exe": 3,
+        "cmd.exe": 4,
+        "powershell.exe": 5,
+        "ping.exe": 6,
+        "schtasks.exe": 7,
+        "appidcertstorecheck.exe": 8,
+        "reg.exe": 9,
+        "googleupdate.exe": 10,
+        "svchost.exe": 11,
+        "taskhostw.exe": 12,
+        "onedrivesetup.exe": 13,
+        "wscript.exe": 14,
+        "bcdedit.exe": 15,
+        "mpcmdrun.exe": 16,
+        "taskkill.exe": 17,
+        "reader_sl.exe": 18,
+        "winword.exe": 19,
+        "sppsvc.exe": 20,
+        "searchprotocolhost.exe": 21,
+        "searchfilterhost.exe": 22,
+        "python.exe": 23,
+        "geckodriver.exe": 24,
+        "msascuil.exe": 25,
+        "vmtoolsd.exe": 26,
+        "backgroundtaskhost.exe": 27,
+        "adobearm.exe": 28,
+        "mobsync.exe": 29,
+        "searchui.exe": 30,
+        "msoia.exe": 31,
+        "dsregcmd.exe": 32,
+        "logonui.exe": 33,
+        "shutdown.exe": 34,
+        "sc.exe": 35,
+        "installagent.exe": 36,
+        "smartscreen.exe": 37,
+        "powerpnt.exe": 38,
+        "excel.exe": 39,
+        "applicationframehost.exe": 40,
+        "gpupdate.exe": 41,
+        "wmiprvse.exe": 42,
+        "devicecensus.exe": 43,
+        "acrord32.exe": 44,
+        "qwinsta.exe": 45,
+        "tasklist.exe": 46,
+        "ngen.exe": 47,
+        "onedrive.exe": 48,
+        "compattelrunner.exe": 49,
+        "searchindexer.exe": 50,
+        "userinit.exe": 51,
+        "winstore.app.exe": 52,
+        "chrome.exe": 53,
+        "tiworker.exe": 54,
+        "trustedinstaller.exe": 55,
+        "runtimebroker.exe": 56,
+        "shellexperiencehost.exe": 57,
+        "mantra.exe": 58,
+        "dllhost.exe": 59,
+        "microsoftedgecp.exe": 60
+      },
+      "size": 61,
+      "min_train_frequency": 5,
+      "max_values_excluding_reserved": 5000,
+      "active_for_model": true
+    },
+    "direction": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "outbound": 2
+      },
+      "size": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": false
+    },
+    "proto": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "tcp": 2,
+        "udp": 3
+      },
+      "size": 4,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": true
+    },
+    "service": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "ssl": 2,
+        "http": 3,
+        "dns": 4
+      },
+      "size": 5,
+      "min_train_frequency": 5,
+      "max_values_excluding_reserved": 1000,
+      "active_for_model": true
+    },
+    "conn_state": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "sf": 2,
+        "rsto": 3,
+        "rstr": 4,
+        "s0": 5,
+        "rej": 6,
+        "s1": 7
+      },
+      "size": 8,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": true
+    },
+    "local_orig": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "f": 2
+      },
+      "size": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": false
+    },
+    "local_resp": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "f": 2
+      },
+      "size": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": false
+    },
+    "orig_ip_scope": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "PUBLIC_IPV4": 2
+      },
+      "size": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": false
+    },
+    "resp_ip_scope": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "PUBLIC_IPV4": 2
+      },
+      "size": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": false
+    },
+    "orig_port_class": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "EPHEMERAL": 2
+      },
+      "size": 3,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": false
+    },
+    "resp_port_class": {
+      "mapping": {
+        "<UNK>": 0,
+        "<MISSING>": 1,
+        "PORT_443_HTTPS": 2,
+        "PORT_80_HTTP": 3,
+        "PORT_8080_HTTP_ALT": 4,
+        "REGISTERED": 5,
+        "PORT_53_DNS": 6,
+        "PORT_445_SMB": 7,
+        "WELL_KNOWN_OTHER": 8,
+        "PORT_22_SSH": 9
+      },
+      "size": 10,
+      "min_train_frequency": 1,
+      "max_values_excluding_reserved": 256,
+      "active_for_model": true
+    }
+  }
+}

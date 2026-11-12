@@ -1,0 +1,19 @@
+[member] attack/h2/m3 23491550
+[member] attack/h2/m2 66294629
+[member] attack/h2/m6 26584562
+[member] attack/h2/m4 30282598
+[member] attack/h2/m5 25255430
+[member] attack/h2/m1 58461884
+[member] attack/h1/m4 37213086
+[member] attack/h1/s4 41476794
+[member] attack/h1/m3 29690423
+[member] attack/h1/m6 40758754
+[member] attack/h1/s3 50532382
+[member] attack/h1/s1 47937742
+[member] attack/h1/m1 90132985
+[member] attack/h1/m2 50287896
+[member] attack/h1/s2 37550056
+[member] attack/h1/m5 48337833
+[member] benign/h2/benign 1471584285
+[member] benign/h1/benign 2457333821
+[xong] 18

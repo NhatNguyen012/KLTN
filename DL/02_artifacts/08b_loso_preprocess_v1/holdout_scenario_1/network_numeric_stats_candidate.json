@@ -1,0 +1,109 @@
+{
+  "version": "network-numeric-stats-v1.1",
+  "fit_split": "train",
+  "transform": "log1p_nonnegative_then_zscore",
+  "zscore_clip_abs": 10.0,
+  "missing_policy": {
+    "normalized_value": 0.0,
+    "parallel_missing_mask": true,
+    "note": "0.0 after z-score corresponds to TRAIN mean. Missing is distinguished by x_num_missing mask."
+  },
+  "features": {
+    "duration": {
+      "log1p_mean": 0.08511270960383775,
+      "log1p_std": 0.4169329227662053,
+      "scale_used": 0.4169329227662053,
+      "train_observed": 59581386,
+      "train_missing": 5214,
+      "train_missing_rate": 8.750289494617918e-05,
+      "raw_train_min": 0.00067,
+      "raw_train_max": 10801.14967,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "orig_bytes": {
+      "log1p_mean": 6.8278603954870425,
+      "log1p_std": 0.5445323480336126,
+      "scale_used": 0.5445323480336126,
+      "train_observed": 59581386,
+      "train_missing": 5214,
+      "train_missing_rate": 8.750289494617918e-05,
+      "raw_train_min": 0,
+      "raw_train_max": 3551160539,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "resp_bytes": {
+      "log1p_mean": 7.903544872961878,
+      "log1p_std": 1.7726031907785804,
+      "scale_used": 1.7726031907785804,
+      "train_observed": 59581386,
+      "train_missing": 5214,
+      "train_missing_rate": 8.750289494617918e-05,
+      "raw_train_min": 0,
+      "raw_train_max": 31471762,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "missed_bytes": {
+      "log1p_mean": 8.38739286211236e-07,
+      "log1p_std": 0.002447102962789735,
+      "scale_used": 0.002447102962789735,
+      "train_observed": 59586600,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 0,
+      "raw_train_max": 1260,
+      "active_for_model": false,
+      "zscore_clip_abs": 10.0
+    },
+    "orig_pkts": {
+      "log1p_mean": 2.238442619503167,
+      "log1p_std": 0.3772185224577907,
+      "scale_used": 0.3772185224577907,
+      "train_observed": 59586600,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 1,
+      "raw_train_max": 3052533,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "orig_ip_bytes": {
+      "log1p_mean": 7.171153107899341,
+      "log1p_std": 0.35712855159412604,
+      "scale_used": 0.35712855159412604,
+      "train_observed": 59586600,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 52,
+      "raw_train_max": 3697274608,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "resp_pkts": {
+      "log1p_mean": 2.585193719441858,
+      "log1p_std": 0.7945103426187771,
+      "scale_used": 0.7945103426187771,
+      "train_observed": 59586600,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 0,
+      "raw_train_max": 437853,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    },
+    "resp_ip_bytes": {
+      "log1p_mean": 8.142932084590944,
+      "log1p_std": 1.5956264977204755,
+      "scale_used": 1.5956264977204755,
+      "train_observed": 59586600,
+      "train_missing": 0,
+      "train_missing_rate": 0.0,
+      "raw_train_min": 0,
+      "raw_train_max": 32471334,
+      "active_for_model": true,
+      "zscore_clip_abs": 10.0
+    }
+  }
+}

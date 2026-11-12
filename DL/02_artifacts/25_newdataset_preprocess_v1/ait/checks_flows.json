@@ -1,0 +1,199 @@
+{
+ "scenarios": {
+  "fox": {
+   "attacker_ips": {
+    "172.17.130.196": 410831,
+    "192.168.130.77": 28
+   },
+   "attack_window_epoch": [
+    1642507140.043224,
+    1642511691.032905
+   ],
+   "machines": {
+    "cloud_share": {
+     "flows": 33253,
+     "positive_flows": 1435,
+     "attacker_ip_flows_any_time": 1442,
+     "proto": {
+      "tcp": "30950",
+      "ipv6-icmp": "1687",
+      "udp": "616"
+     },
+     "ts_min": 1642159278.576143,
+     "ts_max": 1642661241.016693
+    },
+    "inet-firewall": {
+     "flows": 93794,
+     "positive_flows": 1237,
+     "attacker_ip_flows_any_time": 1268,
+     "proto": {
+      "udp": "61273",
+      "tcp": "27943",
+      "ipv6-icmp": "4578"
+     },
+     "ts_min": 1642159247.787122,
+     "ts_max": 1642661237.034098
+    },
+    "internal_share": {
+     "flows": 41533,
+     "positive_flows": 1428,
+     "attacker_ip_flows_any_time": 1428,
+     "proto": {
+      "udp": "23936",
+      "tcp": "14800",
+      "ipv6-icmp": "2797"
+     },
+     "ts_min": 1642159255.371972,
+     "ts_max": 1642661216.417225
+    },
+    "intranet_server": {
+     "flows": 21651,
+     "positive_flows": 5600,
+     "attacker_ip_flows_any_time": 8914,
+     "proto": {
+      "tcp": "12528",
+      "udp": "6326",
+      "ipv6-icmp": "2797"
+     },
+     "ts_min": 1642159255.339064,
+     "ts_max": 1642661235.224176
+    },
+    "mail": {
+     "flows": 47116,
+     "positive_flows": 22,
+     "attacker_ip_flows_any_time": 44,
+     "proto": {
+      "tcp": "27749",
+      "udp": "17680",
+      "ipv6-icmp": "1687"
+     },
+     "ts_min": 1642159012.964761,
+     "ts_max": 1642661217.666962
+    },
+    "vpn": {
+     "flows": 91842,
+     "positive_flows": 44241,
+     "attacker_ip_flows_any_time": 88721,
+     "proto": {
+      "tcp": "75170",
+      "udp": "14986",
+      "ipv6-icmp": "1686"
+     },
+     "ts_min": 1642159278.473576,
+     "ts_max": 1642661216.777054
+    },
+    "webserver": {
+     "flows": 84276,
+     "positive_flows": 1596,
+     "attacker_ip_flows_any_time": 19064,
+     "proto": {
+      "tcp": "81484",
+      "ipv6-icmp": "1691",
+      "udp": "1101"
+     },
+     "ts_min": 1642159278.018161,
+     "ts_max": 1642661241.01607
+    }
+   }
+  },
+  "harrison": {
+   "attacker_ips": {
+    "10.237.1.238": 415366,
+    "172.28.192.242": 28
+   },
+   "attack_window_epoch": [
+    1644304020.017628,
+    1644309445.487692
+   ],
+   "machines": {
+    "cloud_share": {
+     "flows": 21685,
+     "positive_flows": 4,
+     "attacker_ip_flows_any_time": 14,
+     "proto": {
+      "tcp": "19306",
+      "ipv6-icmp": "1831",
+      "udp": "548"
+     },
+     "ts_min": 1643880216.286194,
+     "ts_max": 1644392361.846672
+    },
+    "inet-firewall": {
+     "flows": 99816,
+     "positive_flows": 332,
+     "attacker_ip_flows_any_time": 394,
+     "proto": {
+      "udp": "68350",
+      "tcp": "26257",
+      "ipv6-icmp": "5209"
+     },
+     "ts_min": 1643880200.827139,
+     "ts_max": 1644392385.928301
+    },
+    "internal_share": {
+     "flows": 40970,
+     "positive_flows": 3,
+     "attacker_ip_flows_any_time": 3,
+     "proto": {
+      "udp": "32288",
+      "tcp": "6281",
+      "ipv6-icmp": "2401"
+     },
+     "ts_min": 1643880197.936243,
+     "ts_max": 1644392427.202291
+    },
+    "intranet_server": {
+     "flows": 22777,
+     "positive_flows": 4594,
+     "attacker_ip_flows_any_time": 10571,
+     "proto": {
+      "tcp": "14606",
+      "udp": "5771",
+      "ipv6-icmp": "2400"
+     },
+     "ts_min": 1643880208.537228,
+     "ts_max": 1644392419.410269
+    },
+    "mail": {
+     "flows": 50106,
+     "positive_flows": 28,
+     "attacker_ip_flows_any_time": 38,
+     "proto": {
+      "tcp": "28026",
+      "udp": "20246",
+      "ipv6-icmp": "1834"
+     },
+     "ts_min": 1643879925.28959,
+     "ts_max": 1644392430.219493
+    },
+    "vpn": {
+     "flows": 155907,
+     "positive_flows": 72685,
+     "attacker_ip_flows_any_time": 150356,
+     "proto": {
+      "tcp": "125607",
+      "udp": "28469",
+      "ipv6-icmp": "1831"
+     },
+     "ts_min": 1643880190.032714,
+     "ts_max": 1644392426.123484
+    },
+    "webserver": {
+     "flows": 79971,
+     "positive_flows": 568,
+     "attacker_ip_flows_any_time": 29236,
+     "proto": {
+      "tcp": "77122",
+      "ipv6-icmp": "1830",
+      "udp": "1019"
+     },
+     "ts_min": 1643880190.033325,
+     "ts_max": 1644392416.362298
+    }
+   }
+  }
+ },
+ "rows": 884697,
+ "positive_flows": 133773,
+ "seconds": 43
+}

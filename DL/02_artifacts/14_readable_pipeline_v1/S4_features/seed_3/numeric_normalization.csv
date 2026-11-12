@@ -1,0 +1,9 @@
+﻿feature,dùng_cho_model,mean_log1p_TRAIN,std_log1p_TRAIN,cắt_|z|_tối_đa,min_thô_TRAIN,max_thô_TRAIN,tỉ_lệ_thiếu_TRAIN
+duration,True,0.083899,0.41394,10.0,0.00067,10801.14967,8.796e-05
+orig_bytes,True,6.825972,0.551443,10.0,0,687699148,8.796e-05
+resp_bytes,True,7.884178,1.768996,10.0,0,31471762,8.796e-05
+missed_bytes,False,1e-06,0.002249,10.0,0,1260,0.0
+orig_pkts,True,2.236041,0.374897,10.0,1,597040,0.0
+orig_ip_bytes,True,7.169517,0.356657,10.0,52,711580796,0.0
+resp_pkts,True,2.578425,0.790214,10.0,0,88831,0.0
+resp_ip_bytes,True,8.125909,1.589719,10.0,0,32471334,0.0

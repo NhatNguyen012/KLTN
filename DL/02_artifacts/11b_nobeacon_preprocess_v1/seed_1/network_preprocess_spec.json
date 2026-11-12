@@ -1,0 +1,155 @@
+{
+  "version": "network-preprocess-spec-v1.1",
+  "experiment": "Random scenario-stratified host split",
+  "heldout_scenario": "seed_1",
+  "fit_split": "train",
+  "fit_scope": "STEP 10A frozen fold TRAIN only",
+  "split_source": "STEP 05F-B frozen hostname random-split mapping",
+  "input_contract": "network-feature-contract-v1.0",
+  "profiled_categorical_features": [
+    "app_family",
+    "direction",
+    "proto",
+    "service",
+    "conn_state",
+    "local_orig",
+    "local_resp",
+    "orig_ip_scope",
+    "resp_ip_scope",
+    "orig_port_class",
+    "resp_port_class"
+  ],
+  "active_categorical_features": [
+    "app_family",
+    "proto",
+    "service",
+    "conn_state",
+    "resp_port_class"
+  ],
+  "inactive_categorical_features": {
+    "direction": "constant_on_fold_train; kept only for audit/reproducibility",
+    "local_orig": "constant_on_fold_train; kept only for audit/reproducibility",
+    "local_resp": "constant_on_fold_train; kept only for audit/reproducibility",
+    "orig_ip_scope": "constant_on_fold_train; kept only for audit/reproducibility",
+    "resp_ip_scope": "constant_on_fold_train; kept only for audit/reproducibility",
+    "orig_port_class": "constant_on_fold_train; kept only for audit/reproducibility"
+  },
+  "profiled_numerical_features": [
+    "duration",
+    "orig_bytes",
+    "resp_bytes",
+    "missed_bytes",
+    "orig_pkts",
+    "orig_ip_bytes",
+    "resp_pkts",
+    "resp_ip_bytes"
+  ],
+  "active_numerical_features": [
+    "duration",
+    "orig_bytes",
+    "resp_bytes",
+    "orig_pkts",
+    "orig_ip_bytes",
+    "resp_pkts",
+    "resp_ip_bytes"
+  ],
+  "inactive_numerical_features": {
+    "missed_bytes": "TRAIN log1p std=0.001812634 < 0.01; raw z-score would be unstable for rare non-zero values"
+  },
+  "derived_binary_features": [
+    {
+      "name": "has_missed_bytes",
+      "source": "missed_bytes",
+      "rule": "1.0 if missed_bytes > 0 else 0.0",
+      "fit_required": false,
+      "reason": "Preserve rare missed-bytes signal without unstable z-score."
+    }
+  ],
+  "categorical_reserved_ids": {
+    "<UNK>": 0,
+    "<MISSING>": 1
+  },
+  "derived_rules": {
+    "ip_scope": [
+      "<MISSING>",
+      "LOOPBACK",
+      "PRIVATE",
+      "PRIVATE_IPV6",
+      "LINK_LOCAL",
+      "MULTICAST",
+      "BROADCAST",
+      "PUBLIC_IPV4",
+      "PUBLIC_IPV6",
+      "OTHER"
+    ],
+    "port_class_common_ports": {
+      "20": "FTP_DATA",
+      "21": "FTP",
+      "22": "SSH",
+      "23": "TELNET",
+      "25": "SMTP",
+      "53": "DNS",
+      "80": "HTTP",
+      "110": "POP3",
+      "123": "NTP",
+      "135": "RPC",
+      "139": "NETBIOS",
+      "143": "IMAP",
+      "389": "LDAP",
+      "443": "HTTPS",
+      "445": "SMB",
+      "636": "LDAPS",
+      "1433": "MSSQL",
+      "3306": "MYSQL",
+      "3389": "RDP",
+      "5432": "POSTGRES",
+      "5985": "WINRM_HTTP",
+      "5986": "WINRM_HTTPS",
+      "8080": "HTTP_ALT",
+      "8443": "HTTPS_ALT"
+    },
+    "port_class_fallbacks": [
+      "WELL_KNOWN_OTHER",
+      "REGISTERED",
+      "EPHEMERAL",
+      "OTHER",
+      "<MISSING>"
+    ]
+  },
+  "numeric_transform": "log1p_nonnegative_then_train_zscore_then_clip",
+  "numeric_zscore_clip_abs": 10.0,
+  "numeric_missing_policy": {
+    "normalized_value": 0.0,
+    "parallel_missing_mask": true,
+    "note": "0.0 after z-score corresponds to TRAIN mean. Missing is distinguished by x_num_missing mask.",
+    "clip_after_zscore": [
+      -10.0,
+      10.0
+    ]
+  },
+  "selection_policy": {
+    "categorical_active_rule": "Field must vary on fold TRAIN or have varying TRAIN missingness.",
+    "numeric_active_rule": "Fold TRAIN log1p std >= 0.01.",
+    "label_used_for_feature_selection": false,
+    "val_used_for_feature_selection": false,
+    "test_used_for_feature_selection": false,
+    "heldout_scenario_used_for_fit": false
+  },
+  "non_predictive_fields": [
+    "uid",
+    "hostname",
+    "split",
+    "assigned_split",
+    "label",
+    "raw exact timestamp",
+    "raw global IP identity as learned category"
+  ],
+  "graph_construction_fields_kept_raw_until_step05f_d": [
+    "orig_h",
+    "orig_p",
+    "resp_h",
+    "resp_p"
+  ],
+  "split_supervised_rows": 85612773,
+  "next_step": "STEP 05F-D builds fold-specific (hostname, 15-minute-window, chunk) sequence/graph shards using this frozen preprocessing."
+}

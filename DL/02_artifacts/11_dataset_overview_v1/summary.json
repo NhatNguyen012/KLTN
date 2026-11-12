@@ -1,0 +1,30 @@
+{
+  "raw_total_files": 8865,
+  "raw_total_gb": 951.43,
+  "hosts_raw_manifest": 625,
+  "hosts_in_network_dataset": 620,
+  "hosts_without_network_rows": [
+    "sysclient0341",
+    "sysclient0346",
+    "sysclient0389",
+    "sysclient0395",
+    "sysclient0440"
+  ],
+  "network_hosts_without_ecar_host_files": 123,
+  "network_hosts_without_ecar_host_files_events": 6419570,
+  "scenario_host_counts": {
+    "scenario_1": 17,
+    "scenario_2": 10,
+    "scenario_3": 2
+  },
+  "scenario_gt_host_events": {
+    "scenario_1": 124217,
+    "scenario_2": 205617,
+    "scenario_3": 30733
+  },
+  "scenario_network_positive_events": {
+    "scenario_1": 9030,
+    "scenario_2": 15502,
+    "scenario_3": 189
+  }
+}

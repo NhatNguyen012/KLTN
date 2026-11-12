@@ -1,0 +1,144 @@
+{
+ "flows_candidates": 123279,
+ "bind_only_removed": [
+  36112,
+  304
+ ],
+ "flows": 87167,
+ "label_primary_flows": 307,
+ "label_attack_flows": 304,
+ "label_all_flows": 306,
+ "label_B_flows": 9,
+ "windows": 854,
+ "windows_pos_primary": 7,
+ "app_family_distinct": 25,
+ "app_family_null": 143,
+ "resp_port_missing_share": 0.00020650016634735622,
+ "top_app_family": [
+  [
+   "svchost.exe",
+   54401,
+   0
+  ],
+  [
+   "firefox.exe",
+   28612,
+   303
+  ],
+  [
+   "tvnserver.exe",
+   3533,
+   0
+  ],
+  [
+   "thunderbird.exe",
+   286,
+   0
+  ],
+  [
+   null,
+   143,
+   0
+  ],
+  [
+   "mpcmdrun.exe",
+   66,
+   0
+  ],
+  [
+   "python.exe",
+   57,
+   0
+  ],
+  [
+   "onedrivestandaloneupdater.exe",
+   9,
+   0
+  ],
+  [
+   "system",
+   8,
+   0
+  ],
+  [
+   "nslookup.exe",
+   8,
+   0
+  ],
+  [
+   "sshd.exe",
+   8,
+   0
+  ],
+  [
+   "backgroundtaskhost.exe",
+   5,
+   0
+  ],
+  [
+   "searchprotocolhost.exe",
+   4,
+   0
+  ],
+  [
+   "lwabeat.exe",
+   4,
+   0
+  ]
+ ],
+ "label_by_app": [
+  [
+   "firefox.exe",
+   303
+  ],
+  [
+   "pass_mgr.exe",
+   2
+  ],
+  [
+   "powershell.exe",
+   2
+  ]
+ ],
+ "label_resp_port_missing": [
+  0,
+  307
+ ],
+ "positive_windows": [
+  [
+   "2018-04-09 19:00",
+   47,
+   2
+  ],
+  [
+   "2018-04-11 14:00",
+   653,
+   6
+  ],
+  [
+   "2018-04-11 14:15",
+   29,
+   1
+  ],
+  [
+   "2018-04-11 14:30",
+   890,
+   295
+  ],
+  [
+   "2018-04-11 15:45",
+   1034,
+   1
+  ],
+  [
+   "2018-04-12 15:00",
+   1063,
+   1
+  ],
+  [
+   "2018-04-12 15:15",
+   854,
+   1
+  ]
+ ]
+}

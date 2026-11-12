@@ -60,6 +60,21 @@ IL/*/output/
 event_replay_cache/
 **/event_replay_cache/
 
+# Generated ML/DL arrays, checkpoints & compressed event streams
+*.npy
+*.pt
+*.pth
+*.ckpt
+*.ubj
+*.jsonl.gz
+*.csv.gz
+
+# DL pipeline scratch state and generated feature matrices
+/DL/02_artifacts/**/work/
+/DL/02_artifacts/**/_work/
+/DL/02_artifacts/**/matrices/
+/DL/02_artifacts/**/features/
+
 # Audit results & Archives
 /code/kaggle/mission4_audit_results_final/
 /ML/code/kaggle/mission4_audit_results_final/
@@ -72,7 +87,11 @@ code/kaggle/mission4_audit_results_final/
 *.tgz
 *.zst
 
-# In DATASET/ATLASv2_staged, only ignore atlasv2.tar.gz
+# In DATASET/ATLASv2_staged, ignore atlasv2.tar.gz and non-ATLASv2 large external corpora
 !/DATASET/ATLASv2_staged/**
-/DATASET/ATLASv2_staged/atlasv2.tar.gz
+/DATASET/ATLASv2_staged/**/*.tar.gz
+/DATASET/ATLASv2_staged/**/*.pkl*
+/DATASET/ATLASv2_staged/reapr-ground-truth/darpa-tc-engagement3/
+/DATASET/ATLASv2_staged/reapr-ground-truth/carbanakv2/
+/DATASET/ATLASv2_staged/reapr-ground-truth/streamspot/
 

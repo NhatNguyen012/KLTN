@@ -1,0 +1,48 @@
+{
+  "script_version": "step05b-bilstm-baseline-v1.0",
+  "dataset_root": "/kaggle/working/optc_network_dl",
+  "dataset_preprocess_fingerprint": "c485c4d15008aebcb304e2be5b049bc7542c09985b14c64d8d66a2b386af94e8",
+  "seed": 42,
+  "epochs": 8,
+  "batch_size": 64,
+  "event_dim": 64,
+  "hidden_dim": 64,
+  "lstm_layers": 1,
+  "dropout": 0.2,
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "grad_clip": 1.0,
+  "patience": 3,
+  "num_workers": 2,
+  "amp": true,
+  "loss": "BCEWithLogitsLoss",
+  "train_pos_weight": 411.97186700767264,
+  "threshold_policy": "maximize F1 on VAL only",
+  "early_stopping_metric": "VAL PR-AUC",
+  "test_policy": "evaluate once after best epoch + VAL threshold are frozen",
+  "drop_app_family": true,
+  "categorical_fields": [
+    "app_family",
+    "proto",
+    "service",
+    "conn_state",
+    "resp_port_class"
+  ],
+  "categorical_cardinalities": [
+    62,
+    4,
+    5,
+    8,
+    8
+  ],
+  "numerical_fields": [
+    "duration",
+    "orig_bytes",
+    "resp_bytes",
+    "orig_pkts",
+    "orig_ip_bytes",
+    "resp_pkts",
+    "resp_ip_bytes"
+  ],
+  "trainable_parameters": 79781
+}

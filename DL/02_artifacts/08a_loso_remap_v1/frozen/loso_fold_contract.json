@@ -1,0 +1,30 @@
+{
+  "frozen_at": "2026-09-24T02:14:17.767437",
+  "script_version": "step05f-b-loso-remap-audit-v1.1-zero-row-safe",
+  "joined_root": "D:\\UIT\\KLTN\\artifacts\\step04_network_joined_v1\\joined",
+  "joined_supervised_events": 85626185,
+  "joined_positive_events": 24721,
+  "folds": {
+    "scenario_1": {
+      "file": "host_split_holdout_scenario_1.csv",
+      "sha256": "afe2d5ac5516d271a4c76a86a20b83bf6e1f7b20e2d14cd555e6e072d14b5c40"
+    },
+    "scenario_2": {
+      "file": "host_split_holdout_scenario_2.csv",
+      "sha256": "d1ff76ca3253f886fe8d62e9b61695dfd24acb62e0c06e9fc48b92f00d395647"
+    },
+    "scenario_3": {
+      "file": "host_split_holdout_scenario_3.csv",
+      "sha256": "235efe48f55463fd02d354d031addb8cc67f7cbde3d68c45e08d63ba5d83c958"
+    }
+  },
+  "rules": {
+    "unit": "hostname",
+    "heldout_scenario_positive_hosts": "TEST only",
+    "seen_scenario_positive_hosts": "TRAIN/VAL only",
+    "pure_benign_hosts": "preserve original split",
+    "physical_joined_copy": false,
+    "next_step": "Refit STEP 04C preprocessing separately on each fold TRAIN only."
+  },
+  "contract_sha256": "9d89de6419a08a951c159da0a1b1116638ea3017c35dd4d85ff1781b691223ce"
+}

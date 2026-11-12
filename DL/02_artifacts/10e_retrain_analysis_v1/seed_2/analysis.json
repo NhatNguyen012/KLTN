@@ -1,0 +1,770 @@
+{
+  "seed": 2,
+  "dataset": "D:\\UIT\\KLTNv2\\03_datasets\\random_network_dl_v1_1_15m\\seed_2",
+  "models": "D:\\UIT\\KLTNv2\\05_models\\10_random_seed2_v1",
+  "powershell_id": 5,
+  "runs": {
+    "bilstm_full": {
+      "run": "bilstm_full",
+      "drop_app_family": false,
+      "threshold": 1.0,
+      "best_epoch": 3,
+      "trainable_parameters": 79809,
+      "val": {
+        "tp": 168,
+        "fp": 0,
+        "fn": 0,
+        "tn": 29851,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "pr_auc": 1.0,
+        "roc_auc": 1.0,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test": {
+        "tp": 78,
+        "fp": 0,
+        "fn": 4,
+        "tn": 35856,
+        "precision": 1.0,
+        "recall": 0.9512195121951219,
+        "f1": 0.975,
+        "pr_auc": 0.9952122854561879,
+        "roc_auc": 0.999981973966326,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "scenario": "scenario_3",
+          "positive_windows": 4,
+          "tp": 0,
+          "fp": 0,
+          "recall": 0.0
+        },
+        "sysclient0203": {
+          "scenario": "scenario_2",
+          "positive_windows": 72,
+          "tp": 72,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0355": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0660": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        }
+      },
+      "test_host_level": {
+        "positive_hosts": 4,
+        "hosts_detected": 3,
+        "macro_recall_over_positive_hosts": 0.75,
+        "false_positive_hosts": 0
+      },
+      "test_scenarios": {
+        "scenario_1": {
+          "positive_windows": 6,
+          "tp": 6
+        },
+        "scenario_2": {
+          "positive_windows": 72,
+          "tp": 72
+        },
+        "scenario_3": {
+          "positive_windows": 4,
+          "tp": 0
+        }
+      },
+      "scores": {
+        "val_min_positive": 1.0,
+        "val_max_negative": 0.0038394927978515625,
+        "threshold": 1.0,
+        "val_threshold_equals_min_positive": true,
+        "test_min_positive": 0.0011425018310546875,
+        "test_max_negative": 0.0038089752197265625,
+        "test_recall_at_fp0": 0.9878048780487805,
+        "test_recall_at_fp1": 0.9878048780487805,
+        "test_recall_at_fp5": 0.9878048780487805,
+        "test_recall_at_fp20": 0.9878048780487805
+      },
+      "test_missed_windows": [
+        {
+          "sample_id": "d93b49081c407b538f69a878",
+          "host": "sysclient0051",
+          "score": 0.0011425018310546875,
+          "negatives_scoring_above": 53
+        },
+        {
+          "sample_id": "186d474ea73e7e1ac56bbaca",
+          "host": "sysclient0051",
+          "score": 0.293212890625,
+          "negatives_scoring_above": 0
+        },
+        {
+          "sample_id": "d1a2129ea288856e7b23b30b",
+          "host": "sysclient0051",
+          "score": 0.1077880859375,
+          "negatives_scoring_above": 0
+        },
+        {
+          "sample_id": "4f11e07c769d7f3775d86de8",
+          "host": "sysclient0051",
+          "score": 0.27392578125,
+          "negatives_scoring_above": 0
+        }
+      ],
+      "history": {
+        "epochs_run": 6,
+        "val_pr_auc": [
+          0.8355356267904729,
+          0.9649299051227485,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "train_loss": [
+          0.8848472580805993,
+          0.49480918967754256,
+          0.30855075726178777,
+          0.05463009026523906,
+          0.0426417750571838,
+          0.038848669454291836
+        ],
+        "val_pr_auc_range": [
+          0.8355356267904729,
+          1.0
+        ],
+        "best_epoch_is_last": false,
+        "seconds_per_epoch": 132.03214585781097
+      }
+    },
+    "bilstm_noapp": {
+      "run": "bilstm_noapp",
+      "drop_app_family": true,
+      "threshold": 0.93798828125,
+      "best_epoch": 8,
+      "trainable_parameters": 79809,
+      "val": {
+        "tp": 166,
+        "fp": 0,
+        "fn": 2,
+        "tn": 29851,
+        "precision": 1.0,
+        "recall": 0.9880952380952381,
+        "f1": 0.9940119760479043,
+        "pr_auc": 0.9882158395888335,
+        "roc_auc": 0.9928396352678621,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test": {
+        "tp": 79,
+        "fp": 0,
+        "fn": 3,
+        "tn": 35856,
+        "precision": 1.0,
+        "recall": 0.9634146341463414,
+        "f1": 0.9813664596273292,
+        "pr_auc": 0.9986985037917606,
+        "roc_auc": 0.9999969389754139,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "scenario": "scenario_3",
+          "positive_windows": 4,
+          "tp": 1,
+          "fp": 0,
+          "recall": 0.25
+        },
+        "sysclient0203": {
+          "scenario": "scenario_2",
+          "positive_windows": 72,
+          "tp": 72,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0355": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0660": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        }
+      },
+      "test_host_level": {
+        "positive_hosts": 4,
+        "hosts_detected": 4,
+        "macro_recall_over_positive_hosts": 0.8125,
+        "false_positive_hosts": 0
+      },
+      "test_scenarios": {
+        "scenario_1": {
+          "positive_windows": 6,
+          "tp": 6
+        },
+        "scenario_2": {
+          "positive_windows": 72,
+          "tp": 72
+        },
+        "scenario_3": {
+          "positive_windows": 4,
+          "tp": 1
+        }
+      },
+      "scores": {
+        "val_min_positive": 2.390146255493164e-05,
+        "val_max_negative": 0.09124755859375,
+        "threshold": 0.93798828125,
+        "val_threshold_equals_min_positive": false,
+        "test_min_positive": 0.050811767578125,
+        "test_max_negative": 0.10650634765625,
+        "test_recall_at_fp0": 0.9634146341463414,
+        "test_recall_at_fp1": 0.9634146341463414,
+        "test_recall_at_fp5": 1.0,
+        "test_recall_at_fp20": 1.0
+      },
+      "test_missed_windows": [
+        {
+          "sample_id": "186d474ea73e7e1ac56bbaca",
+          "host": "sysclient0051",
+          "score": 0.05194091796875,
+          "negatives_scoring_above": 3
+        },
+        {
+          "sample_id": "d1a2129ea288856e7b23b30b",
+          "host": "sysclient0051",
+          "score": 0.05194091796875,
+          "negatives_scoring_above": 3
+        },
+        {
+          "sample_id": "4f11e07c769d7f3775d86de8",
+          "host": "sysclient0051",
+          "score": 0.050811767578125,
+          "negatives_scoring_above": 3
+        }
+      ],
+      "history": {
+        "epochs_run": 8,
+        "val_pr_auc": [
+          0.7944196391244428,
+          0.8271838177332725,
+          0.9680879379856221,
+          0.9740207794165721,
+          0.9810925195369018,
+          0.9810279792575216,
+          0.9871593080978172,
+          0.9882158395888335
+        ],
+        "train_loss": [
+          6.112388482986994,
+          0.9092286899454862,
+          0.7371590162817431,
+          0.5545300588201216,
+          1.3073157953465173,
+          0.5628480061858412,
+          0.6819973985518993,
+          0.6017498314999629
+        ],
+        "val_pr_auc_range": [
+          0.7944196391244428,
+          0.9882158395888335
+        ],
+        "best_epoch_is_last": true,
+        "seconds_per_epoch": 126.07868751883507
+      }
+    },
+    "mixed_full": {
+      "run": "mixed_full",
+      "drop_app_family": false,
+      "threshold": 1.0,
+      "best_epoch": 2,
+      "trainable_parameters": 146177,
+      "val": {
+        "tp": 168,
+        "fp": 0,
+        "fn": 0,
+        "tn": 29851,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "pr_auc": 1.0,
+        "roc_auc": 1.0,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test": {
+        "tp": 78,
+        "fp": 0,
+        "fn": 4,
+        "tn": 35856,
+        "precision": 1.0,
+        "recall": 0.9512195121951219,
+        "f1": 0.975,
+        "pr_auc": 0.9937555999882491,
+        "roc_auc": 0.9999727908925675,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "scenario": "scenario_3",
+          "positive_windows": 4,
+          "tp": 0,
+          "fp": 0,
+          "recall": 0.0
+        },
+        "sysclient0203": {
+          "scenario": "scenario_2",
+          "positive_windows": 72,
+          "tp": 72,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0355": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0660": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        }
+      },
+      "test_host_level": {
+        "positive_hosts": 4,
+        "hosts_detected": 3,
+        "macro_recall_over_positive_hosts": 0.75,
+        "false_positive_hosts": 0
+      },
+      "test_scenarios": {
+        "scenario_1": {
+          "positive_windows": 6,
+          "tp": 6
+        },
+        "scenario_2": {
+          "positive_windows": 72,
+          "tp": 72
+        },
+        "scenario_3": {
+          "positive_windows": 4,
+          "tp": 0
+        }
+      },
+      "scores": {
+        "val_min_positive": 1.0,
+        "val_max_negative": 0.051849365234375,
+        "threshold": 1.0,
+        "val_threshold_equals_min_positive": true,
+        "test_min_positive": 2.1278858184814453e-05,
+        "test_max_negative": 0.95068359375,
+        "test_recall_at_fp0": 0.9634146341463414,
+        "test_recall_at_fp1": 0.9878048780487805,
+        "test_recall_at_fp5": 0.9878048780487805,
+        "test_recall_at_fp20": 0.9878048780487805
+      },
+      "test_missed_windows": [
+        {
+          "sample_id": "d93b49081c407b538f69a878",
+          "host": "sysclient0051",
+          "score": 2.1278858184814453e-05,
+          "negatives_scoring_above": 78
+        },
+        {
+          "sample_id": "186d474ea73e7e1ac56bbaca",
+          "host": "sysclient0051",
+          "score": 0.765625,
+          "negatives_scoring_above": 1
+        },
+        {
+          "sample_id": "d1a2129ea288856e7b23b30b",
+          "host": "sysclient0051",
+          "score": 0.10858154296875,
+          "negatives_scoring_above": 1
+        },
+        {
+          "sample_id": "4f11e07c769d7f3775d86de8",
+          "host": "sysclient0051",
+          "score": 0.9990234375,
+          "negatives_scoring_above": 0
+        }
+      ],
+      "history": {
+        "epochs_run": 5,
+        "val_pr_auc": [
+          0.9809888260467043,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "train_loss": [
+          1.531581756408698,
+          0.6956006100527277,
+          0.16775890645841743,
+          0.1786367614252654,
+          0.20803220746390166
+        ],
+        "val_pr_auc_range": [
+          0.9809888260467043,
+          1.0
+        ],
+        "best_epoch_is_last": false,
+        "seconds_per_epoch": 391.6062896728516
+      }
+    },
+    "mixed_noapp": {
+      "run": "mixed_noapp",
+      "drop_app_family": true,
+      "threshold": 0.9287109375,
+      "best_epoch": 5,
+      "trainable_parameters": 146177,
+      "val": {
+        "tp": 156,
+        "fp": 0,
+        "fn": 12,
+        "tn": 29851,
+        "precision": 1.0,
+        "recall": 0.9285714285714286,
+        "f1": 0.962962962962963,
+        "pr_auc": 0.9571517383967273,
+        "roc_auc": 0.9970842286531041,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test": {
+        "tp": 80,
+        "fp": 0,
+        "fn": 2,
+        "tn": 35856,
+        "precision": 1.0,
+        "recall": 0.975609756097561,
+        "f1": 0.9876543209876543,
+        "pr_auc": 0.9898456795359964,
+        "roc_auc": 0.9999086794331798,
+        "matches_metrics_json": true,
+        "pred_csv_matches_threshold": true
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "scenario": "scenario_3",
+          "positive_windows": 4,
+          "tp": 3,
+          "fp": 0,
+          "recall": 0.75
+        },
+        "sysclient0203": {
+          "scenario": "scenario_2",
+          "positive_windows": 72,
+          "tp": 71,
+          "fp": 0,
+          "recall": 0.9861111111111112
+        },
+        "sysclient0355": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        },
+        "sysclient0660": {
+          "scenario": "scenario_1",
+          "positive_windows": 3,
+          "tp": 3,
+          "fp": 0,
+          "recall": 1.0
+        }
+      },
+      "test_host_level": {
+        "positive_hosts": 4,
+        "hosts_detected": 4,
+        "macro_recall_over_positive_hosts": 0.9340277777777778,
+        "false_positive_hosts": 0
+      },
+      "test_scenarios": {
+        "scenario_1": {
+          "positive_windows": 6,
+          "tp": 6
+        },
+        "scenario_2": {
+          "positive_windows": 72,
+          "tp": 71
+        },
+        "scenario_3": {
+          "positive_windows": 4,
+          "tp": 3
+        }
+      },
+      "scores": {
+        "val_min_positive": 1.895427703857422e-05,
+        "val_max_negative": 0.83447265625,
+        "threshold": 0.9287109375,
+        "val_threshold_equals_min_positive": false,
+        "test_min_positive": 0.00013768672943115234,
+        "test_max_negative": 0.8974609375,
+        "test_recall_at_fp0": 0.975609756097561,
+        "test_recall_at_fp1": 0.975609756097561,
+        "test_recall_at_fp5": 0.975609756097561,
+        "test_recall_at_fp20": 0.9878048780487805
+      },
+      "test_missed_windows": [
+        {
+          "sample_id": "d93b49081c407b538f69a878",
+          "host": "sysclient0051",
+          "score": 0.00013768672943115234,
+          "negatives_scoring_above": 265
+        },
+        {
+          "sample_id": "b76987cfd8d4cf364d7f2448",
+          "host": "sysclient0203",
+          "score": 0.1470947265625,
+          "negatives_scoring_above": 6
+        }
+      ],
+      "history": {
+        "epochs_run": 8,
+        "val_pr_auc": [
+          0.12728759128747238,
+          0.8147655597752045,
+          0.9325219468567685,
+          0.9569381995309547,
+          0.9571517383967273,
+          0.9554509923946167,
+          0.8110283402929682,
+          0.9523821478339518
+        ],
+        "train_loss": [
+          4.6266756060967715,
+          4.7116124953089,
+          1.8670258767343553,
+          0.8572124460904583,
+          0.8673579316212462,
+          0.751751690993038,
+          0.5418595337969699,
+          0.625803616590877
+        ],
+        "val_pr_auc_range": [
+          0.12728759128747238,
+          0.9571517383967273
+        ],
+        "best_epoch_is_last": false,
+        "seconds_per_epoch": 387.1776596903801
+      }
+    }
+  },
+  "baselines": {
+    "B1_rule_has_powershell": {
+      "val": {
+        "tp": 168,
+        "fp": 0,
+        "fn": 0,
+        "tn": 29851,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "test": {
+        "tp": 78,
+        "fp": 0,
+        "fn": 4,
+        "tn": 35856,
+        "precision": 1.0,
+        "recall": 0.9512195121951219,
+        "f1": 0.975
+      },
+      "test_hosts": {
+        "sysclient0051": {
+          "positive_windows": 4,
+          "b1_tp": 0
+        },
+        "sysclient0203": {
+          "positive_windows": 72,
+          "b1_tp": 72
+        },
+        "sysclient0355": {
+          "positive_windows": 3,
+          "b1_tp": 3
+        },
+        "sysclient0660": {
+          "positive_windows": 3,
+          "b1_tp": 3
+        }
+      }
+    },
+    "B2lite_metadata_tree_depth3": {
+      "threshold_selected_on_val": 0.9990813578624076,
+      "val": {
+        "tp": 134,
+        "fp": 9,
+        "fn": 34,
+        "tn": 29842,
+        "precision": 0.9370629370629371,
+        "recall": 0.7976190476190477,
+        "f1": 0.8617363344051447,
+        "pr_auc": 0.8035951224073197,
+        "roc_auc": 0.9889198694787285
+      },
+      "test": {
+        "tp": 70,
+        "fp": 21,
+        "fn": 12,
+        "tn": 35835,
+        "precision": 0.7692307692307693,
+        "recall": 0.8536585365853658,
+        "f1": 0.8092485549132947,
+        "pr_auc": 0.6775837405311453,
+        "roc_auc": 0.9895460908675352
+      },
+      "note": "thay HGB cua STEP 09B (may local khong co sklearn): cay quyet dinh depth 3 tu cai bang numpy, feature = event_count, app_node_count, remote_node_count, chunk_index"
+    }
+  },
+  "paired_test_positive_windows": {
+    "bilstm: full vs noapp": {
+      "only_bilstm_full": 0,
+      "only_bilstm_noapp": 1,
+      "both": 78,
+      "neither": 3
+    },
+    "mixed: full vs noapp": {
+      "only_mixed_full": 1,
+      "only_mixed_noapp": 3,
+      "both": 77,
+      "neither": 1
+    },
+    "full: bilstm vs mixed": {
+      "only_bilstm_full": 0,
+      "only_mixed_full": 0,
+      "both": 78,
+      "neither": 4
+    },
+    "noapp: bilstm vs mixed": {
+      "only_bilstm_noapp": 2,
+      "only_mixed_noapp": 3,
+      "both": 77,
+      "neither": 0
+    },
+    "bilstm_full vs rule B1": {
+      "only_model": 0,
+      "only_rule": 0
+    }
+  },
+  "attention_top5": {
+    "mixed_full": {
+      "positive": [
+        [
+          "app_family",
+          0.5228
+        ],
+        [
+          "has_missed_bytes",
+          0.1664
+        ],
+        [
+          "delta_t_log1p",
+          0.0776
+        ],
+        [
+          "service",
+          0.0671
+        ],
+        [
+          "proto",
+          0.0244
+        ]
+      ],
+      "negative": [
+        [
+          "app_family",
+          0.3367
+        ],
+        [
+          "has_missed_bytes",
+          0.3364
+        ],
+        [
+          "service",
+          0.0864
+        ],
+        [
+          "delta_t_log1p",
+          0.0857
+        ],
+        [
+          "proto",
+          0.0274
+        ]
+      ]
+    },
+    "mixed_noapp": {
+      "positive": [
+        [
+          "delta_t_log1p",
+          0.5691
+        ],
+        [
+          "orig_ip_bytes",
+          0.187
+        ],
+        [
+          "has_missed_bytes",
+          0.1276
+        ],
+        [
+          "service",
+          0.043
+        ],
+        [
+          "resp_bytes",
+          0.0178
+        ]
+      ],
+      "negative": [
+        [
+          "delta_t_log1p",
+          0.5692
+        ],
+        [
+          "orig_ip_bytes",
+          0.1713
+        ],
+        [
+          "has_missed_bytes",
+          0.1274
+        ],
+        [
+          "service",
+          0.0576
+        ],
+        [
+          "resp_bytes",
+          0.0187
+        ]
+      ]
+    }
+  }
+}

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """BiLSTM Network DL Baseline Architecture.
 
-Matches exactly the model architecture and layer weights from DARPA OpTC
-(06d_BiLSTM_Kaggle_v2_final.ipynb) for seamless transfer and domain-incremental learning.
+Shares compatible parameter keys with the DARPA OpTC source model.
+The added attention/pooling and conditional stage head change the forward
+function; loading matching tensor shapes does not establish semantic equivalence.
 """
 
 from __future__ import annotations
@@ -20,6 +21,30 @@ def embedding_dim(cardinality: int) -> int:
     return int(min(16, max(4, round(math.sqrt(cardinality) * 2))))
 
 
+class TemporalAttention(nn.Module):
+    """Additive Temporal Self-Attention (Bahdanau-style) for Sequence Event Pooling.
+    
+    Inspired by EagleEye (Acronis/A*STAR 2024) & StageFinder (2026):
+    Dynamically computes importance weights alpha_t over valid event timesteps,
+    amplifying solitary attack activities (whoami, exploit, C2 socket) without dilution.
+    """
+
+    def __init__(self, in_features: int, hidden_dim: int = 64):
+        super().__init__()
+        self.proj = nn.Linear(in_features, hidden_dim)
+        self.v = nn.Linear(hidden_dim, 1, bias=False)
+
+    def forward(self, h: torch.Tensor, lengths: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        # h: (batch, seq_len, in_features)
+        seq_mask = torch.arange(h.size(1), device=h.device)[None, :] < lengths[:, None]
+        score = self.v(torch.tanh(self.proj(h))).squeeze(-1)  # (batch, seq_len)
+        fill_val = -1e4 if h.dtype in (torch.float16, torch.bfloat16) else -1e9
+        score_masked = score.masked_fill(~seq_mask, fill_val)
+        alpha = F.softmax(score_masked, dim=-1)  # (batch, seq_len)
+        h_att = torch.bmm(alpha.unsqueeze(1), h).squeeze(1)  # (batch, in_features)
+        return h_att, alpha
+
+
 class BiLSTMBaseline(nn.Module):
     """Bidirectional LSTM model over sliding window sequences of network flow events."""
 
@@ -34,6 +59,7 @@ class BiLSTMBaseline(nn.Module):
         lstm_layers: int = 1,
         dropout: float = 0.2,
         num_stages: int = 5,
+        context_dim: int = 0,
     ) -> None:
         super().__init__()
         self.categorical_cardinalities = categorical_cardinalities
@@ -43,6 +69,7 @@ class BiLSTMBaseline(nn.Module):
         self.hidden_dim = hidden_dim
         self.lstm_layers = lstm_layers
         self.num_stages = num_stages
+        self.context_dim = context_dim
 
         # Categorical embeddings
         self.embeddings = nn.ModuleList([
@@ -61,6 +88,11 @@ class BiLSTMBaseline(nn.Module):
             nn.GELU(),
             nn.Dropout(dropout),
         )
+        # Optional observable graph-context adapter. Zero initialization preserves
+        # the source forward function exactly before any adapter training.
+        if context_dim:
+            self.context_projection = nn.Linear(context_dim, event_dim, bias=False)
+            nn.init.zeros_(self.context_projection.weight)
 
         # Bidirectional LSTM
         self.lstm = nn.LSTM(
@@ -71,6 +103,9 @@ class BiLSTMBaseline(nn.Module):
             bidirectional=True,
             dropout=dropout if lstm_layers > 1 else 0.0,
         )
+
+        # Additive Temporal Self-Attention Pooling (EagleEye / StageFinder)
+        self.temporal_attention = TemporalAttention(hidden_dim * 2, hidden_dim)
 
         # Classification head with pooled bidirectional states (Binary Anomaly Detection)
         self.classifier = nn.Sequential(
@@ -101,6 +136,7 @@ class BiLSTMBaseline(nn.Module):
         lengths: torch.Tensor,
         attention_mask: torch.Tensor | None = None,
         return_features: bool = False,
+        x_context: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         """Forward pass over a batch of variable-length event sequences.
@@ -127,6 +163,10 @@ class BiLSTMBaseline(nn.Module):
         cat_concat = F.dropout(cat_concat, p=0.15, training=self.training)
         event = torch.cat([cat_concat, x_num, x_num_missing, x_bin, delta_t_log1p], dim=-1)
         event = self.event_encoder(event)
+        if self.context_dim:
+            if x_context is None or x_context.shape[-1] != self.context_dim:
+                raise ValueError("Missing or incompatible observable context features")
+            event = event + self.context_projection(x_context)
 
         # Pack sequence for LSTM computation ignoring padding
         packed = pack_padded_sequence(
@@ -155,13 +195,17 @@ class BiLSTMBaseline(nn.Module):
             vals_clean = vals.masked_fill(~v_mask, 0.0)
             return vals_clean.sum(dim=1) / valid_k.squeeze(1).float().clamp(min=1.0)
 
-        # Multi-Scale Burst-Aware Pooling:
-        # 1. h_max (k=1): captures single sharp peak anomaly activation anywhere in sequence (e.g. solitary C2 beacon)
-        # 2. h_mean (k=6): captures burst clusters (e.g. reconnaissance command chains, exfiltration flows)
-        # 3. h_last: captures sequence-end boundary context
+        # Additive Temporal Self-Attention (EagleEye 2024 / StageFinder 2026)
+        h_att, alpha = self.temporal_attention(lstm_out, lengths)
+
+        # Multi-Scale Burst-Aware Pooling with Temporal Attention:
+        # 1. h_att (0.45): dynamically attends to solitary anomalous events without benign dilution
+        # 2. h_max (0.35): captures peak anomaly activation anywhere in sequence (e.g. C2 beacon, exploit)
+        # 3. h_mean (0.10): captures multi-event burst cluster context (exfiltration streams)
+        # 4. h_last (0.10): captures sequence-end boundary context
         h_max = _masked_topk_mean(lstm_out_masked, k_val=1)
         h_mean = _masked_topk_mean(lstm_out_masked, k_val=6)
-        pooled = 0.40 * h_max + 0.35 * h_mean + 0.25 * h_last
+        pooled = 0.45 * h_att + 0.35 * h_max + 0.10 * h_mean + 0.10 * h_last
 
         # Output logits
         binary_logits = self.classifier(pooled).squeeze(-1)

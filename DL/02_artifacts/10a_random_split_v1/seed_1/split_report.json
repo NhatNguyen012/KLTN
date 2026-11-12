@@ -1,0 +1,193 @@
+{
+  "generated_at": "2026-10-01T03:18:26.162327",
+  "script_version": "step10a-random-scenario-split-v1.0",
+  "seed": 1,
+  "seed_string": "KLTN_OPTC_RANDOM_SCENARIO_SPLIT_V1|seed=1",
+  "status": "PASS",
+  "gates": {
+    "hostname_unique": true,
+    "split_values_valid": true,
+    "covers_all_source_hosts": true,
+    "host_overlap_train_val_zero": true,
+    "host_overlap_train_test_zero": true,
+    "host_overlap_val_test_zero": true,
+    "event_conservation": true,
+    "positive_event_conservation": true,
+    "scenario_coverage_policy": true,
+    "train_has_positive_events": true,
+    "val_has_positive_events": true,
+    "test_has_positive_events": true,
+    "heldout_scenario_not_used": true
+  },
+  "by_split": {
+    "train": {
+      "hosts": 434,
+      "positive_hosts_gt": 20,
+      "positive_hosts_with_positive_events": 20,
+      "events": 62068074,
+      "positive_events": 19227
+    },
+    "val": {
+      "hosts": 93,
+      "positive_hosts_gt": 5,
+      "positive_hosts_with_positive_events": 4,
+      "events": 12338145,
+      "positive_events": 2335
+    },
+    "test": {
+      "hosts": 93,
+      "positive_hosts_gt": 4,
+      "positive_hosts_with_positive_events": 4,
+      "events": 11219966,
+      "positive_events": 3159
+    }
+  },
+  "positive_by_scenario_split": {
+    "scenario_1": {
+      "train": {
+        "gt_positive_hosts": 12,
+        "hosts_with_positive_events": 12,
+        "positive_events": 6740,
+        "hosts": [
+          "sysclient0170",
+          "sysclient0201",
+          "sysclient0205",
+          "sysclient0321",
+          "sysclient0355",
+          "sysclient0419",
+          "sysclient0462",
+          "sysclient0559",
+          "sysclient0609",
+          "sysclient0660",
+          "sysclient0771",
+          "sysclient0874"
+        ],
+        "positive_events_by_host": {
+          "sysclient0170": 447,
+          "sysclient0201": 1887,
+          "sysclient0205": 450,
+          "sysclient0321": 448,
+          "sysclient0355": 449,
+          "sysclient0419": 448,
+          "sysclient0462": 449,
+          "sysclient0559": 449,
+          "sysclient0609": 449,
+          "sysclient0660": 367,
+          "sysclient0771": 448,
+          "sysclient0874": 449
+        }
+      },
+      "val": {
+        "gt_positive_hosts": 3,
+        "hosts_with_positive_events": 3,
+        "positive_events": 1391,
+        "hosts": [
+          "sysclient0402",
+          "sysclient0503",
+          "sysclient0955"
+        ],
+        "positive_events_by_host": {
+          "sysclient0402": 494,
+          "sysclient0503": 449,
+          "sysclient0955": 448
+        }
+      },
+      "test": {
+        "gt_positive_hosts": 2,
+        "hosts_with_positive_events": 2,
+        "positive_events": 899,
+        "hosts": [
+          "sysclient0104",
+          "sysclient0255"
+        ],
+        "positive_events_by_host": {
+          "sysclient0104": 450,
+          "sysclient0255": 449
+        }
+      }
+    },
+    "scenario_2": {
+      "train": {
+        "gt_positive_hosts": 7,
+        "hosts_with_positive_events": 7,
+        "positive_events": 12461,
+        "hosts": [
+          "sysclient0005",
+          "sysclient0010",
+          "sysclient0069",
+          "sysclient0203",
+          "sysclient0358",
+          "sysclient0811",
+          "sysclient0851"
+        ],
+        "positive_events_by_host": {
+          "sysclient0005": 14,
+          "sysclient0010": 2104,
+          "sysclient0069": 2105,
+          "sysclient0203": 2102,
+          "sysclient0358": 2101,
+          "sysclient0811": 1941,
+          "sysclient0851": 2094
+        }
+      },
+      "val": {
+        "gt_positive_hosts": 2,
+        "hosts_with_positive_events": 1,
+        "positive_events": 944,
+        "hosts": [
+          "sysclient0501",
+          "sysclient0974"
+        ],
+        "positive_events_by_host": {
+          "sysclient0501": 944,
+          "sysclient0974": 0
+        }
+      },
+      "test": {
+        "gt_positive_hosts": 1,
+        "hosts_with_positive_events": 1,
+        "positive_events": 2097,
+        "hosts": [
+          "sysclient0618"
+        ],
+        "positive_events_by_host": {
+          "sysclient0618": 2097
+        }
+      }
+    },
+    "scenario_3": {
+      "train": {
+        "gt_positive_hosts": 1,
+        "hosts_with_positive_events": 1,
+        "positive_events": 26,
+        "hosts": [
+          "sysclient0351"
+        ],
+        "positive_events_by_host": {
+          "sysclient0351": 26
+        }
+      },
+      "val": {
+        "gt_positive_hosts": 0,
+        "hosts_with_positive_events": 0,
+        "positive_events": 0,
+        "hosts": [],
+        "positive_events_by_host": {}
+      },
+      "test": {
+        "gt_positive_hosts": 1,
+        "hosts_with_positive_events": 1,
+        "positive_events": 163,
+        "hosts": [
+          "sysclient0051"
+        ],
+        "positive_events_by_host": {
+          "sysclient0051": 163
+        }
+      }
+    }
+  },
+  "host_split_sha256": "98165cec18bdd5ef6276394f2fc8c2a15793b693278d0b70b7f74f57f11dc161",
+  "contract_sha256": "0183e79847708b25e3429ffdeab4f490e7855ba7358fdfbfadaf90911e4655c8",
+  "note": "Số positive WINDOW theo scenario x split chỉ có sau khi build shards (STEP 10D)."
+}

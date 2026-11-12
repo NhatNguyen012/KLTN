@@ -1,0 +1,384 @@
+{
+ "file": "E:/IL_DATASET/DARPA-TC-E3-THEIA/RAW/ta1-theia-e3-official-3.json.tar.gz",
+ "seconds": 57,
+ "type_counts": {
+  "Host": 1,
+  "Event": 1470908,
+  "Principal": 11,
+  "Subject": 3455,
+  "FileObject": 10528,
+  "MemoryObject": 97685,
+  "NetFlowObject": 6174
+ },
+ "event_types_all": {
+  "EVENT_MPROTECT": 966800,
+  "EVENT_READ": 117892,
+  "EVENT_RECVFROM": 106503,
+  "EVENT_MMAP": 79879,
+  "EVENT_OPEN": 67130,
+  "EVENT_WRITE": 48877,
+  "EVENT_RECVMSG": 30537,
+  "EVENT_SENDMSG": 26470,
+  "EVENT_CONNECT": 7300,
+  "EVENT_SENDTO": 7085,
+  "EVENT_UNLINK": 6279,
+  "EVENT_CLONE": 2529,
+  "EVENT_READ_SOCKET_PARAMS": 1724,
+  "EVENT_EXECUTE": 1312,
+  "EVENT_WRITE_SOCKET_PARAMS": 339,
+  "EVENT_SHM": 205,
+  "EVENT_MODIFY_FILE_ATTRIBUTES": 46,
+  "EVENT_BOOT": 1
+ },
+ "netflow": {
+  "n": 6174,
+  "ipProtocol": {
+   "None": 6174
+  },
+  "remote_addr_empty": 0,
+  "remote_port_top": {
+   "53": 3095,
+   "0": 2324,
+   "80": 742,
+   "42108": 1,
+   "4505": 1,
+   "56238": 1,
+   "56264": 1,
+   "56306": 1,
+   "56618": 1,
+   "56648": 1
+  },
+  "example": [
+   [
+    "FEFFFFFF-0000-FFFF-FFFF-000000000040",
+    [
+     "LOCAL",
+     0,
+     "NA",
+     0,
+     null
+    ]
+   ],
+   [
+    "7F000001-7CA4-7F00-0001-7CA400000040",
+    [
+     "127.0.0.1",
+     42108,
+     "127.0.0.1",
+     42108,
+     null
+    ]
+   ],
+   [
+    "0A00063C-FA07-0A00-063C-000000000040",
+    [
+     "NETLINK",
+     2042,
+     "NETLINK",
+     0,
+     null
+    ]
+   ]
+  ]
+ },
+ "subject": {
+  "n": 3455,
+  "types": {
+   "SUBJECT_PROCESS": 3455
+  },
+  "cmd_not_NA": 3413,
+  "path_present": 3454,
+  "ppid_present": 3439,
+  "parent_nonzero": 3438,
+  "property_keys": {
+   "tgid": 3455,
+   "path": 3454,
+   "ppid": 3439
+  }
+ },
+ "principal": {
+  "n": 11,
+  "types": {
+   "PRINCIPAL_LOCAL": 11
+  },
+  "username_present": 0,
+  "examples": [
+   [
+    "00000000-0000-0000-0000-000000000060",
+    [
+     "PRINCIPAL_LOCAL",
+     "0",
+     null
+    ]
+   ],
+   [
+    "E8000000-0000-0000-0000-000000000060",
+    [
+     "PRINCIPAL_LOCAL",
+     "1000",
+     null
+    ]
+   ],
+   [
+    "67000000-0000-0000-0000-000000000060",
+    [
+     "PRINCIPAL_LOCAL",
+     "103",
+     null
+    ]
+   ],
+   [
+    "69000000-0000-0000-0000-000000000060",
+    [
+     "PRINCIPAL_LOCAL",
+     "105",
+     null
+    ]
+   ],
+   [
+    "74000000-0000-0000-0000-000000000060",
+    [
+     "PRINCIPAL_LOCAL",
+     "116",
+     null
+    ]
+   ]
+  ]
+ },
+ "net_events": {
+  "by_type": {
+   "EVENT_SENDTO": {
+    "n": 7085,
+    "size_nonnull": 7085,
+    "size_sum": 1574752,
+    "size_max": 1872
+   },
+   "EVENT_CONNECT": {
+    "n": 7300,
+    "size_nonnull": 0,
+    "size_sum": 0,
+    "size_max": 0
+   },
+   "EVENT_RECVMSG": {
+    "n": 30537,
+    "size_nonnull": 30537,
+    "size_sum": 20289537,
+    "size_max": 4096
+   },
+   "EVENT_RECVFROM": {
+    "n": 106503,
+    "size_nonnull": 106503,
+    "size_sum": 53163038,
+    "size_max": 16384
+   },
+   "EVENT_SENDMSG": {
+    "n": 26470,
+    "size_nonnull": 26470,
+    "size_sum": 20711541,
+    "size_max": 208832
+   },
+   "EVENT_READ_SOCKET_PARAMS": {
+    "n": 1724,
+    "size_nonnull": 1724,
+    "size_sum": 332676,
+    "size_max": 24129
+   },
+   "EVENT_WRITE_SOCKET_PARAMS": {
+    "n": 339,
+    "size_nonnull": 339,
+    "size_sum": 311850,
+    "size_max": 24128
+   }
+  },
+  "total": 179958,
+  "subject_known": 179958,
+  "subject_with_path": 179957,
+  "subject_with_cmd_not_NA": 179957,
+  "subject_with_ppid": 114396,
+  "subject_principal_known": 179958,
+  "ts_nanos_range": [
+   1522942929428603817,
+   1522946509661176393
+  ],
+  "distinct_netflows_touched": 6174,
+  "top_subject_paths": {
+   "/usr/bin/fluxbox": 87265,
+   "/home/admin/Downloads/firefox/firefox": 66270,
+   "/usr/sbin/console-kit-daemon": 13859,
+   "/bin/dbus-daemon": 4249,
+   "/usr/bin/pulseaudio": 3390,
+   "/usr/lib/rtkit/rtkit-daemon": 1848,
+   "/usr/sbin/sshd": 1595,
+   "/usr/bin/python2.7": 695,
+   "/usr/lib/pulseaudio/pulse/gconf-helper": 336,
+   "/usr/lib/postgresql/9.1/bin/postgres": 290,
+   "/usr/lib/indicator-printers/indicator-printers-service": 40,
+   "/bin/bash": 38,
+   "/sbin/init": 28,
+   "/usr/lib/ubuntu-geoip/ubuntu-geoip-provider": 26,
+   "/usr/bin/dbus-launch": 12,
+   "/usr/sbin/cron": 6,
+   "/bin/dash": 6,
+   "/usr/bin/getent": 2,
+   "/usr/bin/sudo": 1,
+   "null": 1,
+   "/bin/su": 1
+  }
+ },
+ "fields": {
+  "Principal": {
+   "type": 11,
+   "uuid": 11,
+   "userId": 11,
+   "username:null": 11,
+   "properties.map.cred": 11,
+   "hostId": 11,
+   "groupIds[]:empty": 7,
+   "groupIds[]": 4
+  },
+  "Subject": {
+   "type": 3455,
+   "importedLibraries:null": 3455,
+   "uuid": 3455,
+   "cmdLine:string": 3455,
+   "privilegeLevel:null": 3455,
+   "cid": 3455,
+   "count:null": 3455,
+   "properties.map.tgid": 3455,
+   "exportedLibraries:null": 3455,
+   "hostId": 3455,
+   "iteration:null": 3455,
+   "startTimestampNanos": 3455,
+   "unitId:null": 3455,
+   "localPrincipal": 3455,
+   "properties.map.path": 3454,
+   "properties.map.ppid": 3439
+  },
+  "NetFlowObject": {
+   "remotePort": 6174,
+   "uuid": 6174,
+   "ipProtocol:null": 6174,
+   "localAddress": 6174,
+   "fileDescriptor:null": 6174,
+   "baseObject.properties:null": 6174,
+   "localPort": 6174,
+   "baseObject.epoch:null": 6174,
+   "baseObject.permission:null": 6174,
+   "remoteAddress": 6174,
+   "baseObject.hostId": 6174
+  }
+ },
+ "net_event_fields": {
+  "EVENT_SENDTO": {
+   "type": 7085,
+   "predicateObject2Path:null": 7085,
+   "programPoint:null": 7085,
+   "uuid": 7085,
+   "threadId:int": 7085,
+   "timestampNanos": 7085,
+   "size:long": 7085,
+   "name:string": 7085,
+   "properties.map.rc": 7085,
+   "hostId": 7085,
+   "sequence:long": 7085,
+   "parameters:null": 7085,
+   "predicateObjectPath:null": 7085,
+   "location:null": 7085
+  },
+  "EVENT_CONNECT": {
+   "type": 7300,
+   "predicateObject2Path:null": 7300,
+   "programPoint:null": 7300,
+   "uuid": 7300,
+   "threadId:int": 7300,
+   "timestampNanos": 7300,
+   "name:string": 7300,
+   "properties.map.rc": 7300,
+   "hostId": 7300,
+   "size:null": 7300,
+   "sequence:long": 7300,
+   "parameters:null": 7300,
+   "predicateObjectPath:null": 7300,
+   "location:null": 7300
+  },
+  "EVENT_RECVMSG": {
+   "type": 30537,
+   "predicateObject2Path:null": 30537,
+   "programPoint:null": 30537,
+   "uuid": 30537,
+   "threadId:int": 30537,
+   "timestampNanos": 30537,
+   "size:long": 30537,
+   "name:string": 30537,
+   "properties.map.rc": 30537,
+   "hostId": 30537,
+   "sequence:long": 30537,
+   "parameters:null": 30537,
+   "predicateObjectPath:null": 30537,
+   "location:null": 30537
+  },
+  "EVENT_RECVFROM": {
+   "type": 100000,
+   "predicateObject2Path:null": 100000,
+   "programPoint:null": 100000,
+   "uuid": 100000,
+   "threadId:int": 100000,
+   "timestampNanos": 100000,
+   "size:long": 100000,
+   "name:string": 100000,
+   "properties.map.rc": 100000,
+   "hostId": 100000,
+   "sequence:long": 100000,
+   "parameters:null": 100000,
+   "predicateObjectPath:null": 100000,
+   "location:null": 100000
+  },
+  "EVENT_SENDMSG": {
+   "type": 26470,
+   "predicateObject2Path:null": 26470,
+   "programPoint:null": 26470,
+   "uuid": 26470,
+   "threadId:int": 26470,
+   "timestampNanos": 26470,
+   "size:long": 26470,
+   "name:string": 26470,
+   "properties.map.rc": 26470,
+   "hostId": 26470,
+   "sequence:long": 26470,
+   "parameters:null": 26470,
+   "predicateObjectPath:null": 26470,
+   "location:null": 26470
+  },
+  "EVENT_READ_SOCKET_PARAMS": {
+   "type": 1724,
+   "predicateObject2Path:null": 1724,
+   "programPoint:null": 1724,
+   "uuid": 1724,
+   "threadId:int": 1724,
+   "timestampNanos": 1724,
+   "size:long": 1724,
+   "name:string": 1724,
+   "hostId": 1724,
+   "sequence:long": 1724,
+   "parameters:null": 1724,
+   "predicateObjectPath:null": 1724,
+   "location:null": 1724
+  },
+  "EVENT_WRITE_SOCKET_PARAMS": {
+   "type": 339,
+   "predicateObject2Path:null": 339,
+   "programPoint:null": 339,
+   "uuid": 339,
+   "threadId:int": 339,
+   "timestampNanos": 339,
+   "size:long": 339,
+   "name:string": 339,
+   "hostId": 339,
+   "sequence:long": 339,
+   "parameters:null": 339,
+   "predicateObjectPath:null": 339,
+   "location:null": 339
+  }
+ },
+ "host": "{\"datum\":{\"com.bbn.tc.schema.avro.cdm18.Host\":{\"uuid\":\"0A00063C-5254-00F0-0D60-000000000070\",\"hostName\":\"\",\"hostIdentifiers\":[],\"osDetails\":\"\",\"hostType\":\"HOST_DESKTOP\",\"interfaces\":[{\"name\":\"eth0\",\"macAddress\":\"52:54:00:f0:0d:60\",\"ipAddresses\":[\"10.0.6.60\"]}]}},\"CDMVersion\":\"18\",\"source\":\"SOURCE_LINUX_THEIA\"}\n"
+}

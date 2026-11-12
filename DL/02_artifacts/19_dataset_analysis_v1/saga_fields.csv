@@ -1,0 +1,20 @@
+﻿field,type,present_in,meaning_vi,real_example,note
+timestamp,int,100%,"Thời điểm event, epoch giây (UTC). Nhiều event trùng cùng một giây.",1655180399,Độ phân giải 1 giây nên thứ tự trong cùng giây không xác định. Toàn bộ 38 file nằm trong ngày 2022-06-14.
+relation,string,100%,Hành động của tiến trình lên đối tượng đích.,TCP Connect,27 giá trị khác nhau (23 giá trị ở event độc hại); nhóm theo mục 3.
+label,string,100%,'benign' hoặc 'Txxxx[.yyy]_<ability>' (technique + mã bước tấn công).,T1566.001_1afaec09315ab71fdfb167175e8a019a,98 nhãn độc hại; không có nhãn tactic. Mã ability có hai kiểu: UUID có gạch ngang hoặc 32 ký tự hex.
+srcNode.Type,string,100%,Loại node nguồn; luôn là 'Process'.,Process,Hằng số: không mang thông tin.
+srcNode.UUID,string (UUID v5),100%,"Mã định danh node tiến trình, sinh theo tên (UUID version 5).",2d97c036-3333-55df-93b6-76a766831c3b,"Cùng thực thể thì cùng UUID, kể cả giữa các file; dùng làm id nút đồ thị."
+srcNode.Name,string,100%,Tên tiến trình.,chrome.exe,"Không nhất quán: lúc là tên file, lúc là đường dẫn đầy đủ (WINWORD), lúc là chuỗi hash (G19)."
+srcNode.Image,string,100%,Đường dẫn file thực thi.,C:\Program Files\Google\Chrome\Application\chrome.exe,Tương đương image_path của eCAR.
+srcNode.Cmdline,string,100%,"Dòng lệnh của tiến trình, lặp lại trên MỌI event của tiến trình đó (có thể rất dài).",C:\Program Files\Google\Chrome\Application\chrome.exe,eCAR chỉ có command_line ở event PROCESS.
+srcNode.Pid,int,100%,Process ID.,6306,"Không có ppid, hostname, principal."
+dstNode.Type,string,99.998%,"Loại đối tượng đích: Registry, File, Network, Process.",Network,"56 trong 2,849,923 dòng có dstNode rỗng {}."
+dstNode.UUID,string (UUID v5),99.998%,Mã định danh đối tượng đích.,0945eb84-2203-598e-9948-dfe991f09330,Cũng là UUID v5.
+dstNode.Key,string,Registry (100%),Khóa registry bị đọc/ghi.,HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce\NextRun,Chỉ có khi Type = Registry.
+dstNode.Value,string (2 dòng là int),"Registry: ~21% benign, ~27% độc hại",Giá trị registry được ghi/đọc.,2021.12.01(1),Có mặt tùy event.
+dstNode.Name,string,File (100%),Tên (hoặc đường dẫn) file bị tác động.,rFupMb75.exe,Chỉ có khi Type = File.
+dstNode.Path,string,"File: ~5% benign, 0% độc hại",Đường dẫn bổ sung của file.,(không có trong file mẫu 221 dòng),Chỉ xuất hiện ở event benign trong mẫu quét.
+dstNode.Srcaddress,string,Network (100%),Địa chỉ nguồn của kết nối: tên máy hoặc IP.,desktop-85.zuniga.com,"Có thể là tên máy, không phải IP."
+dstNode.Dstaddress,string,Network (100%),Địa chỉ đích của kết nối.,8.8.8.8,Có dạng 'CCS:domain' (tên:dịch vụ) ở một số event; không phải lúc nào cũng là IP.
+dstNode.Port,string,Network (100%),Số cổng.,28877,Kiểu chuỗi; chưa rõ là cổng nguồn hay cổng đích (cổng 28877 đi cùng 8.8.8.8 trong mẫu).
+dstNode.Cmdline / Image / Name / Pid,string / int,Process (100%),Tiến trình CON vừa được tạo (khi relation = Process Create).,"cscript.exe, Pid 5992, Cmdline: cscript //E:Jscript ""Retrive….vbs""",Đây là cách duy nhất suy ra quan hệ cha→con: cạnh srcNode → dstNode.

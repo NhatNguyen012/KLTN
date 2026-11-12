@@ -1,0 +1,15 @@
+app_family,n_all,n_pos
+appidcertstorecheck.exe,5699,8.0
+cmd.exe,33434,7.0
+firefox.exe,91841864,6.0
+chrome.exe,106,5.0
+conhost.exe,32744,3.0
+taskhostw.exe,2594,2.0
+backgroundtaskhost.exe,1331,2.0
+schtasks.exe,7770,1.0
+gpupdate.exe,97,1.0
+googleupdate.exe,3578,1.0
+python.exe,2025,1.0
+adobearm.exe,493,1.0
+svchost.exe,4509,1.0
+ngen.exe,117,1.0

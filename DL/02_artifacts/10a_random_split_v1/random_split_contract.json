@@ -1,0 +1,38 @@
+{
+  "frozen_at": "2026-10-01T03:18:26.394557",
+  "script_version": "step10a-random-scenario-split-v1.0",
+  "experiment": "random_scenario_host_split",
+  "joined_root": "D:\\UIT\\KLTN\\artifacts\\step04_network_joined_v1\\joined",
+  "joined_supervised_events": 85626185,
+  "joined_positive_events": 24721,
+  "folds": {
+    "seed_1": {
+      "file": "seed_1/host_split_frozen.csv",
+      "sha256": "98165cec18bdd5ef6276394f2fc8c2a15793b693278d0b70b7f74f57f11dc161",
+      "seed_string": "KLTN_OPTC_RANDOM_SCENARIO_SPLIT_V1|seed=1",
+      "seed_contract_sha256": "0183e79847708b25e3429ffdeab4f490e7855ba7358fdfbfadaf90911e4655c8"
+    },
+    "seed_2": {
+      "file": "seed_2/host_split_frozen.csv",
+      "sha256": "5600ab2a4c5656fa8f8ec866a961b3d547fd9ce604928246fe4aa35fd6eab6be",
+      "seed_string": "KLTN_OPTC_RANDOM_SCENARIO_SPLIT_V1|seed=2",
+      "seed_contract_sha256": "34c94fd86cd76fe7ef7875f70c75b6141e34df37e029256072b51e39fbfa624e"
+    },
+    "seed_3": {
+      "file": "seed_3/host_split_frozen.csv",
+      "sha256": "8b820f5cb172678e80a1072e179fbb8cb757429dc80f57a52f6336d12de9c5d0",
+      "seed_string": "KLTN_OPTC_RANDOM_SCENARIO_SPLIT_V1|seed=3",
+      "seed_contract_sha256": "d447bc2ebae995b513b58fbac0208285fa96f5b4c97bb3d156fbc47174b12eee"
+    }
+  },
+  "rules": {
+    "unit": "hostname",
+    "ratios": "70/15/15",
+    "positive_hosts": "stratified per scenario (policy of 00_ground_truth_and_split.py)",
+    "benign_hosts": "random fill to global 70/15/15 quota",
+    "heldout_scenario": null,
+    "physical_joined_copy": false,
+    "next_step": "STEP 10B: refit preprocessing on this seed TRAIN only."
+  },
+  "contract_sha256": "c77dd3e50fdd175d2caf8b6cee226b10616e8447bf99417983e0ec9833e67f8e"
+}

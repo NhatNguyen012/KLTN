@@ -1,0 +1,15 @@
+﻿field,meaning_vi
+hostname,Tên máy
+day,Ngày log host (EDT)
+window_start_edt,"Cửa sổ 15 phút, giờ EDT"
+window_start_epoch_utc,"Cửa sổ 15 phút, epoch UTC (khóa ghép với nhánh network)"
+split,val hoặc test (split ngẫu nhiên seed_1)
+p_net,"Xác suất tấn công của model network (Mixed-Type bỏ app_family, seed_1); rỗng nếu không có flow trong cửa sổ"
+has_net,1 nếu cửa sổ có mẫu của nhánh network
+y_net,Nhãn mạng của pipeline (1 = có flow độc hại)
+y_host,Nhãn host của A New Hope (1 = có event độc hại trong cửa sổ)
+n_proc_writable,xem fields_host_window.csv
+n_parent_lsass,xem fields_host_window.csv
+n_cmd_susp,xem fields_host_window.csv
+n_novel_pairs,Số cặp cha→con chưa từng thấy ở host TRAIN
+s_host,"Điểm host dạng luật (0–1), độ hiếm của đặc trưng so với cửa sổ benign TRAIN"

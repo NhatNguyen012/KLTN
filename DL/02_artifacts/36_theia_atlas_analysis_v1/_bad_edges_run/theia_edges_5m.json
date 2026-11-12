@@ -1,0 +1,16 @@
+{
+ "raw": "E:/IL_DATASET/DARPA-TC-E3-THEIA/RAW/ta1-theia-e3-official-5m.json.tar.gz",
+ "events": 915579,
+ "edge_labels_total": 68924,
+ "edge_labels_found_in_this_file": 0,
+ "edge_labels_touching_netflow": 0,
+ "by_type_all": {},
+ "by_type_netflow": {},
+ "by_chain_netflow": {},
+ "distinct_netflows_labeled": 0,
+ "distinct_subjects_labeled_net": 0,
+ "ts_range_net": [
+  null,
+  null
+ ]
+}

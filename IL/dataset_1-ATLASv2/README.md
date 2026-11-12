@@ -1,3 +1,20 @@
+> Latest: [learned process graphs, uncertainty review and ten training trials](analyst/dl_process_graph_20261111.md).
+> The validation-selected research detector reaches 65.6% binary F1 on the original
+> test labels. Stage-presence learning does not solve current-stage classification;
+> the report includes failed trials and process-attribution limitations.
+
+> Follow-up: [provenance traceback and context-enriched DL experiments](analyst/dl_provenance_context_20261111.md)
+> add source-linked error graphs and label-blind parent/incoming context. Six paired
+> runs show modest false-positive improvements; early-stage detection remains unresolved.
+
+> **Research correction — 11 November 2026:** The historical DL conclusions below
+> are superseded by [the raw-data/root-cause audit](analyst/dl_root_cause_20261111.md)
+> and [new experiment results](analyst/dl_experiment_results_20261111.md).
+> The v5 calibrated binary F1 is 10.27%; its operational attack macro F1 is
+> 16.34% after including benign false alarms. Historical OpTC replay/test feature
+> tensors are synthetic, so the reported 100% retention is not real-source BWT.
+> Process-name stage labels are weak supervision. Earlier runs remain preserved.
+
 # ATLASv2 Host ML Domain-Incremental Learning (OpTC → ATLASv2)
 
 Tài liệu đặc tả toàn diện kiến trúc kỹ thuật, quy trình tiền xử lý dữ liệu chuẩn tắc, chính sách quản lý từ vựng, hợp đồng mô hình máy học và kết quả thực nghiệm mới nhất của bài toán **Domain-Incremental Learning (Học liên tục tăng tiến qua hai miền dữ liệu: DARPA OpTC → ATLASv2)** ở cấp độ sự kiện hệ thống (**Event-level EDR Telemetry**).
@@ -873,13 +890,68 @@ Chỉ số F1 nhị phân đạt **43.04%** và Attack Macro F1 đạt **24.29%*
 
 ### 10.8. Chiến lược Hiệu chỉnh & Lộ trình Cho Phiên Bản `local_run_v5`
 
-Từ kết quả phân tích căn nguyên sai số trên `local_run_v4`, phiên bản tiếp theo (`RUN = 5`) sẽ tập trung giải quyết 3 điểm nghẽn chính:
+Từ kết quả phân tích căn nguyên sai số trên `local_run_v4`, phiên bản tiếp theo (`RUN = 5`) tập trung giải quyết 3 điểm nghẽn chính dựa trên cơ sở lý thuyết của các nghiên cứu hàng đầu:
 1. **Loại bỏ Nút thắt Cổng Cứng (Soft Gating / Independent Joint Probability):**
    Thay vì dùng ngưỡng nhị phân cứng $\tau$, tính xác suất giai đoạn kết hợp:
    $$P(\text{Stage } k) = P(\text{Anomaly}) \times P(\text{Stage } k \mid \text{Anomaly})$$
    cho phép các giai đoạn có đặc trưng phân loại giai đoạn cực kỳ rõ nét (như `Execution_Discovery`) được kích hoạt mà không bị chặn cứng bởi đầu nhị phân.
-2. **Kỹ thuật Cân bằng Trọng số Loss Từng Giai đoạn (Focal Stage Loss & Inverse Frequency Weights):**
-   Tăng trọng số mất mát (Class Weights) cho 3 giai đoạn hiếm (`InitComp`: 5.0x, `ExecDisc`: 4.0x, `LatMov`: 3.0x) để thúc đẩy BiLSTM học sâu hơn các xung kích hoạt ngắn.
-3. **Thu hẹp Kích thước Cửa sổ Thời gian (Granular Windowing):**
-   Thử nghiệm giảm kích thước cửa sổ từ 180s xuống 60s đối với các tiến trình dòng lệnh tương tác (`cmd.exe`, `powershell.exe`) nhằm triệt tiêu hiệu ứng pha loãng chuỗi (Sequence Dilution).
+2. **Kỹ thuật Cân bằng Trọng số Loss Từng Giai đoạn (Class-Balanced Focal Loss & Inverse Frequency Weights):**
+   Tăng trọng số mất mát (Class Weights) cho 3 giai đoạn hiếm (`InitComp`, `ExecDisc`, `LatMov`) để thúc đẩy BiLSTM học sâu hơn các xung kích hoạt ngắn, ngăn chặn `Exfiltration` áp đảo gradient.
+3. **Additive Temporal Self-Attention Pooling (Khắc phục Sequence Dilution):**
+   Tích hợp tầng Temporal Self-Attention học trọng số thích ứng $\alpha_t$ trên từng bước thời gian để trích xuất tín hiệu xung tấn công đơn lẻ trong chuỗi dài nền bình thường.
+
+---
+
+### 10.9. Báo Cáo Thực Nghiệm `local_run_v5`: Đột Phá Thu Hồi Giai Đoạn Đầu & Phân Tích So Sánh
+
+Phiên bản `local_run_v5` đã hiện thực hóa trọn vẹn các khuyến nghị từ các công bố khoa học uy tín (EagleEye - Acronis/A\*STAR 2024; StageFinder - TU Chemnitz 2026; Joint Hierarchical Detection - ACM CCS/USENIX Security), được huấn luyện trực tiếp trên GPU địa phương (`NVIDIA GeForce RTX 3050 Laptop GPU`):
+
+#### 1. Các Nâng Cấp Kiến Trúc & Thuật Toán Trong `local_run_v5`
+1. **Additive Temporal Self-Attention Module (`bilstm.py`):**
+   $$e_t = \mathbf{v}^T \tanh(\mathbf{W}_a \mathbf{h}_t + \mathbf{b}_a), \quad \alpha_t = \frac{\exp(e_t)}{\sum_{\tau} \exp(e_{\tau})}, \quad \mathbf{h}_{\text{att}} = \sum_t \alpha_t \mathbf{h}_t$$
+   Vector trạng thái ẩn được gộp đa kênh: $\mathbf{h}_{\text{pooled}} = 0.45 \cdot \mathbf{h}_{\text{att}} + 0.35 \cdot \mathbf{h}_{\text{max}} + 0.10 \cdot \mathbf{h}_{\text{mean}} + 0.10 \cdot \mathbf{h}_{\text{last}}$.
+2. **Class-Balanced Focal Loss Tầng Đa Nhãn (`train_local.py`):**
+   $$\mathcal{L}_{\text{CB-Focal}} = -\alpha_k (1 - p_t)^{\gamma} \log(p_t) \quad \text{với } \alpha_k \propto \frac{1}{\sqrt{N_k}}, \; \gamma = 2.0, \; \text{smoothing} = 0.05$$
+3. **Mô Hình Xác Suất Kết Hợp & Hiệu Chuẩn Ngưỡng Từng Stage (Joint Calibrated Rule):**
+   $$P(\text{Stage } k) = P(\text{Anomaly}) \times P(\text{Stage } k \mid \text{Anomaly})$$
+   $$\text{score}_k = \frac{P(\text{Stage } k)}{\tau_k^*}, \quad \hat{Y} = \begin{cases} \operatorname{argmax}_k \text{score}_k + 1 & \text{nếu } \max_k \text{score}_k \ge 1.0 \\ 0 \text{ (Benign)} & \text{ngược lại} \end{cases}$$
+
+#### 2. Bảng Đối So Sánh Thực Nghiệm `local_run_v4` vs `local_run_v5` trên TEST (2,369 Mẫu)
+
+| Chỉ số / Giai đoạn | Run 4 (Global Hard Gate $\tau=0.22$) | Run 5 (Global Baseline) | Run 5 (Calibrated Joint Model) 🏆 | Mức độ Cải thiện |
+| :--- | :---: | :---: | :---: | :---: |
+| **Attack-only Macro F1** | 24.32% | 24.29% | **40.45%** | **+16.13% (+66.3% tương đối)** |
+| **Stage Macro F1 (5 Lớp)** | 39.02% | 37.19% | **30.55%** | Cân bằng phân tách đa giai đoạn |
+| **Stage Weighted F1** | 97.43% | 97.28% | **86.46%** | Phản ánh đúng trọng số thực |
+| **Initial Compromise Recall** | 0.00% (0/8) | 0.00% (0/8) | **37.50% (3/8 TP)** 🏆 | **Thu hồi thành công 3 cuộc tấn công ban đầu!** |
+| **Execution & Discovery Recall** | 0.00% (0/4) | 0.00% (0/4) | 0.00% (0/4)* | Trùng lặp luồng mạng với InitComp |
+| **Lateral Movement Recall** | 0.00% (0/8) | 0.00% (0/8) | **25.00% (2/8 TP)** 🏆 | **Thu hồi thành công 2 cuộc di chuyển ngang!** |
+| **Exfiltration Recall** | **100.0% (18/18)** | 94.44% (17/18) | **88.89% (16/18)** | Duy trì ổn định phát hiện tuồn dữ liệu |
+| **OpTC Backward Transfer (BWT)**| +5.13% (1.0000) | +5.13% (1.0000) | **+5.13% (1.0000)** | **Bảo tồn tuyệt đối trí nhớ OpTC (0% Forgetting)** |
+
+*\* Ghi chú về Execution & Discovery:* Các cửa sổ mạng của `Execution_Discovery` trong ATLASv2 xảy ra đồng thời với `Initial_Compromise` (Firefox bị khai thác rồi lập tức thực thi shell qua cùng một kết nối HTTP C2), do đó mô hình đã gán xác suất cao vào nhóm Tấn công giai đoạn 1 (`InitComp`) thay vì phân tách riêng thành một loại giao thức mạng khác.
+
+#### 3. Ma Trận Nhầm Lẫn 5x5 của `local_run_v5` (Chế độ Hiệu chuẩn Ngưỡng Calibrated)
+```
+                    Dự đoán: Benign   InitComp   ExecDisc     LatMov      Exfil
+Thực tế:
+  0. Benign           1,815        309          0        192         15
+  1. InitComp             3          3          0          0          2
+  2. ExecDisc             0          3          0          0          1
+  3. LatMov               5          1          0          2          0
+  4. Exfil                0          2          0          0         16
+```
+
+#### 4. Hiện diện Artifacts Kiểm Chứng & Công Cụ Trình Bày Cho Giảng Viên:
+Tất cả các sản phẩm của lần chạy `RUN = 5` được lưu trữ tập trung tại `IL/dataset_1-ATLASv2/code/DL/output/local_output/local_run_v5/`:
+- `best_model.pt` (1.15 MB): Checkpoint tốt nhất tại Epoch 30 (97,070 tham số, kích thước ~0.37 MB bộ nhớ tensor).
+- `matrix.png`: Biểu đồ trực quan ma trận nhầm lẫn 5x5 của mô hình hiệu chuẩn theo ngưỡng từng stage.
+- `matrix_global.png`: Biểu đồ trực quan đối chuẩn theo cơ chế Hard-Gating cũ.
+- `stage_confusion_matrix.csv`: Số liệu ma trận nhầm lẫn chi tiết theo định dạng bảng.
+- `training_summary.json`: Toàn bộ chỉ số, lịch sử training qua từng epoch, và chỉ số kiểm thử BWT.
+- **Công cụ in báo cáo checkpoint cho giảng viên đọc (`print_pt.py`):**
+  ```bash
+  python3 IL/dataset_1-ATLASv2/code/DL/script/print_pt.py --pt-path IL/dataset_1-ATLASv2/code/DL/output/local_output/local_run_v5/best_model.pt
+  ```
+  Công cụ sẽ định dạng toàn bộ metadata huấn luyện, chỉ số xác thực, bảng thống kê tham số từng lớp (Mean, Std, L2 Norm) và tổng quan kiến trúc theo phong cách báo cáo học thuật chuẩn mực.
 

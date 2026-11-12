@@ -1,0 +1,63 @@
+{
+  "script_version": "step05e-mixed-type-self-attention-v1.0",
+  "dataset_root": "/kaggle/working/optc_network_dl",
+  "dataset_version": "random-network-dl-v1.1-15m",
+  "dataset_preprocess_fingerprint": "6305d03c30c626d6c533f3af56c3705d58a3900842a0a84cf4178d527cc9af5c",
+  "seed": 42,
+  "epochs": 8,
+  "physical_batch_size": 16,
+  "gradient_accumulation": 2,
+  "effective_batch_size": 32,
+  "d_model": 64,
+  "num_heads": 4,
+  "feature_layers": 1,
+  "temporal_layers": 2,
+  "ff_dim": 128,
+  "dropout": 0.2,
+  "max_events": 512,
+  "lr": 0.0003,
+  "weight_decay": 0.0001,
+  "grad_clip": 1.0,
+  "patience": 3,
+  "num_workers": 2,
+  "amp": true,
+  "loss": "BCEWithLogitsLoss",
+  "train_pos_weight": 514.9082278481013,
+  "drop_app_family": true,
+  "categorical_fields": [
+    "app_family",
+    "proto",
+    "service",
+    "conn_state",
+    "resp_port_class"
+  ],
+  "categorical_cardinalities": [
+    63,
+    4,
+    5,
+    8,
+    10
+  ],
+  "numerical_fields": [
+    "duration",
+    "orig_bytes",
+    "resp_bytes",
+    "orig_pkts",
+    "orig_ip_bytes",
+    "resp_pkts",
+    "resp_ip_bytes"
+  ],
+  "binary_fields": [
+    "has_missed_bytes"
+  ],
+  "delta_time_field": "delta_t_log1p",
+  "feature_token_count": 14,
+  "event_pooling": "mean over feature-token outputs",
+  "temporal_position": "learned absolute position embedding",
+  "window_pooling": "masked mean over event outputs",
+  "causal_mask": false,
+  "early_stopping_metric": "VAL PR-AUC",
+  "threshold_policy": "maximize F1 on VAL only",
+  "test_policy": "evaluate once after best checkpoint + VAL threshold freeze",
+  "trainable_parameters": 146177
+}

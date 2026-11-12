@@ -1,0 +1,22 @@
+{
+ "bilstm": {
+  "samples": 682,
+  "max_abs_diff": 0.0,
+  "mean_abs_diff": 0.0,
+  "n_diff_gt_0.01": 0,
+  "decision_agreement_at_threshold": 1.0,
+  "positives_pred_cpu": 80,
+  "positives_pred_kaggle": 80,
+  "seconds": 14
+ },
+ "mixed": {
+  "samples": 682,
+  "max_abs_diff": 0.0,
+  "mean_abs_diff": 0.0,
+  "n_diff_gt_0.01": 0,
+  "decision_agreement_at_threshold": 1.0,
+  "positives_pred_cpu": 80,
+  "positives_pred_kaggle": 80,
+  "seconds": 10
+ }
+}

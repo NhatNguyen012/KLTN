@@ -1,0 +1,48 @@
+== firefox.exe: trong tệp attack, flow dương / không dương; tệp benign
+kind    label_proc
+attack  0               350
+        1              7696
+benign  0             19241
+dtype: int64
+
+== số tiến trình firefox (process_guid) theo nhãn / kind
+              procs  flows
+kind   label              
+attack 0         60    350
+       1         26   7696
+benign 0         93  19241
+
+== tiến trình firefox: sinh con bất thường (cmd/payload/powershell/python/...)
+              procs  spawns_odd  spawns_any
+kind   label                               
+attack 0         60           0          10
+       1         26           6          18
+benign 0         93           0          21
+
+== tiến trình firefox dương: số flow mỗi tiến trình, con
+                                                        n host                             children
+process_guid                                                                                       
+7DMF69PK-05e5f750-0000055c-00000000-1d89b88df46bd5c  1407   h1  [firefox.exe, plugin-container.exe]
+7DMF69PK-05e640b8-00000d94-00000000-1d89ba2c3a14ceb   927   h2           [firefox.exe, payload.exe]
+7DMF69PK-05e5c3f1-000009cc-00000000-1d89b7b01dd33ac   713   h1                        [firefox.exe]
+7DMF69PK-05e59b07-00000890-00000000-1d89b70f4572302   651   h1  [firefox.exe, plugin-container.exe]
+7DMF69PK-05e64e83-00000e20-00000000-1d89ba626a8a364   633   h1  [firefox.exe, plugin-container.exe]
+7DMF69PK-05e61374-00000bf4-00000000-1d89b699780ab93   611   h2           [firefox.exe, payload.exe]
+7DMF69PK-05e6d050-00000718-00000000-1d89bcb06740210   540   h1                        [firefox.exe]
+7DMF69PK-05e6604a-00000d34-00000000-1d89bab52c95100   378   h1  [firefox.exe, plugin-container.exe]
+7DMF69PK-05e6ab67-00000cb4-00000000-1d89b944c851887   330   h2           [firefox.exe, payload.exe]
+7DMF69PK-05e6ad40-00000c54-00000000-1d89bbfef61e268   328   h1                        [firefox.exe]
+7DMF69PK-05e6ded8-00000f3c-00000000-1d89bd058b9c425   323   h1                        [firefox.exe]
+7DMF69PK-05e5add1-00000630-00000000-1d89b75aaf1262f   285   h1  [firefox.exe, plugin-container.exe]
+7DMF69PK-05e6cfec-000002f4-00000000-1d89bcafd04d4cf   195   h2           [firefox.exe, payload.exe]
+7DMF69PK-05e6c10d-00000fa0-00000000-1d89bc44ae28c9b   137   h2           [firefox.exe, payload.exe]
+7DMF69PK-05e66419-000005dc-00000000-1d89b82b6c08080    86   h2           [firefox.exe, payload.exe]
+
+== firefox tiến trình (gốc) dương: số flow trước mốc sinh con bất thường đầu tiên (dùng thời gian)
+guid(8 cuối), flow, trước-sinh-con-lạ, sau-sinh-con-lạ
+('9780ab93', 611, 46, 565)
+('c3a14ceb', 927, 601, 326)
+('b6c08080', 86, 65, 21)
+('4c851887', 330, 184, 146)
+('4ae28c9b', 137, 125, 12)
+('fd04d4cf', 195, 145, 50)

@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" font-family="Segoe UI, Arial, sans-serif" font-size="12">
+<rect width="1280" height="860" fill="#ffffff"/>
+<text x="190" y="24" font-size="16" font-weight="bold">Thoi gian cac host bi tan cong (positive network event, gio EDT = UTC-4)</text>
+<text x="190" y="42" fill="#555">Moi thanh: tu flow positive dau tien den cuoi cung cua host; mau = may chu C2 chinh. Muc tieu: nhin SC1/SC2/SC3 dien ra khi nao.</text>
+<line x1="190.0" y1="62" x2="190.0" y2="710" stroke="#444" stroke-width="1.5"/>
+<text x="194.0" y="56" font-weight="bold">23/9</text>
+<line x1="277.5" y1="66" x2="277.5" y2="710" stroke="#ddd"/>
+<text x="269.5" y="724" fill="#666">06h</text>
+<line x1="365.0" y1="66" x2="365.0" y2="710" stroke="#ddd"/>
+<text x="357.0" y="724" fill="#666">12h</text>
+<line x1="452.5" y1="66" x2="452.5" y2="710" stroke="#ddd"/>
+<text x="444.5" y="724" fill="#666">18h</text>
+<line x1="540.0" y1="62" x2="540.0" y2="710" stroke="#444" stroke-width="1.5"/>
+<text x="544.0" y="56" font-weight="bold">24/9</text>
+<line x1="627.5" y1="66" x2="627.5" y2="710" stroke="#ddd"/>
+<text x="619.5" y="724" fill="#666">06h</text>
+<line x1="715.0" y1="66" x2="715.0" y2="710" stroke="#ddd"/>
+<text x="707.0" y="724" fill="#666">12h</text>
+<line x1="802.5" y1="66" x2="802.5" y2="710" stroke="#ddd"/>
+<text x="794.5" y="724" fill="#666">18h</text>
+<line x1="890.0" y1="62" x2="890.0" y2="710" stroke="#444" stroke-width="1.5"/>
+<text x="894.0" y="56" font-weight="bold">25/9</text>
+<line x1="977.5" y1="66" x2="977.5" y2="710" stroke="#ddd"/>
+<text x="969.5" y="724" fill="#666">06h</text>
+<line x1="1065.0" y1="66" x2="1065.0" y2="710" stroke="#ddd"/>
+<text x="1057.0" y="724" fill="#666">12h</text>
+<line x1="1152.5" y1="66" x2="1152.5" y2="710" stroke="#ddd"/>
+<text x="1144.5" y="724" fill="#666">18h</text>
+<text x="8" y="90" font-weight="bold" fill="#111">SC1 (23/9)</text>
+<text x="182" y="90" text-anchor="end">host 0201</text>
+<rect x="356.2" y="79" width="39.1" height="13" fill="#2563eb" rx="2"/>
+<text x="401.4" y="90" fill="#333" font-size="11">1,887 ev | 11:24-14:05</text>
+<text x="182" y="110" text-anchor="end">host 0402</text>
+<rect x="385.4" y="99" width="10.0" height="13" fill="#2563eb" rx="2"/>
+<text x="401.4" y="110" fill="#333" font-size="11">494 ev | 13:24-14:05</text>
+<text x="182" y="130" text-anchor="end">host 0660</text>
+<rect x="388.1" y="119" width="7.3" height="13" fill="#2563eb" rx="2"/>
+<text x="401.4" y="130" fill="#333" font-size="11">367 ev | 13:35-14:05</text>
+<text x="182" y="150" text-anchor="end">host 0104</text>
+<rect x="405.1" y="139" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="150" fill="#333" font-size="11">450 ev | 14:45-15:23</text>
+<text x="182" y="170" text-anchor="end">host 0170</text>
+<rect x="405.1" y="159" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="170" fill="#333" font-size="11">447 ev | 14:45-15:23</text>
+<text x="182" y="190" text-anchor="end">host 0205</text>
+<rect x="405.1" y="179" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="190" fill="#333" font-size="11">450 ev | 14:45-15:23</text>
+<text x="182" y="210" text-anchor="end">host 0255</text>
+<rect x="405.1" y="199" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="210" fill="#333" font-size="11">449 ev | 14:45-15:23</text>
+<text x="182" y="230" text-anchor="end">host 0321</text>
+<rect x="405.1" y="219" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="230" fill="#333" font-size="11">448 ev | 14:45-15:23</text>
+<text x="182" y="250" text-anchor="end">host 0355</text>
+<rect x="405.1" y="239" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="250" fill="#333" font-size="11">449 ev | 14:45-15:23</text>
+<text x="182" y="270" text-anchor="end">host 0419</text>
+<rect x="405.1" y="259" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="270" fill="#333" font-size="11">448 ev | 14:45-15:23</text>
+<text x="182" y="290" text-anchor="end">host 0462</text>
+<rect x="405.1" y="279" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="290" fill="#333" font-size="11">449 ev | 14:45-15:23</text>
+<text x="182" y="310" text-anchor="end">host 0503</text>
+<rect x="405.1" y="299" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="310" fill="#333" font-size="11">449 ev | 14:45-15:23</text>
+<text x="182" y="330" text-anchor="end">host 0559</text>
+<rect x="405.1" y="319" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="330" fill="#333" font-size="11">449 ev | 14:45-15:23</text>
+<text x="182" y="350" text-anchor="end">host 0609</text>
+<rect x="405.1" y="339" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="350" fill="#333" font-size="11">449 ev | 14:45-15:23</text>
+<text x="182" y="370" text-anchor="end">host 0771</text>
+<rect x="405.1" y="359" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="370" fill="#333" font-size="11">448 ev | 14:45-15:23</text>
+<text x="182" y="390" text-anchor="end">host 0874</text>
+<rect x="405.1" y="379" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="390" fill="#333" font-size="11">449 ev | 14:45-15:23</text>
+<text x="182" y="410" text-anchor="end">host 0955</text>
+<rect x="405.1" y="399" width="9.2" height="13" fill="#2563eb" rx="2"/>
+<text x="420.3" y="410" fill="#333" font-size="11">448 ev | 14:45-15:23</text>
+<text x="8" y="436" font-weight="bold" fill="#111">SC2 (24-25/9)</text>
+<text x="182" y="436" text-anchor="end">host 0501</text>
+<rect x="694.6" y="425" width="398.4" height="13" fill="#ea580c" rx="2"/>
+<text x="1099.0" y="436" fill="#333" font-size="11">944 ev | 10:36-13:55</text>
+<text x="182" y="456" text-anchor="end">host 0811</text>
+<rect x="695.6" y="445" width="40.3" height="13" fill="#2563eb" rx="2"/>
+<text x="741.9" y="456" fill="#333" font-size="11">1,941 ev | 10:40-13:26</text>
+<text x="182" y="476" text-anchor="end">host 0005</text>
+<rect x="752.9" y="465" width="6.8" height="13" fill="#2563eb" rx="2"/>
+<text x="765.7" y="476" fill="#333" font-size="11">14 ev | 14:36-15:04</text>
+<text x="182" y="496" text-anchor="end">host 0010</text>
+<rect x="769.0" y="485" width="256.7" height="13" fill="#ea580c" rx="2"/>
+<text x="1031.6" y="496" fill="#333" font-size="11">2,104 ev | 15:42-09:18</text>
+<text x="182" y="516" text-anchor="end">host 0069</text>
+<rect x="769.0" y="505" width="256.7" height="13" fill="#ea580c" rx="2"/>
+<text x="1031.6" y="516" fill="#333" font-size="11">2,105 ev | 15:42-09:18</text>
+<text x="182" y="536" text-anchor="end">host 0203</text>
+<rect x="769.0" y="525" width="256.4" height="13" fill="#ea580c" rx="2"/>
+<text x="1031.4" y="536" fill="#333" font-size="11">2,102 ev | 15:42-09:17</text>
+<text x="182" y="556" text-anchor="end">host 0358</text>
+<rect x="769.0" y="545" width="256.2" height="13" fill="#ea580c" rx="2"/>
+<text x="1031.1" y="556" fill="#333" font-size="11">2,101 ev | 15:42-09:16</text>
+<text x="182" y="576" text-anchor="end">host 0618</text>
+<rect x="769.0" y="565" width="255.7" height="13" fill="#ea580c" rx="2"/>
+<text x="1030.7" y="576" fill="#333" font-size="11">2,097 ev | 15:42-09:14</text>
+<text x="182" y="596" text-anchor="end">host 0851</text>
+<rect x="769.0" y="585" width="255.2" height="13" fill="#ea580c" rx="2"/>
+<text x="1030.2" y="596" fill="#333" font-size="11">2,094 ev | 15:42-09:12</text>
+<text x="182" y="616" text-anchor="end">host 0974</text>
+<text x="196" y="616" fill="#888" font-size="11">khong co positive network event (chi co nhan o host eCAR)</text>
+<text x="8" y="642" font-weight="bold" fill="#111">SC3 (25/9)</text>
+<text x="182" y="642" text-anchor="end">host 0351</text>
+<rect x="1035.1" y="631" width="20.9" height="13" fill="#dc2626" rx="2"/>
+<text x="1062.0" y="642" fill="#333" font-size="11">26 ev | 09:57-11:23</text>
+<text x="182" y="662" text-anchor="end">host 0051</text>
+<rect x="1042.6" y="651" width="12.9" height="13" fill="#dc2626" rx="2"/>
+<text x="1061.5" y="662" fill="#333" font-size="11">163 ev | 10:28-11:21</text>
+<rect x="190" y="746" width="14" height="12" fill="#2563eb"/><text x="210" y="757">C2 A: 132.197.158.98 (HTTP :80, ~5 s)</text>
+<rect x="520" y="746" width="14" height="12" fill="#ea580c"/><text x="540" y="757">C2 B: 202.6.172.98 (HTTPS :443, ~30 s)</text>
+<rect x="850" y="746" width="14" height="12" fill="#dc2626"/><text x="870" y="757">C2 SC3: 53.192.68.50 (:80/:8080)</text>
+</svg>

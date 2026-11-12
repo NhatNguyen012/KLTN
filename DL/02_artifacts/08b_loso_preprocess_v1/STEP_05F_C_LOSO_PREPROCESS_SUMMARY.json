@@ -1,0 +1,147 @@
+{
+  "generated_at": "2026-09-24T02:31:30.443067",
+  "script_version": "step05f-c-loso-train-only-preprocess-v1.0",
+  "mode": "freeze",
+  "joined_root": "D:\\UIT\\KLTN\\artifacts\\step04_network_joined_v1\\joined",
+  "report04b": "D:\\UIT\\KLTN\\artifacts\\step04_network_joined_v1\\network_join_exact_report.json",
+  "frozen_loso_dir": "D:\\UIT\\KLTN\\artifacts\\step05f_loso_remap_v1\\frozen",
+  "loso_contract_file_sha256": "b2071391f9e5281efb34e32e2e30e82bc643ca2e076ef10877f31e197538aa2b",
+  "joined_original_supervised_rows": {
+    "train": 61751292,
+    "val": 13164701,
+    "test": 10710192
+  },
+  "profile_state": {
+    "profile_version": "step05f-c-host-profile-v1.0",
+    "joined_root": "D:\\UIT\\KLTN\\artifacts\\step04_network_joined_v1\\joined",
+    "joined_dataset_signature": {
+      "parquet_files": 29,
+      "compressed_bytes": 3148862423,
+      "metadata_sha256": "1db4acccffa744df738f1f5b4a1d653ee8b698a845a965b05051c8e3e3fe9b38"
+    },
+    "report04b_sha256": "4f4136992804f2235d4bef2add0eeadbc635dbd3abafd3d8bc071c016e574ac9",
+    "loso_contract_file_sha256": "b2071391f9e5281efb34e32e2e30e82bc643ca2e076ef10877f31e197538aa2b",
+    "expected_supervised_rows": 85626185
+  },
+  "all_folds_ready": true,
+  "folds": {
+    "scenario_1": {
+      "status": "FROZEN",
+      "split_stats": {
+        "train": {
+          "hosts": 421,
+          "event_rows": 59586600,
+          "positive_event_rows": 11319
+        },
+        "val": {
+          "hosts": 92,
+          "event_rows": 13260258,
+          "positive_event_rows": 4372
+        },
+        "test": {
+          "hosts": 107,
+          "event_rows": 12779327,
+          "positive_event_rows": 9030
+        }
+      },
+      "active_categorical_features": [
+        "app_family",
+        "proto",
+        "service",
+        "conn_state",
+        "resp_port_class"
+      ],
+      "active_numerical_features": [
+        "duration",
+        "orig_bytes",
+        "resp_bytes",
+        "orig_pkts",
+        "orig_ip_bytes",
+        "resp_pkts",
+        "resp_ip_bytes"
+      ],
+      "warnings": [],
+      "candidate_fingerprint_sha256": "2a65c7d67cb97c5fd251f02d4799ad31faf3bbd15e4f12255fef8aaf0ccee3d7",
+      "frozen_fingerprint_sha256": "4d7648f105547736046883636c8f71056aa74c9dd802998e2efc02519acebf69"
+    },
+    "scenario_2": {
+      "status": "FROZEN",
+      "split_stats": {
+        "train": {
+          "hosts": 427,
+          "event_rows": 60551078,
+          "positive_event_rows": 6226
+        },
+        "val": {
+          "hosts": 93,
+          "event_rows": 13474646,
+          "positive_event_rows": 2993
+        },
+        "test": {
+          "hosts": 100,
+          "event_rows": 11600461,
+          "positive_event_rows": 15502
+        }
+      },
+      "active_categorical_features": [
+        "app_family",
+        "proto",
+        "service",
+        "conn_state",
+        "resp_port_class"
+      ],
+      "active_numerical_features": [
+        "duration",
+        "orig_bytes",
+        "resp_bytes",
+        "orig_pkts",
+        "orig_ip_bytes",
+        "resp_pkts",
+        "resp_ip_bytes"
+      ],
+      "warnings": [],
+      "candidate_fingerprint_sha256": "00d4ca72033ebaa34a17fb1167fa01a4609a8df65fc44b2eca06a8eac1f0e7b5",
+      "frozen_fingerprint_sha256": "da304c211f79e11f3764caa0a29fa9a682dd291240234ea68d4f796a843185ad"
+    },
+    "scenario_3": {
+      "status": "FROZEN",
+      "split_stats": {
+        "train": {
+          "hosts": 434,
+          "event_rows": 61292090,
+          "positive_event_rows": 18981
+        },
+        "val": {
+          "hosts": 94,
+          "event_rows": 13693955,
+          "positive_event_rows": 5551
+        },
+        "test": {
+          "hosts": 92,
+          "event_rows": 10640140,
+          "positive_event_rows": 189
+        }
+      },
+      "active_categorical_features": [
+        "app_family",
+        "proto",
+        "service",
+        "conn_state",
+        "resp_port_class"
+      ],
+      "active_numerical_features": [
+        "duration",
+        "orig_bytes",
+        "resp_bytes",
+        "orig_pkts",
+        "orig_ip_bytes",
+        "resp_pkts",
+        "resp_ip_bytes"
+      ],
+      "warnings": [],
+      "candidate_fingerprint_sha256": "6a5cd69f86a8b2f2cc3db10df633b97d03b4bd315fcabd061ed0705a52743cdd",
+      "frozen_fingerprint_sha256": "00b303f8873fafb9da78d065c8334557de46b1bbfef9bbb9d5eed95d841c28dd"
+    }
+  },
+  "next_step": "STEP 05F-D — build fold-specific 15m/512 shards"
+}

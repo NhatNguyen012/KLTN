@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpTC, THEIA, ATLASv2 - so sánh dữ liệu</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1f2328;--mut:#5b6470;--line:#c9ced6;--card:#fff;--ok:#d7f0dd;--okt:#14532d;--part:#fdf0c7;--partt:#6b4e00;--no:#f9d7d7;--not:#7a1f1f;--blue:#dbe8fb;--bluet:#1b3d73;--acc:#2f5fb3}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15181c;--fg:#e6e8eb;--mut:#9aa4af;--line:#394049;--card:#1d2127;--ok:#1d3b27;--okt:#a8e3b9;--part:#43361a;--partt:#f0d58a;--no:#4a2323;--not:#f2b4b4;--blue:#20304d;--bluet:#b5cdf5;--acc:#7aa5ee}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,Segoe UI,Roboto,sans-serif}
+main{max-width:1040px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:34px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+p.sub{color:var(--mut);margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--fg);font:13px system-ui,Segoe UI,sans-serif}svg .m{fill:var(--mut);font-size:12px}svg .b{font-weight:600}
+svg .box{fill:var(--card);stroke:var(--line);stroke-width:1.5}svg .blue{fill:var(--blue);stroke:var(--acc);stroke-width:1.5}svg .ok{fill:var(--ok);stroke:var(--okt)}svg .part{fill:var(--part);stroke:var(--partt)}svg .no{fill:var(--no);stroke:var(--not)}
+svg .ar{stroke:var(--acc);stroke-width:2;fill:none}
+table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{border:1px solid var(--line);padding:6px 8px;vertical-align:top;text-align:left}th{background:var(--card)}
+td.ok{background:var(--ok);color:var(--okt)}td.part{background:var(--part);color:var(--partt)}td.no{background:var(--no);color:var(--not)}
+.legend span{display:inline-block;padding:1px 8px;border-radius:5px;margin-right:8px;font-size:13px}
+.legend .ok{background:var(--ok);color:var(--okt)}.legend .part{background:var(--part);color:var(--partt)}.legend .no{background:var(--no);color:var(--not)}
+code{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:13px}
+ol.steps{padding-left:20px}ol.steps li{margin:6px 0}
+.tw{overflow-x:auto}
+</style>
+</head>
+<body>
+<main>
+<h1>OpTC, THEIA, ATLASv2: dữ liệu trông thế nào và khớp với đầu vào mô hình ra sao</h1>
+<p class="sub">Sơ đồ tóm tắt từ các file thật ở <code>E:\IL_DATASET</code> và <code>22_v2_pipeline</code>. Số liệu chi tiết nằm trong STEP_36.</p>
+
+<h2>1. Một dòng "flow" ở OpTC được tạo ra thế nào</h2>
+<div class="card">
+<svg viewBox="0 0 960 250" role="img" aria-label="Sơ đồ ghép Bro conn và eCAR-Bro">
+ <rect class="box" x="10" y="20" width="250" height="150" rx="8"/><text class="b" x="24" y="44">Bro/Zeek conn.log (mạng)</text>
+ <text class="m" x="24" y="66">uid, ts, proto, service, conn_state</text><text class="m" x="24" y="84">orig/resp ip + port</text><text class="m" x="24" y="102">duration, orig/resp bytes + pkts</text><text class="m" x="24" y="120">missed_bytes, history</text><text class="m" x="24" y="144">label (0/1 theo IP C2 + giờ)</text>
+ <rect class="box" x="10" y="180" width="250" height="60" rx="8"/><text class="b" x="24" y="204">eCAR-Bro (host, FLOW)</text><text class="m" x="24" y="224">bro_uid, image_path, actorID, pid, ppid, principal</text>
+ <path class="ar" d="M262 95 L330 120"/><path class="ar" d="M262 208 L330 130"/>
+ <rect class="blue" x="332" y="85" width="160" height="70" rx="8"/><text class="b" x="352" y="112">INNER JOIN</text><text class="m" x="346" y="132">uid = bro_uid</text><text class="m" x="346" y="148">92,045,755 flow</text>
+ <path class="ar" d="M494 120 L560 120"/>
+ <rect class="box" x="562" y="20" width="388" height="215" rx="8"/><text class="b" x="578" y="44">1 dòng = 1 flow + tiến trình tạo ra nó</text>
+ <rect class="ok" x="578" y="56" width="170" height="52" rx="6"/><text class="b" x="588" y="76">Từ eCAR-Bro (host)</text><text class="m" x="588" y="94">app_family, image_dir_class, principal_class</text>
+ <rect class="blue" x="758" y="56" width="180" height="52" rx="6"/><text class="b" x="768" y="76">Từ Bro (mạng)</text><text class="m" x="768" y="94">proto, service, conn_state, port, 7 số</text>
+ <rect class="part" x="578" y="118" width="360" height="44" rx="6"/><text class="b" x="588" y="138">Chỉ audit, không vào mô hình</text><text class="m" x="588" y="154">actor_id, pid, ppid, principal, IP, uid, hostname, ts</text>
+ <text class="m" x="578" y="186">Mô hình đầy đủ: 7 cột phân loại + 7 số + 1 cờ + delta_t (thời gian từ flow trước).</text>
+ <text class="m" x="578" y="206">Bản B (đang dùng cho fine-tune): app_family, proto, resp_port_class,</text><text class="m" x="578" y="222">image_dir_class, delta_t.</text>
+</svg>
+</div>
+
+<h2>2. THEIA (Linux, DARPA TC E3): đồ thị sự kiện, không có "flow" sẵn</h2>
+<div class="card">
+<svg viewBox="0 0 960 330" role="img" aria-label="Mô hình dữ liệu THEIA CDM18">
+ <rect class="box" x="10" y="110" width="250" height="150" rx="8"/><text class="b" x="24" y="134">Subject (tiến trình)</text>
+ <text class="m" x="24" y="156">uuid, cid (pid)</text><text class="m" x="24" y="174">cmdLine</text><text class="m" x="24" y="192">properties.path (đường dẫn ảnh)</text><text class="m" x="24" y="210">properties.ppid, tgid</text><text class="m" x="24" y="228">parentSubject (uuid cha)</text><text class="m" x="24" y="246">localPrincipal (uuid người dùng)</text>
+ <rect class="box" x="10" y="10" width="250" height="70" rx="8"/><text class="b" x="24" y="34">Principal</text><text class="m" x="24" y="54">userId (0, 1000...), username luôn rỗng</text>
+ <path class="ar" d="M135 82 L135 108"/>
+ <rect class="blue" x="330" y="120" width="300" height="130" rx="8"/><text class="b" x="346" y="144">Event (một dòng mỗi lần gọi hệ thống)</text>
+ <text class="m" x="346" y="166">type: CONNECT, SENDTO, SENDMSG, RECVFROM,</text><text class="m" x="346" y="182">RECVMSG, READ/WRITE_SOCKET_PARAMS</text><text class="m" x="346" y="202">timestampNanos (UTC), threadId</text><text class="m" x="346" y="220">size (byte; trống ở CONNECT)</text><text class="m" x="346" y="238">subject -&gt; Subject, predicateObject -&gt; NetFlow</text>
+ <path class="ar" d="M262 185 L328 185"/><path class="ar" d="M632 185 L698 185"/>
+ <rect class="box" x="700" y="110" width="250" height="150" rx="8"/><text class="b" x="714" y="134">NetFlowObject (ổ cắm/socket)</text>
+ <text class="m" x="714" y="156">localAddress, localPort</text><text class="m" x="714" y="174">remoteAddress, remotePort</text><text class="m" x="714" y="196">fileDescriptor: null</text>
+ <rect class="no" x="714" y="206" width="222" height="40" rx="6"/><text class="b" x="724" y="224">ipProtocol = null (mọi bản ghi)</text><text class="m" x="724" y="240">không có TCP/UDP</text>
+ <text class="m" x="10" y="296">Một "flow" phải tự dựng: nhóm các Event theo NetFlowObject (predicateObject). Không có duration, conn_state, số gói.</text>
+ <text class="m" x="10" y="316">Nhiều NetFlowObject không phải mạng thật: LOCAL/NETLINK, 127.0.0.1; phần lớn còn lại là DNS (cổng 53) và HTTP (80).</text>
+</svg>
+</div>
+
+<h2>3. ATLASv2 (Windows 7, 2 máy, 5 nguồn log)</h2>
+<div class="card">
+<svg viewBox="0 0 960 330" role="img" aria-label="Các nguồn log ATLASv2">
+ <rect class="blue" x="10" y="14" width="400" height="108" rx="8"/><text class="b" x="24" y="38">Carbon Black EDR: cbc-edr (jsonl)</text>
+ <text class="m" x="24" y="58">type = endpoint.event.netconn: remote_ip/port, local_ip/port,</text><text class="m" x="24" y="76">netconn_protocol, netconn_inbound, netconn_domain, timestamp</text><text class="m" x="24" y="94">đã kèm process_path, process_cmdline, parent_path, parent_cmdline,</text><text class="m" x="24" y="112">process_username, process_guid (khóa nối nhãn REAPr)</text>
+ <rect class="part" x="430" y="14" width="260" height="108" rx="8"/><text class="b" x="444" y="38">Windows Security (xml)</text><text class="m" x="444" y="58">5156: kết nối được phép</text><text class="m" x="444" y="76">ProcessID, Application, hướng, IP/cổng,</text><text class="m" x="444" y="94">Protocol. Không có byte/thời lượng.</text><text class="m" x="444" y="112">4688: tạo tiến trình</text>
+ <rect class="part" x="710" y="14" width="240" height="108" rx="8"/><text class="b" x="724" y="38">Sysmon (xml)</text><text class="m" x="724" y="58">chỉ có EventID 1 (tạo tiến trình)</text><text class="m" x="724" y="76">và 5 (kết thúc) trong h1-m1.</text><text class="no" x="724" y="96" style="fill:var(--not)">Không có EventID 3 (mạng)</text>
+ <rect class="box" x="10" y="140" width="300" height="70" rx="8"/><text class="b" x="24" y="164">DNS (Wireshark, txt)</text><text class="m" x="24" y="184">truy vấn/ trả lời DNS, không có tiến trình</text>
+ <rect class="box" x="330" y="140" width="300" height="70" rx="8"/><text class="b" x="344" y="164">Firefox log (txt, vài GB)</text><text class="m" x="344" y="184">nhật ký gỡ lỗi của trình duyệt (đầu file: nsStreamPump...)</text>
+ <rect class="box" x="650" y="140" width="300" height="70" rx="8"/><text class="b" x="664" y="164">Nhãn REAPr (.labels)</text><text class="m" x="664" y="184">mức tiến trình: process_uuid = process_guid của CBC</text>
+ <text class="m" x="10" y="238">Bản "flow có tiến trình" tự nhiên nhất = hàng netconn của CBC EDR: một hàng đã là (flow + tiến trình + cha + người dùng).</text>
+ <text class="m" x="10" y="258">Thiếu: byte, số gói, thời lượng, conn_state, service. 4 ngày benign rồi 1 ngày có 10 kịch bản tấn công (s1-s4 một máy, m1-m6 hai máy); 2 Windows 7 32-bit VM.</text>
+ <text class="m" x="10" y="278">Tác giả cảnh báo: 10 cuộc tấn công gần như giống nhau (4/5 bước trùng) nên chia ngẫu nhiên sẽ rò rỉ giữa train và test.</text>
+</svg>
+</div>
+
+<h2>4. Đầu vào của mô hình bản B có lấy được từ mỗi dataset không</h2>
+<p class="legend"><span class="ok">có, cùng ý nghĩa</span><span class="part">có nhưng khác/yếu hoặc phải suy</span><span class="no">không có</span></p>
+<div class="tw"><table>
+<tr><th>Đầu vào</th><th>OpTC (đã train)</th><th>THEIA raw</th><th>ATLASv2</th></tr>
+<tr><td><code>app_family</code> (tên tiến trình)</td><td class="ok">tên file của image_path (eCAR-Bro)</td><td class="part">basename của <code>properties.path</code>: tên Linux (firefox, fluxbox, sshd), từ điển OpTC không có, gần như toàn UNK</td><td class="ok">basename của process_path (Windows .exe): trùng từ điển OpTC nhiều (firefox.exe, cmd.exe...)</td></tr>
+<tr><td><code>image_dir_class</code></td><td class="ok">8 lớp thư mục Windows (SYSTEM32, PROGRAM_FILES, TEMP_OR_APPDATA...)</td><td class="part">đường dẫn Linux (/usr/bin, /home/admin/...): 8 lớp Windows không áp dụng, phải dựng lớp mới hoặc dồn về OTHER</td><td class="ok">process_path đầy đủ, dùng đúng 8 lớp</td></tr>
+<tr><td><code>proto</code></td><td class="ok">tcp/udp từ Bro</td><td class="no">ipProtocol null ở mọi NetFlowObject</td><td class="ok">netconn_protocol (CBC) hoặc Protocol (Security 5156)</td></tr>
+<tr><td><code>resp_port_class</code></td><td class="ok">cổng đầu phản hồi</td><td class="part">remotePort; hướng phải suy từ CONNECT/ACCEPT</td><td class="ok">remote_port + cờ netconn_inbound</td></tr>
+<tr><td><code>delta_t</code></td><td class="ok">giờ giữa các flow</td><td class="ok">timestampNanos (sau khi dựng flow)</td><td class="ok">timestamp netconn</td></tr>
+<tr><td>(đã bỏ ở bản B) <code>principal_class</code></td><td class="part">có, nhưng ADMINISTRATOR = tài khoản Red Team (đường tắt)</td><td class="part">chỉ userId (0 = root...)</td><td class="ok">process_username</td></tr>
+<tr><td>(đã bỏ) <code>service</code>, <code>conn_state</code>, <code>history</code></td><td class="ok">Bro</td><td class="no">không có</td><td class="no">không có</td></tr>
+<tr><td>(đã bỏ) byte, số gói, duration</td><td class="ok">Bro conn</td><td class="part">byte ≈ tổng size của SEND/RECV; không có số gói và duration</td><td class="no">không có</td></tr>
+<tr><td>Dòng lệnh, tiến trình cha</td><td class="no">không có trong eCAR-Bro (phải quét log host)</td><td class="ok">cmdLine, ppid, parentSubject</td><td class="ok">process_cmdline, parent_path, parent_cmdline</td></tr>
+<tr><td>Nhãn</td><td class="ok">từng flow (IP C2 + giờ)</td><td class="part">REAPr theo tiến trình và theo cạnh (edge_uuid)</td><td class="part">REAPr theo tiến trình (191 tiến trình)</td></tr>
+</table></div>
+
+<h2>5. Tiền xử lý OpTC đầy đủ và phần giữ lại cho fine-tune</h2>
+<div class="card"><ol class="steps">
+<li><b>Bảng ghép OpTC</b> (<code>flows_joined.parquet</code>, 92 triệu flow, 743 máy): giữ nguyên, không sửa.</li>
+<li><b>Cửa sổ</b>: theo hostname, 15 phút, tối đa 512 flow, nhãn cửa sổ = có ít nhất 1 flow dương. Dùng đúng quy tắc này cho dữ liệu mới.</li>
+<li><b>Bỏ khỏi đầu vào</b> (không có hoặc không so sánh được ở dữ liệu mới): <code>service</code>, <code>conn_state</code>, 7 cột số (duration, orig/resp bytes, orig/resp pkts, orig/resp ip_bytes), <code>has_missed_bytes</code>, và <code>principal_class</code> (đường tắt Red Team).</li>
+<li><b>Giữ</b>: <code>app_family</code>, <code>proto</code>, <code>resp_port_class</code>, <code>image_dir_class</code>, <code>delta_t</code> = bản B (OpTC TEST F1 0.988, đã train).</li>
+<li><b>Từ điển</b>: mở rộng bằng token mới ở TRAIN của dữ liệu mới (hàng embedding mới = bản sao UNK), id cũ không đổi; mean/std của <code>delta_t</code> giữ của OpTC.</li>
+<li><b>Dữ liệu mới</b> phải được đưa về cùng 5 trường: THEIA thiếu <code>proto</code> (để thiếu) và <code>image_dir_class</code> cần lớp Linux; ATLASv2 đủ cả 5.</li>
+</ol></div>
+</main>
+</body>
+</html>

@@ -1,0 +1,19 @@
+attack,process_name,process_id,process_uuid,label,stage
+h1-m1,c:\windows\system32\lsass.exe,134,7DMF69PK-05e5f750-00000218-00000000-1d89b87dbe5b471,attack,Execution_Discovery
+h1-m1,c:\windows\system32\taskhost.exe,264,7DMF69PK-05e5f750-00000598-00000000-1d89b87dc8c54c4,attack,Execution_Discovery
+h1-m1,c:\program files\mozilla firefox\firefox.exe,1372,7DMF69PK-05e5f750-0000055c-00000000-1d89b88df46bd5c,attack,Initial_Compromise
+h1-m1,c:\program files\mozilla firefox\firefox.exe,676,7DMF69PK-05e5f750-000002a4-00000000-1d89b88eadbd057,attack,Initial_Compromise
+h1-m1,c:\windows\system32\conhost.exe,1888,7DMF69PK-05e5f750-00000760-00000000-1d89b88da461908,attack,Execution_Discovery
+h1-m1,c:\windows\system32\cmd.exe,2872.0,7DMF69PK-05e5f750-00000b38-00000000-1d89b88d8c47a1c,attack,Execution_Discovery
+h1-m1,c:\windows\system32\conhost.exe,1892,7DMF69PK-05e5f750-00000764-00000000-1d89b88d8c6db7c,attack,Execution_Discovery
+h1-m1,c:\python27\python.exe,4092,7DMF69PK-05e5f750-00000ffc-00000000-1d89b8904be2b5d,attack,Lateral_Movement
+h1-m1,c:\windows\system32\cmd.exe,740.0,7DMF69PK-05e5f750-000002e4-00000000-1d89b88fe1b4fad,attack,Execution_Discovery
+h1-m1,c:\windows\system32\conhost.exe,1300,7DMF69PK-05e5f750-00000514-00000000-1d89b88fe1c1300,attack,Execution_Discovery
+h1-m1,c:\program files\microsoft office\office14\excel.exe,3156,7DMF69PK-05e5f750-00000c54-00000000-1d89b8cf3518800,attack,Initial_Compromise
+h1-m1,c:\windows\system32\conhost.exe,1068.0,7DMF69PK-05e5f750-0000042c-00000000-1d89b87e3cba728,attack,Execution_Discovery
+h1-m1,c:\users\aalsahee\payload.exe,2648,7DMF69PK-05e5f750-00000a58-00000000-1d89b9471d50d12,attack,Exfiltration
+h1-m1,c:\users\aalsahee\payload.exe,1992.0,7DMF69PK-05e5f750-000007c8-00000000-1d89b947231e2bd,attack,Exfiltration
+h1-m1,c:\windows\system32\conhost.exe,6241,7DMF69PK-05e5f750-000007f8-00000000-1d89b9470263400,attack,Execution_Discovery
+h1-m1,c:\windows\system32\cmd.exe,3464.0,7DMF69PK-05e5f750-00000d88-00000000-1d89b947023d2a0,attack,Execution_Discovery
+h1-m1,c:\windows\system32\audiodg.exe,2436,7DMF69PK-05e5f750-00000984-00000000-1d89b942f678d2b,attack,Execution_Discovery
+h1-m1,c:\program files\mozilla firefox\plugin-container.exe,2492.0,7DMF69PK-05e5f750-000009bc-00000000-1d89b942e8f2b60,attack,Initial_Compromise

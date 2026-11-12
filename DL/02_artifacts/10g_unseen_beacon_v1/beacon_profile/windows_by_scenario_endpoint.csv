@@ -1,0 +1,10 @@
+scenario,top,windows,events_median,beacon
+scenario_1,132.197.158.98:80,61,169.0,True
+scenario_2,132.197.158.98:445,2,5.5,False
+scenario_2,132.197.158.98:80,13,175.0,True
+scenario_2,132.197.158.98:8080,1,4.0,False
+scenario_2,132.197.158.98:81,1,3.0,False
+scenario_2,132.197.158.98:9999,1,4.0,False
+scenario_2,202.6.172.98:443,456,30.0,True
+scenario_3,53.192.68.50:80,2,5.5,False
+scenario_3,53.192.68.50:8080,4,47.0,False

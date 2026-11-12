@@ -1,0 +1,23 @@
+[03:58:17] S1 bắt đầu: ngày=['2019-09-17', '2019-09-18', '2019-09-19', '2019-09-20', '2019-09-21', '2019-09-22', '2019-09-23', '2019-09-24', '2019-09-25'], out=D:\UIT\KLTNv2\02_artifacts\22_v2_pipeline\S1_join
+[03:58:17] ecar_dedup đã có, dùng lại: D:\UIT\KLTNv2\02_artifacts\22_v2_pipeline\_work\ecar_dedup.parquet
+[03:59:12] 2019-09-17: đọc 24 file conn, 29,201,419 dòng (53s)
+[04:01:24] 2019-09-17: join xong 16,965,823 flow (132s); tổng 185s
+[04:03:26] 2019-09-18: đọc 24 file conn, 30,161,280 dòng (54s)
+[04:08:33] 2019-09-18: join xong 10,198,242 flow (307s); tổng 360s
+[04:10:32] 2019-09-19: đọc 24 file conn, 31,757,451 dòng (57s)
+[04:24:47] 2019-09-19: join xong 17,806,180 flow (855s); tổng 912s
+[04:27:48] 2019-09-20: đọc 24 file conn, 21,695,847 dòng (47s)
+[04:33:31] 2019-09-20: join xong 670,704 flow (343s); tổng 390s
+[04:35:52] 2019-09-21: đọc 24 file conn, 41,090,585 dòng (80s)
+[05:02:07] 2019-09-21: join xong 14,748,316 flow (1575s); tổng 1655s
+[05:06:20] 2019-09-22: đọc 24 file conn, 40,291,166 dòng (86s)
+[05:37:03] 2019-09-22: join xong 14,722,876 flow (1844s); tổng 1930s
+[05:40:38] 2019-09-23: đọc 24 file conn, 38,348,207 dòng (92s)
+[05:51:23] 2019-09-23: join xong 12,653,852 flow (645s); tổng 737s
+[05:52:26] 2019-09-24: đã có, bỏ qua
+[05:52:58] 2019-09-25: đọc 18 file conn, 23,135,463 dòng (29s)
+[05:55:43] 2019-09-25: join xong 15,738 flow (165s); tổng 194s
+[05:56:13] gộp 9 file ngày -> flows_joined.parquet (sắp theo hostname, ts, uid) ...
+[07:17:06] ghi xong (4854s), 2.71 GB
+[07:18:54] checks: PASS=True rows=92,045,755 positive=24,721 hosts=743
+[07:18:54] S1 xong

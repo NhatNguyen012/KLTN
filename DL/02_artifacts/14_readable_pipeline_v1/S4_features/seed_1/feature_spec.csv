@@ -1,0 +1,22 @@
+﻿feature,loại,dùng_cho_model,lý_do_không_dùng,ý_nghĩa,cột_đầu_ra_sau_mã_hóa
+app_family,categorical (phân loại),có,,"Họ tiến trình lấy từ image_path của eCAR-Bro (tên file thực thi, chữ thường)",app_family_id
+direction,categorical (phân loại),không,hằng số trên TRAIN (mọi flow cùng một giá trị) nên không mang thông tin; chỉ giữ để kiểm toán,Hướng kết nối theo eCAR (inbound/outbound),
+proto,categorical (phân loại),có,,Giao thức Bro (tcp/udp/icmp),proto_id
+service,categorical (phân loại),có,,"Dịch vụ Zeek nhận diện (ssl, http, dns... hoặc <MISSING>)",service_id
+conn_state,categorical (phân loại),có,,"Trạng thái kết thúc kết nối Bro (SF, S0, REJ, RSTO...)",conn_state_id
+local_orig,categorical (phân loại),không,hằng số trên TRAIN (mọi flow cùng một giá trị) nên không mang thông tin; chỉ giữ để kiểm toán,Máy khởi tạo thuộc mạng nội bộ (T/F),
+local_resp,categorical (phân loại),không,hằng số trên TRAIN (mọi flow cùng một giá trị) nên không mang thông tin; chỉ giữ để kiểm toán,Máy nhận thuộc mạng nội bộ (T/F),
+orig_ip_scope,categorical (phân loại),không,hằng số trên TRAIN (mọi flow cùng một giá trị) nên không mang thông tin; chỉ giữ để kiểm toán,"Loại IP nguồn (nội bộ, công cộng...)",
+resp_ip_scope,categorical (phân loại),không,hằng số trên TRAIN (mọi flow cùng một giá trị) nên không mang thông tin; chỉ giữ để kiểm toán,"Loại IP đích (nội bộ, công cộng...)",
+orig_port_class,categorical (phân loại),không,hằng số trên TRAIN (mọi flow cùng một giá trị) nên không mang thông tin; chỉ giữ để kiểm toán,"Lớp cổng nguồn (cổng phổ biến, dải cổng)",
+resp_port_class,categorical (phân loại),có,,Lớp cổng đích: PORT_<cổng>_<TÊN> cho 24 cổng phổ biến; còn lại WELL_KNOWN_OTHER / REGISTERED / EPHEMERAL / OTHER,resp_port_class_id
+duration,numeric (số),có,,Thời lượng kết nối (giây),"duration_z, duration_missing"
+orig_bytes,numeric (số),có,,Byte ứng dụng máy khởi tạo gửi,"orig_bytes_z, orig_bytes_missing"
+resp_bytes,numeric (số),có,,Byte ứng dụng máy nhận gửi,"resp_bytes_z, resp_bytes_missing"
+missed_bytes,numeric (số),không,TRAIN log1p std=0.001812481 < 0.01; raw z-score would be unstable for rare non-zero values,Byte bị mất gói (thay bằng cờ has_missed_bytes),
+orig_pkts,numeric (số),có,,Số gói máy khởi tạo gửi,"orig_pkts_z, orig_pkts_missing"
+orig_ip_bytes,numeric (số),có,,Byte tầng IP máy khởi tạo gửi,"orig_ip_bytes_z, orig_ip_bytes_missing"
+resp_pkts,numeric (số),có,,Số gói máy nhận gửi,"resp_pkts_z, resp_pkts_missing"
+resp_ip_bytes,numeric (số),có,,Byte tầng IP máy nhận gửi,"resp_ip_bytes_z, resp_ip_bytes_missing"
+has_missed_bytes,binary (0/1),có,,1 nếu missed_bytes > 0,has_missed_bytes
+delta_t_log1p,time (thời gian),có,,ln(1 + số giây từ flow liền trước trong cùng chunk); flow đầu = 0,delta_t_log1p

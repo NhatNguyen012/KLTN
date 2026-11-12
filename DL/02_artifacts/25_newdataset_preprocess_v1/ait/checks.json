@@ -1,0 +1,46 @@
+{
+ "name": "ait",
+ "flows_parquet": 884697,
+ "events_in_shards": 884697,
+ "positive_flows_parquet": 133773,
+ "positive_events_in_shards": 133773,
+ "samples_expected": 8259,
+ "samples": 8259,
+ "positive_samples": 302,
+ "windows": 7895,
+ "positive_windows": 54,
+ "hosts": 14,
+ "max_event_count": 512,
+ "unique_sample_id": true,
+ "recheck_python_vs_shard": {
+  "checked": 300,
+  "mismatch": 0
+ },
+ "share_unk_by_field": {
+  "app_family": 0.0,
+  "proto": 0.0387,
+  "service": 0.0,
+  "conn_state": 0.0,
+  "resp_port_class": 0.0369,
+  "image_dir_class": 0.0,
+  "principal_class": 0.0
+ },
+ "share_missing_by_field": {
+  "app_family": 1.0,
+  "proto": 0.0,
+  "service": 1.0,
+  "conn_state": 1.0,
+  "resp_port_class": 0.0387,
+  "image_dir_class": 0.0,
+  "principal_class": 0.0
+ },
+ "top_app_family": [
+  [
+   null,
+   884697,
+   133773
+  ]
+ ],
+ "PASS": true,
+ "seconds": 25
+}
