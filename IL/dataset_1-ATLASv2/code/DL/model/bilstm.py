@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """BiLSTM Network DL Baseline Architecture.
 
-Matches exactly the model architecture and layer weights from DARPA OpTC
-(06d_BiLSTM_Kaggle_v2_final.ipynb) for seamless transfer and domain-incremental learning.
+Shares compatible parameter keys with the DARPA OpTC source model.
+The added attention/pooling and conditional stage head change the forward
+function; loading matching tensor shapes does not establish semantic equivalence.
 """
 
 from __future__ import annotations
@@ -58,6 +59,7 @@ class BiLSTMBaseline(nn.Module):
         lstm_layers: int = 1,
         dropout: float = 0.2,
         num_stages: int = 5,
+        context_dim: int = 0,
     ) -> None:
         super().__init__()
         self.categorical_cardinalities = categorical_cardinalities
@@ -67,6 +69,7 @@ class BiLSTMBaseline(nn.Module):
         self.hidden_dim = hidden_dim
         self.lstm_layers = lstm_layers
         self.num_stages = num_stages
+        self.context_dim = context_dim
 
         # Categorical embeddings
         self.embeddings = nn.ModuleList([
@@ -85,6 +88,11 @@ class BiLSTMBaseline(nn.Module):
             nn.GELU(),
             nn.Dropout(dropout),
         )
+        # Optional observable graph-context adapter. Zero initialization preserves
+        # the source forward function exactly before any adapter training.
+        if context_dim:
+            self.context_projection = nn.Linear(context_dim, event_dim, bias=False)
+            nn.init.zeros_(self.context_projection.weight)
 
         # Bidirectional LSTM
         self.lstm = nn.LSTM(
@@ -128,6 +136,7 @@ class BiLSTMBaseline(nn.Module):
         lengths: torch.Tensor,
         attention_mask: torch.Tensor | None = None,
         return_features: bool = False,
+        x_context: torch.Tensor | None = None,
         **kwargs: Any,
     ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         """Forward pass over a batch of variable-length event sequences.
@@ -154,6 +163,10 @@ class BiLSTMBaseline(nn.Module):
         cat_concat = F.dropout(cat_concat, p=0.15, training=self.training)
         event = torch.cat([cat_concat, x_num, x_num_missing, x_bin, delta_t_log1p], dim=-1)
         event = self.event_encoder(event)
+        if self.context_dim:
+            if x_context is None or x_context.shape[-1] != self.context_dim:
+                raise ValueError("Missing or incompatible observable context features")
+            event = event + self.context_projection(x_context)
 
         # Pack sequence for LSTM computation ignoring padding
         packed = pack_padded_sequence(

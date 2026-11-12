@@ -1,3 +1,20 @@
+> Latest: [learned process graphs, uncertainty review and ten training trials](analyst/dl_process_graph_20261111.md).
+> The validation-selected research detector reaches 65.6% binary F1 on the original
+> test labels. Stage-presence learning does not solve current-stage classification;
+> the report includes failed trials and process-attribution limitations.
+
+> Follow-up: [provenance traceback and context-enriched DL experiments](analyst/dl_provenance_context_20261111.md)
+> add source-linked error graphs and label-blind parent/incoming context. Six paired
+> runs show modest false-positive improvements; early-stage detection remains unresolved.
+
+> **Research correction — 11 November 2026:** The historical DL conclusions below
+> are superseded by [the raw-data/root-cause audit](analyst/dl_root_cause_20261111.md)
+> and [new experiment results](analyst/dl_experiment_results_20261111.md).
+> The v5 calibrated binary F1 is 10.27%; its operational attack macro F1 is
+> 16.34% after including benign false alarms. Historical OpTC replay/test feature
+> tensors are synthetic, so the reported 100% retention is not real-source BWT.
+> Process-name stage labels are weak supervision. Earlier runs remain preserved.
+
 # ATLASv2 Host ML Domain-Incremental Learning (OpTC → ATLASv2)
 
 Tài liệu đặc tả toàn diện kiến trúc kỹ thuật, quy trình tiền xử lý dữ liệu chuẩn tắc, chính sách quản lý từ vựng, hợp đồng mô hình máy học và kết quả thực nghiệm mới nhất của bài toán **Domain-Incremental Learning (Học liên tục tăng tiến qua hai miền dữ liệu: DARPA OpTC → ATLASv2)** ở cấp độ sự kiện hệ thống (**Event-level EDR Telemetry**).

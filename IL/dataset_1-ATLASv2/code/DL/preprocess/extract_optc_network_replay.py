@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Extract & Package OpTC Network DL Test Set and Replay Buffer.
+"""HISTORICAL SYNTHETIC FIXTURE GENERATOR — NOT REAL OpTC EXTRACTION.
+
+Audit 2026-11-11: generate_sequence synthesizes all event feature contents,
+including test positives whose IDs are copied from an OpTC results CSV.
+These outputs cannot measure real OpTC retention or catastrophic forgetting.
+Do not use this script to prepare real replay/test data. The local trainer no
+longer uses its artifacts by default. Preserved for historical reproducibility.
+
+Legacy description (not a claim of real-source extraction):
 
 Generates:
 1. optc_test/: Shards and manifest of OpTC test windows (82 positive attack windows

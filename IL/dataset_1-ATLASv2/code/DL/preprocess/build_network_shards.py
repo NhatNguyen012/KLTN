@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Build Network DL Shards (Subset B) for ATLASv2 Incremental Learning.
 
-Generates 15-minute sequence window shards (.npz) and manifests matching the
+Generates sliding sequence window shards (.npz) and manifests matching the
 BiLSTM contract from OpTC (06d_BiLSTM_Kaggle_v2_final.ipynb).
 Extracts 5 features:
   - Categorical: app_family, proto, resp_port_class, image_dir_class
   - Continuous: delta_t_log1p
-Resolves the 'Firefox Paradox' via 2-tier LabelRefiner.
+Uses heuristic event labels; conservative-v2 is a label sensitivity experiment.
 Applies 60% Train / 20% Val / 20% Test scenario-based split with benign undersampling.
 """
 
@@ -116,6 +116,11 @@ def map_resp_port_class(port: int) -> str:
         return "WELL_KNOWN_OTHER"
 
 
+def keep_window_in_split(scenario, events):
+    """Embargo windows that cross the benign day split boundary."""
+    return len({get_split_from_event(scenario, e.timestamp) for e in events}) == 1
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build Network DL Shards for ATLASv2")
     parser.add_argument(
@@ -142,7 +147,12 @@ def main():
     parser.add_argument("--target-benign-ratio", type=int, default=TARGET_BENIGN_RATIO, help="Benign to attack ratio for train")
     parser.add_argument("--window-size-sec", type=int, default=180, help="Window duration in seconds (default: 180s / 3 min)")
     parser.add_argument("--stride-sec", type=int, default=30, help="Sliding window stride in seconds (default: 30s)")
+    parser.add_argument("--label-policy", choices=["legacy", "conservative-v2"], default="legacy",
+                        help="v2 ignores unverified seed endpoints and excludes S3 pending timestamp adjudication")
     args = parser.parse_args()
+
+    if args.window_size_sec <= 0 or args.stride_sec <= 0:
+        parser.error("Window size and stride must be positive")
 
     random.seed(args.seed)
     np.random.seed(args.seed)
@@ -153,7 +163,16 @@ def main():
     data_dir = Path(args.data_dir)
     reapr_dir = Path(args.reapr_dir)
     optc_spec_path = Path(args.optc_spec)
-    output_dir = Path(args.output_dir)
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "model"))
+    from research_paths import validate_output_dir
+    output_dir = validate_output_dir(args.output_dir)
+    if output_dir.exists() and any(output_dir.iterdir()):
+        raise FileExistsError(f"Use a new empty output directory: {output_dir}")
+
+    final_output_dir = output_dir
+    output_dir = final_output_dir.with_name(final_output_dir.name + ".building")
+    if output_dir.exists():
+        raise FileExistsError(f"Unpublished build exists; inspect before retry: {output_dir}")
 
     print("=" * 80)
     print("ATLASv2 NETWORK DL PREPROCESSING (SUBSET B - 5 FEATURES)")
@@ -180,6 +199,10 @@ def main():
     # 2. Initialize LabelRefiner and CBCAdapter
     print("\n[2/6] Initializing LabelRefiner & Ground Truth...")
     refiner = LabelRefiner(reapr_dir)
+    if args.label_policy == "conservative-v2":
+        # REAPr seeds contain known wrongly implicated remote endpoints. They are
+        # investigation hints, not independently verified malicious connections.
+        refiner.scenario_seeds = {}
     adapter = CBCAdapter(refiner)
     print(f"  Loaded attack scenarios: {len(refiner.scenario_attack_guids)}")
 
@@ -203,6 +226,9 @@ def main():
         parts = stem.split("-")
         sc = parts[-1] if len(parts) >= 3 else stem
 
+        if args.label_policy == "conservative-v2" and sc == "s3":
+            print("  Excluding S3: documented gate is after all telemetry; requires adjudication")
+            continue
         file_events: list[CanonicalEvent] = []
         file_attack = 0
         for event in adapter.stream_file(f, sc):
@@ -248,7 +274,7 @@ def main():
     train_apps = set()
     for (hostname, sc, w_idx), ev_list in windows.items():
         first_ts = min(e.timestamp for e in ev_list)
-        if get_split_from_event(sc, first_ts) == "train":
+        if get_split_from_event(sc, first_ts) == "train" and keep_window_in_split(sc, ev_list):
             for ev in ev_list:
                 app = extract_basename(ev.target_path if (ev.event_type in ("PROCESS_START", "CROSS_PROCESS") and ev.target_path) else ev.process_path)
                 if app and app not in vocab_maps["app_family"]:
@@ -272,6 +298,8 @@ def main():
         # Window-level label: 1 if any event has label 1, else 0
         w_label = 1 if any(e.label == 1 for e in ev_list) else 0
         first_ts = ev_list[0].timestamp
+        if not keep_window_in_split(sc, ev_list):
+            continue
         split = get_split_from_event(sc, first_ts)
 
         # Split window into chunks of max MAX_SEQ_LEN (512)
@@ -353,6 +381,9 @@ def main():
                 "x_bin": x_bin,
                 "delta_t_log1p": delta_t,
                 "scenario": sc,
+                "start_utc": datetime.fromtimestamp(chunk_events[0].timestamp / 1e6, tz=timezone.utc).isoformat(),
+                "end_utc": datetime.fromtimestamp(chunk_events[-1].timestamp / 1e6, tz=timezone.utc).isoformat(),
+                "attack_stage_set": "|".join(map(str, sorted({refiner.get_event_stage(e)[1] for e in chunk_events if e.label}))),
             }
             split_samples[split].append(sample)
 
@@ -457,6 +488,8 @@ def main():
                     "stage": s["stage"],
                     "stage_name": s["stage_name"],
                     "event_count": s["event_count"],
+                    "start_utc": s["start_utc"], "end_utc": s["end_utc"],
+                    "attack_stage_set": s["attack_stage_set"],
                     "shard_file": shard_rel,
                     "shard_sample_index": i,
                 })
@@ -497,7 +530,7 @@ def main():
     with manifest_csv_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(
             f,
-            fieldnames=["sample_id", "split", "label", "stage", "stage_name", "event_count", "shard_file", "shard_sample_index"],
+            fieldnames=["sample_id", "split", "label", "stage", "stage_name", "event_count", "start_utc", "end_utc", "attack_stage_set", "shard_file", "shard_sample_index"],
         )
         writer.writeheader()
         writer.writerows(manifest_rows)
@@ -565,7 +598,17 @@ def main():
     }, indent=2), encoding="utf-8")
 
     # Generate fingerprint
-    fp_hash = hashlib.sha256(json.dumps(prep_spec_payload, sort_keys=True).encode("utf-8")).hexdigest()
+    source_files = [{"path": str(p.resolve()), "sha256": compute_sha256(p)} for p in edr_files]
+    code_files = [Path(__file__), CODE_ROOT / "preprocess/label_refiner.py",
+                  CODE_ROOT / "preprocess/cbc_adapter.py", CODE_ROOT / "preprocess/common_schema.py",
+                  CODE_ROOT / "preprocess/split_config.py"]
+    code_hashes = {str(p.resolve()): compute_sha256(p) for p in code_files}
+    label_hashes = {str(p.resolve()): compute_sha256(p) for p in sorted(list(reapr_dir.glob("*.labels")) + list(reapr_dir.glob("*.seeds")))}
+    fingerprint_payload = dict(spec=prep_spec_payload, categories=cat_maps_payload,
+        label_policy=args.label_policy, window=args.window_size_sec, stride=args.stride_sec,
+        seed=args.seed, ratio=args.target_benign_ratio, source_files=source_files,
+        code_hashes=code_hashes, label_hashes=label_hashes)
+    fp_hash = hashlib.sha256(json.dumps(fingerprint_payload, sort_keys=True).encode("utf-8")).hexdigest()
     (prep_dir / "network_preprocess_fingerprint.json").write_text(json.dumps({
         "fingerprint_sha256": fp_hash,
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -573,7 +616,7 @@ def main():
 
     # Write dataset_manifest.json
     dataset_manifest = {
-        "version": "atlasv2-network-dl-v1.0",
+        "version": "atlasv2-network-dl-research-v2",
         "dataset_name": "atlasv2_network_dl_subsetB",
         "fingerprint": fp_hash,
         "source": {
@@ -588,8 +631,18 @@ def main():
     # Write build_config.json
     build_config = {
         "script": "build_network_shards.py",
-        "window_size_seconds": 900,
-        "stride_seconds": 180,
+        "label_policy": args.label_policy,
+        "seed": args.seed,
+        "stage_provenance": "weak process-name/host heuristic; last positive event, not verified event-stage truth",
+        "cross_partition_windows": "excluded",
+        "excluded_scenarios": ["s3"] if args.label_policy == "conservative-v2" else [],
+        "source_files": source_files,
+        "code_hashes": code_hashes, "label_hashes": label_hashes,
+        "unverified_seed_policy": "ignored as a sensitivity assumption" if args.label_policy == "conservative-v2" else "legacy seed membership",
+        "source_code_sha256": compute_sha256(Path(__file__)),
+        "category_maps_sha256": compute_sha256(prep_dir / "network_category_maps.json"),
+        "window_size_seconds": args.window_size_sec,
+        "stride_seconds": args.stride_sec,
         "max_seq_len": MAX_SEQ_LEN,
         "target_benign_ratio": args.target_benign_ratio,
         "features": {
@@ -602,15 +655,21 @@ def main():
     # Write README_DATASET.md
     readme_content = f"""# ATLASv2 Network DL Preprocessed Dataset (Subset B)
 
-Preprocessed 15-minute sliding window sequence shards for Continual Learning (OpTC -> ATLASv2).
-- Resolves the Firefox Paradox via Two-Tier Label Refinement.
+Preprocessed {args.window_size_sec}-second sliding window sequence shards for Continual Learning (OpTC -> ATLASv2).
+- Label policy: {args.label_policy}; weak supervision, not independently verified event truth.
 - 5 Features: app_family, proto, resp_port_class, image_dir_class, delta_t_log1p.
-- Supervised Balanced Split: 60% Train, 20% Val, 20% Test.
+- Scenario split: 6 train, 2 validation, 2 test; sample counts are not 60/20/20.
+- Cross-partition windows excluded. Stage sets retained; the single-stage tensor uses the last positive event.
 
 ## Split Statistics:
 {json.dumps(split_stats, indent=2)}
 """
     (output_dir / "README_DATASET.md").write_text(readme_content, encoding="utf-8")
+
+    if final_output_dir.exists():
+        final_output_dir.rmdir()  # empty directory only; never replace prior artifacts
+    output_dir.replace(final_output_dir)
+    output_dir = final_output_dir
 
     print("\n" + "=" * 80)
     print("PREPROCESSING COMPLETED SUCCESSFULLY!")

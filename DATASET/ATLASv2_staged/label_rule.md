@@ -1,3 +1,12 @@
+> **Correction — 2026-11-11:** This document describes historical heuristic
+> labeling, not independently verified event/stage ground truth. Process names
+> and host roles do not uniquely establish tactics. REAPr seed endpoints can
+> include background activity. The S3 time gate conflicts with the telemetry.
+> Claims below of a universal “Causal Edge Theorem”, entirely clean labels, or
+> guaranteed zero false positives are not established by the cited papers.
+> See [the measured investigation](../../IL/dataset_1-ATLASv2/analyst/dl_root_cause_20261111.md)
+> and [research policy](RESEARCH_POLICY_20261111.md) before using these labels.
+
 # Quy chuẩn Gán Nhãn & Phân loại Giai đoạn Tấn công (Labeling & Stage Taxonomy Rules) trên Bộ Dữ liệu ATLASv2_staged
 
 Tài liệu này trình bày chi tiết và toàn diện phương pháp luận, cơ sở lý thuyết trích xuất từ các công trình nghiên cứu khoa học hàng đầu, và các quy tắc kỹ thuật cụ thể được áp dụng để gán nhãn nhị phân (Binary Anomaly) và phân loại giai đoạn tấn công đa bước (Multi-Stage Cyber Kill-Chain) trên bộ dữ liệu **ATLASv2_staged**.
