@@ -39,6 +39,8 @@ from preprocess.common_schema import (  # noqa: E402
     INITIAL_ATTACK_TIMESTAMPS, parse_timestamp_micros)
 from preprocess.label_refiner import LabelRefiner  # noqa: E402
 from build_network_shards import get_split_from_event, map_resp_port_class  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "optc_il"))
+from contract import optc_tokens  # noqa: E402  OpTC model-B input contract (OpTC->ATLASv2 IL)
 
 LABEL_KINDS = ("netconn", "procstart", "crossproc")
 KIND_TO_TYPE = {"netconn": "FLOW_START", "procstart": "PROCESS_START", "crossproc": "CROSS_PROCESS"}
@@ -239,12 +241,14 @@ def main():
             for pol, ref in (("legacy", legacy), ("v9", v9), ("v9b", v9b)):
                 r[f"stage_{pol}"] = ref.get_event_stage(ce)[1] if r[f"y_{pol}"] == 1 else 0
             r["tok"] = event_tokens(r)
+            r["optc"] = optc_tokens(r)
             r["flags"] = cmd_flags(r["cmd"]) + (cmd_flags(r["tcmd"]) if r["kind"] == "procstart" else [0.0] * len(CMD_FLAGS))
         for r in extra:
             r["y_legacy"] = r["y_v9"] = r["y_v9b"] = -1
             r["stage"] = 0
             r["stage_legacy"] = r["stage_v9"] = r["stage_v9b"] = 0
             r["tok"] = event_tokens(r)
+            r["optc"] = optc_tokens(r)
             r["flags"] = cmd_flags(r["cmd"]) + [0.0] * len(CMD_FLAGS)
         if not lab:
             continue
@@ -329,6 +333,7 @@ def main():
                 "ev_y_v9": np.asarray([e["y_v9"] for e in evs], dtype=np.int8),
                 "ev_y_v9b": np.asarray([e["y_v9b"] for e in evs], dtype=np.int8),
                 "is_extra": np.asarray([e["kind"] == "filemod" for e in evs], dtype=bool),
+                "optc_raw": [e["optc"] for e in evs],  # raw OpTC-contract values; ids assigned in optc_il
                 "trace": [(e["line"], e["kind"], e["tok"]["actor"], e["tok"]["target"]) for e in evs],
             })
         out[split] = enc
