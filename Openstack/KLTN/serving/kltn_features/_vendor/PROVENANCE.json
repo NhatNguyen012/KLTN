@@ -1,0 +1,164 @@
+{
+ "command_syntax.py": {
+  "source": "ML/code/preprocess/command_syntax.py",
+  "source_sha256": "e625846e083df1ee1e7d908de60c3a997c51c67ff9b09cfda9d522ebb5661e89",
+  "extracted": null,
+  "rewrites": 0,
+  "vendored_sha256": "84cb3d3c9188b61b2fd8ac0cb601d517a30c40166a6a5f5407016635f45f1b20"
+ },
+ "ecar_tokenizer.py": {
+  "source": "ML/code/preprocess/ecar_tokenizer.py",
+  "source_sha256": "dc9bc813eca6a60f910359651baa6f2accd01e8c4a9ddafef09d51d796a33170",
+  "extracted": null,
+  "rewrites": 1,
+  "vendored_sha256": "f00b5c6a31c854df146b4fbda6f786f4bb4865144a9b8c051c540aa4d944832a"
+ },
+ "linux_ctx.py": {
+  "source": "IL/dataset_2-AInception/code/rootcause/linux_ctx.py",
+  "source_sha256": "109c33ee325182e83690f4814bb73abba7e0821e0bb2efdfe793750db976cfb1",
+  "extracted": null,
+  "rewrites": 0,
+  "vendored_sha256": "503ccfa7d82665d016e543be272ba69e235a17e7193eb395d3a312bed84aea82"
+ },
+ "ainception_adapters.py": {
+  "source": "IL/dataset_2-AInception/code/adapters.py",
+  "source_sha256": "6c92936eac4ffdf3c50200ca443c90f0580e8bc4352cf9cd9f08eecec5cbaa65",
+  "extracted": null,
+  "rewrites": 0,
+  "vendored_sha256": "79cacb97924f0e83f4a3e6c312662c2f85bf5709d893646b47fba21e4978645c"
+ },
+ "sl700_ecar.py": {
+  "source": "IL/dataset_2-AInception/code/ML/sl700_ecar.py",
+  "source_sha256": "a759443eaad2b89ddb4098212d07db1d0fab0da7ba73055c3dd8e33cdf4dc7cb",
+  "extracted": null,
+  "rewrites": 4,
+  "vendored_sha256": "4cecd9995ef2df05e9baa04f1996850d52053af4cf2da94df46f2f165af8944a"
+ },
+ "common_schema.py": {
+  "source": "IL/dataset_1-ATLASv2/code/preprocess/common_schema.py",
+  "source_sha256": "bfcbc23137d05c8f7f42661eb839ad824ea1d2d093e8ce3a16b9e9073de364ae",
+  "extracted": null,
+  "rewrites": 0,
+  "vendored_sha256": "57423ba10944097d4f2776caf36af1aaccc1f3a0e231649ab3775293cd7d2511"
+ },
+ "atlas_host_ctx.py": {
+  "source": "IL/dataset_1-ATLASv2/code/ML/preprocess/build_host_shards.py",
+  "source_sha256": "869dcae06216ba25b9d9079e2a9b9244a58dddd05ad5afaa3f2da069eb0bb3d8",
+  "extracted": [
+   "DIR_CATEGORIES",
+   "get_command_family",
+   "dir_to_role",
+   "PREDEFINED_DOMAIN_TOKENS",
+   "FileSessionIndex",
+   "extract_domain_shift_tokens",
+   "canonical_ecar_record"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "396ee0b8f25151d2510d4a0c3032311a86dcddbfba11731aa0efb0000dfe938f"
+ },
+ "dl_contract.py": {
+  "source": "IL/dataset_1-ATLASv2/code/DL/optc_il/contract.py",
+  "source_sha256": "ad731a6ce7bdc5654d9e3588dadf9e4fce5ca568d0c940d0a26a53453c7caf01",
+  "extracted": null,
+  "rewrites": 0,
+  "vendored_sha256": "6533207912be99dc67ac2afbf351cab1da9208aa705e27a19beff5848f126740"
+ },
+ "dl_atlas_events.py": {
+  "source": "IL/dataset_1-ATLASv2/code/DL/bilstm_v9/build_dataset.py",
+  "source_sha256": "705690555298dbf2372facd9369452ac3a5d5adce917713ae904342abcd08081",
+  "extracted": [
+   "LABEL_KINDS",
+   "WINDOW",
+   "STRIDE",
+   "MAX_LEN",
+   "CAT_FIELDS",
+   "CMD_FLAGS",
+   "cmd_flags",
+   "ip_scope",
+   "file_ext_class",
+   "event_tokens"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "f6ff28707f415c7204cf5e7a6416e3c39960dd8e6523cc02c7e54f7d3fdb2673"
+ },
+ "dl_port_class.py": {
+  "source": "IL/dataset_1-ATLASv2/code/DL/preprocess/build_network_shards.py",
+  "source_sha256": "52c1167ea8c37f2d5e2ec29b09e5fcd66695492eca346c189a7439fdd6f3c449",
+  "extracted": [
+   "map_resp_port_class"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "a7eb7ed062507242aaa25e6037f2485b439d7f9109fc3deaedeaf009750194e9"
+ },
+ "dl_sl700_events.py": {
+  "source": "IL/dataset_2-AInception/code/DL/build_sl700_windows.py",
+  "source_sha256": "d6ff870251132a770224275b1301c31db3024d3e2b99ad30f61633ba33a0700a",
+  "extracted": [
+   "LABEL_KINDS",
+   "EXTRA_KINDS",
+   "WINDOW",
+   "STRIDE",
+   "MAX_LEN",
+   "DELETE_SC",
+   "base",
+   "user_class",
+   "event_record",
+   "pidx_ppid",
+   "encode"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "788b43d2a7d76ee903ef9ae1ee2e9a9b40e898e2df0a4a4935d5fe45127a35d9"
+ },
+ "dl_bag_groups.py": {
+  "source": "IL/dataset_2-AInception/code/rootcause/build_sl700_events_v2.py",
+  "source_sha256": "b00f3cb84b5d578368e010f8b845d3c50f84acb647d85811b7729e4ade41efaf",
+  "extracted": [
+   "SEP",
+   "GROUPS",
+   "group_of"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "96eac8d995242d1950e5fefa4ffa7f95722275cd4cfeb4d1b1910acd60a8c62c"
+ },
+ "dl_cbc_parse.py": {
+  "source": "IL/dataset_1-ATLASv2/code/DL/bilstm_v9/parse_events.py",
+  "source_sha256": "0b09e869d53c120d5e5b51d47a375d594ae2b93ebf4194a14b164beaba640bbb",
+  "extracted": [
+   "KEEP_TYPES",
+   "FILEMOD_EXT",
+   "_pub_state"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "4da40cec1f4760c8e6dd0ebbf7b4ba26077f13c984c0c5a7853b646982513db2"
+ },
+ "dl_base_model.py": {
+  "source": "IL/dataset_1-ATLASv2/code/DL/optc_il/vendor/05b_train_bilstm.py",
+  "source_sha256": "39f53e3d96d8056cd5f76d8187dc4949d8b82fafe684248314c84058bee1057b",
+  "extracted": [
+   "embedding_dim",
+   "BiLSTMBaseline"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "4278d49daf43e90f194ec5dab6039c8b424f4fc9185b8fdf85dcf2c6a4f3e13a"
+ },
+ "dl_il_model.py": {
+  "source": "IL/dataset_1-ATLASv2/code/DL/optc_il/il_model.py",
+  "source_sha256": "fdf1be37dc6668d4ed8078cb9153ace10b3f34f9822ca4929ce7199772394596",
+  "extracted": [
+   "emb_dim",
+   "ExtEmbedding",
+   "ILBiLSTM"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "e56f20981f653f28f3f7e6a4ceba02bed7f2bc9803b27a58c252f846c1af3fa9"
+ },
+ "dl_il_bag_model.py": {
+  "source": "IL/dataset_2-AInception/code/DL/train_il_step3_v2.py",
+  "source_sha256": "8c623a487bddb990b88a4cee4a3d7936df93db98bcc10b2560c9219c5692e242",
+  "extracted": [
+   "ILBiLSTMBag"
+  ],
+  "rewrites": 0,
+  "vendored_sha256": "4c9327b1311b374c017d903702c3ef24f0631bf5ef56cb25a0cde23c8d94c455"
+ }
+}

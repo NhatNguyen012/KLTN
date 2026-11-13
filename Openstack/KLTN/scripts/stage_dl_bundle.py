@@ -1,46 +1,49 @@
 #!/usr/bin/env python3
-"""Stage an eligible Network DL bundle and atomically switch the local pointer.
-
-The script does not restart containers. The operator can inspect the staged
-release before explicitly recreating ``dl-prep``.
-"""
-from __future__ import annotations
-
+"""Stage a verified host-dl bundle for the central DL worker: copy to runtime/models/dl/releases/<bundle_id> (immutable,
+read-only), atomically repoint runtime/models/dl/current, restart the dl-worker container. Rollback = stage the
+previous release again."""
 import argparse
-from pathlib import Path
+import json
+import os
 import shutil
-import tempfile
+import subprocess
+import sys
+from pathlib import Path
 
-from prepare_central import ROOT
-from verify_model_bundle import verify
+ROOT = Path(__file__).resolve().parents[1]
+DL = ROOT / "runtime/models/dl"
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('bundle', type=Path)
-    args = parser.parse_args()
-    source = args.bundle.resolve()
-    manifest = verify(source, branch='network_dl', require_eligible=True)
-    model_root = ROOT / 'runtime/models/dl'
-    releases = model_root / 'releases'
-    releases.mkdir(parents=True, exist_ok=True)
-    destination = releases / manifest['bundle_id']
-    if destination.exists():
-        verify(destination, branch='network_dl', require_eligible=True)
-    else:
-        with tempfile.TemporaryDirectory(prefix=manifest['bundle_id'] + '.', dir=releases) as temp:
-            staging = Path(temp)
-            shutil.copytree(source, staging, dirs_exist_ok=True)
-            verify(staging, branch='network_dl', require_eligible=True)
-            staging.rename(destination)
-    link = model_root / 'current'
-    temporary_link = model_root / '.current.next'
-    if temporary_link.exists() or temporary_link.is_symlink():
-        temporary_link.unlink()
-    temporary_link.symlink_to(Path('releases') / manifest['bundle_id'], target_is_directory=True)
-    temporary_link.replace(link)
-    print(f"Staged {manifest['bundle_id']}. Inspect it, then explicitly recreate dl-prep.")
+    ap = argparse.ArgumentParser()
+    ap.add_argument("bundle")
+    ap.add_argument("--no-restart", action="store_true")
+    a = ap.parse_args()
+    src = Path(a.bundle).resolve()
+    v = subprocess.run([sys.executable, str(ROOT / "scripts/verify_model_bundle.py"), str(src), "--branch", "host_dl",
+                        "--require-eligible"], capture_output=True, text=True)
+    if v.returncode:
+        sys.exit(v.stdout or v.stderr)
+    bid = json.loads((src / "manifest.json").read_text())["bundle_id"]
+    dst = DL / "releases" / bid
+    if not dst.exists():
+        tmp = dst.with_name(bid + ".staging")
+        shutil.rmtree(tmp, ignore_errors=True)
+        shutil.copytree(src, tmp)
+        for p in sorted(tmp.rglob("*"), reverse=True):
+            os.chmod(p, 0o555 if p.is_dir() else 0o444)
+        os.chmod(tmp, 0o555)
+        tmp.rename(dst)
+    link = DL / "current"
+    new = DL / ".current.new"
+    if new.is_symlink() or new.exists():
+        new.unlink()
+    new.symlink_to(Path("releases") / bid)
+    os.replace(new, link)
+    print(json.dumps({"staged": bid, "current": os.readlink(link)}))
+    if not a.no_restart:
+        subprocess.run(["docker", "compose", "-f", str(ROOT / "central/compose.yaml"), "restart", "dl-worker"], check=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

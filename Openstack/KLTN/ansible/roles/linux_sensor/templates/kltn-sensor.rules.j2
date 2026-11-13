@@ -1,0 +1,12 @@
+## KLTN sensor self-exclusion (managed by Ansible). augenrules loads this file after kltn.rules and "-A" prepends,
+## so these never-rules are evaluated before every always-rule of the SL700 policy (kltn.rules stays unchanged).
+## Only connect() of the telemetry pipeline itself is excluded: Fluent Bit shipping audit.log to the local agent and
+## the central VM, and the endpoint agent posting scores. Without this, every shipped batch produced connect records
+## that were shipped again (a feedback loop: ~85 % of all lab audit events on 2026-11-14, and the main driver of the
+## first host-DL false positives); no training set contained the pipeline. Every other syscall of these programs
+## (execve, file writes, privilege changes) stays audited.
+-A exit,never -F arch=b64 -S connect -F exe=/opt/fluent-bit/bin/fluent-bit
+{% set agent = (ansible_facts.getent_passwd | default({})).get('kltn-agent') %}
+{% if agent %}
+-A exit,never -F arch=b64 -S connect -F uid={{ agent[1] }}
+{% endif %}

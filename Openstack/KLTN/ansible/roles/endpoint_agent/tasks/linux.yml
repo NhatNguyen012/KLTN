@@ -29,22 +29,21 @@
     src: '{{ playbook_dir }}/../serving/endpoint/{{ item }}'
     dest: '/opt/kltn-agent/{{ item }}'
     mode: '0644'
-  loop: [agent.py, endpoint_normalization.py, requirements.txt]
+  loop: [agent.py, requirements.txt]
   notify: Restart Linux agent
-- name: Create deployed tokenizer package directories
-  ansible.builtin.file:
-    path: /opt/kltn-agent/ML/code/preprocess
-    state: directory
+- name: Copy the training-time featurizer (kltn_features, vendored IL preprocessing)
+  ansible.builtin.copy:
+    src: '{{ playbook_dir }}/../serving/kltn_features'
+    dest: /opt/kltn-agent/
     owner: root
     group: kltn-agent
-    mode: '0755'
-- name: Copy the exact trained tokenizer implementation
-  ansible.builtin.copy:
-    src: '{{ playbook_dir }}/../../../ML/code/preprocess/{{ item }}'
-    dest: '/opt/kltn-agent/ML/code/preprocess/{{ item }}'
-    mode: '0644'
-  loop: [ecar_tokenizer.py, command_syntax.py]
+    mode: u=rwX,g=rX,o=rX
   notify: Restart Linux agent
+- name: Remove the pre-IL3 tokenizer copy
+  ansible.builtin.file:
+    path: '/opt/kltn-agent/{{ item }}'
+    state: absent
+  loop: [ML, endpoint_normalization.py]
 - name: Install pinned ML runtime in dedicated venv
   ansible.builtin.pip:
     requirements: /opt/kltn-agent/requirements.txt
@@ -84,6 +83,7 @@
   until: agent_health.status == 200
   retries: 12
   delay: 5
-- name: Assert model-free mode
+- name: Assert the agent runs in the configured mode
   ansible.builtin.assert:
-    that: agent_health.json.inference == 'waiting_for_model'
+    that: agent_health.json.inference in ['waiting_for_model', 'ready_shadow', 'ready_active']
+    fail_msg: "agent inference state {{ agent_health.json.inference }} ({{ agent_health.json.bundle_error }})"

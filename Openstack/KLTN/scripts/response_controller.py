@@ -1,323 +1,222 @@
 #!/usr/bin/env python3
-"""Decoupled OpenStack Response Controller for KLTN.
+"""Response Service + Infra Controller (General Architecture): executes APPROVED response requests only.
 
-Executes network isolation (quarantine) and restoration (release) actions
-approved by SOC analysts for confirmed security incidents:
-  - Strict safety precondition: rejects unconfirmed or shadow alerts
-  - Pre-execution snapshot: saves original port security groups and state
-  - Atomic quarantine: applies restricted isolation security group
-  - Post-isolation verification: validates port configuration
-  - Clean restoration: restores original network state on release
-  - Automatic rollback on execution failure with durable audit trail.
+Actions
+  quarantine_network  swap every port of the victim VM to the Terraform-managed security group `kltn-quarantine`
+                      (no default egress; only central telemetry 18443 out and SSH/WinRM/ICMP in from the central
+                      host) after snapshotting the original groups; verified after the change, rolled back on error.
+  release_network     restore the groups recorded by the most recent completed quarantine of that host.
+  collect_evidence    passive, central-side: export the alert's raw records and host events (incident window
+                      +- 30 min) to runtime/evidence/<alert>/<request>.jsonl.gz with a sha256, registered in
+                      evidence_exports. Nothing is executed on the VM.
+Safety: network actions need a `confirmed` alert and an explicit approval (API policy KLTN_APPROVAL_POLICY: two_person,
+or single_operator in the closed research lab, recorded in execution.approval); the quarantine group
+must exist and contain no rule other than the allowed ones, otherwise the controller refuses to use it.
 """
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
+import gzip
+import hashlib
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
 import time
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-WORKSPACE = ROOT.parents[1]
+sys.path.insert(0, str(ROOT / "central/app"))
+from common import db_connect  # noqa: E402
+from psycopg.types.json import Jsonb  # noqa: E402
 
-sys.path.insert(0, str(ROOT / 'central/app'))
-from common import db_connect
-from framework import RESPONSE_ACTIONS, canonical_hash
+QUARANTINE_SG = "kltn-quarantine"
+ALLOWED_RULES = {("egress", "tcp", 18443, 18443), ("ingress", "tcp", 22, 22), ("ingress", "tcp", 5986, 5986),
+                 ("ingress", "icmp", None, None)}
+EVIDENCE = ROOT / "runtime/evidence"
 
-QUARANTINE_SECGROUP_NAME = "kltn-quarantine-secgroup"
+
+def now() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 
-class OpenStackResponseExecutor:
-    def __init__(self, openrc_path: Path | None = None, simulation: bool = False):
-        self.openrc_path = openrc_path or Path("/etc/kolla/admin-openrc.sh")
-        self.simulation = simulation
-        self._env = None
+class OpenStackExecutor:
+    def __init__(self, openrc: Path = Path("/etc/kolla/admin-openrc.sh"), simulation: bool = False,
+                 cli: str = os.environ.get("KLTN_OPENSTACK_CLI", str(Path.home() / "venvs/kolla-2026.1/bin/openstack"))):
+        self.simulation, self.cli = simulation, cli
+        self.env = dict(os.environ)
+        if openrc.is_file():
+            for line in openrc.read_text().splitlines():
+                line = line.strip()
+                if line.startswith("export OS_"):
+                    k, v = line[len("export "):].split("=", 1)
+                    self.env[k] = v.strip().strip("'\"")
+        self.sim_ports: dict[str, list[str]] = {}
 
-    def env(self) -> dict[str, str]:
-        if self._env is not None:
-            return self._env
-        env = dict(os.environ)
-        if self.openrc_path.is_file():
-            try:
-                # Parse OS_* variables from openrc
-                for line in self.openrc_path.read_text(encoding='utf-8').splitlines():
-                    line = line.strip()
-                    if line.startswith("export OS_"):
-                        key, val = line.replace("export ", "").split("=", 1)
-                        env[key.strip()] = val.strip().strip("'\"")
-            except Exception as e:
-                print(f"Warning: could not parse {self.openrc_path}: {e}", file=sys.stderr)
-        self._env = env
-        return self._env
+    def os(self, *args) -> Any:
+        out = subprocess.run([self.cli, *args, "-f", "json"], env=self.env, capture_output=True, text=True, check=True).stdout
+        return json.loads(out) if out.strip() else {}
 
-    def run_openstack(self, args: list[str]) -> str:
+    def ports(self, server_id: str) -> list[str]:
         if self.simulation:
-            print(f"  [SIMULATION] openstack {' '.join(args)}")
-            return "{}"
-        # Execute via docker container or local openstack binary
-        cmd = ["openstack"] + args
-        try:
-            res = subprocess.run(cmd, env=self.env(), stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, text=True, check=True)
-            return res.stdout
-        except (subprocess.SubprocessError, FileNotFoundError):
-            # Fallback to docker exec kolla_toolbox
-            docker_cmd = [
-                "docker", "exec",
-                "-e", f"OS_AUTH_URL={self.env().get('OS_AUTH_URL', '')}",
-                "-e", f"OS_USERNAME={self.env().get('OS_USERNAME', '')}",
-                "-e", f"OS_PASSWORD={self.env().get('OS_PASSWORD', '')}",
-                "-e", f"OS_PROJECT_NAME={self.env().get('OS_PROJECT_NAME', '')}",
-                "-e", f"OS_PROJECT_DOMAIN_NAME={self.env().get('OS_PROJECT_DOMAIN_NAME', 'Default')}",
-                "-e", f"OS_USER_DOMAIN_NAME={self.env().get('OS_USER_DOMAIN_NAME', 'Default')}",
-                "-e", "OS_IDENTITY_API_VERSION=3",
-                "-e", "OS_INTERFACE=internal",
-                "kolla_toolbox", "openstack"
-            ] + args
-            res = subprocess.run(docker_cmd, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, text=True, check=True)
-            return res.stdout
+            return [f"port-{server_id[:8]}"]
+        return [p["ID"] for p in self.os("port", "list", "--server", server_id)]
 
-    def get_server_port_id(self, host_id: str) -> str | None:
-        """Finds primary Neutron port for Nova server host_id."""
+    def groups(self, port_id: str) -> list[str]:
         if self.simulation:
-            return f"port-{host_id[:8]}"
+            return self.sim_ports.get(port_id, ["sg-default", "sg-kltn-node"])
+        return sorted(self.os("port", "show", port_id)["security_group_ids"])
+
+    def set_groups(self, port_id: str, groups: list[str]):
+        if self.simulation:
+            self.sim_ports[port_id] = sorted(groups)
+            return
+        args = ["port", "set", port_id, "--no-security-group"]
+        for g in groups:
+            args += ["--security-group", g]
+        subprocess.run([self.cli, *args], env=self.env, capture_output=True, text=True, check=True)
+
+    def quarantine_group(self) -> str:
+        if self.simulation:
+            return "sg-quarantine"
+        sg = self.os("security", "group", "show", QUARANTINE_SG)
+        rules = self.os("security", "group", "rule", "list", sg["id"], "--long")
+        seen = set()
+        for r in rules:
+            proto = (r.get("IP Protocol") or "").lower() or None
+            pr = r.get("Port Range") or ""
+            lo, hi = (int(x) for x in pr.split(":")) if ":" in pr else (None, None)
+            key = (r.get("Direction"), proto, lo, hi)
+            if key not in ALLOWED_RULES:
+                raise RuntimeError(f"quarantine group has a non-allowed rule {key}; refusing to use it")
+            seen.add(key)
+        if ("egress", "tcp", 18443, 18443) not in seen:
+            raise RuntimeError("quarantine group lacks the telemetry egress rule; refusing to cut the evidence path")
+        return sg["id"]
+
+    def quarantine(self, server_id: str) -> dict:
+        qsg = self.quarantine_group()
+        snap = {p: self.groups(p) for p in self.ports(server_id)}
+        if not snap:
+            raise RuntimeError(f"no ports for server {server_id}")
+        done = []
         try:
-            out = self.run_openstack(["port", "list", "--server", host_id, "-f", "json"])
-            ports = json.loads(out)
-            return ports[0]["ID"] if ports else None
-        except Exception as e:
-            print(f"Error querying port for server {host_id}: {e}", file=sys.stderr)
+            for p in snap:
+                self.set_groups(p, [qsg])
+                done.append(p)
+                if self.groups(p) != [qsg]:
+                    raise RuntimeError(f"verification failed on port {p}")
+        except Exception as exc:
+            for p in done:
+                self.set_groups(p, snap[p])
+            raise RuntimeError(f"quarantine rolled back: {exc}") from exc
+        return {"status": "quarantined", "quarantine_group": qsg, "initial_state": snap, "at": now()}
+
+    def release(self, server_id: str, snapshot: dict[str, list[str]]) -> dict:
+        if not snapshot:
+            raise RuntimeError("no quarantine snapshot to restore")
+        for p, groups in snapshot.items():
+            self.set_groups(p, groups)
+            if sorted(self.groups(p)) != sorted(groups):
+                raise RuntimeError(f"release verification failed on port {p}")
+        return {"status": "released", "restored": snapshot, "at": now()}
+
+
+def export_evidence(conn, alert_id: str, host_id: str, request_id: str) -> dict:
+    a = conn.execute("SELECT first_seen, last_seen, evidence FROM alerts WHERE alert_id=%s", (alert_id,)).fetchone()
+    lo, hi = a[0] - timedelta(minutes=30), a[1] + timedelta(minutes=30)
+    out = EVIDENCE / alert_id
+    out.mkdir(parents=True, exist_ok=True)
+    path = out / f"{request_id}.jsonl.gz"
+    rows = 0
+    with gzip.open(path, "wt") as fh:
+        fh.write(json.dumps({"type": "alert", "alert_id": alert_id, "host_id": host_id, "window": [lo.isoformat(), hi.isoformat()],
+                             "evidence": a[2]}, default=str) + "\n")
+        for r in conn.execute('''SELECT event_key, ts, kind, event, raw_refs FROM host_events WHERE host_id=%s AND ts BETWEEN %s AND %s
+          ORDER BY ts_us''', (host_id, lo, hi)):
+            fh.write(json.dumps({"type": "host_event", "event_key": r[0], "ts": r[1].isoformat(), "kind": r[2], "event": r[3],
+                                 "raw_refs": r[4]}, default=str) + "\n")
+            rows += 1
+        for r in conn.execute('''SELECT event_id, source, received_at, payload FROM events WHERE host_id=%s AND received_at
+          BETWEEN %s AND %s ORDER BY seq''', (host_id, lo, hi + timedelta(minutes=10))):
+            fh.write(json.dumps({"type": "raw", "event_id": r[0], "source": r[1], "received_at": r[2].isoformat(),
+                                 "payload": r[3]}, default=str) + "\n")
+            rows += 1
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    os.chmod(path, 0o440)
+    conn.execute('''INSERT INTO evidence_exports(export_id,alert_id,host_id,path,sha256,rows,details) VALUES (%s,%s,%s,%s,%s,%s,%s)
+      ON CONFLICT(export_id) DO NOTHING''', (request_id, alert_id, host_id, str(path), digest, rows,
+                                             Jsonb({"window": [lo.isoformat(), hi.isoformat()]})))
+    return {"status": "exported", "path": str(path), "sha256": digest, "rows": rows, "at": now()}
+
+
+class Controller:
+    def __init__(self, executor: OpenStackExecutor, controller_id: str = "kltn-response-controller"):
+        self.x, self.id = executor, controller_id
+
+    def claim(self, conn) -> dict | None:
+        row = conn.execute('''SELECT r.request_id, r.alert_id, r.host_id, r.action, a.state FROM response_requests r
+          JOIN alerts a ON a.alert_id=r.alert_id WHERE r.state='approved' ORDER BY r.created_at LIMIT 1 FOR UPDATE OF r SKIP LOCKED''').fetchone()
+        if not row:
             return None
+        conn.execute('''UPDATE response_requests SET state='executing', execution=jsonb_set(execution,'{claimed_by}',%s),
+          updated_at=now() WHERE request_id=%s''', (Jsonb(self.id), row[0]))
+        return dict(zip(("request_id", "alert_id", "host_id", "action", "alert_state"), row))
 
-    def snapshot_port(self, port_id: str) -> dict[str, Any]:
-        """Snapshots current port configuration before applying response action."""
-        if self.simulation:
-            return {
-                "port_id": port_id,
-                "security_group_ids": ["secgroup-default", "secgroup-allow-ssh"],
-                "admin_state_up": True,
-            }
-        out = self.run_openstack(["port", "show", port_id, "-f", "json"])
-        data = json.loads(out)
-        return {
-            "port_id": port_id,
-            "security_group_ids": data.get("security_group_ids", []),
-            "admin_state_up": data.get("admin_state_up", True),
-            "mac_address": data.get("mac_address"),
-            "fixed_ips": data.get("fixed_ips"),
-        }
-
-    def ensure_quarantine_secgroup(self) -> str:
-        """Ensures quarantine security group exists (drops all traffic)."""
-        if self.simulation:
-            return "secgroup-kltn-quarantine"
-        try:
-            out = self.run_openstack(["security", "group", "show", QUARANTINE_SECGROUP_NAME, "-f", "json"])
-            return json.loads(out)["id"]
-        except Exception:
-            # Create quarantine security group
-            out = self.run_openstack(["security", "group", "create", QUARANTINE_SECGROUP_NAME,
-                                      "--description", "KLTN Emergency Isolation Quarantine", "-f", "json"])
-            return json.loads(out)["id"]
-
-    def apply_quarantine(self, host_id: str) -> dict[str, Any]:
-        port_id = self.get_server_port_id(host_id)
-        if not port_id:
-            raise RuntimeError(f"Could not locate Neutron port for instance {host_id}")
-
-        # 1. Snapshot initial state
-        initial_state = self.snapshot_port(port_id)
-        q_secgroup_id = self.ensure_quarantine_secgroup()
-
-        # 2. Apply quarantine secgroup
-        try:
-            if not self.simulation:
-                self.run_openstack(["port", "set", port_id, "--no-security-group", "--security-group", q_secgroup_id])
-                # 3. Post-isolation verification
-                verified = self.snapshot_port(port_id)
-                if verified["security_group_ids"] != [q_secgroup_id]:
-                    raise RuntimeError(f"Port verification failed: expected {[q_secgroup_id]}, got {verified['security_group_ids']}")
-        except Exception as e:
-            # Automatic Rollback on failure
-            print(f"Quarantine failed: {e}. Executing automatic rollback to initial state...", file=sys.stderr)
-            if not self.simulation:
-                rollback_args = ["port", "set", port_id, "--no-security-group"]
-                for sg in initial_state["security_group_ids"]:
-                    rollback_args.extend(["--security-group", sg])
-                self.run_openstack(rollback_args)
-            raise RuntimeError(f"Quarantine aborted and rolled back: {e}") from e
-
-        return {
-            "status": "quarantined",
-            "port_id": port_id,
-            "applied_secgroup": q_secgroup_id,
-            "initial_state": initial_state,
-            "isolated_at": datetime.now(timezone.utc).isoformat(),
-        }
-
-    def apply_release(self, host_id: str, saved_initial_state: dict[str, Any] | None) -> dict[str, Any]:
-        port_id = self.get_server_port_id(host_id)
-        if not port_id:
-            raise RuntimeError(f"Could not locate Neutron port for instance {host_id}")
-
-        original_secgroups = (saved_initial_state or {}).get("security_group_ids", [])
-        if not original_secgroups:
-            raise RuntimeError("Cannot release: no previous security group snapshot available")
-
-        # Restore original secgroups
-        if not self.simulation:
-            restore_args = ["port", "set", port_id, "--no-security-group"]
-            for sg in original_secgroups:
-                restore_args.extend(["--security-group", sg])
-            self.run_openstack(restore_args)
-
-            # Verify
-            verified = self.snapshot_port(port_id)
-            if set(verified.get("security_group_ids", [])) != set(original_secgroups):
-                raise RuntimeError(f"Release verification mismatch: {verified['security_group_ids']}")
-
-        return {
-            "status": "released",
-            "port_id": port_id,
-            "restored_secgroups": original_secgroups,
-            "released_at": datetime.now(timezone.utc).isoformat(),
-        }
-
-
-class ResponseController:
-    def __init__(self, executor: OpenStackResponseExecutor, controller_id: str = "kltn-resp-ctrl-01"):
-        self.executor = executor
-        self.controller_id = controller_id
-
-    def fetch_approved_responses(self) -> list[dict]:
-        with db_connect() as conn:
-            rows = conn.execute(
-                '''SELECT r.request_id, r.alert_id, r.host_id, r.action, r.requested_by,
-                          r.approved_by, r.execution, a.state AS alert_state, a.risk_score
-                   FROM response_requests r
-                   JOIN alerts a ON a.alert_id = r.alert_id
-                   WHERE r.state = 'approved'
-                   ORDER BY r.created_at ASC LIMIT 10'''
-            ).fetchall()
-        return [{
-            'request_id': r[0], 'alert_id': r[1], 'host_id': r[2], 'action': r[3],
-            'requested_by': r[4], 'approved_by': r[5], 'execution': r[6] or {},
-            'alert_state': r[7], 'risk_score': r[8],
-        } for r in rows]
-
-    def claim_request(self, request_id: str) -> bool:
-        with db_connect() as conn:
-            row = conn.execute(
-                "SELECT state FROM response_requests WHERE request_id=%s FOR UPDATE", (request_id,)
-            ).fetchone()
-            if not row or row[0] != 'approved':
-                return False
-            conn.execute(
-                '''UPDATE response_requests
-                   SET state='executing',
-                       execution = jsonb_set(COALESCE(execution, '{}'::jsonb), '{claimed_by}', %s)
-                   WHERE request_id=%s''',
-                (json.dumps(self.controller_id), request_id)
-            )
-        return True
-
-    def process_request(self, req: dict) -> bool:
-        req_id = req['request_id']
-        host_id = req['host_id']
-        action = req['action']
-        alert_state = req['alert_state']
-
-        print(f"\nProcessing response request {req_id} ({action}) for host {host_id}...")
-
-        # Strict safety precondition: reject non-confirmed alerts
-        if alert_state != 'confirmed':
-            err_msg = f"Safety block: alert {req['alert_id']} is '{alert_state}', response requires 'confirmed'"
-            print(err_msg, file=sys.stderr)
+    def process(self, req: dict) -> dict:
+        if req["action"] in ("quarantine_network", "release_network") and req["alert_state"] != "confirmed":
+            raise PermissionError(f"alert is {req['alert_state']}: network actions require a confirmed alert")
+        if req["action"] == "quarantine_network":
+            return self.x.quarantine(req["host_id"])
+        if req["action"] == "release_network":
             with db_connect() as conn:
-                conn.execute(
-                    "UPDATE response_requests SET state='rejected', execution=jsonb_set(COALESCE(execution, '{}'::jsonb), '{rejection_reason}', %s), updated_at=now() WHERE request_id=%s",
-                    (json.dumps(err_msg), req_id)
-                )
-            return False
-
-        if not self.claim_request(req_id):
-            print(f"Request {req_id} already claimed or invalid state.")
-            return False
-
-        try:
-            if action == 'quarantine_network':
-                result = self.executor.apply_quarantine(host_id)
-            elif action == 'release_network':
-                initial = (req.get('execution') or {}).get('initial_state')
-                result = self.executor.apply_release(host_id, initial)
-            else:
-                result = {'status': 'unsupported_action', 'action': action}
-
+                snap = conn.execute('''SELECT execution->'initial_state' FROM response_requests WHERE host_id=%s
+                  AND action='quarantine_network' AND state='completed' ORDER BY updated_at DESC LIMIT 1''', (req["host_id"],)).fetchone()
+            return self.x.release(req["host_id"], snap[0] if snap else None)
+        if req["action"] == "collect_evidence":
             with db_connect() as conn:
-                conn.execute(
-                    '''UPDATE response_requests
-                       SET state='completed', execution=%s, updated_at=now()
-                       WHERE request_id=%s''',
-                    (json.dumps(result), req_id)
-                )
-            print(f"Response request {req_id} COMPLETED successfully: {result['status']}")
-            return True
-        except Exception as e:
-            err_details = {'error': str(e), 'failed_at': datetime.now(timezone.utc).isoformat()}
-            with db_connect() as conn:
-                conn.execute(
-                    '''UPDATE response_requests
-                       SET state='failed', execution=jsonb_set(COALESCE(execution, '{}'::jsonb), '{error}', %s), updated_at=now()
-                       WHERE request_id=%s''',
-                    (json.dumps(err_details), req_id)
-                )
-            print(f"Response request {req_id} FAILED: {e}", file=sys.stderr)
-            return False
+                return export_evidence(conn, req["alert_id"], req["host_id"], req["request_id"])
+        raise ValueError(f"unknown action {req['action']}")
 
     def run_once(self) -> int:
-        requests = self.fetch_approved_responses()
-        if not requests:
-            print("No approved response requests pending.")
+        with db_connect() as conn:
+            req = self.claim(conn)
+        if req is None:
             return 0
-        processed = 0
-        for req in requests:
-            if self.process_request(req):
-                processed += 1
-        return processed
-
-    def run_daemon(self, interval: int = 15):
-        print(f"Starting OpenStack Response Controller daemon (interval: {interval}s)...")
-        while True:
-            try:
-                self.run_once()
-            except Exception as e:
-                print(f"Controller loop error: {e}", file=sys.stderr)
-            time.sleep(interval)
+        try:
+            result = self.process(req)
+            state = "completed"
+        except PermissionError as exc:
+            result, state = {"error": str(exc), "at": now()}, "rejected"
+        except Exception as exc:
+            result, state = {"error": f"{type(exc).__name__}: {exc}"[:1000], "at": now()}, "failed"
+        with db_connect() as conn:
+            conn.execute("UPDATE response_requests SET state=%s, execution=execution || %s, updated_at=now() WHERE request_id=%s",
+                         (state, Jsonb(result), req["request_id"]))
+        print(json.dumps({"request_id": req["request_id"], "action": req["action"], "state": state}), flush=True)
+        return 1
 
 
 def main():
-    parser = argparse.ArgumentParser(description="KLTN OpenStack Response Controller")
-    parser.add_argument('--daemon', action='store_true', help="Run continuously as daemon")
-    parser.add_argument('--interval', type=int, default=15, help="Polling interval in seconds")
-    parser.add_argument('--simulation', action='store_true', help="Run in simulation mode (no actual cloud modification)")
-    parser.add_argument('--controller-id', default="kltn-resp-ctrl-01")
-    args = parser.parse_args()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--daemon", action="store_true")
+    ap.add_argument("--interval", type=int, default=10)
+    ap.add_argument("--simulation", action="store_true", help="no cloud change (tests)")
+    a = ap.parse_args()
+    ctrl = Controller(OpenStackExecutor(simulation=a.simulation))
+    while True:
+        try:
+            n = ctrl.run_once()
+        except Exception as exc:
+            print(json.dumps({"error": f"{type(exc).__name__}: {exc}"[:500]}), flush=True)
+            n = 0
+        if not a.daemon:
+            break
+        if n == 0:
+            time.sleep(a.interval)
 
-    executor = OpenStackResponseExecutor(simulation=args.simulation)
-    ctrl = ResponseController(executor, controller_id=args.controller_id)
 
-    if args.daemon:
-        ctrl.run_daemon(interval=args.interval)
-    else:
-        ctrl.run_once()
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-

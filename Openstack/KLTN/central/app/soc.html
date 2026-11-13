@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
+<title>KLTN SOC</title>
+<style>
+:root{--b:#e2e8f0;--m:#64748b;--p:#1e40af;--bg:#f8fafc}
+*{box-sizing:border-box}body{font:14px -apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:var(--bg);color:#0f172a}
+header{display:flex;gap:.6rem;align-items:center;padding:.7rem 1rem;background:#fff;border-bottom:1px solid var(--b)}
+header h1{font-size:1.1rem;margin:0 1rem 0 0}input,select,textarea,button{font:inherit;padding:.35rem .55rem;border:1px solid var(--b);border-radius:.3rem}
+button{background:var(--p);color:#fff;border:0;cursor:pointer}button.s{background:var(--m)}button.w{background:#b45309}button.g{background:#15803d}button.r{background:#b91c1c}
+main{display:grid;grid-template-columns:34% 66%;gap:1rem;padding:1rem}.panel{background:#fff;border:1px solid var(--b);border-radius:.4rem;padding:.8rem;overflow:auto;max-height:calc(100vh - 90px)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}th,td{padding:.35rem .4rem;border-bottom:1px solid var(--b);text-align:left;vertical-align:top}th{color:var(--m);background:#f1f5f9}
+tr.c{cursor:pointer}tr.c:hover{background:#eff6ff}.badge{padding:.08rem .4rem;border-radius:1rem;font-size:11px;font-weight:600;background:#e2e8f0}
+.critical{background:#fee2e2;color:#b91c1c}.high{background:#fef3c7;color:#b45309}.medium{background:#e0f2fe;color:#0369a1}.shadow{background:#ede9fe;color:#6d28d9}
+pre{background:#0f172a;color:#e2e8f0;padding:.5rem;border-radius:.3rem;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:11.5px}
+h2{font-size:1rem;margin:.8rem 0 .4rem}.muted{color:var(--m)}.row{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin:.3rem 0}
+code{font-size:11.5px;word-break:break-all}
+</style>
+</head>
+<body>
+<header>
+ <h1>KLTN SOC</h1>
+ <input id="token" type="password" placeholder="admin bearer token" size="34" autocomplete="off">
+ <button id="load">Load</button>
+ <select id="stateFilter"><option value="">all states</option><option>needs_review</option><option>confirmed</option><option>false_positive</option><option>dismissed</option></select>
+ <button class="s" id="export">Export verified dataset</button>
+ <button class="s" id="lifecycle">Model lifecycle</button>
+ <span class="muted" id="msg"></span>
+</header>
+<main>
+ <div class="panel">
+  <h2>Hosts</h2><table><thead><tr><th>host</th><th>domain</th><th>raw/h</th><th>OOV</th><th>scores/h</th></tr></thead><tbody id="hosts"></tbody></table>
+  <h2>Alerts</h2><table><thead><tr><th>last seen</th><th>host</th><th>risk</th><th>sev</th><th>state</th></tr></thead><tbody id="alerts"></tbody></table>
+ </div>
+ <div class="panel" id="detail"><p class="muted">Select an alert.</p></div>
+</main>
+<script>
+"use strict";
+// every value from the API is untrusted (it can carry endpoint-controlled text): only DOM nodes and text nodes
+const $ = s => document.querySelector(s);
+const tok = () => { const t = $('#token').value.trim(); if (t) sessionStorage.setItem('kltn', t); return t || sessionStorage.getItem('kltn') || ''; };
+async function api(path, opts = {}) {
+  const r = await fetch(path, {...opts, headers: {'Authorization': 'Bearer ' + tok(), 'Content-Type': 'application/json', ...(opts.headers || {})}});
+  if (!r.ok) { const t = await r.text(); throw new Error(r.status + ' ' + t.slice(0, 200)); }
+  return r.json();
+}
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'onclick') e.onclick = v; else if (k === 'cls') e.className = v; else e.setAttribute(k, v); }
+  for (const k of kids) e.append(k instanceof Node ? k : document.createTextNode(k == null ? '' : String(k)));
+  return e;
+}
+const fmt = x => (typeof x === 'number') ? x.toFixed(3) : (x ?? '');
+const msg = t => { $('#msg').textContent = t; };
+let current = null;
+
+async function load() {
+  try {
+    const [h, a] = await Promise.all([api('/v1/hosts'), api('/v1/alerts?limit=500' + ($('#stateFilter').value ? '&state=' + encodeURIComponent($('#stateFilter').value) : ''))]);
+    const hb = $('#hosts'); hb.replaceChildren();
+    for (const x of h.hosts) {
+      const raw = Object.entries(x.raw_last_hour || {}).map(([s, v]) => s + ':' + v.count).join(' ');
+      const sc = Object.entries(x.scores_last_hour || {}).map(([b, v]) => b + ':' + v.count).join(' ');
+      hb.append(el('tr', {}, el('td', {}, x.name || x.host_id.slice(0, 8)), el('td', {}, x.domain || ''), el('td', {}, raw),
+        el('td', {}, x.last_summary && x.last_summary.oov_rate != null ? (100 * x.last_summary.oov_rate).toFixed(1) + '%' : ''), el('td', {}, sc)));
+    }
+    const ab = $('#alerts'); ab.replaceChildren();
+    for (const x of a.alerts) {
+      const tr = el('tr', {cls: 'c', onclick: () => select(x.alert_id)},
+        el('td', {}, (x.last_seen || '').slice(5, 19).replace('T', ' ')), el('td', {}, x.host_id.slice(0, 8)), el('td', {}, fmt(x.risk_score)),
+        el('td', {}, el('span', {cls: 'badge ' + x.severity}, x.severity), x.shadow ? el('span', {cls: 'badge shadow'}, 'shadow') : ''),
+        el('td', {}, x.state));
+      ab.append(tr);
+    }
+    msg('loaded ' + a.alerts.length + ' alerts');
+  } catch (e) { msg(e.message); }
+}
+
+async function select(id) {
+  try { current = await api('/v1/alerts/' + encodeURIComponent(id)); render(); } catch (e) { msg(e.message); }
+}
+
+function render() {
+  const a = current, d = $('#detail'); d.replaceChildren();
+  const ev = a.evidence || {};
+  d.append(el('h2', {}, 'Alert on ', (a.host && a.host.name) || a.host_id, ' ', el('span', {cls: 'badge ' + a.severity}, a.severity),
+    a.shadow ? el('span', {cls: 'badge shadow', title: 'a contributing model domain is not validated (e.g. Windows Sysmon)'}, 'shadow') : ''));
+  d.append(el('div', {cls: 'muted'}, 'risk ', fmt(a.risk_score), ' | ', a.first_seen, ' -> ', a.last_seen, ' | state ', a.state, ' | id ', a.alert_id));
+  // buckets
+  const bt = el('table', {}, el('tr', {}, el('th', {}, 'bucket'), el('th', {}, 'risk'), el('th', {}, 'ML top / thr'), el('th', {}, 'DL top / thr / stage'), el('th', {}, 'auditd rule hits')));
+  for (const [b, v] of Object.entries(ev.buckets || {})) {
+    const ml = (v.branches || {}).host_ml, dl = (v.branches || {}).host_dl;
+    bt.append(el('tr', {}, el('td', {}, b.slice(5, 19).replace('T', ' ')), el('td', {}, fmt(v.risk)),
+      el('td', {}, ml ? fmt(ml.top_score) + ' / ' + fmt(ml.threshold) + ' (' + ml.n_predicted + ')' : '-'),
+      el('td', {}, dl ? fmt(dl.top_score) + ' / ' + fmt(dl.threshold) + ' / ' + (dl.stage_last || '') : '-'),
+      el('td', {}, Object.entries(v.rule_hits || {}).map(([k, n]) => k + ' x' + n).join(', '))));
+  }
+  d.append(el('h2', {}, 'Fusion buckets'), bt);
+  // ML events with label checkboxes
+  const mt = el('table', {}, el('tr', {}, el('th', {}, 'attack?'), el('th', {}, 'score'), el('th', {}, 'event'), el('th', {}, 'top features')));
+  for (const m of ev.ml_events || []) {
+    const e = m.event || {};
+    const box = el('input', {type: 'checkbox', 'data-refs': JSON.stringify(m.event_refs || [])});
+    // exact command decoded from the raw audit records; the model's own view of it is in the title
+    const exact = (a.ml_event_commands || {})[m.score_id], cmd = exact !== undefined ? exact : (e.cmd || '');
+    mt.append(el('tr', {}, el('td', {}, box), el('td', {}, fmt(m.score)),
+      el('td', {title: exact !== undefined && exact !== e.cmd ? 'model input cmd: ' + (e.cmd || '') : ''},
+        el('code', {}, (e.kind || e.event_type || '') + ' ' + (e.image || e.path || '') + ' ' + cmd + (e.tpath ? ' -> ' + e.tpath : ''))),
+      el('td', {}, el('code', {}, (m.top_features || []).map(f => f[0] + ' (' + f[1] + ')').join('\n')))));
+  }
+  d.append(el('h2', {}, 'Host ML events (endpoint LightGBM, selected logs)'), mt);
+  const dt = el('table', {}, el('tr', {}, el('th', {}, 'attack?'), el('th', {}, 'window'), el('th', {}, 'score'), el('th', {}, 'stage'), el('th', {}, 'top events (event logit)')));
+  for (const w of ev.dl_windows || []) {
+    const refs = (w.top_events || []).map(t => t.ref).filter(Boolean);
+    dt.append(el('tr', {}, el('td', {}, el('input', {type: 'checkbox', 'data-refs': JSON.stringify(refs)})),
+      el('td', {}, ((w.window || {}).start || '').slice(11, 19) + '-' + ((w.window || {}).end || '').slice(11, 19)),
+      el('td', {}, fmt(w.score)), el('td', {}, w.stage_last || ''),
+      el('td', {}, el('code', {}, (w.top_events || []).map(t => t.kind + ' ' + t.actor + ' -> ' + t.target + ' (' + t.event_logit + ')').join('\n')))));
+  }
+  d.append(el('h2', {}, 'Host DL windows (central IL BiLSTM)'), dt);
+  if ((a.dl_events || []).length) d.append(el('h2', {}, 'DL top events (normalized)'), el('pre', {}, JSON.stringify(a.dl_events, null, 1)));
+  if ((a.raw_records || []).length) d.append(el('h2', {}, 'Raw records of the selected ML events'), el('pre', {}, JSON.stringify(a.raw_records.slice(0, 60), null, 1)));
+  // review
+  const reviewer = el('input', {placeholder: 'reviewer'}), notes = el('input', {placeholder: 'notes', size: 50});
+  const stage = el('select', {}, ...['', 'initial_compromise', 'execution_discovery', 'lateral_movement', 'exfiltration', 'impact'].map(s => el('option', {}, s)));
+  const review = async decision => {
+    if (!reviewer.value.trim()) { msg('reviewer required'); return; }
+    const attack = [], benign = [];
+    d.querySelectorAll('input[type=checkbox][data-refs]').forEach(b => (b.checked ? attack : benign).push(...JSON.parse(b.getAttribute('data-refs'))));
+    try {
+      await api('/v1/alerts/' + encodeURIComponent(a.alert_id) + '/reviews', {method: 'POST', body: JSON.stringify({decision, reviewer: reviewer.value, notes: notes.value,
+        labels: {attack_refs: decision === 'confirmed' ? attack : [], benign_refs: decision === 'false_positive' ? attack.concat(benign) : benign, stage: stage.value}})});
+      await select(a.alert_id); await load();
+    } catch (e) { msg(e.message); }
+  };
+  d.append(el('h2', {}, 'SOC verification (labels feed incremental learning)'),
+    el('div', {cls: 'row'}, reviewer, notes, 'stage', stage),
+    el('div', {cls: 'row'}, el('button', {cls: 'g', onclick: () => review('confirmed')}, 'Confirmed attack (checked events = attack)'),
+      el('button', {cls: 'w', onclick: () => review('false_positive')}, 'False positive (all benign)'),
+      el('button', {cls: 's', onclick: () => review('dismissed')}, 'Dismiss')));
+  // responses
+  const requester = el('input', {placeholder: 'requested by'}), approver = el('input', {placeholder: a.approval_policy === 'single_operator' ? 'approved by (requester may approve)' : 'approved by (other person)'});
+  const req = async action => { try { await api('/v1/alerts/' + encodeURIComponent(a.alert_id) + '/responses', {method: 'POST', body: JSON.stringify({action, requested_by: requester.value})}); await select(a.alert_id); } catch (e) { msg(e.message); } };
+  const rt = el('table', {}, el('tr', {}, el('th', {}, 'action'), el('th', {}, 'state'), el('th', {}, 'requested / approved'), el('th', {}, '')));
+  for (const r of a.responses || []) {
+    const btn = r.state === 'pending_approval' ? el('button', {cls: 'r', onclick: async () => { try { await api('/v1/responses/' + encodeURIComponent(r.request_id) + '/approve', {method: 'POST', body: JSON.stringify({approved_by: approver.value})}); await select(a.alert_id); } catch (e) { msg(e.message); } }}, 'approve') : '';
+    rt.append(el('tr', {}, el('td', {}, r.action), el('td', {}, r.state), el('td', {}, (r.requested_by || '') + ' / ' + (r.approved_by || '')), el('td', {}, btn)));
+  }
+  d.append(el('h2', {}, 'Response (approval-gated, policy ' + (a.approval_policy || '?') + '; executed by the response controller)'),
+    el('div', {cls: 'row'}, requester, el('button', {cls: 'r', onclick: () => req('quarantine_network')}, 'Request quarantine'),
+      el('button', {cls: 's', onclick: () => req('release_network')}, 'Request release'), el('button', {cls: 's', onclick: () => req('collect_evidence')}, 'Collect evidence')),
+    el('div', {cls: 'row'}, approver), rt);
+  const hist = el('ul', {}); for (const r of a.reviews || []) hist.append(el('li', {}, r.created_at, ' ', r.reviewer, ': ', r.decision, ' - ', r.notes));
+  d.append(el('h2', {}, 'Review history'), hist);
+}
+
+async function exportDataset() {
+  try {
+    const data = await api('/v1/soc/verified-dataset');
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type: 'application/json'}));
+    const link = el('a', {href: url, download: 'kltn-verified-dataset.json'}); document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) { msg(e.message); }
+}
+// Model lifecycle (General Architecture: drift -> IL loop -> evaluation & model registry). Every step that trains or
+// activates a model is an explicit approval by a named operator; the services never do it on their own.
+async function lifecycle() {
+  const d = $('#detail'); current = null;
+  try {
+    const [dr, tr, md] = await Promise.all([api('/v1/drift'), api('/v1/training/requests'), api('/v1/models')]);
+    d.replaceChildren(el('h2', {}, 'Model lifecycle'));
+    const who = el('input', {placeholder: 'approved by (operator name)'});
+    d.append(el('div', {cls: 'row'}, who, el('span', {cls: 'muted'}, 'used for the approve / activate buttons below')));
+    // drift
+    const dt = el('table', {}, el('tr', {}, el('th', {}, 'host'), el('th', {}, 'state'), el('th', {}, 'OOV now / ref'), el('th', {}, 'score PSI'), el('th', {}, 'rows'), el('th', {}, 'at')));
+    for (const s of dr.latest || []) dt.append(el('tr', {}, el('td', {}, s.host || s.host_id), el('td', {}, s.state),
+      el('td', {}, fmt(s.oov_rate) + ' / ' + fmt(s.reference_oov_rate == null ? null : Number(s.reference_oov_rate))),
+      el('td', {}, s.score_psi == null ? '' : fmt(Number(s.score_psi))), el('td', {}, s.rows), el('td', {}, (s.at || '').slice(0, 16))));
+    d.append(el('h2', {}, 'Drift (hourly; reference = first 24 h of the current bundle after the baseline mark)'), dt,
+      el('pre', {}, JSON.stringify({last_tick: dr.last_tick, baseline: dr.baseline}, null, 1)));
+    // training requests
+    const branch = el('select', {}, el('option', {}, 'host_ml'), el('option', {}, 'host_dl')), reason = el('input', {placeholder: 'reason', size: 40});
+    const create = async () => { try { await api('/v1/training/requests', {method: 'POST', body: JSON.stringify({branch: branch.value, reason: reason.value})}); await lifecycle(); } catch (e) { msg(e.message); } };
+    const tt = el('table', {}, el('tr', {}, el('th', {}, 'created'), el('th', {}, 'branch / trigger'), el('th', {}, 'state'), el('th', {}, 'result'), el('th', {}, '')));
+    for (const r of tr.requests || []) {
+      const approve = async () => { try { await api('/v1/training/requests/' + encodeURIComponent(r.request_id) + '/approve', {method: 'POST', body: JSON.stringify({approved_by: who.value})}); await lifecycle(); } catch (e) { msg(e.message); } };
+      tt.append(el('tr', {}, el('td', {}, (r.created_at || '').slice(0, 16)), el('td', {}, r.branch + ' / ' + r.trigger_type),
+        el('td', {}, r.state, r.approved_by ? ' (' + r.approved_by + ')' : ''),
+        el('td', {}, el('pre', {}, JSON.stringify(r.result || r.trigger_evidence, null, 1))),
+        el('td', {}, r.state === 'pending_approval' ? el('button', {cls: 'w', onclick: approve}, 'approve training') : '')));
+    }
+    d.append(el('h2', {}, 'Training requests (the IL service trains approved requests; candidates are never activated automatically)'),
+      el('div', {cls: 'row'}, branch, reason, el('button', {cls: 's', onclick: create}, 'New manual request')), tt);
+    // registry
+    const mt = el('table', {}, el('tr', {}, el('th', {}, 'bundle'), el('th', {}, 'stage'), el('th', {}, 'domains (threshold, validation)'), el('th', {}, 'eligible / blockers'), el('th', {}, 'MLflow'), el('th', {}, '')));
+    for (const m of md.models || []) {
+      const act = m.activation || {}, ml = m.mlflow || {};
+      const activate = async () => { try { await api('/v1/models/' + encodeURIComponent(m.bundle_id) + '/activate', {method: 'POST', body: JSON.stringify({approved_by: who.value})}); await lifecycle(); } catch (e) { msg(e.message); } };
+      mt.append(el('tr', {}, el('td', {}, m.bundle_id, el('div', {cls: 'muted'}, m.branch + (m.parent_bundle_id ? ' <- ' + m.parent_bundle_id : ''))),
+        el('td', {}, m.stage, m.activated_at ? ' ' + m.activated_at.slice(0, 16) : ''),
+        el('td', {}, el('code', {}, Object.entries(m.domains || {}).map(([k, v]) => k + ': ' + (v.threshold != null ? fmt(v.threshold) : 'logit ' + fmt(v.threshold_logit)) + ' ' + (v.validation || '')).join('\n'))),
+        el('td', {}, String(!!act.eligible), ' ', (act.blockers || []).join(', ')),
+        el('td', {}, (ml.model || ml.name || '') + (ml.version ? ' v' + ml.version : '')),
+        el('td', {}, m.stage === 'candidate' && act.eligible ? el('button', {cls: 'g', onclick: activate}, 'activate') : '')));
+    }
+    d.append(el('h2', {}, 'Model registry (activation -> rollout with scripts/deploy_bundles.sh)'), mt);
+  } catch (e) { msg(e.message); }
+}
+$('#load').onclick = load; $('#stateFilter').onchange = load; $('#export').onclick = exportDataset; $('#lifecycle').onclick = lifecycle;
+if (sessionStorage.getItem('kltn')) load();
+</script>
+</body>
+</html>

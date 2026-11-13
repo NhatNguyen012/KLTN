@@ -40,14 +40,25 @@
     regexp: '^{{ item.key }}\s*='
     line: '{{ item.key }} = {{ item.value }}'
   loop:
-    - {key: max_log_file, value: '25'}
-    - {key: num_logs, value: '4'}
+    - {key: max_log_file, value: '50'}
+    - {key: num_logs, value: '8'}
     - {key: max_log_file_action, value: ROTATE}
   notify: Reload audit daemon
-- name: Install bounded audit policy
+- name: Install the SL700 audit policy (bfuzzy/auditd-attack @41d8a13; the Linux models were trained on it)
   ansible.builtin.copy:
     src: kltn.rules
     dest: /etc/audit/rules.d/kltn.rules
+    mode: '0600'
+  notify: Load audit rules
+- name: Look up the endpoint agent account (its own connections are not audited)
+  ansible.builtin.getent:
+    database: passwd
+    key: kltn-agent
+    fail_key: false
+- name: Exclude the telemetry pipeline's own connections from audit (feedback loop)
+  ansible.builtin.template:
+    src: kltn-sensor.rules.j2
+    dest: /etc/audit/rules.d/zz-kltn-sensor.rules
     mode: '0600'
   notify: Load audit rules
 - name: Enable audit daemon
@@ -55,6 +66,25 @@
     name: auditd
     enabled: true
     state: started
+- name: Check that the kernel runs the installed audit rules
+  ansible.builtin.command: augenrules --check
+  register: augenrules_check
+  changed_when: "'No change' not in augenrules_check.stdout"
+- name: Load the audit rules (a failed earlier run can leave the handler unflushed)
+  ansible.builtin.command: augenrules --load
+  when: augenrules_check.changed
+- name: Assert the SL700 rule set is active
+  ansible.builtin.shell: auditctl -l | grep -cE -- '(-k |key=)'
+  register: audit_rules
+  changed_when: false
+  failed_when: audit_rules.stdout | int < 200
+- name: Assert the pipeline exclusion is evaluated before the SL700 connect rule
+  ansible.builtin.shell: set -o pipefail; auditctl -l | grep -E -- '-S connect' | head -1
+  args:
+    executable: /bin/bash
+  register: first_connect_rule
+  changed_when: false
+  failed_when: "'never' not in first_connect_rule.stdout"
 - name: Configure Fluent Bit TLS delivery
   ansible.builtin.template:
     src: fluent-bit.conf.j2

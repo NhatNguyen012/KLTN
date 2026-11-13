@@ -1,5 +1,5 @@
 [Unit]
-Description=KLTN model-free endpoint inbox and ML runtime
+Description=KLTN endpoint agent (inbox, featurizer, fused IL LightGBM)
 After=network.target
 
 [Service]
@@ -19,7 +19,7 @@ PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
 ReadWritePaths=/var/lib/kltn-agent
-MemoryMax=512M
+MemoryMax=1G
 CPUQuota=100%
 
 [Install]

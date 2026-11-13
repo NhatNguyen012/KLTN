@@ -71,18 +71,18 @@
   ansible.windows.win_copy:
     src: '{{ playbook_dir }}/../serving/endpoint/{{ item }}'
     dest: 'C:\KLTN\agent\{{ item }}'
-  loop: [agent.py, endpoint_normalization.py, requirements.txt]
+  loop: [agent.py, requirements.txt]
   notify: Restart Windows agent
-- name: Create deployed tokenizer package directories
-  ansible.windows.win_file:
-    path: 'C:\KLTN\agent\ML\code\preprocess'
-    state: directory
-- name: Copy the exact trained tokenizer implementation
+- name: Copy the training-time featurizer (kltn_features, vendored IL preprocessing)
   ansible.windows.win_copy:
-    src: '{{ playbook_dir }}/../../../ML/code/preprocess/{{ item }}'
-    dest: 'C:\KLTN\agent\ML\code\preprocess\{{ item }}'
-  loop: [ecar_tokenizer.py, command_syntax.py]
+    src: '{{ playbook_dir }}/../serving/kltn_features'
+    dest: 'C:\KLTN\agent\'
   notify: Restart Windows agent
+- name: Remove the pre-IL3 tokenizer copy
+  ansible.windows.win_file:
+    path: '{{ item }}'
+    state: absent
+  loop: ['C:\KLTN\agent\ML', 'C:\KLTN\agent\endpoint_normalization.py']
 - name: Install pinned Windows ML runtime offline
   ansible.windows.win_command:
     cmd: 'C:\KLTN\agent\venv\Scripts\python.exe -m pip install --no-index --find-links C:\KLTN\agent\wheels -r C:\KLTN\agent\requirements.txt'
@@ -125,6 +125,7 @@
   until: agent_health.status_code == 200
   retries: 12
   delay: 5
-- name: Assert Windows safe preparation mode
+- name: Assert the agent runs in the configured mode
   ansible.builtin.assert:
-    that: (agent_health.content | from_json).inference == 'waiting_for_model'
+    that: (agent_health.content | from_json).inference in ['waiting_for_model', 'ready_shadow', 'ready_active']
+    fail_msg: "agent state {{ (agent_health.content | from_json).inference }} ({{ (agent_health.content | from_json).bundle_error }})"

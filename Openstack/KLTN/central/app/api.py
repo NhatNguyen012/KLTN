@@ -1,19 +1,35 @@
+"""Central API (General Architecture, CENTRAL VM): Log Receive, Score/ML Result Relay, SOC verification, approval-gated
+response requests, training requests and the deployment ledger of model bundles.
+
+Auth: per-host bearer tokens for telemetry/scores/summaries (a host can only write its own data); the admin token for
+everything an analyst or operator does. Every state change that leads to an action on infrastructure or models
+(response, training, activation) is a separate, explicit approval.
+"""
 import asyncio
 import hmac
 import json
+import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
-from nats.js.api import StreamConfig, StorageType, RetentionPolicy, DiscardPolicy
+from nats.js.api import DiscardPolicy, RetentionPolicy, StorageType, StreamConfig
 from psycopg.types.json import Jsonb
+
+from audit_display import exact_command
 from common import connect_nats, db_connect, event_record, secrets
-from framework import (ContractError, RESPONSE_ACTIONS, REVIEW_DECISIONS,
-                       canonical_hash, validate_score)
+from framework import (APPROVAL_POLICIES, RESPONSE_ACTIONS, REVIEW_DECISIONS, ContractError, approval_allowed,
+                       canonical_hash, validate_score, validate_summary)
 
 MAX_BODY = 4 * 1024 * 1024
 SOURCES = {'audit', 'journal', 'sysmon', 'security', 'powershell', 'smoke'}
+BRANCHES = {'host_ml', 'host_dl'}
+# response approvals: two_person (default) or single_operator (compose.yaml; the lab owner's choice for a closed lab)
+APPROVAL_POLICY = os.environ.get('KLTN_APPROVAL_POLICY', 'two_person')
+if APPROVAL_POLICY not in APPROVAL_POLICIES:
+    raise SystemExit(f'KLTN_APPROVAL_POLICY must be one of {sorted(APPROVAL_POLICIES)}')
 
 
 @asynccontextmanager
@@ -25,8 +41,8 @@ async def lifespan(app):
     except Exception:
         try:
             await js.add_stream(config=StreamConfig(name='KLTN_EVENTS', subjects=['kltn.events'],
-                storage=StorageType.FILE, retention=RetentionPolicy.WORK_QUEUE,
-                max_bytes=512 * 1024 * 1024, max_msg_size=1024**2, discard=DiscardPolicy.NEW))
+                                storage=StorageType.FILE, retention=RetentionPolicy.WORK_QUEUE,
+                                max_bytes=2 * 1024**3, max_msg_size=1024**2, discard=DiscardPolicy.NEW))
         except Exception:
             pass
     app.state.js = js
@@ -34,7 +50,7 @@ async def lifespan(app):
     await nc.drain()
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, title='KLTN central')
 
 
 def authorized(request, expected):
@@ -44,6 +60,15 @@ def authorized(request, expected):
 def require_admin(request):
     if not authorized(request, secrets()['admin_token']):
         raise HTTPException(401, 'unauthorized')
+
+
+def host_from_token(request, allow_admin=True):
+    if allow_admin and authorized(request, secrets()['admin_token']):
+        return None
+    for host_id, host in secrets()['hosts'].items():
+        if authorized(request, host['token']):
+            return host_id
+    raise HTTPException(401, 'unauthorized')
 
 
 async def json_body(request, maximum=MAX_BODY):
@@ -58,22 +83,24 @@ async def json_body(request, maximum=MAX_BODY):
         raise HTTPException(400, 'invalid JSON')
 
 
-def authenticated_score_host(request):
-    if authorized(request, secrets()['admin_token']):
-        return None
-    for host_id, host in secrets()['hosts'].items():
-        if authorized(request, host['token']):
-            return host_id
-    raise HTTPException(401, 'unauthorized')
+def q(sql, params=(), one=False):
+    with db_connect() as conn:
+        cur = conn.execute(sql, params)
+        return cur.fetchone() if one else cur.fetchall()
 
 
+def iso(v):
+    return v.isoformat() if isinstance(v, datetime) else v
+
+
+# ------------------------------------------------------------------------------------------------ ingest
 @app.get('/healthz')
 async def health():
     try:
         await app.state.js.stream_info('KLTN_EVENTS')
     except Exception:
         raise HTTPException(503, 'queue unavailable')
-    return {'status': 'ok', 'framework': 'model_gated', 'inference': 'bundle_dependent'}
+    return {'status': 'ok', 'framework': 'kltn-il3'}
 
 
 @app.post('/v1/events/{host_id}/{source}')
@@ -86,14 +113,12 @@ async def ingest(host_id: str, source: str, request: Request):
     records = await json_body(request)
     if isinstance(records, dict):
         records = [records]
-    if not isinstance(records, list) or not 1 <= len(records) <= 2000 or any(not isinstance(r, dict) for r in records):
-        raise HTTPException(422, 'expected 1..2000 event objects')
+    if not isinstance(records, list) or not 1 <= len(records) <= 5000 or any(not isinstance(r, dict) for r in records):
+        raise HTTPException(422, 'expected 1..5000 event objects')
     encoded = [json.dumps(event_record(host_id, source, r), ensure_ascii=False).encode() for r in records]
     if any(len(r) > 900000 for r in encoded):
         raise HTTPException(413, 'record too large')
-    # Publish ACK precedes HTTP success. Partial retry is safe: DB primary key
-    # deduplicates re-delivery even after broker's duplicate detection window.
-    try:
+    try:   # publish ACK precedes HTTP success; the DB primary key deduplicates re-deliveries
         for data in encoded:
             await app.state.js.publish('kltn.events', data)
     except Exception:
@@ -104,28 +129,25 @@ async def ingest(host_id: str, source: str, request: Request):
 def store_scores(records):
     inserted = 0
     with db_connect() as conn:
-        for score in records:
-            row = conn.execute('''INSERT INTO scores(
-              score_id,schema_version,host_id,branch,bundle_id,status,score,threshold,
-              prediction,domain,domain_validation,event_refs,score_window,evidence,processed_at)
-              VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-              ON CONFLICT(score_id) DO NOTHING RETURNING score_id''',
-              (score['score_id'], score['schema_version'], score['host_id'], score['branch'],
-               score['bundle_id'], score['status'], score['score'], score['threshold'],
-               score['prediction'], score['domain'], score['domain_validation'],
-               Jsonb(score['event_refs']), Jsonb(score['window']) if score['window'] else None,
-               Jsonb(score['evidence']), score['processed_at'])).fetchone()
+        for s in records:
+            row = conn.execute('''INSERT INTO scores(score_id,schema_version,host_id,branch,bundle_id,status,score,threshold,
+              prediction,domain,domain_validation,event_refs,score_window,evidence,event_time,processed_at)
+              VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) ON CONFLICT(score_id) DO NOTHING RETURNING score_id''',
+                               (s['score_id'], s['schema_version'], s['host_id'], s['branch'], s['bundle_id'], s['status'],
+                                s['score'], s['threshold'], s['prediction'], s['domain'], s['domain_validation'],
+                                Jsonb(s['event_refs']), Jsonb(s['window']) if s['window'] else None, Jsonb(s['evidence']),
+                                s['event_time'], s['processed_at'])).fetchone()
             inserted += int(row is not None)
     return inserted
 
 
 @app.post('/v1/scores')
 async def ingest_scores(request: Request):
-    host_id = authenticated_score_host(request)
+    host_id = host_from_token(request)
     payload = await json_body(request)
     records = payload if isinstance(payload, list) else [payload]
-    if not 1 <= len(records) <= 500:
-        raise HTTPException(422, 'expected 1..500 score objects')
+    if not 1 <= len(records) <= 1000:
+        raise HTTPException(422, 'expected 1..1000 score objects')
     try:
         validated = [validate_score(item, host_id) for item in records]
     except ContractError as exc:
@@ -137,132 +159,169 @@ async def ingest_scores(request: Request):
     return {'accepted': len(validated), 'inserted': inserted}
 
 
-def status_query():
+def store_summaries(items):
     with db_connect() as conn:
-        rows = conn.execute('SELECT host_id, source, count(*), max(received_at) FROM events GROUP BY host_id, source ORDER BY host_id, source').fetchall()
-    return [{'host_id': r[0], 'source': r[1], 'count': r[2], 'last_received': r[3].isoformat()} for r in rows]
+        for s in items:
+            conn.execute('''INSERT INTO endpoint_summaries(summary_id,host_id,bundle_id,domain,period_start,period_end,payload)
+              VALUES (%s,%s,%s,%s,%s,%s,%s) ON CONFLICT(summary_id) DO NOTHING''',
+                         (s['summary_id'], s['host_id'], s['bundle_id'], s['domain'], s['period_start'], s['period_end'],
+                          Jsonb(s['payload'])))
 
 
+@app.post('/v1/summaries')
+async def ingest_summaries(request: Request):
+    host_id = host_from_token(request)
+    payload = await json_body(request)
+    records = payload if isinstance(payload, list) else [payload]
+    if not 1 <= len(records) <= 500:
+        raise HTTPException(422, 'expected 1..500 summaries')
+    try:
+        items = [validate_summary(item, host_id) for item in records]
+    except ContractError as exc:
+        raise HTTPException(422, str(exc))
+    await asyncio.to_thread(store_summaries, items)
+    return {'accepted': len(items)}
+
+
+# ------------------------------------------------------------------------------------------------ status
 @app.get('/v1/status')
 async def status(request: Request):
     require_admin(request)
-    try:
-        rows = await asyncio.to_thread(status_query)
-    except Exception:
-        raise HTTPException(503, 'storage unavailable')
+    rows = await asyncio.to_thread(q, '''SELECT host_id, source, count(*), max(received_at) FROM events
+      GROUP BY host_id, source ORDER BY host_id, source''')
     info = await app.state.js.stream_info('KLTN_EVENTS')
-    return {'framework': 'model_gated', 'queue_pending': info.state.messages, 'sources': rows}
+    return {'queue_pending': info.state.messages,
+            'sources': [{'host_id': r[0], 'source': r[1], 'count': r[2], 'last_received': iso(r[3])} for r in rows]}
 
 
 def framework_status_query():
     with db_connect() as conn:
-        tables = {}
-        for name in ('events', 'normalized_events', 'scores', 'fusion_results', 'alerts',
-                     'model_registry', 'training_requests', 'response_requests'):
-            tables[name] = conn.execute(f'SELECT count(*) FROM {name}').fetchone()[0]
+        counts = {t: conn.execute(f'SELECT count(*) FROM {t}').fetchone()[0] for t in
+                  ('events', 'host_events', 'scores', 'endpoint_summaries', 'fusion_results', 'alerts', 'model_registry',
+                   'training_requests', 'response_requests', 'drift_snapshots')}
         services = conn.execute('SELECT service,updated_at,state,pending,runtime FROM serving_status ORDER BY service').fetchall()
-        models = conn.execute('SELECT bundle_id,branch,algorithm,stage,domain_validation,created_at,activated_at FROM model_registry ORDER BY created_at DESC').fetchall()
-    return {
-        'counts': tables,
-        'services': [{'service': r[0], 'updated_at': r[1].isoformat(), 'state': r[2],
-                      'pending': r[3], 'runtime': r[4]} for r in services],
-        'models': [{'bundle_id': r[0], 'branch': r[1], 'algorithm': r[2], 'stage': r[3],
-                    'domain_validation': r[4], 'created_at': r[5].isoformat(),
-                    'activated_at': r[6].isoformat() if r[6] else None} for r in models],
-    }
+        models = conn.execute('''SELECT bundle_id,branch,algorithm,stage,domain_validation,created_at,activated_at,mlflow,
+          manifest->'activation', manifest->>'parent_bundle_id', manifest->'domains' FROM model_registry ORDER BY created_at DESC''').fetchall()
+    return {'counts': counts,
+            'services': [{'service': r[0], 'updated_at': iso(r[1]), 'state': r[2], 'pending': r[3], 'runtime': r[4]} for r in services],
+            'models': [{'bundle_id': r[0], 'branch': r[1], 'algorithm': r[2], 'stage': r[3], 'domain_validation': r[4],
+                        'created_at': iso(r[5]), 'activated_at': iso(r[6]), 'mlflow': r[7], 'activation': r[8],
+                        'parent_bundle_id': r[9],
+                        'domains': {d: {k: v.get(k) for k in ('threshold', 'threshold_logit', 'validation', 'threshold_source')}
+                                    for d, v in (r[10] or {}).items() if isinstance(v, dict)}} for r in models]}
+
+
+def drift_query():
+    with db_connect() as conn:
+        snaps = conn.execute('''SELECT DISTINCT ON (d.host_id) h.name, d.host_id, d.domain, d.state, d.value, d.sample_count,
+          d.window_start, d.window_end, d.details->>'score_psi', d.details->'reference'->>'oov_rate', d.details->>'bundle_id',
+          d.details->'reference_window', d.created_at FROM drift_snapshots d LEFT JOIN hosts h USING (host_id)
+          ORDER BY d.host_id, d.created_at DESC''').fetchall()
+        cur = dict(conn.execute('''SELECT name, value FROM framework_cursors WHERE name IN ('drift-il3','drift-baseline')''').fetchall())
+    return {'latest': [{'host': r[0], 'host_id': r[1], 'domain': r[2], 'state': r[3], 'oov_rate': r[4], 'rows': r[5],
+                        'window': [iso(r[6]), iso(r[7])], 'score_psi': r[8], 'reference_oov_rate': r[9], 'bundle_id': r[10],
+                        'reference_window': r[11], 'at': iso(r[12])} for r in snaps],
+            'last_tick': cur.get('drift-il3'), 'baseline': cur.get('drift-baseline'),
+            'policy': {'reference': 'first 24 h of the current bundle (after the baseline mark)', 'oov_ceiling': 0.20,
+                       'oov_ratio': 1.5, 'psi': 0.25, 'min_rows': 1000}}
+
+
+@app.get('/v1/drift')
+async def drift(request: Request):
+    require_admin(request)
+    return await asyncio.to_thread(drift_query)
 
 
 @app.get('/v1/framework/status')
 async def framework_status(request: Request):
     require_admin(request)
-    try:
-        return await asyncio.to_thread(framework_status_query)
-    except Exception:
-        raise HTTPException(503, 'framework storage unavailable')
+    return await asyncio.to_thread(framework_status_query)
 
 
-def list_alerts_query(limit, state):
-    query = 'SELECT alert_id,host_id,risk_score,state,severity,evidence,created_at,updated_at FROM alerts'
-    params = []
-    if state:
-        query += ' WHERE state=%s'
-        params.append(state)
-    query += ' ORDER BY created_at DESC LIMIT %s'
-    params.append(limit)
+def hosts_query():
     with db_connect() as conn:
-        rows = conn.execute(query, params).fetchall()
-    return [{'alert_id': r[0], 'host_id': r[1], 'risk_score': r[2], 'state': r[3],
-             'severity': r[4], 'evidence': r[5], 'created_at': r[6].isoformat(),
-             'updated_at': r[7].isoformat()} for r in rows]
+        hosts = {r[0]: {'host_id': r[0], 'name': r[1], 'os': r[2], 'domain': r[3], 'address': r[4]}
+                 for r in conn.execute('SELECT host_id,name,os,domain,address FROM hosts').fetchall()}
+        for h, src, n, last in conn.execute('''SELECT host_id, source, count(*), max(received_at) FROM events
+          WHERE received_at > now() - interval '1 hour' GROUP BY host_id, source''').fetchall():
+            hosts.setdefault(h, {'host_id': h}).setdefault('raw_last_hour', {})[src] = {'count': n, 'last': iso(last)}
+        for h, p, end in conn.execute('''SELECT DISTINCT ON (host_id) host_id, payload, period_end FROM endpoint_summaries
+          ORDER BY host_id, period_end DESC''').fetchall():
+            hosts.setdefault(h, {'host_id': h})['last_summary'] = {'at': iso(end), 'bundle_id': p.get('bundle_id'),
+                                                                     'counts': p.get('counts'),
+                                                                     'oov_rate': (p.get('featurizer') or {}).get('oov_rate')}
+        for h, b, n, mx, last in conn.execute('''SELECT host_id, branch, count(*), max(score), max(event_time) FROM scores
+          WHERE received_at > now() - interval '1 hour' GROUP BY host_id, branch''').fetchall():
+            hosts.setdefault(h, {'host_id': h}).setdefault('scores_last_hour', {})[b] = {'count': n, 'max': mx, 'last': iso(last)}
+    return list(hosts.values())
 
 
+@app.get('/v1/hosts')
+async def hosts(request: Request):
+    require_admin(request)
+    return {'hosts': await asyncio.to_thread(hosts_query)}
+
+
+# ------------------------------------------------------------------------------------------------ alerts / SOC
 @app.get('/v1/alerts')
-async def list_alerts(request: Request, limit: int = 100, state: str | None = None):
+async def list_alerts(request: Request, limit: int = 200, state: str | None = None):
     require_admin(request)
     if not 1 <= limit <= 1000:
         raise HTTPException(422, 'limit must be 1..1000')
-    return {'alerts': await asyncio.to_thread(list_alerts_query, limit, state)}
+    sql = 'SELECT alert_id,host_id,risk_score,state,severity,shadow,first_seen,last_seen,created_at FROM alerts'
+    params = []
+    if state:
+        sql += ' WHERE state=%s'
+        params.append(state)
+    sql += ' ORDER BY last_seen DESC LIMIT %s'
+    params.append(limit)
+    rows = await asyncio.to_thread(q, sql, params)
+    return {'alerts': [{'alert_id': r[0], 'host_id': r[1], 'risk_score': r[2], 'state': r[3], 'severity': r[4],
+                        'shadow': r[5], 'first_seen': iso(r[6]), 'last_seen': iso(r[7]), 'created_at': iso(r[8])} for r in rows]}
 
 
 def alert_detail_query(alert_id: str):
     with db_connect() as conn:
-        alert_row = conn.execute(
-            '''SELECT alert_id, fusion_id, host_id, risk_score, state, severity,
-                      evidence, created_at, updated_at
-               FROM alerts WHERE alert_id = %s''', (alert_id,)
-        ).fetchone()
-        if not alert_row:
+        a = conn.execute('''SELECT alert_id,host_id,risk_score,state,severity,shadow,first_seen,last_seen,evidence,created_at,
+          updated_at FROM alerts WHERE alert_id=%s''', (alert_id,)).fetchone()
+        if not a:
             return None
-
-        rev_rows = conn.execute(
-            '''SELECT review_id, decision, reviewer, notes, created_at
-               FROM alert_reviews WHERE alert_id = %s ORDER BY created_at ASC''', (alert_id,)
-        ).fetchall()
-        reviews = [{
-            'review_id': r[0], 'decision': r[1], 'reviewer': r[2], 'notes': r[3],
-            'created_at': r[4].isoformat()
-        } for r in rev_rows]
-
-        evidence = alert_row[6] or {}
-        event_refs = []
-        branches = evidence.get('branches', {})
-        for branch_name, branch_data in branches.items():
-            if isinstance(branch_data, dict):
-                refs = branch_data.get('event_refs', [])
-                if isinstance(refs, list):
-                    event_refs.extend(refs)
-        event_refs = sorted(set(event_refs))
-
-        events = []
-        if event_refs:
-            ev_rows = conn.execute(
-                '''SELECT event_id, source, event_type, event_time, received_at,
-                          process_path, parent_path, command_line, principal,
-                          object_path, network
-                   FROM normalized_events WHERE event_id = ANY(%s)
-                   ORDER BY COALESCE(event_time, received_at) ASC''', (event_refs,)
-            ).fetchall()
-            events = [{
-                'event_id': er[0], 'source': er[1], 'event_type': er[2],
-                'event_time': er[3].isoformat() if er[3] else None,
-                'received_at': er[4].isoformat(),
-                'process_path': er[5], 'parent_path': er[6], 'command_line': er[7],
-                'principal': er[8], 'object_path': er[9], 'network': er[10]
-            } for er in ev_rows]
-
-        return {
-            'alert_id': alert_row[0],
-            'fusion_id': alert_row[1],
-            'host_id': alert_row[2],
-            'risk_score': alert_row[3],
-            'state': alert_row[4],
-            'severity': alert_row[5],
-            'evidence': evidence,
-            'created_at': alert_row[7].isoformat(),
-            'updated_at': alert_row[8].isoformat(),
-            'reviews': reviews,
-            'events': events,
-        }
+        ev = a[8] or {}
+        reviews = conn.execute('''SELECT review_id,decision,reviewer,notes,labels,created_at FROM alert_reviews
+          WHERE alert_id=%s ORDER BY created_at''', (alert_id,)).fetchall()
+        responses = conn.execute('''SELECT request_id,action,state,requested_by,approved_by,execution,updated_at
+          FROM response_requests WHERE alert_id=%s ORDER BY created_at''', (alert_id,)).fetchall()
+        refs = []
+        for e in ev.get('ml_events', []):
+            refs += e.get('event_refs', [])
+        dl_keys = [t['ref'] for w in ev.get('dl_windows', []) for t in w.get('top_events', []) if t.get('ref')]
+        raw = conn.execute('''SELECT event_id, source, received_at, payload->'raw' FROM events WHERE event_id = ANY(%s)
+          ORDER BY seq LIMIT 1000''', (refs[:1000],)).fetchall() if refs else []
+        hev = conn.execute('''SELECT event_key, kind, ts, image, cmd, target, principal, rule_keys, raw_refs FROM host_events
+          WHERE event_key = ANY(%s) ORDER BY ts_us LIMIT 400''', (dl_keys[:400],)).fetchall() if dl_keys else []
+        hev_refs = sorted({r for h in hev for r in (h[8] or [])})[:4000]
+        hev_raw = dict(conn.execute('''SELECT event_id, payload->'raw'->>'log' FROM events WHERE event_id = ANY(%s)''',
+                                    (hev_refs,)).fetchall()) if hev_refs else {}
+        host = conn.execute('SELECT name, os, domain, address FROM hosts WHERE host_id=%s', (a[1],)).fetchone()
+    # exact command lines for the analyst (the models' own `cmd` view is kept in the evidence; see audit_display)
+    raw_log = {r[0]: (r[3] or {}).get('log') for r in raw if isinstance(r[3], dict)}
+    ml_commands = {}
+    for e in ev.get('ml_events', []):
+        cmd = exact_command(raw_log.get(x) for x in e.get('event_refs', []))
+        if cmd is not None and e.get('score_id'):
+            ml_commands[e['score_id']] = cmd
+    return {'alert_id': a[0], 'host_id': a[1], 'host': dict(zip(('name', 'os', 'domain', 'address'), host)) if host else None,
+            'risk_score': a[2], 'state': a[3], 'severity': a[4], 'shadow': a[5], 'first_seen': iso(a[6]),
+            'last_seen': iso(a[7]), 'evidence': ev, 'created_at': iso(a[9]), 'updated_at': iso(a[10]),
+            'reviews': [{'review_id': r[0], 'decision': r[1], 'reviewer': r[2], 'notes': r[3], 'labels': r[4],
+                         'created_at': iso(r[5])} for r in reviews],
+            'responses': [{'request_id': r[0], 'action': r[1], 'state': r[2], 'requested_by': r[3], 'approved_by': r[4],
+                           'execution': r[5], 'updated_at': iso(r[6])} for r in responses],
+            'raw_records': [{'event_id': r[0], 'source': r[1], 'received_at': iso(r[2]), 'raw': r[3]} for r in raw[:400]],
+            'ml_event_commands': ml_commands, 'approval_policy': APPROVAL_POLICY,
+            'dl_events': [{'event_key': r[0], 'kind': r[1], 'ts': iso(r[2]), 'image': r[3], 'cmd': r[4], 'target': r[5],
+                           'principal': r[6], 'rule_keys': r[7],
+                           'cmd_exact': exact_command(hev_raw.get(x) for x in (r[8] or []))} for r in hev]}
 
 
 @app.get('/v1/alerts/{alert_id}')
@@ -274,39 +333,47 @@ async def alert_detail(alert_id: str, request: Request):
     return detail
 
 
-def verified_dataset_query():
+def review_alert(alert_id, decision, reviewer, notes, labels):
+    review_id = canonical_hash(['review.v2', alert_id, decision, reviewer, notes, labels, datetime.now(timezone.utc).isoformat()])
     with db_connect() as conn:
-        rows = conn.execute(
-            '''SELECT a.alert_id, a.host_id, a.state, a.risk_score, a.evidence,
-                      r.decision, r.reviewer, r.notes, r.created_at
-               FROM alerts a
-               JOIN LATERAL (
-                   SELECT decision, reviewer, notes, created_at
-                   FROM alert_reviews
-                   WHERE alert_id = a.alert_id
-                   ORDER BY created_at DESC LIMIT 1
-               ) r ON true
-               WHERE a.state IN ('confirmed', 'false_positive')
-               ORDER BY r.created_at DESC LIMIT 1000'''
-        ).fetchall()
-        dataset = []
-        for row in rows:
-            alert_id = row[0]
-            label = 1 if row[2] == 'confirmed' else 0
-            evidence = row[4] or {}
-            dataset.append({
-                'alert_id': alert_id,
-                'host_id': row[1],
-                'decision': row[2],
-                'label': label,
-                'risk_score': row[3],
-                'reviewer': row[6],
-                'notes': row[7],
-                'reviewed_at': row[8].isoformat(),
-                'branches': evidence.get('branches', {}),
-                'source_mask': evidence.get('source_mask', {}),
-            })
-        return dataset
+        if not conn.execute('SELECT 1 FROM alerts WHERE alert_id=%s', (alert_id,)).fetchone():
+            return None
+        conn.execute('''INSERT INTO alert_reviews(review_id,alert_id,decision,reviewer,notes,labels) VALUES (%s,%s,%s,%s,%s,%s)''',
+                     (review_id, alert_id, decision, reviewer, notes, Jsonb(labels)))
+        conn.execute('UPDATE alerts SET state=%s,updated_at=now() WHERE alert_id=%s', (decision, alert_id))
+    return review_id
+
+
+@app.post('/v1/alerts/{alert_id}/reviews')
+async def create_review(alert_id: str, request: Request):
+    """decision for the whole alert + optional per-event labels (the IL training signal):
+    {"decision": ..., "reviewer": ..., "notes": ..., "labels": {"attack_refs": [...], "benign_refs": [...],
+     "stage": "execution_discovery"}}"""
+    require_admin(request)
+    p = await json_body(request, 256 * 1024)
+    if not isinstance(p, dict) or p.get('decision') not in REVIEW_DECISIONS or not str(p.get('reviewer', '')).strip():
+        raise HTTPException(422, 'invalid decision or reviewer')
+    notes, labels = p.get('notes', ''), p.get('labels', {})
+    if not isinstance(notes, str) or len(notes) > 10000 or not isinstance(labels, dict):
+        raise HTTPException(422, 'invalid notes or labels')
+    for k in ('attack_refs', 'benign_refs'):
+        v = labels.get(k, [])
+        if not isinstance(v, list) or len(v) > 5000 or any(not isinstance(x, str) or len(x) > 160 for x in v):
+            raise HTTPException(422, f'invalid labels.{k}')
+    rid = await asyncio.to_thread(review_alert, alert_id, p['decision'], str(p['reviewer'])[:256], notes, labels)
+    if rid is None:
+        raise HTTPException(404, 'alert not found')
+    return {'review_id': rid, 'state': p['decision']}
+
+
+def verified_dataset_query():
+    rows = q('''SELECT a.alert_id, a.host_id, a.state, a.risk_score, a.first_seen, a.last_seen, a.evidence, r.decision,
+      r.reviewer, r.notes, r.labels, r.created_at FROM alerts a JOIN LATERAL (SELECT decision, reviewer, notes, labels,
+      created_at FROM alert_reviews WHERE alert_id=a.alert_id ORDER BY created_at DESC LIMIT 1) r ON true
+      WHERE a.state IN ('confirmed','false_positive') ORDER BY r.created_at DESC LIMIT 5000''')
+    return [{'alert_id': r[0], 'host_id': r[1], 'decision': r[2], 'label': int(r[2] == 'confirmed'), 'risk_score': r[3],
+             'first_seen': iso(r[4]), 'last_seen': iso(r[5]), 'reviewer': r[8], 'notes': r[9], 'labels': r[10],
+             'reviewed_at': iso(r[11]), 'buckets': (r[6] or {}).get('buckets', {})} for r in rows]
 
 
 @app.get('/v1/soc/verified-dataset')
@@ -315,672 +382,216 @@ async def soc_verified_dataset(request: Request):
     return {'dataset': await asyncio.to_thread(verified_dataset_query)}
 
 
-def review_alert(alert_id, decision, reviewer, notes):
-    review_id = canonical_hash(['review.v1', alert_id, decision, reviewer, notes])
-    with db_connect() as conn:
-        if not conn.execute('SELECT 1 FROM alerts WHERE alert_id=%s', (alert_id,)).fetchone():
-            return None
-        conn.execute('''INSERT INTO alert_reviews(review_id,alert_id,decision,reviewer,notes)
-          VALUES (%s,%s,%s,%s,%s) ON CONFLICT(review_id) DO NOTHING''',
-          (review_id, alert_id, decision, reviewer, notes))
-        conn.execute('UPDATE alerts SET state=%s,updated_at=now() WHERE alert_id=%s',
-                     (decision, alert_id))
-    return review_id
-
-
-@app.post('/v1/alerts/{alert_id}/reviews')
-async def create_review(alert_id: str, request: Request):
-    require_admin(request)
-    payload = await json_body(request, 64 * 1024)
-    decision = payload.get('decision') if isinstance(payload, dict) else None
-    reviewer = payload.get('reviewer') if isinstance(payload, dict) else None
-    notes = payload.get('notes', '') if isinstance(payload, dict) else ''
-    if decision not in REVIEW_DECISIONS or not isinstance(reviewer, str) or not reviewer.strip():
-        raise HTTPException(422, 'invalid decision or reviewer')
-    if not isinstance(notes, str) or len(notes) > 10000:
-        raise HTTPException(422, 'invalid notes')
-    review_id = await asyncio.to_thread(review_alert, alert_id, decision, reviewer[:256], notes)
-    if review_id is None:
-        raise HTTPException(404, 'alert not found')
-    return {'review_id': review_id, 'state': decision}
-
-
-def register_model(manifest):
-    required = ('bundle_id', 'branch', 'algorithm', 'domain_validation', 'artifacts')
-    if any(key not in manifest for key in required):
-        raise ContractError('incomplete bundle manifest')
-    if manifest['branch'] not in {'host_ml', 'network_dl', 'fusion'}:
-        raise ContractError('unsupported model branch')
-    if manifest['domain_validation'] not in {'validated', 'shadow_unvalidated', 'unsupported'}:
-        raise ContractError('invalid domain validation')
-    digest = canonical_hash(manifest)
-    with db_connect() as conn:
-        existing = conn.execute('SELECT manifest_sha256 FROM model_registry WHERE bundle_id=%s',
-                                (manifest['bundle_id'],)).fetchone()
-        if existing and not hmac.compare_digest(existing[0], digest):
-            raise ContractError('bundle_id is immutable; publish a new bundle ID')
-        conn.execute('''INSERT INTO model_registry(bundle_id,branch,algorithm,manifest_sha256,
-          manifest,stage,domain_validation) VALUES (%s,%s,%s,%s,%s,'candidate',%s)
-          ON CONFLICT(bundle_id) DO NOTHING''',
-          (manifest['bundle_id'], manifest['branch'], manifest['algorithm'], digest,
-           Jsonb(manifest), manifest['domain_validation']))
-    return digest
-
-
-@app.post('/v1/models')
-async def model_register(request: Request):
-    require_admin(request)
-    manifest = await json_body(request)
-    if not isinstance(manifest, dict):
-        raise HTTPException(422, 'manifest must be an object')
-    try:
-        digest = await asyncio.to_thread(register_model, manifest)
-    except ContractError as exc:
-        raise HTTPException(422, str(exc))
-    return {'bundle_id': manifest['bundle_id'], 'manifest_sha256': digest, 'stage': 'candidate'}
-
-
-def activate_model(bundle_id):
-    with db_connect() as conn:
-        row = conn.execute('SELECT branch, manifest, domain_validation FROM model_registry WHERE bundle_id=%s',
-                           (bundle_id,)).fetchone()
-        if not row:
-            return 'missing', None
-        branch, manifest, validation = row
-        eligible = bool(manifest.get('activation', {}).get('eligible'))
-        parity = manifest.get('parity', {})
-        if not eligible or validation != 'validated' or parity.get('passed') is not True:
-            return 'blocked', None
-
-        # Find previous active bundle for this branch and retire it
-        prev = conn.execute(
-            "SELECT bundle_id FROM model_registry WHERE branch=%s AND stage='active' AND bundle_id <> %s",
-            (branch, bundle_id)
-        ).fetchone()
-        previous_bundle_id = prev[0] if prev else None
-        if previous_bundle_id:
-            conn.execute("UPDATE model_registry SET stage='retired' WHERE bundle_id=%s", (previous_bundle_id,))
-
-        manifest['previous_bundle_id'] = previous_bundle_id
-        conn.execute("UPDATE model_registry SET stage='active', manifest=%s, activated_at=now() WHERE bundle_id=%s",
-                     (Jsonb(manifest), bundle_id))
-
-        # Record rollout
-        rollout_id = canonical_hash(['rollout.v1', bundle_id, 'promote_active', datetime.now(timezone.utc).isoformat()])
-        conn.execute(
-            '''INSERT INTO deployment_rollouts(rollout_id, bundle_id, target, mode, state, details)
-               VALUES (%s, %s, %s, %s, %s, %s)''',
-            (rollout_id, bundle_id, 'cluster', 'active', 'healthy',
-             Jsonb({'previous_bundle_id': previous_bundle_id}))
-        )
-    return 'active', previous_bundle_id
-
-
-@app.post('/v1/models/{bundle_id}/activate')
-async def model_activate(bundle_id: str, request: Request):
-    require_admin(request)
-    state, prev_id = await asyncio.to_thread(activate_model, bundle_id)
-    if state == 'missing':
-        raise HTTPException(404, 'bundle not found')
-    if state == 'blocked':
-        raise HTTPException(409, 'bundle activation blocked by eligibility, parity, or domain validation')
-    return {'bundle_id': bundle_id, 'stage': state, 'previous_bundle_id': prev_id}
-
-
-def rollback_model(bundle_id: str, reason: str):
-    with db_connect() as conn:
-        row = conn.execute('SELECT branch, manifest, stage FROM model_registry WHERE bundle_id=%s',
-                           (bundle_id,)).fetchone()
-        if not row:
-            return 'missing', None
-        branch, manifest, current_stage = row
-        prev_id = manifest.get('previous_bundle_id')
-        if not prev_id:
-            return 'no_previous_bundle', None
-
-        conn.execute("UPDATE model_registry SET stage='rolled_back' WHERE bundle_id=%s", (bundle_id,))
-        conn.execute("UPDATE model_registry SET stage='active', activated_at=now() WHERE bundle_id=%s", (prev_id,))
-
-        rollout_id = canonical_hash(['rollout.v1', bundle_id, 'rollback', datetime.now(timezone.utc).isoformat()])
-        conn.execute(
-            '''INSERT INTO deployment_rollouts(rollout_id, bundle_id, target, mode, state, details)
-               VALUES (%s, %s, %s, %s, %s, %s)''',
-            (rollout_id, bundle_id, 'cluster', 'rollback', 'rolled_back',
-             Jsonb({'reason': reason, 'restored_bundle_id': prev_id}))
-        )
-    return 'rolled_back', prev_id
-
-
-@app.post('/v1/models/{bundle_id}/rollback')
-async def model_rollback(bundle_id: str, request: Request):
-    require_admin(request)
-    payload = await json_body(request, 64 * 1024)
-    reason = payload.get('reason', 'manual rollback') if isinstance(payload, dict) else 'manual rollback'
-    state, restored_id = await asyncio.to_thread(rollback_model, bundle_id, str(reason)[:500])
-    if state == 'missing':
-        raise HTTPException(404, 'bundle not found')
-    if state == 'no_previous_bundle':
-        raise HTTPException(409, 'no previous active bundle exists to rollback to')
-    return {'bundle_id': bundle_id, 'stage': state, 'restored_bundle_id': restored_id}
-
-
-def record_rollout(bundle_id: str, target: str, mode: str, state: str, details: dict):
-    rollout_id = canonical_hash(['rollout.v1', bundle_id, target, mode, datetime.now(timezone.utc).isoformat()])
-    with db_connect() as conn:
-        conn.execute(
-            '''INSERT INTO deployment_rollouts(rollout_id, bundle_id, target, mode, state, details)
-               VALUES (%s, %s, %s, %s, %s, %s)''',
-            (rollout_id, bundle_id, target, mode, state, Jsonb(details))
-        )
-    return rollout_id
-
-
-@app.post('/v1/models/{bundle_id}/rollouts')
-async def model_rollout(bundle_id: str, request: Request):
-    require_admin(request)
-    payload = await json_body(request, 64 * 1024)
-    if not isinstance(payload, dict):
-        raise HTTPException(422, 'expected JSON object')
-    target = payload.get('target', 'canary')
-    mode = payload.get('mode', 'canary')
-    state = payload.get('state', 'in_progress')
-    details = payload.get('details', {})
-    rollout_id = await asyncio.to_thread(record_rollout, bundle_id, str(target), str(mode), str(state), details)
-    return {'rollout_id': rollout_id, 'bundle_id': bundle_id, 'target': target, 'state': state}
-
-
+# ------------------------------------------------------------------------------------------------ responses
 def create_response(alert_id, action, requested_by):
     with db_connect() as conn:
         row = conn.execute('SELECT host_id,state FROM alerts WHERE alert_id=%s', (alert_id,)).fetchone()
         if not row:
             return None
-        if row[1] != 'confirmed':
-            raise ContractError('response requires a confirmed SOC review')
-        request_id = canonical_hash(['response.v1', alert_id, row[0], action])
-        conn.execute('''INSERT INTO response_requests(request_id,alert_id,host_id,action,requested_by)
-          VALUES (%s,%s,%s,%s,%s) ON CONFLICT(request_id) DO NOTHING''',
-          (request_id, alert_id, row[0], action, requested_by))
+        if action != 'collect_evidence' and row[1] != 'confirmed':
+            raise ContractError('network actions require a confirmed SOC review')
+        request_id = canonical_hash(['response.v2', alert_id, row[0], action, datetime.now(timezone.utc).isoformat()])
+        conn.execute('''INSERT INTO response_requests(request_id,alert_id,host_id,action,requested_by) VALUES (%s,%s,%s,%s,%s)''',
+                     (request_id, alert_id, row[0], action, requested_by))
     return request_id
 
 
 @app.post('/v1/alerts/{alert_id}/responses')
 async def response_request(alert_id: str, request: Request):
     require_admin(request)
-    payload = await json_body(request, 64 * 1024)
-    action = payload.get('action') if isinstance(payload, dict) else None
-    requested_by = payload.get('requested_by') if isinstance(payload, dict) else None
-    if action not in RESPONSE_ACTIONS or not isinstance(requested_by, str) or not requested_by.strip():
+    p = await json_body(request, 64 * 1024)
+    if not isinstance(p, dict) or p.get('action') not in RESPONSE_ACTIONS or not str(p.get('requested_by', '')).strip():
         raise HTTPException(422, 'invalid response action or requester')
     try:
-        request_id = await asyncio.to_thread(create_response, alert_id, action, requested_by[:256])
+        rid = await asyncio.to_thread(create_response, alert_id, p['action'], str(p['requested_by'])[:256])
     except ContractError as exc:
         raise HTTPException(409, str(exc))
-    if request_id is None:
+    if rid is None:
         raise HTTPException(404, 'alert not found')
-    return {'request_id': request_id, 'state': 'pending_approval',
-            'note': 'OpenStack execution is a separate explicit controller step'}
-
-
-def list_responses_query(state):
-    query = '''SELECT request_id,alert_id,host_id,action,state,requested_by,
-      approved_by,execution,created_at,updated_at FROM response_requests'''
-    params = []
-    if state:
-        query += ' WHERE state=%s'
-        params.append(state)
-    query += ' ORDER BY created_at DESC LIMIT 500'
-    with db_connect() as conn:
-        rows = conn.execute(query, params).fetchall()
-    return [{'request_id': r[0], 'alert_id': r[1], 'host_id': r[2], 'action': r[3],
-             'state': r[4], 'requested_by': r[5], 'approved_by': r[6],
-             'execution': r[7], 'created_at': r[8].isoformat(),
-             'updated_at': r[9].isoformat()} for r in rows]
+    who = 'a second person' if APPROVAL_POLICY == 'two_person' else 'an operator (the requester may approve: single_operator policy)'
+    return {'request_id': rid, 'state': 'pending_approval', 'note': f'{who} must approve; the controller executes'}
 
 
 @app.get('/v1/responses')
 async def list_responses(request: Request, state: str | None = None):
     require_admin(request)
-    return {'responses': await asyncio.to_thread(list_responses_query, state)}
+    sql = '''SELECT request_id,alert_id,host_id,action,state,requested_by,approved_by,execution,created_at,updated_at
+      FROM response_requests'''
+    params = []
+    if state:
+        sql += ' WHERE state=%s'
+        params.append(state)
+    rows = await asyncio.to_thread(q, sql + ' ORDER BY created_at DESC LIMIT 500', params)
+    return {'responses': [{'request_id': r[0], 'alert_id': r[1], 'host_id': r[2], 'action': r[3], 'state': r[4],
+                           'requested_by': r[5], 'approved_by': r[6], 'execution': r[7], 'created_at': iso(r[8]),
+                           'updated_at': iso(r[9])} for r in rows]}
 
 
 def approve_response(request_id, approved_by):
     with db_connect() as conn:
-        row = conn.execute('SELECT state FROM response_requests WHERE request_id=%s FOR UPDATE',
+        row = conn.execute('SELECT state, requested_by FROM response_requests WHERE request_id=%s FOR UPDATE',
                            (request_id,)).fetchone()
         if not row:
             return 'missing'
         if row[0] != 'pending_approval':
             return row[0]
-        conn.execute('''UPDATE response_requests SET state='approved',approved_by=%s,
-          updated_at=now() WHERE request_id=%s''', (approved_by, request_id))
+        if not approval_allowed(APPROVAL_POLICY, row[1], approved_by):
+            return 'requires_second_person'
+        approval = {'policy': APPROVAL_POLICY, 'self_approved': row[1].strip().lower() == approved_by.strip().lower(),
+                    'at': datetime.now(timezone.utc).isoformat()}
+        conn.execute('''UPDATE response_requests SET state='approved',approved_by=%s,updated_at=now(),execution=execution || %s
+          WHERE request_id=%s''', (approved_by, Jsonb({'approval': approval}), request_id))
     return 'approved'
 
 
 @app.post('/v1/responses/{request_id}/approve')
 async def response_approve(request_id: str, request: Request):
     require_admin(request)
-    payload = await json_body(request, 64 * 1024)
-    approved_by = payload.get('approved_by') if isinstance(payload, dict) else None
+    p = await json_body(request, 64 * 1024)
+    approved_by = p.get('approved_by') if isinstance(p, dict) else None
     if not isinstance(approved_by, str) or not approved_by.strip():
         raise HTTPException(422, 'approved_by is required')
     state = await asyncio.to_thread(approve_response, request_id, approved_by[:256])
     if state == 'missing':
         raise HTTPException(404, 'response request not found')
+    if state == 'requires_second_person':
+        raise HTTPException(409, 'the approver must differ from the requester')
     return {'request_id': request_id, 'state': state}
 
 
-def list_training_query(state):
-    query = '''SELECT request_id,branch,trigger_type,state,dataset_query,
-      trigger_evidence,created_at,approved_at,completed_at FROM training_requests'''
-    params = []
-    if state:
-        query += ' WHERE state=%s'
-        params.append(state)
-    query += ' ORDER BY created_at DESC LIMIT 500'
-    with db_connect() as conn:
-        rows = conn.execute(query, params).fetchall()
-    return [{'request_id': r[0], 'branch': r[1], 'trigger_type': r[2], 'state': r[3],
-             'dataset_query': r[4], 'trigger_evidence': r[5],
-             'created_at': r[6].isoformat(),
-             'approved_at': r[7].isoformat() if r[7] else None,
-             'completed_at': r[8].isoformat() if r[8] else None} for r in rows]
-
-
+# ------------------------------------------------------------------------------------------------ training / models
 @app.get('/v1/training/requests')
 async def training_requests(request: Request, state: str | None = None):
     require_admin(request)
-    return {'requests': await asyncio.to_thread(list_training_query, state)}
+    sql = '''SELECT request_id,branch,trigger_type,state,dataset_query,trigger_evidence,result,created_at,approved_at,
+      approved_by,completed_at FROM training_requests'''
+    params = []
+    if state:
+        sql += ' WHERE state=%s'
+        params.append(state)
+    rows = await asyncio.to_thread(q, sql + ' ORDER BY created_at DESC LIMIT 500', params)
+    return {'requests': [{'request_id': r[0], 'branch': r[1], 'trigger_type': r[2], 'state': r[3], 'dataset_query': r[4],
+                          'trigger_evidence': r[5], 'result': r[6], 'created_at': iso(r[7]), 'approved_at': iso(r[8]),
+                          'approved_by': r[9], 'completed_at': iso(r[10])} for r in rows]}
 
 
-def approve_training(request_id):
+@app.post('/v1/training/requests')
+async def training_create(request: Request):
+    """Manual trigger (operator): {"branch": "host_ml"|"host_dl", "reason": "...", "dataset_query": {...}}"""
+    require_admin(request)
+    p = await json_body(request, 64 * 1024)
+    if not isinstance(p, dict) or p.get('branch') not in BRANCHES or not str(p.get('reason', '')).strip():
+        raise HTTPException(422, 'branch and reason are required')
+    rid = canonical_hash(['training.v2', p['branch'], 'manual', datetime.now(timezone.utc).isoformat()])
+    await asyncio.to_thread(q_exec, '''INSERT INTO training_requests(request_id,branch,trigger_type,dataset_query,trigger_evidence)
+      VALUES (%s,%s,'manual',%s,%s)''', (rid, p['branch'], Jsonb(p.get('dataset_query', {})), Jsonb({'reason': p['reason']})))
+    return {'request_id': rid, 'state': 'pending_approval'}
+
+
+def q_exec(sql, params):
     with db_connect() as conn:
-        row = conn.execute('SELECT state FROM training_requests WHERE request_id=%s FOR UPDATE',
-                           (request_id,)).fetchone()
+        conn.execute(sql, params)
+
+
+def approve_training(request_id, approved_by):
+    with db_connect() as conn:
+        row = conn.execute('SELECT state FROM training_requests WHERE request_id=%s FOR UPDATE', (request_id,)).fetchone()
         if not row:
             return 'missing'
-        if row[0] == 'pending_approval':
-            conn.execute("UPDATE training_requests SET state='approved',approved_at=now() WHERE request_id=%s",
-                         (request_id,))
-            return 'approved'
-        return row[0]
+        if row[0] != 'pending_approval':
+            return row[0]
+        conn.execute('''UPDATE training_requests SET state='approved',approved_at=now(),approved_by=%s WHERE request_id=%s''',
+                     (approved_by, request_id))
+    return 'approved'
 
 
 @app.post('/v1/training/requests/{request_id}/approve')
 async def training_approve(request_id: str, request: Request):
     require_admin(request)
-    state = await asyncio.to_thread(approve_training, request_id)
+    p = await json_body(request, 64 * 1024)
+    who = p.get('approved_by') if isinstance(p, dict) else None
+    if not isinstance(who, str) or not who.strip():
+        raise HTTPException(422, 'approved_by is required')
+    state = await asyncio.to_thread(approve_training, request_id, who[:256])
     if state == 'missing':
         raise HTTPException(404, 'training request not found')
-    return {'request_id': request_id, 'state': state,
-            'note': 'approval does not run a notebook; an external runner must claim it'}
+    return {'request_id': request_id, 'state': state, 'note': 'the IL service claims approved requests'}
 
 
-def claim_training(request_id, runner_id):
+def register_model(manifest, mlflow_info):
+    required = ('bundle_id', 'branch', 'algorithm', 'domain_validation', 'artifacts', 'parity', 'activation')
+    if any(k not in manifest for k in required):
+        raise ContractError('incomplete bundle manifest')
+    if manifest['branch'] not in BRANCHES:
+        raise ContractError('unsupported model branch')
+    digest = canonical_hash(manifest)
     with db_connect() as conn:
-        row = conn.execute('SELECT state FROM training_requests WHERE request_id=%s FOR UPDATE', (request_id,)).fetchone()
-        if not row:
-            return 'missing'
-        if row[0] != 'approved':
-            return row[0]
-        conn.execute("UPDATE training_requests SET state='running', trigger_evidence = jsonb_set(COALESCE(trigger_evidence, '{}'::jsonb), '{claimed_by}', %s) WHERE request_id=%s",
-                     (Jsonb(runner_id), request_id))
-    return 'running'
+        existing = conn.execute('SELECT manifest_sha256 FROM model_registry WHERE bundle_id=%s', (manifest['bundle_id'],)).fetchone()
+        if existing and not hmac.compare_digest(existing[0], digest):
+            raise ContractError('bundle_id is immutable; publish a new bundle ID')
+        conn.execute('''INSERT INTO model_registry(bundle_id,branch,algorithm,manifest_sha256,manifest,stage,domain_validation,mlflow)
+          VALUES (%s,%s,%s,%s,%s,'candidate',%s,%s) ON CONFLICT(bundle_id) DO UPDATE SET mlflow=excluded.mlflow''',
+                     (manifest['bundle_id'], manifest['branch'], manifest['algorithm'], digest, Jsonb(manifest),
+                      manifest['domain_validation'], Jsonb(mlflow_info or {})))
+    return digest
 
 
-@app.post('/v1/training/requests/{request_id}/claim')
-async def training_claim(request_id: str, request: Request):
+@app.post('/v1/models')
+async def model_register(request: Request):
     require_admin(request)
-    payload = await json_body(request, 64 * 1024)
-    runner_id = payload.get('runner_id', 'runner-default') if isinstance(payload, dict) else 'runner-default'
-    state = await asyncio.to_thread(claim_training, request_id, str(runner_id))
-    if state == 'missing':
-        raise HTTPException(404, 'training request not found')
-    return {'request_id': request_id, 'state': state}
+    p = await json_body(request)
+    manifest = p.get('manifest', p) if isinstance(p, dict) else None
+    if not isinstance(manifest, dict):
+        raise HTTPException(422, 'manifest must be an object')
+    try:
+        digest = await asyncio.to_thread(register_model, manifest, p.get('mlflow') if 'manifest' in p else None)
+    except ContractError as exc:
+        raise HTTPException(422, str(exc))
+    return {'bundle_id': manifest['bundle_id'], 'manifest_sha256': digest, 'stage': 'candidate'}
 
 
-def complete_training(request_id, bundle_id, metrics):
-    with db_connect() as conn:
-        row = conn.execute('SELECT state FROM training_requests WHERE request_id=%s FOR UPDATE', (request_id,)).fetchone()
-        if not row:
-            return 'missing'
-        conn.execute('''UPDATE training_requests SET state='completed', completed_at=now(),
-          trigger_evidence = jsonb_set(jsonb_set(COALESCE(trigger_evidence, '{}'::jsonb), '{candidate_bundle_id}', %s), '{candidate_metrics}', %s)
-          WHERE request_id=%s''', (Jsonb(bundle_id), Jsonb(metrics), request_id))
-    return 'completed'
-
-
-@app.post('/v1/training/requests/{request_id}/complete')
-async def training_complete(request_id: str, request: Request):
+@app.get('/v1/models')
+async def model_list(request: Request):
     require_admin(request)
-    payload = await json_body(request, 256 * 1024)
-    bundle_id = payload.get('candidate_bundle_id') if isinstance(payload, dict) else None
-    metrics = payload.get('metrics', {}) if isinstance(payload, dict) else {}
-    if not bundle_id:
-        raise HTTPException(422, 'candidate_bundle_id is required')
-    state = await asyncio.to_thread(complete_training, request_id, bundle_id, metrics)
-    if state == 'missing':
-        raise HTTPException(404, 'training request not found')
-    return {'request_id': request_id, 'state': state}
+    return {'models': (await asyncio.to_thread(framework_status_query))['models']}
 
 
-def claim_response(request_id, executor_id):
+def activate_model(bundle_id, approved_by):
     with db_connect() as conn:
-        row = conn.execute('SELECT state, alert_id, host_id, action FROM response_requests WHERE request_id=%s FOR UPDATE', (request_id,)).fetchone()
+        row = conn.execute('SELECT branch, manifest FROM model_registry WHERE bundle_id=%s', (bundle_id,)).fetchone()
         if not row:
             return 'missing', None
-        if row[0] != 'approved':
-            return row[0], None
-        conn.execute("UPDATE response_requests SET state='executing', execution = jsonb_set(COALESCE(execution, '{}'::jsonb), '{claimed_by}', %s) WHERE request_id=%s",
-                     (Jsonb(executor_id), request_id))
-    return 'executing', {'alert_id': row[1], 'host_id': row[2], 'action': row[3]}
+        branch, manifest = row
+        if not manifest.get('activation', {}).get('eligible') or manifest.get('parity', {}).get('passed') is not True:
+            return 'blocked', None
+        prev = conn.execute("SELECT bundle_id FROM model_registry WHERE branch=%s AND stage='active' AND bundle_id<>%s",
+                            (branch, bundle_id)).fetchone()
+        prev_id = prev[0] if prev else None
+        if prev_id:
+            conn.execute("UPDATE model_registry SET stage='retired' WHERE bundle_id=%s", (prev_id,))
+        conn.execute("UPDATE model_registry SET stage='active', activated_at=now() WHERE bundle_id=%s", (bundle_id,))
+        conn.execute('''INSERT INTO deployment_rollouts(rollout_id,bundle_id,target,mode,state,details) VALUES (%s,%s,%s,%s,%s,%s)''',
+                     (canonical_hash(['rollout.v2', bundle_id, datetime.now(timezone.utc).isoformat()]), bundle_id, 'all',
+                      'activate', 'pending_deploy', Jsonb({'previous_bundle_id': prev_id, 'approved_by': approved_by})))
+    return 'active', prev_id
 
 
-@app.post('/v1/responses/{request_id}/claim')
-async def response_claim(request_id: str, request: Request):
+@app.post('/v1/models/{bundle_id}/activate')
+async def model_activate(bundle_id: str, request: Request):
     require_admin(request)
-    payload = await json_body(request, 64 * 1024)
-    executor_id = payload.get('executor_id', 'controller-default') if isinstance(payload, dict) else 'controller-default'
-    state, details = await asyncio.to_thread(claim_response, request_id, str(executor_id))
+    p = await json_body(request, 64 * 1024)
+    who = p.get('approved_by') if isinstance(p, dict) else None
+    if not isinstance(who, str) or not who.strip():
+        raise HTTPException(422, 'approved_by is required')
+    state, prev = await asyncio.to_thread(activate_model, bundle_id, who[:256])
     if state == 'missing':
-        raise HTTPException(404, 'response request not found')
-    return {'request_id': request_id, 'state': state, 'details': details}
-
-
-def complete_response(request_id, execution_details):
-    with db_connect() as conn:
-        row = conn.execute('SELECT state FROM response_requests WHERE request_id=%s FOR UPDATE', (request_id,)).fetchone()
-        if not row:
-            return 'missing'
-        conn.execute("UPDATE response_requests SET state='completed', execution = %s, updated_at=now() WHERE request_id=%s",
-                     (Jsonb(execution_details), request_id))
-    return 'completed'
-
-
-@app.post('/v1/responses/{request_id}/complete')
-async def response_complete(request_id: str, request: Request):
-    require_admin(request)
-    payload = await json_body(request, 128 * 1024)
-    details = payload.get('execution', {}) if isinstance(payload, dict) else {}
-    state = await asyncio.to_thread(complete_response, request_id, details)
-    if state == 'missing':
-        raise HTTPException(404, 'response request not found')
-    return {'request_id': request_id, 'state': state}
-
-
-def fail_response(request_id, error_details):
-    with db_connect() as conn:
-        row = conn.execute('SELECT state FROM response_requests WHERE request_id=%s FOR UPDATE', (request_id,)).fetchone()
-        if not row:
-            return 'missing'
-        conn.execute("UPDATE response_requests SET state='failed', execution = %s, updated_at=now() WHERE request_id=%s",
-                     (Jsonb(error_details), request_id))
-    return 'failed'
-
-
-@app.post('/v1/responses/{request_id}/fail')
-async def response_fail(request_id: str, request: Request):
-    require_admin(request)
-    payload = await json_body(request, 128 * 1024)
-    details = payload.get('error', {}) if isinstance(payload, dict) else {}
-    state = await asyncio.to_thread(fail_response, request_id, details)
-    if state == 'missing':
-        raise HTTPException(404, 'response request not found')
-    return {'request_id': request_id, 'state': state}
-
-
-SOC_HTML = '''<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>KLTN SOC Analyst Workspace</title>
-<style>
-:root{--primary:#1e40af;--bg:#f8fafc;--card:#ffffff;--border:#e2e8f0;--text:#0f172a;--text-muted:#64748b;--danger:#dc2626;--warning:#d97706;--success:#16a34a;--info:#0284c7}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:1.5rem}
-.header{display:flex;justify-content:space-between;align-items:center;background:var(--card);padding:1rem 1.5rem;border-radius:.5rem;border:1px solid var(--border);margin-bottom:1.5rem}
-.header h1{font-size:1.4rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
-.auth-bar{display:flex;align-items:center;gap:.75rem}
-input,select,textarea{padding:.5rem .75rem;border:1px solid var(--border);border-radius:.375rem;font-size:.9rem}
-button{padding:.5rem 1rem;background:var(--primary);color:#fff;border:none;border-radius:.375rem;cursor:pointer;font-weight:600;font-size:.9rem;transition:opacity .15s}
-button:hover{opacity:.9}
-.btn-success{background:var(--success)}.btn-warning{background:var(--warning)}.btn-secondary{background:var(--text-muted)}
-.btn-sm{padding:.3rem .6rem;font-size:.8rem}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
-.stat-card{background:var(--card);padding:1rem;border-radius:.5rem;border:1px solid var(--border);text-align:center}
-.stat-val{font-size:1.8rem;font-weight:700;color:var(--primary)}
-.stat-lbl{font-size:.8rem;color:var(--text-muted);text-transform:uppercase}
-.layout{display:grid;grid-template-columns:42% 58%;gap:1.5rem;align-items:start}
-.panel{background:var(--card);border-radius:.5rem;border:1px solid var(--border);padding:1rem;max-height:calc(100vh - 220px);overflow-y:auto}
-.panel-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-th,td{padding:.6rem .75rem;border-bottom:1px solid var(--border);text-align:left}
-th{background:#f1f5f9;color:var(--text-muted);font-weight:600}
-tr.clickable{cursor:pointer}tr.clickable:hover{background:#f8fafc}
-tr.selected{background:#eff6ff;border-left:3px solid var(--primary)}
-.badge{padding:.2rem .5rem;border-radius:1rem;font-size:.75rem;font-weight:700;display:inline-block}
-.badge-critical{background:#fee2e2;color:#b91c1c}.badge-high{background:#fef3c7;color:#b45309}.badge-medium{background:#e0f2fe;color:#0369a1}
-.badge-state{background:#f1f5f9;color:var(--text-muted)}.badge-confirmed{background:#dcfce7;color:#15803d}.badge-fp{background:#fee2e2;color:#b91c1c}
-.card-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
-.sub-card{background:#f8fafc;padding:.75rem;border-radius:.375rem;border:1px solid var(--border)}
-.sub-card-title{font-weight:700;font-size:.85rem;margin-bottom:.3rem;color:var(--primary)}
-.timeline{list-style:none;margin-top:.75rem;padding-left:1rem;border-left:2px solid var(--border)}
-.timeline-item{position:relative;margin-bottom:1rem}
-.timeline-item::before{content:"";position:absolute;left:-1.35rem;top:.2rem;width:.6rem;height:.6rem;border-radius:50%;background:var(--primary)}
-.timeline-time{font-size:.75rem;color:var(--text-muted)}
-.action-box{margin-top:1.5rem;padding:1rem;background:#f8fafc;border-radius:.5rem;border:1px solid var(--border)}
-.evidence-box{background:#0f172a;color:#e2e8f0;padding:.75rem;border-radius:.375rem;font-family:monospace;font-size:.8rem;max-height:200px;overflow-y:auto;white-space:pre-wrap;margin-top:.5rem}
-</style>
-</head>
-<body>
-<div class="header">
-  <h1>🛡️ KLTN Unified SOC Portal</h1>
-  <div class="auth-bar">
-    <input id="token" type="password" placeholder="Admin Bearer Token" size="32" autocomplete="off">
-    <button onclick="loadAlerts()">Load Alerts</button>
-    <a href="/v1/soc/verified-dataset" target="_blank" style="text-decoration:none"><button class="btn-secondary" type="button">Export Verified Dataset</button></a>
-  </div>
-</div>
-
-<div class="stats-row">
-  <div class="stat-card"><div class="stat-val" id="stat-total">0</div><div class="stat-lbl">Total Alerts</div></div>
-  <div class="stat-card"><div class="stat-val" id="stat-pending">0</div><div class="stat-lbl">Needs Review</div></div>
-  <div class="stat-card"><div class="stat-val" id="stat-confirmed" style="color:var(--danger)">0</div><div class="stat-lbl">Confirmed Attacks</div></div>
-  <div class="stat-card"><div class="stat-val" id="stat-fp" style="color:var(--success)">0</div><div class="stat-lbl">False Positives</div></div>
-</div>
-
-<div class="layout">
-  <div class="panel">
-    <div class="panel-title">
-      <span>Alert Queue</span>
-      <select id="stateFilter" onchange="filterAlerts()" style="font-size:.8rem;padding:.2rem .4rem">
-        <option value="">All States</option>
-        <option value="needs_review">Needs Review</option>
-        <option value="confirmed">Confirmed</option>
-        <option value="false_positive">False Positive</option>
-        <option value="dismissed">Dismissed</option>
-      </select>
-    </div>
-    <table>
-      <thead><tr><th>Time</th><th>Host</th><th>Risk</th><th>Severity</th><th>State</th></tr></thead>
-      <tbody id="alertRows"><tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Enter token and click Load Alerts</td></tr></tbody>
-    </table>
-  </div>
-
-  <div class="panel" id="detailPanel">
-    <div class="panel-title"><span>Evidence & Review Drill-down</span><span id="selectedAlertId" style="font-size:.8rem;font-weight:400;color:var(--text-muted)"></span></div>
-    <div id="detailContent" style="color:var(--text-muted);text-align:center;padding:3rem">Select an alert from the left panel to inspect model scores and evidence.</div>
-  </div>
-</div>
-
-<script>
-let allAlerts = [];
-let currentAlert = null;
-
-function getToken(){
-  return document.querySelector('#token').value.trim();
-}
-
-async function loadAlerts(){
-  let t = getToken();
-  if(!t){ alert('Please enter the central admin token'); return; }
-  try{
-    let r = await fetch('/v1/alerts?limit=500', {headers: {Authorization: 'Bearer ' + t}});
-    if(!r.ok){ alert('HTTP ' + r.status + ': Failed to load alerts'); return; }
-    let data = await r.json();
-    allAlerts = data.alerts || [];
-    updateStats();
-    renderAlertTable(allAlerts);
-  }catch(e){ alert('Error loading alerts: ' + e); }
-}
-
-function updateStats(){
-  let total = allAlerts.length;
-  let confirmed = allAlerts.filter(a => a.state === 'confirmed').length;
-  let fp = allAlerts.filter(a => a.state === 'false_positive').length;
-  let pending = allAlerts.filter(a => a.state === 'needs_review' || !a.state).length;
-  document.querySelector('#stat-total').textContent = total;
-  document.querySelector('#stat-confirmed').textContent = confirmed;
-  document.querySelector('#stat-fp').textContent = fp;
-  document.querySelector('#stat-pending').textContent = pending;
-}
-
-function filterAlerts(){
-  let state = document.querySelector('#stateFilter').value;
-  let filtered = state ? allAlerts.filter(a => a.state === state || (!a.state && state==='needs_review')) : allAlerts;
-  renderAlertTable(filtered);
-}
-
-function renderAlertTable(list){
-  let tbody = document.querySelector('#alertRows');
-  if(!list.length){ tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted)">No alerts match filter</td></tr>'; return; }
-  tbody.innerHTML = list.map(a => {
-    let state = a.state || 'needs_review';
-    let sClass = state === 'confirmed' ? 'badge-confirmed' : (state === 'false_positive' ? 'badge-fp' : 'badge-state');
-    let isSel = currentAlert && currentAlert.alert_id === a.alert_id ? 'selected' : '';
-    return `<tr class="clickable ${isSel}" onclick="selectAlert('${a.alert_id}')">
-      <td>${a.created_at.slice(11,19)}</td>
-      <td>${a.host_id}</td>
-      <td><strong>${(a.risk_score || 0).toFixed(4)}</strong></td>
-      <td><span class="badge badge-${a.severity}">${a.severity}</span></td>
-      <td><span class="badge ${sClass}">${state}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-async function selectAlert(alertId){
-  let t = getToken();
-  let r = await fetch('/v1/alerts/' + alertId, {headers: {Authorization: 'Bearer ' + t}});
-  if(!r.ok){ alert('Failed to fetch alert details'); return; }
-  currentAlert = await r.json();
-  renderAlertTable(allAlerts);
-  renderDetail();
-}
-
-function renderDetail(){
-  let a = currentAlert;
-  if(!a) return;
-  document.querySelector('#selectedAlertId').textContent = 'ID: ' + a.alert_id.slice(0, 16) + '...';
-  let ev = a.evidence || {};
-  let branches = ev.branches || {};
-  let host = branches.host_ml || {};
-  let net = branches.network_dl || {};
-  let mask = ev.source_mask || {};
-
-  let reviewsHtml = (a.reviews || []).map(r => `
-    <li class="timeline-item">
-      <div><strong>${r.reviewer}</strong> marked as <span class="badge badge-state">${r.decision}</span></div>
-      <div style="margin-top:.2rem;font-size:.85rem">${r.notes || 'No notes provided'}</div>
-      <div class="timeline-time">${r.created_at}</div>
-    </li>
-  `).join('');
-
-  let eventsHtml = (a.events || []).map(e => `
-    <tr>
-      <td>${e.source}</td>
-      <td><strong>${e.event_type}</strong></td>
-      <td>${e.process_path || '-'}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.command_line || (e.network ? JSON.stringify(e.network) : '-')}</td>
-    </tr>
-  `).join('');
-
-  document.querySelector('#detailContent').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-      <div>
-        <h2>Host: ${a.host_id}</h2>
-        <div style="font-size:.8rem;color:var(--text-muted)">Created: ${a.created_at}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:1.4rem;font-weight:700;color:var(--danger)">Risk: ${(a.risk_score || 0).toFixed(4)}</div>
-        <span class="badge badge-${a.severity}">${a.severity}</span>
-        <span class="badge badge-state">State: ${a.state || 'needs_review'}</span>
-      </div>
-    </div>
-
-    <div class="card-grid">
-      <div class="sub-card">
-        <div class="sub-card-title">Host ML (LightGBM)</div>
-        <div>Score: <strong>${host.score !== undefined ? Number(host.score).toFixed(4) : 'N/A'}</strong></div>
-        <div style="font-size:.75rem;color:var(--text-muted)">Bundle: ${host.bundle_id || 'N/A'}</div>
-        <div style="font-size:.75rem">Mask: ${mask.host_ml ? 'Active' : 'Missing'} | Domain: ${host.domain_validation || 'N/A'}</div>
-      </div>
-      <div class="sub-card">
-        <div class="sub-card-title">Network DL (BiLSTM)</div>
-        <div>Score: <strong>${net.score !== undefined ? Number(net.score).toFixed(4) : 'N/A'}</strong></div>
-        <div style="font-size:.75rem;color:var(--text-muted)">Bundle: ${net.bundle_id || 'N/A'}</div>
-        <div style="font-size:.75rem">Mask: ${mask.network_dl ? 'Active' : 'Missing'} | Domain: ${net.domain_validation || 'N/A'}</div>
-      </div>
-    </div>
-
-    <div style="margin-top:1rem">
-      <h3 style="font-size:.95rem;margin-bottom:.5rem">Normalized Telemetry Events (${(a.events || []).length})</h3>
-      <table style="font-size:.8rem">
-        <thead><tr><th>Source</th><th>Event Type</th><th>Process</th><th>Command / Network</th></tr></thead>
-        <tbody>${eventsHtml || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No linked events</td></tr>'}</tbody>
-      </table>
-    </div>
-
-    <div class="action-box">
-      <h3 style="font-size:.95rem;margin-bottom:.5rem">Analyst Review Action</h3>
-      <div style="display:grid;grid-template-columns:1fr 2fr;gap:.5rem;margin-bottom:.5rem">
-        <input id="reviewerInput" placeholder="Reviewer Name (e.g. Analyst_1)">
-        <input id="notesInput" placeholder="Investigation notes / justification">
-      </div>
-      <div style="display:flex;gap:.5rem">
-        <button class="btn-success" onclick="submitReview('confirmed')">✓ Confirmed Incident (Attack)</button>
-        <button class="btn-warning" onclick="submitReview('false_positive')">✗ False Positive (Benign)</button>
-        <button class="btn-secondary" onclick="submitReview('dismissed')">⊘ Dismiss</button>
-      </div>
-    </div>
-
-    <div style="margin-top:1.5rem">
-      <h3 style="font-size:.95rem;margin-bottom:.5rem">Audit History</h3>
-      <ul class="timeline">${reviewsHtml || '<li style="color:var(--text-muted);font-size:.85rem">No reviews recorded yet</li>'}</ul>
-    </div>
-  `;
-}
-
-async function submitReview(decision){
-  if(!currentAlert) return;
-  let reviewer = document.querySelector('#reviewerInput').value.trim();
-  let notes = document.querySelector('#notesInput').value.trim();
-  if(!reviewer){ alert('Please enter Reviewer Name'); return; }
-  let t = getToken();
-  try{
-    let r = await fetch('/v1/alerts/' + currentAlert.alert_id + '/reviews', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + t},
-      body: JSON.stringify({decision: decision, reviewer: reviewer, notes: notes})
-    });
-    if(!r.ok){ alert('HTTP ' + r.status + ': Failed to submit review'); return; }
-    await loadAlerts();
-    await selectAlert(currentAlert.alert_id);
-  }catch(e){ alert('Error submitting review: ' + e); }
-}
-</script>
-</body>
-</html>'''
+        raise HTTPException(404, 'bundle not found')
+    if state == 'blocked':
+        raise HTTPException(409, 'activation blocked: bundle not eligible or parity not passed')
+    return {'bundle_id': bundle_id, 'stage': state, 'previous_bundle_id': prev,
+            'note': 'scripts/deploy_bundles.sh rolls the active bundles out (endpoints, DL worker)'}
 
 
 @app.get('/soc', response_class=HTMLResponse)
 async def soc_dashboard():
-    return SOC_HTML
+    return (Path(__file__).resolve().parent / 'soc.html').read_text()

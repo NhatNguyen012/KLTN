@@ -7,7 +7,7 @@ from pathlib import Path
 import subprocess
 import time
 import yaml
-from prepare_central import ROOT, RUNTIME, hosts, private_write
+from prepare_central import ROOT, RUNTIME, private_write, terraform_hosts
 
 
 def qga(uuid, command):
@@ -100,7 +100,7 @@ if ($need_new) {
 def main():
     cfg = json.loads((RUNTIME / 'secrets.json').read_text())
     groups = {'linux': {'hosts': {}}, 'windows': {'hosts': {}}}
-    for name, node in hosts().items():
+    for name, node in terraform_hosts(ROOT / 'terraform').items():
         identity = node['host_id']
         entry = {'ansible_host': node['address'], 'host_id': identity, 'ingest_token': cfg['hosts'][identity]['token']}
         if node['os_type'] == 'ubuntu':

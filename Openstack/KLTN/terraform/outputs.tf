@@ -61,3 +61,8 @@ output "ansible_hosts" {
     }
   }
 }
+
+output "quarantine_security_group_id" {
+  description = "Security group the response controller swaps a victim's ports to."
+  value       = openstack_networking_secgroup_v2.quarantine.id
+}
