@@ -245,7 +245,7 @@ Chưa chạy tấn công nào, nên mọi alert đều là benign. Chủ lab cho
 - Code trang SOC chạy được trên dữ liệu thật.
 - 36 unit test pass.
 
-**Còn lại (cần người vận hành).** Duyệt 1 yêu cầu `collect_evidence` (ubuntu2) và 1 request training `scheduled`. Đây là phép thử thật cho 2 service systemd; request training dự kiến kết thúc `rejected_insufficient_data`. Việc duyệt phải do người, không phải do chính bên tạo yêu cầu.
+**Hai service systemd (sau khi chuyển sang `single_operator`).** Đã duyệt yêu cầu `collect_evidence` (ubuntu2): xuất xong trong khoảng 5 giây, 87.135 dòng, file chỉ đọc, sha256 khớp ledger. Hai request training (`host_ml`, `host_dl`) kết thúc `rejected_insufficient_data` sau khoảng 4 giây mỗi cái, đúng như dự kiến vì chưa có tấn công nào được xác nhận. 37 unit test pass.
 
 **FP còn lại là drift thật**, không phải lỗi hạ tầng:
 - workload benign trên Ubuntu (ML: lệnh discovery; DL: `curl`);
