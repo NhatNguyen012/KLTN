@@ -19,7 +19,7 @@ variable "windows_image_name" {
 variable "ubuntu_flavor_name" {
   description = "Name of the existing Nova flavor used by the Ubuntu instances."
   type        = string
-  default     = "m1.small"
+  default     = "m1.medium"
 }
 
 variable "windows_flavor" {

@@ -1,12 +1,11 @@
-name: kltn-central
+# KLTN central stack, IL3 deployment (General Architecture, CENTRAL VM). Project name kltn-il3: new volumes, the
+# volumes of the earlier pilot (kltn-central_*) are left untouched.
+name: kltn-il3
 x-app: &app
-  image: kltn-central:pilot
-  build:
-    context: .
-    network: host
+  image: kltn-central:il3
   network_mode: host
   restart: unless-stopped
-  mem_limit: 256m
+  mem_limit: 384m
   cpus: 0.5
   read_only: true
   tmpfs: [/tmp]
@@ -31,7 +30,7 @@ services:
   postgres:
     image: postgres:17-alpine
     network_mode: host
-    command: ['postgres', '-c', 'listen_addresses=127.0.0.1', '-p', '15432', '-c', 'shared_buffers=64MB', '-c', 'max_connections=30']
+    command: ['postgres', '-c', 'listen_addresses=127.0.0.1', '-p', '15432', '-c', 'shared_buffers=256MB', '-c', 'max_connections=60']
     environment:
       POSTGRES_USER: kltn
       POSTGRES_DB: kltn
@@ -44,12 +43,16 @@ services:
       interval: 5s
       retries: 20
     restart: unless-stopped
-    mem_limit: 384m
-    cpus: 0.5
+    mem_limit: 1g
+    cpus: 1
     logging:
       options: {max-size: 10m, max-file: '3'}
   api:
     <<: *app
+    environment:
+      # closed research lab (owner's decision 2026-11-14): the requester may approve their own response request.
+      # Use two_person for any shared deployment. Network actions still require a confirmed SOC review.
+      KLTN_APPROVAL_POLICY: single_operator
     depends_on:
       postgres: {condition: service_healthy}
       nats: {condition: service_started}
@@ -57,42 +60,60 @@ services:
       test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://127.0.0.1:18080/healthz',timeout=3)"]
       interval: 5s
       retries: 20
-  worker:
+  archiver:
     <<: *app
-    command: ['python', 'worker.py']
+    command: ['python', '-u', 'worker.py']
+    depends_on:
+      api: {condition: service_healthy}
+  normalizer:
+    <<: *app
+    command: ['python', '-u', 'normalizer.py']
+    mem_limit: 768m
     depends_on:
       api: {condition: service_healthy}
   framework:
     <<: *app
-    profiles: [framework]
     command: ['python', '-u', 'framework_worker.py']
-    mem_limit: 384m
-    cpus: 0.75
     depends_on:
       api: {condition: service_healthy}
-  dl-prep:
-    profiles: [model-prep]
-    image: kltn-dl:prepared
-    build:
-      context: ../serving/central
-      network: host
+  dl-worker:
+    image: kltn-dl:il3
     network_mode: host
     restart: unless-stopped
     read_only: true
     tmpfs: [/tmp]
-    mem_limit: 1g
+    mem_limit: 2g
     cpus: 2
+    environment:
+      KLTN_DL_BUNDLE: /models/current
+      KLTN_DL_THREADS: '2'
     volumes:
       - ../runtime/dl.json:/run/kltn/dl.json:ro
       - ../runtime/models/dl:/models:ro
     depends_on:
       postgres: {condition: service_healthy}
+      normalizer: {condition: service_started}
     healthcheck:
-      test: ['CMD', 'python', '-c', "import json,time; d=json.load(open('/tmp/dl-health.json')); assert time.time()-d['updated_at'] < 60"]
+      test: ['CMD', 'python', '-c', "import json,time; d=json.load(open('/tmp/dl-health.json')); assert time.time()-d['updated_at'] < 90"]
       interval: 20s
       timeout: 5s
-      start_period: 90s
+      start_period: 120s
       retries: 3
+    logging:
+      options: {max-size: 10m, max-file: '3'}
+  mlflow:
+    image: kltn-mlflow:il3
+    network_mode: host
+    restart: unless-stopped
+    mem_limit: 768m
+    cpus: 1
+    env_file: ../runtime/mlflow.env
+    command: ['mlflow', 'server', '--host', '127.0.0.1', '--port', '15000', '--workers', '1',
+              '--artifacts-destination', '/mlflow/artifacts', '--serve-artifacts']
+    volumes:
+      - ../runtime/mlflow-artifacts:/mlflow/artifacts
+    depends_on:
+      postgres: {condition: service_healthy}
     logging:
       options: {max-size: 10m, max-file: '3'}
   caddy:

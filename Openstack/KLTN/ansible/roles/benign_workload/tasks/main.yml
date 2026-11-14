@@ -1,0 +1,47 @@
+---
+# Benign baseline workload (optional: benign_workload_enabled=true). Builds the normal-behaviour reference of each
+# lab host for drift monitoring and the benign rows of incremental learning.
+- name: Ubuntu benign workload
+  when: inventory_hostname in groups['linux']
+  block:
+    - name: Create the workload user
+      ansible.builtin.user:
+        name: kltn-user
+        shell: /bin/bash
+        create_home: true
+    - name: Install the activity script
+      ansible.builtin.copy:
+        src: kltn-benign-activity.sh
+        dest: /usr/local/bin/kltn-benign-activity
+        mode: '0755'
+    - name: Install the service and timer
+      ansible.builtin.copy:
+        dest: '/etc/systemd/system/{{ item.name }}'
+        mode: '0644'
+        content: '{{ item.content }}'
+      loop:
+        - name: kltn-benign.service
+          content: "[Unit]\nDescription=KLTN benign baseline activity\n[Service]\nType=oneshot\nUser=kltn-user\nExecStart=/usr/local/bin/kltn-benign-activity\n"
+        - name: kltn-benign.timer
+          content: "[Unit]\nDescription=KLTN benign baseline activity\n[Timer]\nOnBootSec=5min\nOnUnitActiveSec=4min\nRandomizedDelaySec=120\n[Install]\nWantedBy=timers.target\n"
+    - name: Enable the timer
+      ansible.builtin.systemd_service:
+        name: kltn-benign.timer
+        enabled: true
+        state: started
+        daemon_reload: true
+- name: Windows benign workload
+  when: inventory_hostname in groups['windows']
+  block:
+    - name: Install the activity script
+      ansible.windows.win_copy:
+        src: benign.ps1
+        dest: C:\KLTN\workload\benign.ps1
+    - name: Schedule it every 10 minutes (idempotent)
+      ansible.windows.win_powershell:
+        script: |
+          $name = 'KLTN benign activity'
+          if (Get-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue) { $Ansible.Changed = $false; return }
+          $action = New-ScheduledTaskAction -Execute 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' -Argument '-File C:\KLTN\workload\benign.ps1'
+          $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(5) -RepetitionInterval (New-TimeSpan -Minutes 10)
+          Register-ScheduledTask -TaskName $name -Action $action -Trigger $trigger -User 'SYSTEM' -RunLevel Limited | Out-Null

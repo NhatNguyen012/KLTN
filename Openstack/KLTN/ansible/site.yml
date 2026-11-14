@@ -9,13 +9,17 @@
       changed_when: false
   roles:
     - role: endpoint_agent
-      when: endpoint_agent_enabled | default(false)
+      when: endpoint_agent_enabled | default(false) | bool
     - linux_sensor
+    - role: benign_workload
+      when: benign_workload_enabled | default(false) | bool
 
 - name: Configure Windows host telemetry
   hosts: windows
   gather_facts: false
   roles:
     - role: endpoint_agent
-      when: endpoint_agent_enabled | default(false)
+      when: endpoint_agent_enabled | default(false) | bool
     - windows_sensor
+    - role: benign_workload
+      when: benign_workload_enabled | default(false) | bool

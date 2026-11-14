@@ -1,86 +1,98 @@
-import importlib.util
-from datetime import datetime, timezone
-from pathlib import Path
 import sys
 import unittest
+from datetime import datetime, timezone
+from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / 'central/app'))
-from framework import ContractError, fuse_scores, validate_score
-from normalization import normalize_record
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'central/app'))
+from framework import (ContractError, FUSION_POLICY, approval_allowed, fuse_bucket, margin, population_stability_index,  # noqa: E402
+                       validate_score, validate_summary)
 
-NORMALIZATION = ROOT / 'serving/endpoint/endpoint_normalization.py'
-spec = importlib.util.spec_from_file_location('endpoint_normalization', NORMALIZATION)
-endpoint_normalization = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(endpoint_normalization)
+T = '2026-11-14T01:00:00+00:00'
 
 
-SYSMON_PROCESS = '''<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
-<System><Provider Name="Microsoft-Windows-Sysmon"/><EventID>1</EventID>
-<TimeCreated SystemTime="2026-11-01T02:03:04.000000Z"/></System><EventData>
-<Data Name="ProcessGuid">{A}</Data><Data Name="ParentProcessGuid">{P}</Data>
-<Data Name="Image">C:\\Windows\\System32\\cmd.exe</Data>
-<Data Name="ParentImage">C:\\Windows\\explorer.exe</Data>
-<Data Name="CommandLine">cmd.exe /c whoami</Data><Data Name="User">LAB\\User</Data>
-</EventData></Event>'''
+def score(**kw):
+    s = {'schema_version': 'score.v1', 'host_id': 'h1', 'branch': 'host_ml', 'bundle_id': 'b', 'event_refs': ['e1'],
+         'window': None, 'status': 'ready_shadow', 'score': 0.9, 'threshold': 0.8, 'prediction': 1,
+         'domain': 'linux-audit', 'domain_validation': 'validated', 'processed_at': T,
+         'evidence': {'event_time': '2026-11-14T00:59:00+00:00'}}
+    s.update(kw)
+    return s
 
 
-class NormalizationTests(unittest.TestCase):
-    def test_sysmon_process_fields_match_endpoint_view(self):
-        raw = {'xml': SYSMON_PROCESS, 'date': 1}
-        record = {'event_id': 'e1', 'host_id': 'h1', 'source': 'sysmon', 'raw': raw}
-        central = normalize_record(record, datetime(2026, 11, 1, tzinfo=timezone.utc))
-        endpoint = endpoint_normalization.normalize_endpoint_event('h1', 'e1', 'sysmon', raw)
-        for key in ('event_type', 'process_id', 'parent_process_id', 'process_path',
-                    'parent_path', 'command_line', 'principal'):
-            self.assertEqual(central[key], endpoint[key])
-        self.assertEqual(central['event_type'], 'PROCESS_START')
-
-
-class ScoreContractTests(unittest.TestCase):
-    def score(self, **changes):
-        value = {
-            'schema_version': 'score.v1', 'host_id': 'h1', 'branch': 'host_ml',
-            'bundle_id': 'bundle-1', 'event_refs': ['event-1'], 'window': None,
-            'status': 'ready_shadow', 'score': 0.8, 'threshold': 0.75,
-            'prediction': 1, 'domain': 'windows-sysmon',
-            'domain_validation': 'shadow_unvalidated',
-            'processed_at': '2026-11-01T00:00:00Z', 'evidence': {},
-        }
-        value.update(changes)
-        return value
-
-    def test_score_identity_and_host_ownership(self):
-        score = validate_score(self.score(), 'h1')
-        self.assertEqual(score['prediction'], 1)
-        self.assertEqual(len(score['score_id']), 64)
+class ScoreContract(unittest.TestCase):
+    def test_host_ownership_and_event_time(self):
+        v = validate_score(score(), 'h1')
+        self.assertEqual(v['event_time'].minute, 59)
         with self.assertRaises(ContractError):
-            validate_score(self.score(host_id='h2'), 'h1')
+            validate_score(score(), 'h2')
 
-    def test_unavailable_is_null_not_benign(self):
-        value = self.score(status='unsupported_domain', score=None, threshold=None, prediction=None)
-        self.assertIsNone(validate_score(value, 'h1')['score'])
+    def test_prediction_must_match_threshold(self):
         with self.assertRaises(ContractError):
-            validate_score(self.score(status='unsupported_domain', score=0.0,
-                                      threshold=None, prediction=0), 'h1')
+            validate_score(score(score=0.5, prediction=1))
 
-    def test_prediction_boundary_is_enforced(self):
+    def test_branches(self):
+        validate_score(score(branch='host_dl', window={'start': T, 'end': '2026-11-14T01:03:00+00:00'}))
         with self.assertRaises(ContractError):
-            validate_score(self.score(score=0.4, prediction=1), 'h1')
+            validate_score(score(branch='network_dl'))
 
-    def test_only_two_detection_branches_are_accepted(self):
-        validate_score(self.score(branch='host_ml'), 'h1')
-        validate_score(self.score(branch='network_dl'), 'h1')
+    def test_unavailable_is_null(self):
+        validate_score(score(status='waiting_for_model', score=None, threshold=None, prediction=None))
         with self.assertRaises(ContractError):
-            validate_score(self.score(branch='provenance'), 'h1')
+            validate_score(score(status='waiting_for_model'))
 
-    def test_fusion_source_mask_preserves_missing_branch(self):
-        row = validate_score(self.score(), 'h1')
-        fused = fuse_scores([row], datetime(2026, 11, 1, tzinfo=timezone.utc))
-        self.assertEqual(set(fused['source_mask']), {'host_ml', 'network_dl'})
-        self.assertTrue(fused['source_mask']['host_ml'])
-        self.assertFalse(fused['source_mask']['network_dl'])
-        self.assertAlmostEqual(fused['risk_score'], 0.8)
+    def test_summary(self):
+        s = validate_summary({'schema_version': 'summary.v1', 'host_id': 'h1', 'bundle_id': 'b', 'domain': 'linux-audit',
+                              'period_start': T, 'period_end': T}, 'h1')
+        self.assertEqual(len(s['summary_id']), 64)
+
+
+class Fusion(unittest.TestCase):
+    def row(self, branch, p, th, pred=None, val='validated', stage=None):
+        return {'score_id': f'{branch}{p}', 'branch': branch, 'bundle_id': 'b', 'status': 'ready_shadow', 'score': p,
+                'threshold': th, 'prediction': int(p >= th) if pred is None else pred, 'domain': 'd', 'domain_validation': val,
+                'event_refs': ['x'], 'score_window': None, 'evidence': {'stage_last': stage},
+                'event_time': datetime(2026, 11, 14, tzinfo=timezone.utc)}
+
+    def test_margin_maps_threshold_to_half(self):
+        self.assertAlmostEqual(margin(0.8, 0.8), 0.5, places=6)
+        self.assertGreater(margin(0.9, 0.8), 0.5)
+
+    def test_single_branch_alerts_exactly_at_its_threshold(self):
+        b = datetime(2026, 11, 14, tzinfo=timezone.utc)
+        self.assertEqual(fuse_bucket('h', b, [self.row('host_ml', 0.95, 0.9)], {})['prediction'], 1)
+        self.assertEqual(fuse_bucket('h', b, [self.row('host_ml', 0.85, 0.9)], {})['prediction'], 0)
+
+    def test_agreement_of_weak_signals_and_severity(self):
+        b = datetime(2026, 11, 14, tzinfo=timezone.utc)
+        weak = fuse_bucket('h', b, [self.row('host_ml', 0.85, 0.9), self.row('host_dl', 0.85, 0.9)], {})
+        self.assertEqual(weak['prediction'], 1)          # two independent near-threshold views
+        both = fuse_bucket('h', b, [self.row('host_ml', 0.99, 0.9), self.row('host_dl', 0.99, 0.9)], {})
+        self.assertEqual(both['severity'], 'critical')
+        stage = fuse_bucket('h', b, [self.row('host_dl', 0.99, 0.9, stage='lateral_movement')], {})
+        self.assertEqual(stage['severity'], 'critical')
+
+    def test_missing_branch_is_not_benign_and_shadow_flag(self):
+        b = datetime(2026, 11, 14, tzinfo=timezone.utc)
+        f = fuse_bucket('h', b, [self.row('host_ml', 0.99, 0.9, val='shadow_unvalidated')], {})
+        self.assertEqual(f['source_mask'], {'host_ml': True, 'host_dl': False})
+        self.assertTrue(f['shadow'])
+        with self.assertRaises(ContractError):
+            fuse_bucket('h', b, [], {})
+
+    def test_policy_and_psi(self):
+        self.assertEqual(FUSION_POLICY['bucket_seconds'], 300)
+        self.assertAlmostEqual(population_stability_index({'a': 1}, {'a': 5}), 0.0)
+        self.assertIsNone(population_stability_index({}, {'a': 1}))
+
+
+
+class ApprovalPolicy(unittest.TestCase):
+    def test_two_person_and_single_operator(self):
+        self.assertFalse(approval_allowed('two_person', 'Alice', ' alice '))
+        self.assertTrue(approval_allowed('two_person', 'alice', 'bob'))
+        self.assertTrue(approval_allowed('single_operator', 'alice', 'Alice'))
+        with self.assertRaises(ContractError):
+            approval_allowed('anyone', 'a', 'b')
 
 
 if __name__ == '__main__':

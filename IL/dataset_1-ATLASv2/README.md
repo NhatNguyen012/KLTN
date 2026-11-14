@@ -1,3 +1,13 @@
+> **Cập nhật 2026-11-12: dọn `code/DL`.** Chỉ còn:
+> - `bilstm_v9/`: BiLSTM chỉ ATLASv2, binary + stage; báo cáo `analyst/dl_bilstm_v9_20261112.md`;
+> - `optc_il/`: incremental learning OpTC → ATLASv2; báo cáo `analyst/dl_optc_il_20261112.md`;
+> - `pretrained_optc_model/`;
+> - `preprocess/build_network_shards.py` (được `bilstm_v9` import).
+>
+> Pipeline DL cũ đã bị gỡ: `model/` (train_local, train_incremental), `notebook/`, `audit/`, `test/`, `script/`, các script preprocess khác. Pipeline này dùng OpTC replay/test **tổng hợp**. Các mục bên dưới nhắc tới nó chỉ còn là lịch sử.
+> - Khôi phục code: `git checkout 2db3e25 -- IL/dataset_1-ATLASv2/code/DL`.
+> - Output cũ (kaggle_input/output, local_output, process_graph, provenance_context, research, repro_check, fixture OpTC tổng hợp) đã được chuyển sang `/mnt/SSD_Data/optc/Temp/archive_IL_DL_20261112/`.
+
 > Latest: [learned process graphs, uncertainty review and ten training trials](analyst/dl_process_graph_20261111.md).
 > The validation-selected research detector reaches 65.6% binary F1 on the original
 > test labels. Stage-presence learning does not solve current-stage classification;

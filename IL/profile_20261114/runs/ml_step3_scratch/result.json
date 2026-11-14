@@ -1,0 +1,134 @@
+{
+ "args": {
+  "out": "/mnt/SSD_Data/optc/IL/profile_20261114/runs/ml_step3_scratch",
+  "config": "ecar_lx",
+  "mode": "scratch",
+  "seed": 1,
+  "rounds": 300,
+  "threads": 10,
+  "neg_per_pos": 30,
+  "optc_rep": "12500,25000",
+  "atlas_rep": 37500,
+  "no_replay": false,
+  "rep_pos_alpha": 0.5
+ },
+ "info": {
+  "sl700_rows": 344271,
+  "sl700_pos": 33752,
+  "scale_pos_weight": 9.200017776724343
+ },
+ "width": 21487,
+ "sl700": {
+  "val_f1": 0.9976639712488768,
+  "test": {
+   "threshold": 0.6368337418528945,
+   "tp": 8326,
+   "fp": 37,
+   "fn": 52,
+   "precision": 0.9955757503288294,
+   "recall": 0.9937932680830747,
+   "f1": 0.9946837106504988,
+   "ap": 0.9991719071848567
+  },
+  "test_by_kind": {
+   "auth": {
+    "attack": 30,
+    "tp": 16,
+    "fp": 2
+   },
+   "filemod": {
+    "attack": 7,
+    "tp": 0,
+    "fp": 0
+   },
+   "fileread": {
+    "attack": 92,
+    "tp": 87,
+    "fp": 2
+   },
+   "privchange": {
+    "attack": 12,
+    "tp": 3,
+    "fp": 0
+   },
+   "procstart": {
+    "attack": 8237,
+    "tp": 8220,
+    "fp": 33
+   }
+  },
+  "test_recall_by_stage": {
+   "1": {
+    "n": 10,
+    "recall": 1.0
+   },
+   "2": {
+    "n": 8350,
+    "recall": 0.994251497005988
+   },
+   "5": {
+    "n": 18,
+    "recall": 0.7777777777777778
+   }
+  },
+  "window_level_test": {
+   "threshold": 0.9664414382659798,
+   "tp": 144,
+   "fp": 12,
+   "fn": 26,
+   "precision": 0.9230769230769231,
+   "recall": 0.8470588235294118,
+   "f1": 0.8834355828220859,
+   "ap": 0.9792794768818158
+  }
+ },
+ "sl700_zero_shot_task1": {
+  "test": {
+   "threshold": 0.08441843915237268,
+   "tp": 6137,
+   "fp": 848,
+   "fn": 2241,
+   "precision": 0.8785969935576234,
+   "recall": 0.7325137264263547,
+   "f1": 0.7989325001627285,
+   "ap": 0.6357003913934316
+  },
+  "window_level_test": {
+   "threshold": 0.11412418832449686,
+   "tp": 129,
+   "fp": 179,
+   "fn": 41,
+   "precision": 0.41883116883116883,
+   "recall": 0.7588235294117647,
+   "f1": 0.5397489539748954,
+   "ap": 0.3052186953226519
+  }
+ },
+ "before_step3": {
+  "atlas_test": {
+   "threshold": 0.94073,
+   "tp": 748,
+   "fp": 10,
+   "fn": 54,
+   "precision": 0.9868073878627969,
+   "recall": 0.9326683291770573,
+   "f1": 0.958974358974359,
+   "ap": 0.9795394541975583
+  },
+  "optc_test": {
+   "threshold": 0.87427,
+   "tp": 40194,
+   "fp": 651,
+   "fn": 116,
+   "precision": 0.9840616966580977,
+   "recall": 0.9971223021582734,
+   "f1": 0.9905489495410018,
+   "ap": 0.9984940656826033
+  },
+  "reproduces_step2_published_confusion": {
+   "atlas": true,
+   "optc": true
+  }
+ },
+ "elapsed_sec": 11
+}

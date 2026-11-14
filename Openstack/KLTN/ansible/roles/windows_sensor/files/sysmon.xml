@@ -1,28 +1,171 @@
 <Sysmon schemaversion="4.90">
-  <HashAlgorithms>SHA256</HashAlgorithms>
+  <!--
+    KLTN model-aligned Sysmon configuration (v3, 2026-11-14), deployed by ansible/roles/windows_sensor.
+    v3: the telemetry pipeline itself (C:\KLTN\agent\, C:\KLTN\packages\fluent-bit\) is excluded from network,
+        DNS and registry events. It shipped its own events in a loop (72 % of all lab Sysmon events, the main driver of
+        the first host-DL false positives) and no training set contained it. This is not an image filter on monitored
+        software: both folders are writable by SYSTEM/Administrators only (windows_sensor ACL) and hold nothing else.
+
+    Event types the two IL models consume on Windows (see IL/README.md):
+      DL  (BiLSTM, ATLASv2 / CBC-EDR contract): procstart (1), netconn (3), crossproc (8, 10), filemod (11, 26)
+      ML  (LightGBM, Base OpTC eCAR contract):  process (1, 5), file (11, 26), registry (12-14), module (7),
+                                                process/thread access (8, 10 with sensitive rights); flows (3) only feed has_netconn
+    Rules:
+      * never filter an event type by process image: an image filter turns the event type into a shortcut
+        (found for EID 3 with the SwiftOnSecurity config in AInception SL300); filter only by object
+        (file extension, registry key, unsigned/user-writable module). Sole exception: the KLTN pipeline (v3);
+      * file events keep the extensions the ATLASv2 DL contract keeps (bilstm_v9/parse_events.py FILEMOD_EXT)
+        plus the Startup folder;
+      * changing this file changes the input distribution of deployed models: bump the version and re-validate.
+  -->
+  <HashAlgorithms>SHA256,IMPHASH</HashAlgorithms>
+  <CheckRevocation>False</CheckRevocation>
   <EventFiltering>
-    <RuleGroup name="Process lifecycle" groupRelation="or">
+    <!-- 1: every process creation -->
+    <RuleGroup name="ProcessCreate all" groupRelation="or">
       <ProcessCreate onmatch="exclude" />
+    </RuleGroup>
+    <!-- 5: every termination (process lifetime, PID reuse) -->
+    <RuleGroup name="ProcessTerminate all" groupRelation="or">
       <ProcessTerminate onmatch="exclude" />
     </RuleGroup>
-    <RuleGroup name="Selected filesystem" groupRelation="or">
+    <!-- 3: every network connection (DL netconn; ML has_netconn context) -->
+    <RuleGroup name="NetworkConnect all but the KLTN pipeline" groupRelation="or">
+      <NetworkConnect onmatch="exclude">
+        <Image condition="begin with">C:\KLTN\agent\</Image>
+        <Image condition="begin with">C:\KLTN\packages\fluent-bit\</Image>
+      </NetworkConnect>
+    </RuleGroup>
+    <!-- 8: every remote thread (ML thread/remote_create, DL crossproc) -->
+    <RuleGroup name="CreateRemoteThread all" groupRelation="or">
+      <CreateRemoteThread onmatch="exclude" />
+    </RuleGroup>
+    <!-- 10: process access with injection / memory / dump rights, and any access to lsass (CBC crossproc
+         analogue; ML process/open). Unfiltered EID 10 is thousands of events per minute on Windows 11 and would
+         drown the 512-event DL chunks; the filter is on the access (object side), never on the source image. -->
+    <RuleGroup name="ProcessAccess sensitive rights" groupRelation="or">
+      <ProcessAccess onmatch="include">
+        <TargetImage condition="end with">\lsass.exe</TargetImage>
+        <GrantedAccess condition="is">0x1FFFFF</GrantedAccess>
+        <GrantedAccess condition="is">0x1F0FFF</GrantedAccess>
+        <GrantedAccess condition="is">0x1F1FFF</GrantedAccess>
+        <GrantedAccess condition="is">0x1F2FFF</GrantedAccess>
+        <GrantedAccess condition="is">0x1F3FFF</GrantedAccess>
+        <GrantedAccess condition="is">0x143A</GrantedAccess>
+        <GrantedAccess condition="is">0x1438</GrantedAccess>
+        <GrantedAccess condition="is">0x147A</GrantedAccess>
+        <GrantedAccess condition="is">0x1410</GrantedAccess>
+        <GrantedAccess condition="is">0x1010</GrantedAccess>
+        <GrantedAccess condition="is">0x0040</GrantedAccess>
+        <GrantedAccess condition="is">0x0020</GrantedAccess>
+        <GrantedAccess condition="is">0x0028</GrantedAccess>
+        <GrantedAccess condition="is">0x002A</GrantedAccess>
+        <GrantedAccess condition="is">0x003A</GrantedAccess>
+        <GrantedAccess condition="is">0x0800</GrantedAccess>
+      </ProcessAccess>
+    </RuleGroup>
+    <!-- 11: file creation of the DL-contract extensions and autostart folders -->
+    <RuleGroup name="FileCreate contract extensions" groupRelation="or">
       <FileCreate onmatch="include">
-        <TargetFilename condition="begin with">C:\KLTN\workload\</TargetFilename>
+        <TargetFilename condition="end with">.exe</TargetFilename>
+        <TargetFilename condition="end with">.dll</TargetFilename>
+        <TargetFilename condition="end with">.ps1</TargetFilename>
+        <TargetFilename condition="end with">.bat</TargetFilename>
+        <TargetFilename condition="end with">.cmd</TargetFilename>
+        <TargetFilename condition="end with">.vbs</TargetFilename>
+        <TargetFilename condition="end with">.js</TargetFilename>
+        <TargetFilename condition="end with">.hta</TargetFilename>
+        <TargetFilename condition="end with">.sct</TargetFilename>
+        <TargetFilename condition="end with">.zip</TargetFilename>
+        <TargetFilename condition="end with">.rar</TargetFilename>
+        <TargetFilename condition="end with">.7z</TargetFilename>
+        <TargetFilename condition="end with">.doc</TargetFilename>
+        <TargetFilename condition="end with">.docx</TargetFilename>
+        <TargetFilename condition="end with">.xls</TargetFilename>
+        <TargetFilename condition="end with">.xlsx</TargetFilename>
+        <TargetFilename condition="end with">.rtf</TargetFilename>
+        <TargetFilename condition="end with">.html</TargetFilename>
+        <TargetFilename condition="end with">.htm</TargetFilename>
+        <TargetFilename condition="end with">.pdf</TargetFilename>
         <TargetFilename condition="contains">\Start Menu\Programs\Startup\</TargetFilename>
+        <TargetFilename condition="begin with">C:\KLTN\workload\</TargetFilename>
       </FileCreate>
+    </RuleGroup>
+    <!-- 26: deletions of the same objects (no archiving, no disk growth) -->
+    <RuleGroup name="FileDeleteDetected contract extensions" groupRelation="or">
       <FileDeleteDetected onmatch="include">
+        <TargetFilename condition="end with">.exe</TargetFilename>
+        <TargetFilename condition="end with">.dll</TargetFilename>
+        <TargetFilename condition="end with">.ps1</TargetFilename>
+        <TargetFilename condition="end with">.bat</TargetFilename>
+        <TargetFilename condition="end with">.cmd</TargetFilename>
+        <TargetFilename condition="end with">.vbs</TargetFilename>
+        <TargetFilename condition="end with">.js</TargetFilename>
+        <TargetFilename condition="end with">.hta</TargetFilename>
+        <TargetFilename condition="end with">.sct</TargetFilename>
+        <TargetFilename condition="end with">.zip</TargetFilename>
+        <TargetFilename condition="end with">.rar</TargetFilename>
+        <TargetFilename condition="end with">.7z</TargetFilename>
+        <TargetFilename condition="end with">.doc</TargetFilename>
+        <TargetFilename condition="end with">.docx</TargetFilename>
+        <TargetFilename condition="end with">.xls</TargetFilename>
+        <TargetFilename condition="end with">.xlsx</TargetFilename>
+        <TargetFilename condition="end with">.rtf</TargetFilename>
+        <TargetFilename condition="end with">.html</TargetFilename>
+        <TargetFilename condition="end with">.htm</TargetFilename>
+        <TargetFilename condition="end with">.pdf</TargetFilename>
         <TargetFilename condition="begin with">C:\KLTN\workload\</TargetFilename>
       </FileDeleteDetected>
     </RuleGroup>
-    <RuleGroup name="Selected persistence" groupRelation="or">
+    <!-- 12-14: registry objects with security meaning (autostart, services, injection points, policies) -->
+    <RuleGroup name="Registry security objects" groupRelation="or">
       <RegistryEvent onmatch="include">
         <TargetObject condition="contains">\CurrentVersion\Run</TargetObject>
-        <TargetObject condition="contains">\Services\</TargetObject>
+        <TargetObject condition="contains">\Policies\Explorer\Run</TargetObject>
+        <TargetObject condition="contains">\CurrentVersion\Winlogon\</TargetObject>
+        <TargetObject condition="contains">\Image File Execution Options\</TargetObject>
+        <TargetObject condition="contains">\SilentProcessExit\</TargetObject>
+        <TargetObject condition="contains">\CurrentControlSet\Services\</TargetObject>
+        <TargetObject condition="contains">\Schedule\TaskCache\</TargetObject>
+        <TargetObject condition="contains">\Windows NT\CurrentVersion\Windows\AppInit_DLLs</TargetObject>
+        <TargetObject condition="contains">\Control\Session Manager\</TargetObject>
+        <TargetObject condition="contains">\Control\Lsa\</TargetObject>
+        <TargetObject condition="contains">\Control\SecurityProviders\</TargetObject>
+        <TargetObject condition="contains">\Control\Print\Monitors\</TargetObject>
+        <TargetObject condition="contains">\Microsoft\Netsh\</TargetObject>
+        <TargetObject condition="contains">\Software\Classes\CLSID\</TargetObject>
+        <TargetObject condition="contains">\Explorer\Shell Folders</TargetObject>
+        <TargetObject condition="contains">\Explorer\User Shell Folders</TargetObject>
+        <TargetObject condition="contains">\Policies\Microsoft\Windows Defender\</TargetObject>
+        <TargetObject condition="contains">\Microsoft\Windows Defender\</TargetObject>
+        <TargetObject condition="contains">\Environment\</TargetObject>
+        <TargetObject condition="contains">\Terminal Server\</TargetObject>
       </RegistryEvent>
     </RuleGroup>
-    <RuleGroup name="No network collection" groupRelation="or">
-      <NetworkConnect onmatch="include" />
-      <DnsQuery onmatch="include" />
+    <!-- exclude wins over include: registry opens of the KLTN pipeline (Winsock reads Tcpip parameters per connect) -->
+    <RuleGroup name="Registry not the KLTN pipeline" groupRelation="or">
+      <RegistryEvent onmatch="exclude">
+        <Image condition="begin with">C:\KLTN\agent\</Image>
+        <Image condition="begin with">C:\KLTN\packages\fluent-bit\</Image>
+      </RegistryEvent>
+    </RuleGroup>
+    <!-- 7: unsigned modules and modules from user-writable locations (signed system loads are noise) -->
+    <RuleGroup name="ImageLoad unsigned or user-writable" groupRelation="or">
+      <ImageLoad onmatch="include">
+        <Signed condition="is">false</Signed>
+        <ImageLoaded condition="contains">\AppData\</ImageLoaded>
+        <ImageLoaded condition="contains">\Temp\</ImageLoaded>
+        <ImageLoaded condition="contains">\Users\Public\</ImageLoaded>
+        <ImageLoaded condition="contains">\ProgramData\</ImageLoaded>
+        <ImageLoaded condition="contains">\Downloads\</ImageLoaded>
+      </ImageLoad>
+    </RuleGroup>
+    <!-- 22: every DNS query (central correlation; netconn domain) -->
+    <RuleGroup name="DnsQuery all but the KLTN pipeline" groupRelation="or">
+      <DnsQuery onmatch="exclude">
+        <Image condition="begin with">C:\KLTN\agent\</Image>
+        <Image condition="begin with">C:\KLTN\packages\fluent-bit\</Image>
+      </DnsQuery>
     </RuleGroup>
   </EventFiltering>
 </Sysmon>

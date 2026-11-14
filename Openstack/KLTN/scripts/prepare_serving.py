@@ -1,58 +1,52 @@
 #!/usr/bin/env python3
-"""Create the restricted DL role and durable inference tables.
+"""Database roles and host inventory for the IL3 stack (additive, idempotent; never deletes telemetry).
 
-The migration is additive and never deletes archived telemetry.  A model-free
-worker may stage references; a validated bundle may additionally write its own
-scores and complete only jobs it owns.
+* kltn_dl: the DL worker reads host events and writes only its own scores / cursors / status;
+* mlflow: owner of the `mlflow` database (MLflow backend store);
+* hosts: inventory mirror (name, OS, model domain, address) from runtime/secrets.json, used by the normalizer,
+  the SOC page and the response controller.
+Runs inside the api container (it has the DB credentials), passwords are passed on stdin.
 """
 import json
-from pathlib import Path
-import secrets
 import subprocess
-from prepare_central import ROOT, RUNTIME, private_write
+
+from prepare_central import ROOT, RUNTIME
 
 MIGRATION = r'''
-import json,sys
+import json, sys
 from psycopg import sql
-from common import db_connect
-cfg=json.load(sys.stdin)
+from psycopg.types.json import Jsonb
+from common import DDL, db_connect
+cfg = json.load(sys.stdin)
 with db_connect() as db:
-    if not db.execute("SELECT 1 FROM pg_roles WHERE rolname='kltn_dl'").fetchone():
-        db.execute(sql.SQL("CREATE ROLE kltn_dl LOGIN PASSWORD {}").format(sql.Literal(cfg['password'])))
-    else:
-        db.execute(sql.SQL("ALTER ROLE kltn_dl PASSWORD {}").format(sql.Literal(cfg['password'])))
-    db.execute("""CREATE TABLE IF NOT EXISTS dl_jobs (
-      event_id TEXT NOT NULL REFERENCES events(event_id),
-      pipeline_version TEXT NOT NULL, state TEXT NOT NULL DEFAULT 'waiting_for_model',
-      created_at TIMESTAMPTZ NOT NULL DEFAULT now(), claimed_at TIMESTAMPTZ,
-      completed_at TIMESTAMPTZ, score_id TEXT,
-      PRIMARY KEY(event_id,pipeline_version));
-      ALTER TABLE dl_jobs ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMPTZ;
-      ALTER TABLE dl_jobs ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
-      ALTER TABLE dl_jobs ADD COLUMN IF NOT EXISTS score_id TEXT;
-      CREATE TABLE IF NOT EXISTS serving_status (
-      service TEXT PRIMARY KEY, updated_at TIMESTAMPTZ NOT NULL, state TEXT NOT NULL,
-      pending BIGINT NOT NULL, runtime JSONB NOT NULL);
-      GRANT CONNECT ON DATABASE kltn TO kltn_dl;
-      GRANT USAGE ON SCHEMA public TO kltn_dl;
-      GRANT SELECT ON events TO kltn_dl;
-      GRANT SELECT ON normalized_events TO kltn_dl;
-      GRANT SELECT,INSERT ON scores TO kltn_dl;
-      GRANT SELECT,INSERT,UPDATE ON dl_jobs TO kltn_dl;
-      GRANT SELECT,INSERT,UPDATE ON serving_status TO kltn_dl;
-    """)
-print('DL staging/inference schema and restricted role ready.')
+    db.execute(DDL)
+    for role, pw in (("kltn_dl", cfg["dl_password"]), ("mlflow", cfg["mlflow_password"])):
+        verb = "ALTER" if db.execute("SELECT 1 FROM pg_roles WHERE rolname=%s", (role,)).fetchone() else "CREATE"
+        db.execute(sql.SQL(verb + " ROLE {} LOGIN PASSWORD {}").format(sql.Identifier(role), sql.Literal(pw)))
+    db.execute("""GRANT CONNECT ON DATABASE kltn TO kltn_dl; GRANT USAGE ON SCHEMA public TO kltn_dl;
+      GRANT SELECT ON host_events, hosts TO kltn_dl; GRANT SELECT, INSERT ON scores TO kltn_dl;
+      GRANT USAGE ON SEQUENCE scores_seq_seq TO kltn_dl;
+      GRANT SELECT, INSERT, UPDATE ON serving_status, framework_cursors TO kltn_dl;""")
+    for host_id, h in cfg["hosts"].items():
+        os_type = {"ubuntu": "linux"}.get(h.get("os_type"), h.get("os_type") or "unknown")
+        domain = {"linux": "linux-audit", "windows": "windows-sysmon"}.get(os_type, "unknown")
+        db.execute("""INSERT INTO hosts(host_id,name,os,domain,address) VALUES (%s,%s,%s,%s,%s)
+          ON CONFLICT(host_id) DO UPDATE SET name=excluded.name, os=excluded.os, domain=excluded.domain,
+          address=excluded.address, updated_at=now()""", (host_id, h.get("name", host_id), os_type, domain, h.get("address")))
+db = __import__("psycopg").connect(host="127.0.0.1", port=15432, dbname="kltn", user="kltn",
+                                   password=json.load(open("/run/kltn/secrets.json"))["postgres_password"], autocommit=True)
+if not db.execute("SELECT 1 FROM pg_database WHERE datname='mlflow'").fetchone():
+    db.execute("CREATE DATABASE mlflow OWNER mlflow")
+print("roles, grants, hosts and the mlflow database are ready")
 '''
 
 
 def main():
-    p = RUNTIME / 'dl.json'
-    if not p.exists():
-        private_write(p, json.dumps({'password': secrets.token_urlsafe(32)}))
-    (RUNTIME / 'models/dl').mkdir(parents=True, exist_ok=True)
-    subprocess.run(['docker', 'compose', '-f', str(ROOT/'central/compose.yaml'),
-                    'exec', '-T', 'api', 'python', '-c', MIGRATION],
-                   input=p.read_text(), text=True, check=True)
+    secrets = json.loads((RUNTIME / 'secrets.json').read_text())
+    payload = {'dl_password': json.loads((RUNTIME / 'dl.json').read_text())['password'],
+               'mlflow_password': secrets['mlflow_db_password'], 'hosts': secrets['hosts']}
+    subprocess.run(['docker', 'compose', '-f', str(ROOT / 'central/compose.yaml'), 'exec', '-T', 'api', 'python', '-c',
+                    MIGRATION], input=json.dumps(payload), text=True, check=True)
 
 
 if __name__ == '__main__':

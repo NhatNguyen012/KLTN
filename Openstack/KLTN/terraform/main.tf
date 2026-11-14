@@ -175,3 +175,41 @@ resource "openstack_networking_secgroup_rule_v2" "winrm_https" {
   remote_ip_prefix  = var.management_source_cidr
   security_group_id = openstack_networking_secgroup_v2.instance.id
 }
+
+# Quarantine group used by the approval-gated response controller (scripts/response_controller.py). No default
+# egress: a quarantined VM can only send telemetry to the central collector (so evidence keeps flowing) and accept
+# SSH / WinRM / ICMP from the central host for investigation.
+resource "openstack_networking_secgroup_v2" "quarantine" {
+  name                 = "kltn-quarantine"
+  description          = "KLTN quarantine: telemetry egress to central only; management ingress from central only"
+  delete_default_rules = true
+}
+
+resource "openstack_networking_secgroup_rule_v2" "quarantine_telemetry_out" {
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 18443
+  port_range_max    = 18443
+  remote_ip_prefix  = var.management_source_cidr
+  security_group_id = openstack_networking_secgroup_v2.quarantine.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "quarantine_mgmt_in" {
+  for_each          = toset(["22", "5986"])
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = tonumber(each.value)
+  port_range_max    = tonumber(each.value)
+  remote_ip_prefix  = var.management_source_cidr
+  security_group_id = openstack_networking_secgroup_v2.quarantine.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "quarantine_icmp_in" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "icmp"
+  remote_ip_prefix  = var.management_source_cidr
+  security_group_id = openstack_networking_secgroup_v2.quarantine.id
+}

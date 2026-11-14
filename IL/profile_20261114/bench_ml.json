@@ -1,0 +1,20 @@
+{
+ "events": 105606,
+ "width": 21487,
+ "nnz_per_row": 50.4,
+ "model_bytes": {
+  "optc": 1305231,
+  "sl700": 1501971
+ },
+ "threads_1": {
+  "sec": 2.617,
+  "events_per_s": 40356,
+  "us_per_event": 24.78
+ },
+ "threads_10": {
+  "sec": 0.492,
+  "events_per_s": 214742,
+  "us_per_event": 4.66
+ },
+ "max_rss_MiB": 305
+}

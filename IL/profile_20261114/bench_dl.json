@@ -1,0 +1,56 @@
+{
+ "params_total": 282521,
+ "best_pt_bytes": 1144745,
+ "cuda:sl700_test": {
+  "windows": 1681,
+  "events": 620649,
+  "sec": 0.436,
+  "windows_per_s": 3855,
+  "events_per_s": 1423255,
+  "ms_per_window": 0.259,
+  "peak_gpu_alloc_MiB": 314.1
+ },
+ "cuda:atlas_test": {
+  "windows": 2366,
+  "events": 60663,
+  "sec": 0.096,
+  "windows_per_s": 24591,
+  "events_per_s": 630493,
+  "ms_per_window": 0.041,
+  "peak_gpu_alloc_MiB": 108.6
+ },
+ "cuda:optc_test": {
+  "windows": 34413,
+  "events": 12887298,
+  "sec": 6.486,
+  "windows_per_s": 5306,
+  "events_per_s": 1987010,
+  "ms_per_window": 0.188,
+  "peak_gpu_alloc_MiB": 278.2
+ },
+ "cpu:sl700_test": {
+  "windows": 1681,
+  "events": 620649,
+  "sec": 2.89,
+  "windows_per_s": 582,
+  "events_per_s": 214751,
+  "ms_per_window": 1.719
+ },
+ "cpu:atlas_test": {
+  "windows": 2366,
+  "events": 60663,
+  "sec": 0.337,
+  "windows_per_s": 7021,
+  "events_per_s": 180009,
+  "ms_per_window": 0.142
+ },
+ "cpu:optc_test": {
+  "windows": 34413,
+  "events": 12887298,
+  "sec": 43.661,
+  "windows_per_s": 788,
+  "events_per_s": 295168,
+  "ms_per_window": 1.269
+ },
+ "max_rss_MiB": 4076
+}

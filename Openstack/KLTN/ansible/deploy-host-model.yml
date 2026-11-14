@@ -1,54 +1,91 @@
 ---
-# Explicit rollout playbook. Example:
-# ansible-playbook deploy-host-model.yml -e host_model_bundle=/absolute/release/path
-- name: Validate the immutable Host ML release on the controller
-  hosts: windows
+# Roll a verified host-ML bundle out to the endpoints (Ubuntu and Windows).
+#   ansible-playbook deploy-host-model.yml -e host_model_bundle=/abs/path/runtime/releases/host-ml-il3-<tag> \
+#     [-e agent_mode=ready_shadow|ready_active] [--limit kltn-ubuntu-1]
+# The agent re-verifies checksums, runtime-code hashes and re-runs the bundle fixtures before it serves; readiness
+# is asserted per host. ready_active only takes effect for domains the manifest marks validated (else shadow).
+- name: Verify the bundle on the controller
+  hosts: localhost
   gather_facts: false
-  any_errors_fatal: true
-  pre_tasks:
-    - name: Require an explicit controller bundle path
+  tasks:
+    - name: Require an explicit bundle path
+      ansible.builtin.assert:
+        that: [host_model_bundle is defined, host_model_bundle | length > 0]
+    - name: Verify hashes, branch, parity and eligibility
+      ansible.builtin.command:
+        argv: [python3, '{{ playbook_dir }}/../scripts/verify_model_bundle.py', '{{ host_model_bundle }}',
+               --branch, host_ml, --require-eligible]
+      changed_when: false
+
+- name: Roll out to Ubuntu endpoints
+  hosts: linux
+  become: true
+  gather_facts: false
+  vars:
+    manifest: "{{ lookup('ansible.builtin.file', host_model_bundle ~ '/manifest.json') | from_json }}"
+    release: '/opt/kltn-agent/models/releases/{{ manifest.bundle_id }}'
+  tasks:
+    - name: Copy the release bytes
+      ansible.builtin.copy:
+        src: '{{ host_model_bundle }}/'
+        dest: '{{ release }}/'
+        owner: root
+        group: kltn-agent
+        mode: u=rwX,g=rX,o=
+    - name: Point the agent to the release (model.json survives re-provisioning)
+      ansible.builtin.copy:
+        dest: /etc/kltn-agent/model.json
+        content: '{{ {"bundle_path": release, "mode": agent_mode | default("ready_shadow")} | to_json }}'
+        owner: root
+        group: kltn-agent
+        mode: '0640'
+      register: cfg
+    - name: Restart the agent
+      ansible.builtin.systemd_service:
+        name: kltn-agent
+        state: restarted
+      when: cfg.changed
+    - name: Wait for the self-tested model
+      ansible.builtin.uri:
+        url: http://127.0.0.1:18081/readyz
+        return_content: true
+      register: ready
+      until: ready.status == 200
+      retries: 24
+      delay: 5
+    - name: Assert bundle and domain
       ansible.builtin.assert:
         that:
-          - host_model_bundle is defined
-          - host_model_bundle | length > 0
-    - name: Verify hashes, branch, parity and domain eligibility
-      ansible.builtin.command:
-        argv:
-          - python3
-          - '{{ playbook_dir }}/../scripts/verify_model_bundle.py'
-          - '{{ host_model_bundle }}'
-          - --branch
-          - host_ml
-          - --require-eligible
-      delegate_to: localhost
-      become: false
-      changed_when: false
-      run_once: true
-    - name: Read the verified manifest
-      ansible.builtin.set_fact:
-        host_bundle_manifest: "{{ lookup('ansible.builtin.file', host_model_bundle ~ '/manifest.json') | from_json }}"
+          - ready.json.bundle_id == manifest.bundle_id
+          - ready.json.domain == 'linux-audit'
+          - ready.json.self_test.passed
+
+- name: Roll out to Windows endpoints
+  hosts: windows
+  gather_facts: false
+  vars:
+    manifest: "{{ lookup('ansible.builtin.file', host_model_bundle ~ '/manifest.json') | from_json }}"
+    release: 'C:\KLTN\agent\models\releases\{{ manifest.bundle_id }}'
   tasks:
-    - name: Create immutable release directory
+    - name: Create the release directory
       ansible.windows.win_file:
-        path: 'C:\KLTN\agent\models\releases\{{ host_bundle_manifest.bundle_id }}'
+        path: '{{ release }}'
         state: directory
-    - name: Copy verified release bytes
+    - name: Copy the release bytes
       ansible.windows.win_copy:
         src: '{{ host_model_bundle }}/'
-        dest: 'C:\KLTN\agent\models\releases\{{ host_bundle_manifest.bundle_id }}\'
-    - name: Point configuration to the shadow release
-      ansible.windows.win_template:
-        src: roles/endpoint_agent/templates/agent.json.j2
-        dest: C:\KLTN\agent\config.json
-      vars:
-        agent_database: 'C:\KLTN\agent\state\inbox.sqlite'
-        agent_bundle_path: 'C:\KLTN\agent\models\releases\{{ host_bundle_manifest.bundle_id }}'
-        agent_mode: ready_shadow
-      no_log: true
-      notify: Restart rolled out Windows agent
-    - name: Apply model configuration
-      ansible.builtin.meta: flush_handlers
-    - name: Require checksum-gated readiness
+        dest: '{{ release }}\'
+    - name: Point the agent to the release (model.json survives re-provisioning)
+      ansible.windows.win_copy:
+        dest: C:\KLTN\agent\model.json
+        content: '{{ {"bundle_path": release, "mode": agent_mode | default("ready_shadow")} | to_json }}'
+      register: cfg
+    - name: Restart the agent
+      ansible.windows.win_service:
+        name: kltn-agent
+        state: restarted
+      when: cfg.changed
+    - name: Wait for the self-tested model
       ansible.windows.win_uri:
         url: http://127.0.0.1:18081/readyz
         return_content: true
@@ -56,15 +93,11 @@
         use_proxy: false
       register: ready
       until: ready.status_code == 200
-      retries: 12
+      retries: 24
       delay: 5
-    - name: Assert the expected immutable bundle is loaded
+    - name: Assert bundle and domain
       ansible.builtin.assert:
         that:
-          - (ready.content | from_json).bundle_id == host_bundle_manifest.bundle_id
-          - (ready.content | from_json).inference == 'ready_shadow'
-  handlers:
-    - name: Restart rolled out Windows agent
-      ansible.windows.win_service:
-        name: kltn-agent
-        state: restarted
+          - (ready.content | from_json).bundle_id == manifest.bundle_id
+          - (ready.content | from_json).domain == 'windows-sysmon'
+          - (ready.content | from_json).self_test.passed
