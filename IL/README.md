@@ -37,6 +37,8 @@ IL/
 ├── DL_IL_architecture.png        # kiến trúc bên trong mô hình DL
 ├── ML_IL_architecture.png        # kiến trúc bên trong mô hình ML
 ├── draw_il_architecture.py       # vẽ lại hai ảnh trên (matplotlib)
+├── figures/                      # ảnh cho slide: sơ đồ khối 2 mô hình, confusion matrix TEST
+├── draw_il_slide_figures.py      # vẽ lại figures/ (số đọc thẳng từ file kết quả của run)
 ├── HANDOFF_20261113.md           # nhật ký bàn giao giữa các phiên
 ├── dataset_1-ATLASv2/            # bước 2
 │   ├── code/preprocess/          # adapter CBC EDR, LabelRefiner (REAPr), split
@@ -317,6 +319,8 @@ flowchart LR
 | Train từ đầu, cùng kiến trúc | 0,985 | 1,000 (1 seed, có phạm vi địa chỉ), nhưng ATLASv2 0,03 và OpTC 0,00 |
 | Có phạm vi địa chỉ | — | 0,999 ± 0,001 |
 
+Confusion matrix trên TEST của mô hình đang triển khai (seed 43): [`figures/confusion_step3_binary.png`](figures/confusion_step3_binary.png); stage cuối của cửa sổ: [`figures/confusion_step3_stage_dl.png`](figures/confusion_step3_stage_dl.png).
+
 ## 6. Mô hình ML — LightGBM boosting phần dư
 
 ### 6.1 Kiến trúc bên trong (suy luận, sau bước 3)
@@ -399,6 +403,8 @@ flowchart LR
 | Không replay | — | ATLASv2 tụt còn 0,741 |
 | Model cũ chạy thẳng trên miền mới | 0,30 | 0,799 (theo cửa sổ 0,540) |
 | Có phạm vi địa chỉ | — | 0,997; theo cửa sổ 0,966 |
+
+Confusion matrix trên TEST: [`figures/confusion_step3_binary.png`](figures/confusion_step3_binary.png); miền cũ trước và sau bước 3: [`figures/confusion_ml_old_domains.png`](figures/confusion_ml_old_domains.png).
 
 ## 7. So sánh hai nhánh và giới hạn
 
