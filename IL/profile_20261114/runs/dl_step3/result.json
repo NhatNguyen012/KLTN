@@ -1,0 +1,303 @@
+{
+  "args": {
+    "out": "/mnt/SSD_Data/optc/IL/profile_20261114/runs/dl_step3",
+    "seed": 42,
+    "init": "step2",
+    "step2_run": "freeze_replay",
+    "schedule": "freeze",
+    "epochs_a": 4,
+    "epochs_b": 8,
+    "epochs_c": 8,
+    "epochs": 20,
+    "lr_a": 0.001,
+    "lr": 0.0005,
+    "mult_body": 0.2,
+    "mult_emb": 0.05,
+    "wd": 0.0001,
+    "bs": 64,
+    "aux": 0.5,
+    "stage_w": 0.5,
+    "replay_optc": 1,
+    "replay_atlas": 1,
+    "rp_optc_pos": 150,
+    "rp_optc_neg": 450,
+    "rp_atlas_pos": 100,
+    "rp_atlas_neg": 400,
+    "optc_val_neg": 4000,
+    "select": "all",
+    "min_count": 2,
+    "bag_groups": "g_ev,g_par,g_ses",
+    "bag_dim": 32,
+    "bag_max": 64,
+    "sl700_data": "/mnt/SSD_Data/optc/IL/dataset_2-AInception/output/sl700_windows_v3/dataset.pkl",
+    "events_dir": "/mnt/SSD_Data/optc/IL/dataset_2-AInception/output/rootcause_20261113/events_v3"
+  },
+  "best_epoch": 17,
+  "best_stage": "C",
+  "bag_vocab": 1939,
+  "init_equivalence_max_abs": {
+    "optc": 0.0,
+    "atlas": 1.71661376953125e-05,
+    "sl700": 0.0
+  },
+  "after": {
+    "sl700": {
+      "threshold_logit_val": 2.2627294063568115,
+      "val": {
+        "threshold": 2.2627294063568115,
+        "tp": 153,
+        "fp": 1,
+        "fn": 8,
+        "tn": 1452,
+        "precision": 0.9935064935064936,
+        "recall": 0.9503105590062112,
+        "f1": 0.9714285714285714,
+        "ap": 0.9961540647876792,
+        "roc_auc": 0.9994998567966042
+      },
+      "test": {
+        "threshold": 2.2627294063568115,
+        "tp": 162,
+        "fp": 0,
+        "fn": 8,
+        "tn": 1511,
+        "precision": 1.0,
+        "recall": 0.9529411764705882,
+        "f1": 0.9759036144578312,
+        "ap": 0.9984364328970813,
+        "roc_auc": 0.9998053490092265
+      },
+      "stage": {
+        "presence": {
+          "initial_compromise": {
+            "support": 6,
+            "tp": 6,
+            "fp": 0,
+            "fn": 0,
+            "f1": 1.0,
+            "val_tau": -0.4896347224712372
+          },
+          "execution_discovery": {
+            "support": 158,
+            "tp": 150,
+            "fp": 12,
+            "fn": 8,
+            "f1": 0.9375,
+            "val_tau": -3.756974697113037
+          },
+          "impact": {
+            "support": 6,
+            "tp": 0,
+            "fp": 0,
+            "fn": 6,
+            "f1": 0.0,
+            "val_tau": -0.017813624814152718
+          }
+        },
+        "last_stage": {
+          "per_stage_f1": {
+            "initial_compromise": 1.0,
+            "execution_discovery": 0.9536423841059603,
+            "impact": 0.6666666666666666
+          },
+          "support": {
+            "1": 6,
+            "2": 158,
+            "5": 6
+          },
+          "confusion_true_rows": {
+            "0": [
+              1511,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "1": [
+              0,
+              6,
+              0,
+              0,
+              0,
+              0
+            ],
+            "2": [
+              8,
+              0,
+              144,
+              0,
+              0,
+              6
+            ],
+            "5": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              6
+            ]
+          }
+        },
+        "summary": {
+          "presence_macro_f1_supported": 0.6458333333333334,
+          "last_stage_macro_f1_supported": 0.8734363502575423,
+          "last_stage_acc_on_detected_attacks": 0.9629629629629629
+        }
+      }
+    },
+    "atlas": {
+      "threshold_logit_val": 2.5976078510284424,
+      "val": {
+        "threshold": 2.5976078510284424,
+        "tp": 46,
+        "fp": 0,
+        "fn": 11,
+        "tn": 1903,
+        "precision": 1.0,
+        "recall": 0.8070175438596491,
+        "f1": 0.8932038834951457,
+        "ap": 0.8940696446106966,
+        "roc_auc": 0.9394492537175835
+      },
+      "test": {
+        "threshold": 2.5976078510284424,
+        "tp": 33,
+        "fp": 0,
+        "fn": 0,
+        "tn": 2333,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "ap": 1.0,
+        "roc_auc": 1.0
+      },
+      "stage": {
+        "presence": {
+          "initial_compromise": {
+            "support": 15,
+            "tp": 15,
+            "fp": 6,
+            "fn": 0,
+            "f1": 0.8333333333333334,
+            "val_tau": -0.02264276333153248
+          },
+          "execution_discovery": {
+            "support": 24,
+            "tp": 24,
+            "fp": 9,
+            "fn": 0,
+            "f1": 0.8421052631578947,
+            "val_tau": -7.321167945861816
+          },
+          "lateral_movement": {
+            "support": 6,
+            "tp": 6,
+            "fp": 8,
+            "fn": 0,
+            "f1": 0.6,
+            "val_tau": -0.7600073218345642
+          },
+          "exfiltration": {
+            "support": 18,
+            "tp": 18,
+            "fp": 1,
+            "fn": 0,
+            "f1": 0.972972972972973,
+            "val_tau": -4.164709568023682
+          }
+        },
+        "last_stage": {
+          "per_stage_f1": {
+            "initial_compromise": 1.0,
+            "execution_discovery": 1.0,
+            "lateral_movement": 0.0,
+            "exfiltration": 1.0
+          },
+          "support": {
+            "1": 9,
+            "2": 6,
+            "3": 0,
+            "4": 18
+          },
+          "confusion_true_rows": {
+            "0": [
+              2333,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "1": [
+              0,
+              9,
+              0,
+              0,
+              0,
+              0
+            ],
+            "2": [
+              0,
+              0,
+              6,
+              0,
+              0,
+              0
+            ],
+            "3": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "4": [
+              0,
+              0,
+              0,
+              0,
+              18,
+              0
+            ]
+          }
+        },
+        "summary": {
+          "presence_macro_f1_supported": 0.8121028923660503,
+          "last_stage_macro_f1_supported": 1.0,
+          "last_stage_acc_on_detected_attacks": 1.0
+        }
+      }
+    },
+    "optc": {
+      "test_at_base_thr": {
+        "threshold": 0.99560546875,
+        "tp": 81,
+        "fp": 0,
+        "fn": 1,
+        "tn": 34331,
+        "precision": 1.0,
+        "recall": 0.9878048780487805,
+        "f1": 0.9938650306748467,
+        "ap": 0.9997096399535423,
+        "roc_auc": 0.999999289556264
+      },
+      "test_at_optc_val_thr": {
+        "threshold": 7.779534339904785,
+        "tp": 81,
+        "fp": 0,
+        "fn": 1,
+        "tn": 34331,
+        "precision": 1.0,
+        "recall": 0.9878048780487805,
+        "f1": 0.9938650306748467,
+        "ap": 0.9997096399535423,
+        "roc_auc": 0.9999992895562639
+      },
+      "optc_val_threshold_logit": 7.779534339904785
+    }
+  },
+  "elapsed_sec": 247
+}
