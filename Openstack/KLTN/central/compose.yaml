@@ -105,9 +105,13 @@ services:
     image: kltn-mlflow:il3
     network_mode: host
     restart: unless-stopped
-    mem_limit: 768m
+    mem_limit: 1536m
     cpus: 1
     env_file: ../runtime/mlflow.env
+    environment:
+      # MLflow 3.x starts 8 huey job consumers (~150 MB each) for server-side GenAI jobs;
+      # unused here and they exceed mem_limit -> OOM restart loop.
+      MLFLOW_SERVER_ENABLE_JOB_EXECUTION: "false"
     command: ['mlflow', 'server', '--host', '127.0.0.1', '--port', '15000', '--workers', '1',
               '--artifacts-destination', '/mlflow/artifacts', '--serve-artifacts']
     volumes:
