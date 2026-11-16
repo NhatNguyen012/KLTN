@@ -8,7 +8,7 @@ Triển khai lại theo `images/General_Architecture.png` với **2 model Increm
 | Host ML — LightGBM residual (OpTC + ATLASv2 + SL700 ghép thành **1 booster** 900 cây, 21.487 feature) | **End host** (agent) | mỗi event | `runtime/releases/host-ml-il3-20261114` |
 | Host DL — IL BiLSTM (base OpTC + nhánh host-context + BiLSTM-2 + event/stage head + bag token Linux) | **Central** (DL worker, CPU) | mỗi chunk cửa sổ 180 s / bước 30 s | `runtime/releases/host-dl-il3-20261114` |
 
-Không có code/script tấn công nào trong repo (`red-team/` cố ý để trống).
+`red-team/` chứa kịch bản emulation **chỉ dùng cho lab được phép** (AttackMate + Atomic Red Team, nhiều biến thể, impact đảo ngược được) — xem [`red-team/README.md`](red-team/README.md). `vars` chỉ là placeholder, không chứa secret thật.
 
 ## 1. Ánh xạ General Architecture → thành phần
 

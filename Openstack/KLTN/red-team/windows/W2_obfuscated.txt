@@ -1,0 +1,10 @@
+# W2 obfuscated — encoded/obfuscated Windows variant. Split: VALIDATION.
+# Teaches the Sysmon model the -EncodedCommand / obfuscation signature (PowerShell 4104 + EID1).
+T1059.001-2          # initial_compromise | PowerShell -EncodedCommand (base64)
+T1027.010            # defense_evasion | Command Obfuscation
+T1140                # defense_evasion | Deobfuscate/Decode (certutil -decode)
+T1082                # execution_discovery | System Information Discovery
+T1057                # execution_discovery | Process Discovery
+T1053.005            # persistence | Scheduled Task
+T1021.002            # lateral_movement | SMB / Admin shares
+T1041                # exfiltration | Exfil over C2 (HTTP to $Attacker)

@@ -3,7 +3,7 @@
 Cập nhật 14/11/2026.
 - Mọi nguồn dưới đây đã được kiểm tra là có thật (tên, tác giả, nơi công bố) bằng tìm kiếm web ngày 14/11/2026.
 - Với các luận văn, thông tin chỉ lấy từ trang thư viện và abstract; toàn văn chưa được đọc.
-- Repo chỉ chứa phương pháp và ràng buộc của hạ tầng. **Không có kịch bản hay code tấn công** (`red-team/` để trống); kịch bản do người làm đề tài tự soạn.
+- Ngoài phương pháp và ràng buộc hạ tầng, repo nay có kịch bản emulation **chỉ dùng cho lab được phép** ở [`red-team/`](../red-team/README.md) (AttackMate + Atomic Red Team, nhiều biến thể); người làm đề tài tự điền `vars` và tự chịu trách nhiệm chạy.
 
 ## 1. Phương pháp hunting (nên đọc theo thứ tự)
 

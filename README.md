@@ -135,7 +135,7 @@ Tài liệu đầy đủ: [`Openstack/KLTN/README.md`](Openstack/KLTN/README.md)
 - **Trạng thái miền:**
   - Ubuntu (`linux-audit`) đã validated offline;
   - Windows (`windows-sysmon`) chạy ở chế độ `shadow_unvalidated`, vì model chưa từng thấy Sysmon có nhãn.
-- **Bước tiếp theo:** hunting bằng APT thật để có incident gán nhãn cho IL. Phương pháp và ràng buộc của hạ tầng: [`Openstack/KLTN/docs/hunting_reading_list.md`](Openstack/KLTN/docs/hunting_reading_list.md). Repo không chứa code tấn công; `red-team/` cố ý để trống.
+- **Bước tiếp theo:** hunting bằng APT thật để có incident gán nhãn cho IL. Phương pháp và ràng buộc của hạ tầng: [`Openstack/KLTN/docs/hunting_reading_list.md`](Openstack/KLTN/docs/hunting_reading_list.md). Kịch bản emulation (chỉ dùng cho lab được phép) ở [`Openstack/KLTN/red-team/`](Openstack/KLTN/red-team/README.md): AttackMate (Linux) + Atomic Red Team (Windows), nhiều biến thể, impact đảo ngược được.
 
 ## 5. Bước 1: model gốc trên DARPA OpTC
 

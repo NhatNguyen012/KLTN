@@ -1,0 +1,11 @@
+# W1 baseline — Windows kill chain via Atomic Red Team. Split: TRAIN.
+# <technique>[-<testNumber>]   # stage | note     (run with run_atomics.ps1)
+T1059.001            # initial_compromise | PowerShell execution
+T1082                # execution_discovery | System Information Discovery
+T1016                # execution_discovery | System Network Config Discovery
+T1018                # execution_discovery | Remote System Discovery
+T1087.001            # execution_discovery | Local Account Discovery
+T1055                # execution_discovery | Process Injection (pick a notepad test)
+T1547.001            # persistence | Registry Run Key
+T1021.006            # lateral_movement | WinRM
+T1489                # impact | Service Stop (reversible)
