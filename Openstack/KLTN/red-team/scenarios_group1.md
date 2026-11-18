@@ -60,5 +60,5 @@ Windows. Sau khi anh gật đầu nhóm này, tôi dựng playbook L1 chi tiết
 ## 8. Nhật ký duyệt
 | Hạng mục | Trạng thái | Người duyệt | Ngày |
 |---|---|---|---|
-| Nhóm kịch bản #1 (cấu trúc + initial access qua Juice Shop) | ☐ chờ duyệt | | |
-| Chạy thử L1 + L5 | ☐ chờ duyệt | | |
+| Nhóm kịch bản #1 (cấu trúc + initial access qua Juice Shop) | ☑ ĐÃ DUYỆT | nguyen | 2026-11-18 |
+| Chạy thử L1 + L5 | ☑ ĐÃ DUYỆT | nguyen | 2026-11-18 |

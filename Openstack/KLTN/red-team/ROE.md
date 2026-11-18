@@ -130,7 +130,7 @@ chuyển ngang. Nạn nhân được phép gọi ra (egress) tới `kltn-inet` (
 |---|---|---|---|
 | ROE v0.1 | ☑ ĐÃ DUYỆT | nguyen | 2026-11-18 |
 | Juice Shop (web exposed) + benign web/profiles | ☑ ĐÃ DUYỆT | nguyen | 2026-11-18 |
-| Nhóm kịch bản #1 (tấn công) | ☐ chưa đề xuất | | |
+| Nhóm kịch bản #1 (tấn công, chạy thử L1+L5) | ☑ ĐÃ DUYỆT | nguyen | 2026-11-18 |
 
 ## 11. Nhật ký thay đổi
 | Ngày | Phiên bản | Thay đổi | Bởi |
