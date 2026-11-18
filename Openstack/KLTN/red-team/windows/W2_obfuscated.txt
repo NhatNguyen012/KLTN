@@ -1,0 +1,6 @@
+# W2 obfuscated (VAL) — PINNED. Encoded-command execution + scheduled-task persistence + DNS-ish discovery.
+T1059.001-15   # initial_compromise | PowerShell -EncodedCommand (obfuscation T1027.010)
+T1082-37       # execution_discovery | Locale/regional settings via PowerShell
+T1053.005-1    # persistence | Scheduled Task (reversible)
+T1016-9        # execution_discovery | DNS server discovery via nslookup
+T1489-2        # impact | Stop service via net.exe (reversible)

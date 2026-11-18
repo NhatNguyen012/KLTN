@@ -203,3 +203,54 @@ variable "management_source_cidr" {
     error_message = "management_source_cidr must be an IPv4 CIDR."
   }
 }
+
+# ------------------------------------------------------------------------------------------------ red-team range
+variable "attacker_instance_name" {
+  description = "Attacker VM on the simulated Internet segment (red-team/ROE.md)."
+  type        = string
+  default     = "kltn-attacker"
+}
+
+variable "attacker_flavor_name" {
+  description = "Small flavor for the attacker (Ubuntu Server cloud image, no GUI)."
+  type        = string
+  default     = "m1.small"
+}
+
+variable "attacker_network" {
+  description = "Simulated Internet segment; RFC 5737 TEST-NET-3 so it can never collide with a real network."
+  type = object({
+    network_name = string
+    subnet_name  = string
+    cidr         = string
+  })
+  default = {
+    network_name = "kltn-inet"
+    subnet_name  = "kltn-inet-subnet"
+    cidr         = "203.0.113.0/24"
+  }
+}
+
+variable "victim_supernet" {
+  description = "CIDR covering the three victim subnets (internal LAN)."
+  type        = string
+  default     = "10.30.0.0/16"
+}
+
+variable "exposed_node" {
+  description = "Key in var.nodes of the Internet-facing victim."
+  type        = string
+  default     = "ubuntu1"
+}
+
+variable "exposed_tcp_ports" {
+  description = "TCP ports the exposed victim publishes to the simulated Internet."
+  type        = list(number)
+  default     = [22, 80, 443]
+}
+
+variable "attacker_provisioning" {
+  description = "Allow attacker egress to the Internet (tool installation). Set false before any attack run."
+  type        = bool
+  default     = true
+}

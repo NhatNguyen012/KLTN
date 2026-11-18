@@ -1,0 +1,6 @@
+# W3 unseen (TEST) — PINNED. mshta LOLBin + WMI event-subscription persistence (held out from train/val).
+T1218.005-1    # execution | Mshta executes JavaScript (LOLBin)
+T1087.001-10   # execution_discovery | Logged-on users via CMD
+T1546.003-1    # persistence | WMI Event Subscription (reversible, has cleanup)
+T1018-3        # execution_discovery | Remote System Discovery - nltest
+T1489-3        # impact | Stop service by killing process (reversible)

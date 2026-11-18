@@ -1,0 +1,13 @@
+# Shared lab values — copy this block into each playbook's `vars:` (AttackMate reads vars per-playbook).
+# Fill with YOUR lab values. Nothing here is secret-by-default; do not commit real passwords/keys.
+vars:
+  $VICTIM1: 10.30.1.179                    # kltn-ubuntu-1 (entry host, Internet-facing; range address)
+  $VICTIM2: 10.30.2.144                    # kltn-ubuntu-2 (lateral target, internal)
+  $ATTACKER: 203.0.113.66                  # kltn-attacker on kltn-inet (LHOST); never a public-net address
+  $WEBUSER: www-data                       # web service account (assume-breach)
+  $SVC_PASS: CHANGE_ME_lab_service_pw
+  $LABUSER: kltn                           # normal user on VICTIM2
+  $LABKEY: /root/.ssh/lab_ed25519          # key provisioned V1 -> V2
+  $ATTACKER_PUBKEY: ssh-ed25519 AAAA_CHANGE_ME_lab_attacker_key
+  $CANARY: /opt/kltn-canary                # impact confined here (reversible)
+  $IMPACT_SVC: cron                        # non-critical service to stop for T1489

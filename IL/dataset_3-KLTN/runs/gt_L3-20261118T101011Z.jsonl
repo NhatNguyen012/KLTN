@@ -1,0 +1,6 @@
+{"run":"L3-20261118T101011Z","ts":"2026-11-18T10:10:11Z","stage":"initial_compromise","technique":"T1078","target":"10.30.1.179","status":"ok","evidence":"foothold dmorris kltn-ubuntu-1 "}
+{"run":"L3-20261118T101011Z","ts":"2026-11-18T10:10:13Z","stage":"privilege_escalation","technique":"T1548.003","target":"10.30.1.179","status":"ok","evidence":"sudo find uid0"}
+{"run":"L3-20261118T101011Z","ts":"2026-11-18T10:10:13Z","stage":"persistence","technique":"T1546.004","target":"10.30.1.179","status":"ok","evidence":"bashrc"}
+{"run":"L3-20261118T101011Z","ts":"2026-11-18T10:10:14Z","stage":"lateral_movement","technique":"T1021.004","target":"10.30.2.144","status":"ok","evidence":"v1->v2 dmorris kltn-ubuntu-2 "}
+{"run":"L3-20261118T101011Z","ts":"2026-11-18T10:10:16Z","stage":"impact","technique":"T1489","target":"10.30.1.179","status":"ok","evidence":"svc stop+restart"}
+{"run":"L3-20261118T101011Z","ts":"2026-11-18T10:10:16Z","stage":"cleanup","technique":"T0000","target":"10.30.1.179","status":"ok","evidence":"reverted persistence+impact"}

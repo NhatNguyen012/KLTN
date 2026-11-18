@@ -1,0 +1,13 @@
+# Attacker (kltn-attacker): the campaign scheduler. Install to /etc/systemd/system/, then:
+#   systemctl enable --now kltn-campaign   (survives reboot; resumes from ~/campaign/state)
+[Unit]
+Description=KLTN red-team campaign scheduler (authorized lab)
+After=network-online.target
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/bin/bash /home/ubuntu/campaign/scheduler.sh /home/ubuntu/campaign/campaign.tl
+Restart=on-failure
+RestartSec=20
+[Install]
+WantedBy=multi-user.target
