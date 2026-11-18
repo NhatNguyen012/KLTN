@@ -7,14 +7,14 @@
   times them in UTC, and cleans up. Written, not executed by the author.
 
   Usage:
-    powershell -ep bypass -f run_atomics.ps1 -Plan .\W1_baseline.txt -Attacker 172.31.250.253
+    powershell -ep bypass -f run_atomics.ps1 -Plan .\W1_baseline.txt -Attacker 203.0.113.66
     powershell -ep bypass -f run_atomics.ps1 -Plan .\W1_baseline.txt -WhatIf     # preview only
     powershell -ep bypass -f run_atomics.ps1 -Plan .\W1_baseline.txt -Cleanup    # revert atomics
 #>
 [CmdletBinding()]
 param(
   [Parameter(Mandatory=$true)][string]$Plan,
-  [string]$Attacker = "172.31.250.253",
+  [string]$Attacker = "203.0.113.66",
   [string]$LogDir   = "$env:TEMP\kltn-redteam",
   [switch]$WhatIf,
   [switch]$Cleanup

