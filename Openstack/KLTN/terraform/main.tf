@@ -111,10 +111,13 @@ resource "openstack_compute_keypair_v2" "created" {
 resource "openstack_networking_port_v2" "instance" {
   for_each = var.nodes
 
-  name               = "${each.value.instance_name}-port"
-  network_id         = openstack_networking_network_v2.node[each.key].id
-  admin_state_up     = true
-  security_group_ids = [openstack_networking_secgroup_v2.instance.id]
+  name           = "${each.value.instance_name}-port"
+  network_id     = openstack_networking_network_v2.node[each.key].id
+  admin_state_up = true
+  security_group_ids = concat(
+    [openstack_networking_secgroup_v2.instance.id, openstack_networking_secgroup_v2.internal.id],
+    each.key == var.exposed_node ? [openstack_networking_secgroup_v2.exposed.id] : [],
+  )
 
   fixed_ip {
     subnet_id = openstack_networking_subnet_v2.node[each.key].id

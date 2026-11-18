@@ -2,6 +2,7 @@
 
 > **AUTHORIZED LAB USE ONLY.** Mọi playbook ở đây chỉ nhắm **VM của chính lab**. Snapshot trước mỗi đợt.
 > Các file này được **viết ra nhưng chưa chạy**. Impact luôn đảo ngược được (canary / service stop).
+> **Quy tắc tham gia: [ROE.md](ROE.md)** — phạm vi, vai trò red team/SOC, cấm/được phép, kill switch.
 > Mục đích: sinh telemetry **có nhãn** cho vòng SOC → IL của hai model (DL theo cửa sổ, ML theo event).
 
 ## Hai domain, hai engine
@@ -26,12 +27,12 @@
 - **Mỗi run = một incident** (nhớ review đóng alert trước/sau). Gate IL: ≥ 3 incident/domain, attack ở cả VAL và TEST → bộ này đã bố trí sẵn train/val/test cho từng domain.
 - Chạy mỗi run **≥ 1 lượt**; cần thêm incident thì đổi `vars` (host/thời điểm) chạy lại.
 
-## Chạy (khi bạn quyết định — Claude không chạy)
+## Chạy (chỉ sau khi ROE.md mục 10 đã duyệt)
 ```bash
-# Linux (trên máy attacker Kali trong lab, đã có msfrpcd nếu dùng msf-module)
+# Linux (trên kltn-attacker 203.0.113.66, đã có msfrpcd nếu dùng msf-module)
 attackmate linux/L1_baseline.yml          # lặp cho L2..L5
 # Windows (trên kltn-windows-1, đã Install-Module invoke-atomicredteam)
-powershell -ep bypass -f windows/run_atomics.ps1 -Plan windows/W1_baseline.txt -Attacker 172.31.250.253
+powershell -ep bypass -f windows/run_atomics.ps1 -Plan windows/W1_baseline.txt -Attacker 203.0.113.66
 ```
 Nhật ký red team (ground truth để tick nhãn SOC): AttackMate ghi `metadata` mỗi bước; `run_atomics.ps1` ghi CSV UTC. Gộp bằng `gen_redteam_log.py`.
 

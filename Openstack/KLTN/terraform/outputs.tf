@@ -66,3 +66,12 @@ output "quarantine_security_group_id" {
   description = "Security group the response controller swaps a victim's ports to."
   value       = openstack_networking_secgroup_v2.quarantine.id
 }
+
+output "attacker" {
+  description = "Attacker VM: range address (what victims see) and management floating IP."
+  value = {
+    instance_id   = openstack_compute_instance_v2.attacker.id
+    range_ipv4    = openstack_networking_port_v2.attacker.all_fixed_ips[0]
+    management_ip = openstack_networking_floatingip_v2.attacker.address
+  }
+}
