@@ -4,7 +4,7 @@
 Description=KLTN campaign guard (ROE auto-stop: pause attacker on host pressure)
 [Service]
 Type=simple
-Environment=MIN_MB=4096 MAX_SWAP_MB=7500 INTERVAL=60
+Environment=MIN_MB=4096 MIN_SWAP_FREE_MB=512 INTERVAL=60
 ExecStart=/bin/bash /mnt/SSD_Data/optc/Openstack/KLTN/red-team/campaign/campaign_guard.sh
 Restart=on-failure
 RestartSec=20
