@@ -1,10 +1,6 @@
-# W3 unseen — held-out Windows variant (generalization). Split: TEST.
-# Techniques NOT in W1/W2: mshta LOLBin IC, WMI-event persistence, DNS exfil, reversible T1486.
-# Keep OUT of TRAIN.
-T1218.005            # initial_compromise | Mshta LOLBin execution
-T1140                # defense_evasion | Deobfuscate/Decode
-T1033                # execution_discovery | System Owner/User Discovery
-T1069.001            # execution_discovery | Local Group Discovery
-T1546.003            # persistence | WMI Event Subscription
-T1048.003            # exfiltration | Exfil over DNS
-T1486                # impact | Data Encrypted (use a reversible atomic on a test folder)
+# W3 unseen (TEST) — PINNED. mshta LOLBin + WMI event-subscription persistence (held out from train/val).
+T1218.005-1    # execution | Mshta executes JavaScript (LOLBin)
+T1087.001-10   # execution_discovery | Logged-on users via CMD
+T1546.003-1    # persistence | WMI Event Subscription (reversible, has cleanup)
+T1018-3        # execution_discovery | Remote System Discovery - nltest
+T1489-3        # impact | Stop service by killing process (reversible)

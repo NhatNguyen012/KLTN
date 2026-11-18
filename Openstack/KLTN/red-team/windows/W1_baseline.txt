@@ -1,11 +1,9 @@
-# W1 baseline — Windows kill chain via Atomic Red Team. Split: TRAIN.
-# <technique>[-<testNumber>]   # stage | note     (run with run_atomics.ps1)
-T1059.001            # initial_compromise | PowerShell execution
-T1082                # execution_discovery | System Information Discovery
-T1016                # execution_discovery | System Network Config Discovery
-T1018                # execution_discovery | Remote System Discovery
-T1087.001            # execution_discovery | Local Account Discovery
-T1055                # execution_discovery | Process Injection (pick a notepad test)
-T1547.001            # persistence | Registry Run Key
-T1021.006            # lateral_movement | WinRM
-T1489                # impact | Service Stop (reversible)
+# W1 baseline (TRAIN) — PINNED atomic tests (reliable, reversible, low Defender-risk).
+# Single Windows host in the lab: no Windows peer, so lateral_movement is omitted.
+T1059.001-17   # initial_compromise | PowerShell Command Execution
+T1082-1        # execution_discovery | System Information Discovery
+T1016-1        # execution_discovery | System Network Configuration Discovery
+T1018-1        # execution_discovery | Remote System Discovery - net
+T1087.001-8    # execution_discovery | Enumerate all local accounts
+T1547.001-1    # persistence | Registry Run Key (reversible)
+T1489-1        # impact | Stop service via Service Controller (reversible)
