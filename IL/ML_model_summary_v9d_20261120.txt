@@ -1,0 +1,91 @@
+
+====================================================================================================
+ML model after OpTC -> ATLASv2 -> SL700 (LightGBM, binary logistic): dataset_2-AInception/output/ml_il_step3_v9d_benignvocab_20261120/runs/incA05_ecar_lx_s1
+z(x) = 0.8 * (0.8 * z_OpTC(x[:w0]) + z_ATLASv2(x[:w1])) + z_SL700(x);  p = sigmoid(z);  old boosters are frozen
+====================================================================================================
+stage                                weight  trees  features   used   leaves leaves/tree  depth mean/max
+Task 0  OpTC base booster              0.64    300    10,317    506    9,300        31.0      17.8 / 28
+Task 1  ATLASv2 residual booster       0.80    300    11,820    443    9,300        31.0      20.2 / 29
+Task 2  SL700 residual booster         1.00    300    18,156    428    9,300        31.0      15.3 / 28
+Total                                          900                    27,900
+
+Input: one row per event, multi-hot vector of tokens (1 = the token occurs in the event). The vocabulary only grows:
+  columns of an older task keep their index, so an old booster reads the first w columns of the new vector.
+
+Hyper-parameters
+  Task 0  OpTC base booster: objective=binary, learning_rate=0.05, num_leaves=31, min_data_in_leaf=20, lambda_l2=0, scale_pos_weight=30.0001
+  Task 1  ATLASv2 residual booster: objective=binary, learning_rate=0.03, num_leaves=31, min_data_in_leaf=20, lambda_l2=5, scale_pos_weight=30
+  Task 2  SL700 residual booster: objective=binary, learning_rate=0.03, num_leaves=31, min_data_in_leaf=20, lambda_l2=5, scale_pos_weight=9.20002
+
+Most important features by gain (share of the total gain of that booster)
+  Task 0  OpTC base booster
+     14.2%  ctx::incoming::process_open::source_exe=svchost.exe
+     14.1%  ctx::incoming::process_open::age=lt_1h
+      7.3%  ctx::actor::launcher=powershell.exe
+      6.0%  ctx::parent::principal=nt_system
+      5.2%  ctx::actor::recent_action=FILE_RENAME
+      4.7%  ctx::actor::recent_action=FLOW_MESSAGE
+      4.1%  ctx::incoming::process_open::age=lt_5m
+      3.6%  ctx::actor::recent_action=FILE_READ
+      3.5%  ctx::actor::recent_action=FILE_CREATE
+      3.3%  ctx::incoming::process_open::source_path_role=temp
+  Task 1  ATLASv2 residual booster
+     16.5%  image_path::basename=payload.exe
+     10.2%  ctx::relation::path=system->user_profile
+      8.1%  image_path::basename=eqnedt32.exe
+      7.8%  ctx::status::has_actor_metadata
+      7.2%  action::load
+      6.3%  parent_image::basename=repmgr.exe
+      5.2%  parent_image_path::basename=svchost.exe
+      2.5%  image_path::category=user_profile
+      2.5%  parent_image::basename=svchost.exe
+      2.2%  image_path::basename=dumpcap.exe
+  Task 2  SL700 residual booster
+     31.8%  lx:ctx:gparent:exe=apache2
+     31.6%  lx:uid=system
+     11.5%  lx:ctx:parent:cmd:arg_path=sys_bin
+      9.1%  lx:ctx:parent:exe=apache2
+      3.0%  lx:ctx:session:acct=named
+      1.8%  lx:ctx:session=none
+      0.8%  lx:ctx:parent:age=lt_1m
+      0.7%  lx:exe=bash
+      0.7%  parent_image::basename=2f7573722f62696e2f707974686f6e332e3130202864656c6574656429
+      0.4%  parent_image_path::basename=systemd
+
+Example: first tree of the SL700 booster, top 3 levels (features are 0/1, so a split = token absent / present)
+    [lx:ctx:gparent:exe=apache2] absent:
+      [lx:uid=system] absent:
+        [lx:ctx:session:acct=named] absent:
+          ... subtree on [parent_image::basename=2f7573722f62696e2f707974686f6e332e3130202864656c6574656429] (228952 rows)
+        [lx:ctx:session:acct=named] present:
+          ... subtree on [lx:cmd:argv0=ln] (7345 rows)
+      [lx:uid=system] present:
+        [lx:ctx:parent:cmd:arg_path=sys_bin] absent:
+          ... subtree on [lx:ctx:parent:exe=apache2] (62503 rows)
+        [lx:ctx:parent:cmd:arg_path=sys_bin] present:
+          leaf value -0.0331  (34171 rows)
+    [lx:ctx:gparent:exe=apache2] present:
+      [parent_image::basename=find] absent:
+        [command_line::native::identifier_value] absent:
+          leaf value -0.0337  (86288 rows)
+        [command_line::native::identifier_value] present:
+          leaf value +0.0600  (4 rows)
+      [parent_image::basename=find] present:
+        leaf value +0.0600  (8 rows)
+
+Training of the SL700 booster (step 3)
+  unit of prediction: one event (one row); labels are per event
+  rows: SL700 train 344,271 (33,752 attack), negatives capped at 30:1
+  replay OpTC: 12,500 attack + 25,000 benign;  replay ATLASv2: 2,233 attack + 35,267 benign
+  init score (the booster learns the residual): 0.8*z1 for SL700 rows and replay negatives, 0.5*z1 for replay positives,
+      z1 = 0.8*z_OpTC + z_ATLASv2 = frozen model of the previous step
+  hard negatives (benign rows the previous model scores > 0.5): 565 rows, weight 5
+  threshold: maximum F1 on SL700 validation; thresholds of ATLASv2 and OpTC are frozen from their own steps
+
+Test results, per event (each test set scored once)
+  SL700 zero-shot, before step 3   F1 0.782  P 0.876  R 0.706  (tp 5917  fp 838  fn 2461)
+  SL700 after step 3               F1 0.995  P 0.996  R 0.993  (tp 8323  fp 36  fn 55)
+  ATLASv2 before step 3            F1 0.964  P 0.992  R 0.937  (tp 748  fp 6  fn 50)
+  ATLASv2 after step 3             F1 0.952  P 0.999  R 0.910  (tp 726  fp 1  fn 72)
+  OpTC before step 3               F1 0.990  P 0.984  R 0.997  (tp 40192  fp 653  fn 118)
+  OpTC after step 3                F1 0.993  P 0.992  R 0.995  (tp 40118  fp 335  fn 192)

@@ -3,7 +3,7 @@
 # Usage: bash optc_il/run_matrix.sh [output_dir]   (refuses a non-empty run dir per run)
 set -u
 cd "$(dirname "$0")/.."
-DATA=output/bilstm_v9_20261112/dataset_v9b_stage_optc.pkl
+DATA=${DATA:-output/bilstm_v9_20261112/dataset_v9b_stage_optc.pkl}
 O=${1:-output/optc_il_20261112}
 mkdir -p "$O/runs" "$O/logs"
 run() {  # name seed extra-args...

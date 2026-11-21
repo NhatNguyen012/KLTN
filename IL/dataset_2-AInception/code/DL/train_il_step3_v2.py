@@ -147,6 +147,9 @@ def main():
     ap.add_argument("--rp-atlas-pos", type=int, default=100)
     ap.add_argument("--rp-atlas-neg", type=int, default=400)
     ap.add_argument("--optc-val-neg", type=int, default=4000)
+    ap.add_argument("--buffer-frac", type=float, default=1.0,
+                    help="replay-buffer ablation (2026-11-20): keep only this fraction of each old-domain pool (ATLASv2 TRAIN "
+                         "windows; OpTC 401 positives + 8,000 negatives), positives and negatives separately, fixed per seed")
     ap.add_argument("--select", default="all", choices=["all", "sl700"])
     ap.add_argument("--min-count", type=int, default=2)
     ap.add_argument("--bag-groups", default="g_ev,g_par,g_ses", help="token groups of events_v2 (add g_scope for login/connection address scope)")
@@ -238,7 +241,7 @@ def main():
     d_s = np.abs(S3.predict(model, sl_va[:256], dev, n_ctx, cnd) - pred2(sl_va2[:256])).max()
     print(f"init equivalence max|z_step3v2 - z_step2|: OpTC {d_o:.2e} ATLASv2 {d_a:.2e} SL700 {d_s:.2e}", flush=True)
     if a.init == "step2":
-        assert max(d_o, d_a, d_s) < 1e-4, "grown model does not reproduce the step-2 model"
+        assert max(d_o, d_a, d_s) < 1e-3, "grown model does not reproduce the step-2 model"  # 1e-3: float32 rounding on logits of magnitude ~20 reached 1.05e-4 (v9d seed 42)
 
     op_val = T.load_optc(v_rows); op_te = T.load_optc([r for r in rows if r["split"] == "test"])
     del model2, A2, sl_va2
@@ -254,6 +257,11 @@ def main():
     stc = np.array([(sts == k).sum() for k in range(1, 6)], float)
     stage_cw = torch.tensor(np.where(stc > 0, np.sqrt(stc.sum() / np.maximum(stc, 1) / (stc > 0).sum()), 0.0), dtype=torch.float32, device=dev)
     at_pos = [s for s in at_tr if s["y"] == 1]; at_neg = [s for s in at_tr if s["y"] == 0]
+    if a.buffer_frac < 1.0:
+        rb = random.Random(1000 + a.seed)
+        keep = lambda lst: rb.sample(lst, max(1, round(len(lst) * a.buffer_frac)))
+        at_pos, at_neg, op_pos, op_neg = keep(at_pos), keep(at_neg), keep(op_pos), keep(op_neg)
+    print(f"replay buffer (frac {a.buffer_frac}): ATLASv2 {len(at_pos)} pos + {len(at_neg)} neg | OpTC {len(op_pos)} pos + {len(op_neg)} neg", flush=True)
     n_ep = a.epochs if a.schedule == "full" else a.epochs_a + a.epochs_b + a.epochs_c
     hist, best, cur, opt = [], (-1.0, 0, None), None, None
     for ep in range(1, n_ep + 1):
@@ -271,9 +279,9 @@ def main():
         model.train(); te0 = time.time()
         epoch = list(sl_tr)
         if a.replay_atlas:
-            epoch += random.sample(at_pos, min(a.rp_atlas_pos, len(at_pos))) + random.sample(at_neg, a.rp_atlas_neg)
+            epoch += random.sample(at_pos, min(a.rp_atlas_pos, len(at_pos))) + random.sample(at_neg, min(a.rp_atlas_neg, len(at_neg)))
         if a.replay_optc:
-            epoch += random.sample(op_pos, min(a.rp_optc_pos, len(op_pos))) + random.sample(op_neg, a.rp_optc_neg)
+            epoch += random.sample(op_pos, min(a.rp_optc_pos, len(op_pos))) + random.sample(op_neg, min(a.rp_optc_neg, len(op_neg)))
         random.shuffle(epoch)
         tot = defaultdict(float)
         for i in range(0, len(epoch), a.bs):

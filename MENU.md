@@ -5,6 +5,7 @@ This map covers the ATLASv2 DL investigation (2026-11-11).
 
 | Path | Role |
 | --- | --- |
+| `IL/draw_dl_il_overview.py` | Conceptual diagram of the DL incremental architecture; exports `IL/DL_IL_architecture_overview.{png,svg,pdf}` without dimensions or hyperparameters, with enlarged black text and stronger strokes for projection. Preserves the detailed original diagram. |
 | `IL/dataset_1-ATLASv2/code/preprocess/` | Shared CBC adapter, heuristic event labels, scenario split, process stage lookup; also used by Host ML. |
 | `IL/dataset_1-ATLASv2/code/DL/preprocess/build_network_shards.py` | Local sequence builder; four categorical fields, host-role bit, time deltas; generated shards under `preprocess/output/`. |
 | `IL/dataset_1-ATLASv2/code/DL/model/bilstm.py` | Packed BiLSTM, attention pooling, binary and conditional stage heads. |

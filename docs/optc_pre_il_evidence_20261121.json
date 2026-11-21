@@ -1,0 +1,69 @@
+{
+  "review_date": "2026-11-21",
+  "scope": "OpTC pre-IL only",
+  "complete_full_corpus_read": false,
+  "local_pdf_count": 143,
+  "local_extracted_words": 1035485,
+  "model_sources": {
+    "ML/code/output/host_ml_parent_incoming_seed02/kaggle_output/lgbm_kaggle_results/results/lgbm_metrics.json": "0db6c72db2323b69664b183b378a3ffacd03a78cdc1ad0e234f83fb6d51a5097",
+    "DL/05_models/v2_subsetB/bilstm_v2_subsetB/metrics.json": "e6307f804be26f0f8b237385cd9ac6ce136e9a42889c28f952aa5491453d8b99"
+  },
+  "ml_test": {
+    "split": "test",
+    "rows": 1249689,
+    "threshold": 0.87427,
+    "threshold_source": "validation",
+    "precision": 0.9972907138596142,
+    "recall": 0.9953609526172166,
+    "f1": 0.9963248988105584,
+    "fpr": 9.012890086565088e-05,
+    "confusion": {
+      "tp": 40123,
+      "fp": 109,
+      "fn": 187,
+      "tn": 1209270
+    },
+    "ranking_bins": 100000,
+    "pr_auc_binned": 0.9992537541625641,
+    "roc_auc_binned": 0.9999728307350493,
+    "note": "Full split; validation selects a score-grid threshold; test confusion is counted directly; AUC metrics are binned."
+  },
+  "dl_test": {
+    "threshold": 0.99560546875,
+    "precision": 1.0,
+    "recall": 0.975609756097561,
+    "f1": 0.9876543209876543,
+    "fpr": 0.0,
+    "tn": 34331,
+    "fp": 0,
+    "fn": 2,
+    "tp": 80,
+    "pr_auc": 0.9888476309163509,
+    "roc_auc": 0.9996898913092129
+  },
+  "ml_split_strategy": "contextual_option_b",
+  "ml_split_seed": 2,
+  "ml_sampling": "two baseline windows plus inclusive per-file attack windows; all indexed eligible positives retained",
+  "ml_scope_limitation": "label-informed cohort; attacked file-hosts only; no temporal/process/campaign generalization; file host may differ from event host",
+  "ml_baseline_days": [
+    "2019-09-21",
+    "2019-09-22"
+  ],
+  "ml_baseline_window_et": "[10:00,10:30)",
+  "ml_selected_hosts": 34,
+  "ml_counts": {
+    "train": {
+      "label_0": 6046892,
+      "label_1": 201551
+    },
+    "val": {
+      "label_0": 806252,
+      "label_1": 26873
+    },
+    "test": {
+      "label_0": 1209379,
+      "label_1": 40310
+    }
+  },
+  "remaining": "Read every remaining full manuscript and proceedings chapter; verify inaccessible full papers including SEDetector and Francis et al.; inspect figures/tables wherever extraction is incomplete. No claim that all papers have been read."
+}

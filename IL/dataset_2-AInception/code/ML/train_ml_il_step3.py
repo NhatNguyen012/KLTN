@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pickle
 import sys
 import time
@@ -36,18 +37,19 @@ sys.path.insert(0, "/mnt/SSD_Data/optc")
 from ML.code.preprocess.host_shards import decode_shard  # noqa: E402
 
 D3 = Path("/mnt/SSD_Data/optc/IL/dataset_2-AInception/output")
-DATA = D3 / "ml_il_step3_20261113/data"
-CACHE = D3 / "ml_il_step3_20261113/cache"
+DATA = Path(os.environ.get("ML_STEP3_DATA", str(D3 / "ml_il_step3_20261113/data")))
+CACHE = Path(os.environ.get("ML_STEP3_CACHE", str(D3 / "ml_il_step3_20261113/cache")))
 ML1 = Path("/mnt/SSD_Data/optc/IL/dataset_1-ATLASv2/code/ML")
 OPTC_MODEL = ML1 / "pretrained_optc_model/model-slot-0.txt"
-ATLAS_RUN = ML1 / "output/v9b_20261112/run_v9b/atlasv2-incremental-2e4a6239dc94/lgbm-kaggle"
-ATLAS_MANIFEST = ML1 / "output/v9b_20261112/model_input/manifest.json"
+# ML_ATLAS_RUN / ML_ATLAS_MANIFEST / ML_TH_ATLAS / ML_TH_OPTC / ML_STEP3_CACHE: rerun on another step-2 run (v9c, 2026-11-20)
+ATLAS_RUN = Path(os.environ.get("ML_ATLAS_RUN", str(ML1 / "output/v9b_20261112/run_v9b/atlasv2-incremental-2e4a6239dc94/lgbm-kaggle")))
+ATLAS_MANIFEST = Path(os.environ.get("ML_ATLAS_MANIFEST", str(ML1 / "output/v9b_20261112/model_input/manifest.json")))
 OPTC_REPLAY = ML1 / "preprocess/output/optc_replay_buffer.npz"
 OPTC_TEST_MANIFEST = ML1 / "preprocess/output/optc_test/manifest.json"
-W_OPTC, W_ATLAS = 10317, 12365
+W_OPTC, W_ATLAS = 10317, int(os.environ.get("ML_W_ATLAS", 12365))
 ALPHA, HARD_W = 0.8, 5.0
 ALPHA_REP_POS = 0.5        # replay positives; chosen on VAL (step-2 rule was 0.25)
-TH_ATLAS, TH_OPTC = 0.94073, 0.87427
+TH_ATLAS, TH_OPTC = float(os.environ.get("ML_TH_ATLAS", 0.94073)), float(os.environ.get("ML_TH_OPTC", 0.87427))
 CONFIGS = {"ecar": ("ecar",), "ecar_lx": ("ecar", "lx"), "ecar_lx_scope": ("ecar", "lx", "lx_scope")}
 
 
