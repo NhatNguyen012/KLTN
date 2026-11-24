@@ -25,6 +25,8 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sl700_ecar import ROW_KINDS, Sl700Tokenizer  # noqa: E402
+sys.path.insert(0, "/mnt/SSD_Data/optc/IL")
+from name_mask import mask as _name_mask  # noqa: E402  (no-op unless IL_MASK_NAMES is set)
 
 RELABEL = Path("/mnt/SSD_Data/optc/IL/dataset_2-AInception/output/relabel_v3")
 ATLAS_VOCAB = Path("/mnt/SSD_Data/optc/IL/dataset_1-ATLASv2/code/ML/preprocess/output/assets/vocab_extended.json")
@@ -51,7 +53,7 @@ def tokenize_run(run: str):
             toks = tk.tokens(r)
             if toks is None:
                 continue
-            rows.append(sorted(set(toks)))
+            rows.append(sorted(set(_name_mask(toks))))
             meta.append((run, host, int(r["ts"]), int(r["line"]), r["kind"], int(r["y"]), int(r["stage"])))
     return run, rows, meta
 
@@ -59,6 +61,10 @@ def tokenize_run(run: str):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="/mnt/SSD_Data/optc/IL/dataset_2-AInception/output/ml_il_step3_20261113/data")
+    ap.add_argument("--atlas-vocab", default=str(ATLAS_VOCAB), help="vocab_extended.json of the ATLASv2 step to extend")
+    ap.add_argument("--vocab-policy", choices=["all_train", "benign_min2"], default="all_train",
+                    help="all_train (published): every token of every TRAIN row; benign_min2 (2026-11-20): the Base OpTC "
+                         "rule, only tokens seen in >= 2 benign (y=0) TRAIN rows")
     a = ap.parse_args()
     out = Path(a.out)
     if (out / "build_report.json").exists():
@@ -68,11 +74,16 @@ def main():
     with ProcessPoolExecutor(6) as ex:
         res = {run: (rows, meta) for run, rows, meta in ex.map(tokenize_run, SPLIT)}
     print(f"tokenized in {time.time() - t0:.0f}s:", {r: len(v[0]) for r, v in res.items()}, flush=True)
-    vocab = json.loads(ATLAS_VOCAB.read_text())
+    vocab = json.loads(Path(a.atlas_vocab).read_text())
     base_width = len(vocab)
-    assert base_width == 12365 and max(vocab.values()) == base_width - 1
-    cnt = Counter(t for run, (rows, _) in res.items() if SPLIT[run] == "train" for row in rows for t in row if t not in vocab)
-    new = [t for t, _ in sorted(cnt.items(), key=lambda x: (-x[1], x[0]))]
+    assert max(vocab.values()) == base_width - 1
+    if a.vocab_policy == "all_train":
+        cnt = Counter(t for run, (rows, _) in res.items() if SPLIT[run] == "train" for row in rows for t in row if t not in vocab)
+        new = [t for t, _ in sorted(cnt.items(), key=lambda x: (-x[1], x[0]))]
+    else:
+        cnt = Counter(t for run, (rows, meta) in res.items() if SPLIT[run] == "train"
+                      for row, mm in zip(rows, meta) if mm[5] == 0 for t in row if t not in vocab)
+        new = [t for t, c in sorted(cnt.items(), key=lambda x: (-x[1], x[0])) if c >= 2]
     ext = dict(vocab)
     for t in new:
         ext[t] = len(ext)
@@ -83,7 +94,7 @@ def main():
         g = group(t)
         col_group[ext[t]] = g
         groups["ecar_new" if g == "ecar" else g] += 1
-    report = {"base_width_atlasv2": base_width, "extended_width": width, "new_train_tokens": len(new), "new_by_group": groups,
+    report = {"base_width_atlasv2": base_width, "extended_width": width, "new_train_tokens": len(new), "new_by_group": groups, "vocab_policy": a.vocab_policy, "atlas_vocab": str(a.atlas_vocab),
               "row_kinds": list(ROW_KINDS), "split": SPLIT, "splits": {}}
     for sp in ("train", "val", "test"):
         indptr, indices, labels, meta, hit_old, n_tok = [0], [], [], [], 0, 0

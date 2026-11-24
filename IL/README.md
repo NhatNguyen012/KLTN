@@ -268,6 +268,9 @@ flowchart TB
   ADD2 --> Z["z cửa sổ = z_old + gate · max logit<br/>cảnh báo nếu ≥ ngưỡng VAL của miền"]
 ```
 
+Ảnh tổng quát: [`DL_IL_architecture_overview.png`](DL_IL_architecture_overview.png)
+([SVG](DL_IL_architecture_overview.svg), [PDF](DL_IL_architecture_overview.pdf)).
+Tái tạo bằng `python3 IL/draw_dl_il_overview.py` từ thư mục gốc workspace.
 Ảnh chi tiết: [`DL_IL_architecture.png`](DL_IL_architecture.png).
 
 ### 5.2 Thành phần và tham số (sau bước 3, tổng 282.521)

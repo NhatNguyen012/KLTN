@@ -42,6 +42,8 @@ from preprocess.common_schema import (
     extract_basename,
 )
 from preprocess.label_refiner import LabelRefiner
+sys.path.insert(0, "/mnt/SSD_Data/optc/IL")
+from name_mask import mask as _name_mask  # noqa: E402
 from preprocess.cbc_adapter import CBCAdapter
 from preprocess.split_config import (
     TRAIN_SCENARIOS,
@@ -55,7 +57,7 @@ from ML.code.preprocess.ecar_tokenizer import (
     tokenize_record,
 )
 from ML.code.preprocess.host_shards import FORMAT, SCHEMA, SPLITS, ShardBuffer, sha256
-from collections import defaultdict
+from collections import Counter, defaultdict
 import ntpath
 
 # Finite directory categories from OpTC spec (no heuristic malware lists)
@@ -427,7 +429,7 @@ def process_file_worker(args_tuple: tuple[str, str, str, int, set[str]]) -> tupl
         grouped, audit = tokenize_record(rec)
         tokens = flatten_tokens(grouped)
         shift_tokens = extract_domain_shift_tokens(event, session, optc_vocab_set)
-        all_tokens = tokens + shift_tokens
+        all_tokens = _name_mask(tokens + shift_tokens)  # no-op unless IL_MASK_NAMES is set (IL/name_mask.py)
 
         results.append({
             "tokens": all_tokens,
@@ -462,6 +464,11 @@ def main():
         help="Output directory for generated shards and manifests",
     )
     parser.add_argument("--seed", type=int, default=42, help="Sampling seed")
+    parser.add_argument("--vocab-policy", choices=["all_train", "benign_min2"], default="all_train",
+                        help="which TRAIN tokens get a new column. all_train (published runs): every token of every TRAIN "
+                             "event, attack events included, count >= 1. benign_min2 (2026-11-20): the Base OpTC rule "
+                             "(build_vocab.py skips label=1, --min-frequency 2): only tokens seen in >= 2 benign TRAIN "
+                             "events, so an attack-only token (payload.exe, msf, ...) gets no column of its own")
     parser.add_argument("--workers", type=int, default=6, help="Parallel worker processes")
     parser.add_argument("--target-benign-ratio", type=int, default=TARGET_BENIGN_RATIO, help="Benign to attack ratio for train")
     args = parser.parse_args()
@@ -520,6 +527,7 @@ def main():
     refined_attack_events = 0
     t0 = time.time()
 
+    benign_token_counts: Counter = Counter()
     tasks = []
     for f in edr_files:
         stem = f.stem
@@ -539,14 +547,24 @@ def main():
             refined_attack_events += file_attack
             for item in results:
                 sp = item["split"]
-                if sp == "train":
+                if sp == "train" and args.vocab_policy == "all_train":
                     for token in item["tokens"]:
                         if token not in extended_vocab:
                             new_idx = len(extended_vocab)
                             extended_vocab[token] = new_idx
                             new_train_tokens[token] = new_idx
+                elif sp == "train" and item["label"] == 0:
+                    benign_token_counts.update(t for t in set(item["tokens"]) if t not in extended_vocab)
                 split_events_raw[sp].append(item)
             print(f"  Processed {fname:25s}: {file_total:7,d} events | {file_attack:5,d} attack")
+    if args.vocab_policy == "benign_min2":
+        for token, c in sorted(benign_token_counts.items(), key=lambda x: (-x[1], x[0])):
+            if c >= 2:
+                new_idx = len(extended_vocab)
+                extended_vocab[token] = new_idx
+                new_train_tokens[token] = new_idx
+        print(f"  vocab policy benign_min2: {len(benign_token_counts):,} candidate tokens from benign TRAIN events, "
+              f"{sum(1 for c in benign_token_counts.values() if c >= 2):,} kept (count >= 2)")
 
     # Map tokens to column indices using finalized extended_vocab
     print("  Mapping tokens to integer column indices...")

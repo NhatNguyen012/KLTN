@@ -1,22 +1,26 @@
-# Read-only datasets (exclude all except ATLASv2_staged)
+# Read-only datasets (exclude all except ATLASv2_staged and Preprocess)
 /DATASET/*
 !/DATASET/ATLASv2_staged/
+!/DATASET/Preprocess/
+!/DATASET/Preprocess/**
 
-# Temporary directories
+# Temporary directories & staging
 /Temp/
 /temp/
 Openstack/Sample
 scratch/
+**/staging/
 
 # Papers
 /paper*/
 
-# Agent & Codex metadata
+# Agent, LLM & Tool metadata
 /.agent/
 /.agents/
 /.agent*/
 /.codex/
 /.aws/
+/.gemini/
 
 # Python cache & environments
 __pycache__/
@@ -40,16 +44,22 @@ Thumbs.db
 *.swp
 *.swo
 *~
+*.tmp
+*.bak
 
 # Notebook and runtime by-products
 .ipynb_checkpoints/
 *.log
+__results___files/
+**/__results___files/
 
 # Pipeline outputs, checkpoints & intermediate data
 output/
 **/output/
 /code/output/
 /ML/code/output/
+/DL/**/output/
+DL/**/output/
 /IL/**/output/
 IL/**/output/
 /IL/*/output/
@@ -60,14 +70,27 @@ IL/*/output/
 event_replay_cache/
 **/event_replay_cache/
 
-# Generated ML/DL arrays, checkpoints & compressed event streams
+# Generated ML/DL arrays, checkpoints, weights & models
 *.npy
 *.pt
 *.pth
 *.ckpt
 *.ubj
+*.safetensors
+*.onnx
+*.joblib
+
+# Compressed event streams & tabular data
 *.jsonl.gz
 *.csv.gz
+*.json.gz
+!/DL/code/others/sample_multitask_cohort_42k.json.gz
+*.parquet
+*.npz
+*.h5
+*.hdf5
+*.feather
+*.arrow
 
 # DL pipeline scratch state and generated feature matrices
 /DL/02_artifacts/**/work/
@@ -79,13 +102,15 @@ event_replay_cache/
 /code/kaggle/mission4_audit_results_final/
 /ML/code/kaggle/mission4_audit_results_final/
 code/kaggle/mission4_audit_results_final/
-*.parquet
-*.npz
 *.zip
 *.tar
 *.tar.gz
 *.tgz
 *.zst
+*.7z
+*.rar
+*.xz
+*.bz2
 
 # In DATASET/ATLASv2_staged, ignore atlasv2.tar.gz and non-ATLASv2 large external corpora
 !/DATASET/ATLASv2_staged/**
@@ -94,4 +119,3 @@ code/kaggle/mission4_audit_results_final/
 /DATASET/ATLASv2_staged/reapr-ground-truth/darpa-tc-engagement3/
 /DATASET/ATLASv2_staged/reapr-ground-truth/carbanakv2/
 /DATASET/ATLASv2_staged/reapr-ground-truth/streamspot/
-

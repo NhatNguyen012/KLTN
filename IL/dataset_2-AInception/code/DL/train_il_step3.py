@@ -20,6 +20,7 @@ import copy
 import csv
 import json
 import math
+import os
 import pickle
 import random
 import sys
@@ -39,8 +40,9 @@ import train_il as T  # noqa: E402  (load_optc, optc_rows, atlas_samples, metric
 from contract import FIELDS, load_optc_vocab  # noqa: E402
 from il_model import ILBiLSTM, load_base  # noqa: E402
 
-ATLAS_DATA = Path("/mnt/SSD_Data/optc/IL/dataset_1-ATLASv2/code/DL/output/bilstm_v9_20261112/dataset_v9b_stage_optc.pkl")
-STEP2 = Path("/mnt/SSD_Data/optc/IL/dataset_1-ATLASv2/code/DL/output/optc_il_20261112/runs")
+# IL_ATLAS_DATA / IL_STEP2_RUNS: rerun the chain on another ATLASv2 label build (e.g. v9c, 2026-11-20)
+ATLAS_DATA = Path(os.environ.get("IL_ATLAS_DATA", "/mnt/SSD_Data/optc/IL/dataset_1-ATLASv2/code/DL/output/bilstm_v9_20261112/dataset_v9b_stage_optc.pkl"))
+STEP2 = Path(os.environ.get("IL_STEP2_RUNS", "/mnt/SSD_Data/optc/IL/dataset_1-ATLASv2/code/DL/output/optc_il_20261112/runs"))
 SL700_DATA = Path("/mnt/SSD_Data/optc/IL/dataset_2-AInception/output/sl700_windows_v1/dataset.pkl")
 STAGES = ["initial_compromise", "execution_discovery", "lateral_movement", "exfiltration", "impact"]
 CTX_DOMS = ("atlas", "sl700")

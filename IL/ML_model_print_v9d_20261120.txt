@@ -1,0 +1,24 @@
+# Final ML model after OpTC -> ATLASv2 -> SL700: chain of 3 LightGBM boosters
+# z(x) = 0.8 * (0.8 * z_OpTC(x[:w0]) + z_ATLASv2(x[:w1])) + z_SL700(x);   p = sigmoid(z)
+# input x: one event = multi-hot token vector; w0, w1 = number of features of the older boosters
+
+OpTC booster (Task 0)  (weight in the chain 0.64)
+  lightgbm.Booster: num_trees=300, num_feature=10317, num_model_per_iteration=1
+  params: objective=binary, boosting=gbdt, num_iterations=300, learning_rate=0.05, num_leaves=31, max_depth=-1, min_data_in_leaf=20, max_delta_step=0, lambda_l1=0, lambda_l2=0, feature_fraction=1, bagging_fraction=1, scale_pos_weight=30.0001, max_bin=255
+
+ATLASv2 booster (Task 1)  (weight in the chain 0.80)
+  lightgbm.Booster: num_trees=300, num_feature=11820, num_model_per_iteration=1
+  params: objective=binary, boosting=gbdt, num_iterations=300, learning_rate=0.03, num_leaves=31, max_depth=-1, min_data_in_leaf=20, max_delta_step=2, lambda_l1=0, lambda_l2=5, feature_fraction=1, bagging_fraction=1, scale_pos_weight=30, max_bin=255
+
+SL700 booster (Task 2)  (weight in the chain 1.00)
+  lightgbm.Booster: num_trees=300, num_feature=18156, num_model_per_iteration=1
+  params: objective=binary, boosting=gbdt, num_iterations=300, learning_rate=0.03, num_leaves=31, max_depth=-1, min_data_in_leaf=20, max_delta_step=2, lambda_l1=0, lambda_l2=5, feature_fraction=1, bagging_fraction=1, scale_pos_weight=9.20002, max_bin=255
+
+======================================================================================================================
+Booster                      Weight  Trees  Features   Used  Split nodes   Leaves  Depth mean  Depth max
+======================================================================================================================
+OpTC booster (Task 0)          0.64    300    10,317    506        9,000    9,300        17.8         28
+ATLASv2 booster (Task 1)       0.80    300    11,820    443        9,000    9,300        20.2         29
+SL700 booster (Task 2)         1.00    300    18,156    428        9,000    9,300        15.3         28
+======================================================================================================================
+Total                                  900                        27,000   27,900

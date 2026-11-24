@@ -37,7 +37,8 @@ sys.path.insert(0, str(CODE_ROOT / "DL" / "preprocess"))
 from preprocess.common_schema import (  # noqa: E402
     CanonicalEvent, classify_image_dir, classify_principal, extract_basename,
     INITIAL_ATTACK_TIMESTAMPS, parse_timestamp_micros)
-from preprocess.label_refiner import LabelRefiner  # noqa: E402
+from preprocess.label_refiner import LabelRefiner, EXPLOIT_CHILD_PROCS  # noqa: E402
+from preprocess.common_schema import KNOWN_IOCS  # noqa: E402
 from build_network_shards import get_split_from_event, map_resp_port_class  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "optc_il"))
 from contract import optc_tokens  # noqa: E402  OpTC model-B input contract (OpTC->ATLASv2 IL)
@@ -164,8 +165,22 @@ def main():
     ap.add_argument("--out-name", default="dataset.pkl")
     ap.add_argument("--window-sec", type=int, default=180)
     ap.add_argument("--stride-sec", type=int, default=30)
+    ap.add_argument("--v9c", type=int, default=0,
+                    help="1: the v9b slot is built with the v9c corrections (2026-11-20): (a) the gate uses only OUTBOUND "
+                         "connections to the attacker host; (b) an inbound connection whose (remote ip, local port) is "
+                         "also seen on the benign days is not malicious. Reason: 10.193.66.115 -> h1:8000 (python "
+                         "SimpleHTTPServer portal) occurs once on each benign day and at 13:19 in the single-host S1, "
+                         "7 min before the attack; v9b took it as the S1 attack start")
+    ap.add_argument("--v9d", type=int, default=0,
+                    help="1: v9c plus two corrections found by the validation error analysis of 2026-11-20 (M5/h1: the host "
+                         "is logged on again at 23:34, after the first exploit attempt, and the testbed's own start-up "
+                         "(explorer -> cmd -> tshark/dumpcap, cmd -> python SimpleHTTPServer) was labelled attack): "
+                         "(R1) a shell started by explorer.exe (interactive user / start-up) and its descendants are not "
+                         "attack processes, nor are explorer/conhost/lsass events that target them; (R2) lsass.exe / conhost.exe opening a "
+                         "process is attack only when that process is an exploit-chain process (EXPLOIT_CHILD_PROCS)")
     ap.add_argument("--align", type=int, default=0, help="1: grid aligned to floor(ts/window) like the OpTC DL S2 step")
     args = ap.parse_args()
+    args.v9c = int(bool(args.v9c or args.v9d))
     work = Path(args.work)
     WINDOW, STRIDE = args.window_sec * 1_000_000, args.stride_sec * 1_000_000
     files = {p.stem: pickle.load(open(p, "rb")) for p in sorted((work / "events").glob("*.pkl"))}
@@ -174,11 +189,14 @@ def main():
     legacy = LabelRefiner(args.reapr_dir)
     v9 = LabelRefiner(args.reapr_dir)
     benign_endpoints = Counter()
+    benign_inbound = Counter()
     for stem, d in files.items():
         if stem.endswith("benign"):
             for r in d["records"]:
                 if r["kind"] == "netconn" and r["rip"]:
                     benign_endpoints[f"{r['rip']}:{r['rport']}"] += 1
+                    if r["inbound"]:
+                        benign_inbound[f"{r['rip']}->:{r['lport']}"] += 1
     removed = {}
     for sc, seeds in v9.scenario_seeds.items():
         keep = set()
@@ -218,7 +236,8 @@ def main():
         sc = stem.split("-")[-1]
         if sc == "benign":
             continue
-        c2 = [r["ts"] for r in d["records"] if r["kind"] == "netconn" and r["rip"] == ATTACKER_IP]
+        c2 = [r["ts"] for r in d["records"] if r["kind"] == "netconn" and r["rip"] == ATTACKER_IP
+              and not (args.v9c and r["inbound"])]
         if c2:
             v9b.scenario_attack_micros[sc] = min(v9b.scenario_attack_micros[sc], min(c2))
     for sc, t in v9b.scenario_attack_micros.items():
@@ -227,9 +246,21 @@ def main():
 
     # ---- windows --------------------------------------------------------
     samples = {"train": [], "val": [], "test": []}
+    v9c_inbound_cleared = Counter()
+    v9d_cleared = Counter()
+    v9d_user_guids = set()
     for stem, d in files.items():
         sc = stem.split("-")[-1]
         recs = sorted(d["records"], key=lambda r: r["ts"])
+        user_lineage = set()          # v9d R1: shells started by explorer.exe and their descendants
+        if args.v9d:
+            for r in recs:
+                if r["kind"] == "procstart" and r["tguid"]:
+                    a_, t_ = extract_basename(r["path"]), extract_basename(r["tpath"])
+                    if (a_ == "explorer.exe" and t_ in ("cmd.exe", "powershell.exe")) or \
+                            (r["guid"] in user_lineage and t_ not in KNOWN_IOCS["attack_processes"]):
+                        user_lineage.add(r["tguid"])
+            v9d_user_guids |= user_lineage
         lab = [r for r in recs if r["kind"] in LABEL_KINDS]
         extra = [r for r in recs if r["kind"] not in LABEL_KINDS]
         for r in lab:
@@ -240,6 +271,25 @@ def main():
             r["stage"] = v9.get_event_stage(ce)[1] if r["y_v9"] else 0
             for pol, ref in (("legacy", legacy), ("v9", v9), ("v9b", v9b)):
                 r[f"stage_{pol}"] = ref.get_event_stage(ce)[1] if r[f"y_{pol}"] == 1 else 0
+            if args.v9d and r["y_v9b"] == 1:
+                a_, t_ = extract_basename(r["path"]), extract_basename(r["tpath"])
+                why = None
+                if r["guid"] in user_lineage:
+                    why = "R1 actor in user-shell lineage"
+                elif r["kind"] in ("procstart", "crossproc") and r["tguid"] in user_lineage \
+                        and a_ in ("explorer.exe", "conhost.exe", "lsass.exe"):
+                    # only for helper actors: an exploit-chain process (plugin-container, powershell, ...) opening the
+                    # user's processes is the attacker enumerating processes and stays attack
+                    why = "R1 helper targets the user-shell lineage"
+                elif r["kind"] == "crossproc" and a_ in ("lsass.exe", "conhost.exe") and t_ not in EXPLOIT_CHILD_PROCS:
+                    why = "R2 system helper opens a non-exploit process"
+                if why:
+                    r["y_v9b"], r["stage_v9b"] = 0, 0
+                    v9d_cleared[f"{stem} | {why} | {a_}>{t_}"] += 1
+            if args.v9c and r["y_v9b"] == 1 and r["kind"] == "netconn" and r["inbound"] \
+                    and f"{r['rip']}->:{r['lport']}" in benign_inbound:
+                r["y_v9b"], r["stage_v9b"] = 0, 0
+                v9c_inbound_cleared[f"{stem} {r['rip']}->:{r['lport']}"] += 1
             r["tok"] = event_tokens(r)
             r["optc"] = optc_tokens(r)
             r["flags"] = cmd_flags(r["cmd"]) + (cmd_flags(r["tcmd"]) if r["kind"] == "procstart" else [0.0] * len(CMD_FLAGS))
@@ -347,7 +397,10 @@ def main():
               f"median_len={int(np.median([len(s['cat']) for s in enc]))}")
     meta = {"cat_fields": CAT_FIELDS, "vocab": vocab, "num_dim": int(out["train"][0]["num"].shape[1]),
             "seed_endpoints_dropped": removed, "gate_report": gate_report,
-            "gates_v9b": gates_v9b, "s3_gate_v9": datetime.fromtimestamp(s3_first[0] / 1e6, tz=timezone.utc).isoformat()}
+            "gates_v9b": gates_v9b, "v9c": bool(args.v9c),
+            "v9c_benign_inbound_endpoints": dict(benign_inbound) if args.v9c else {},
+            "v9c_inbound_events_cleared": dict(v9c_inbound_cleared),
+            "v9d": bool(args.v9d), "v9d_events_cleared": dict(v9d_cleared), "v9d_user_lineage_guids": sorted(v9d_user_guids), "s3_gate_v9": datetime.fromtimestamp(s3_first[0] / 1e6, tz=timezone.utc).isoformat()}
     with open(work / args.out_name, "wb") as fh:
         pickle.dump({"meta": meta, "splits": out}, fh, protocol=pickle.HIGHEST_PROTOCOL)
     (work / (args.out_name.replace(".pkl", "") + "_meta.json")).write_text(json.dumps(meta, indent=2, default=str))
