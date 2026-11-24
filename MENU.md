@@ -35,6 +35,10 @@ This map covers the ATLASv2 DL investigation (2026-11-11).
 | `IL/dataset_1-ATLASv2/analyst/dl_root_cause_20261111.md` | Evidence, experiments, literature, limitations and next experiments. |
 | `DATASET/ATLASv2_staged/add_stage_column.py` | Historical process-name/host heuristic stage annotator; stages are weak supervision, not independently verified event-stage truth. |
 | `DATASET/ATLASv2_staged/RESEARCH_POLICY_20261111.md` | Label status, sensitivity-policy scope and requirements for a verified replacement. |
+| `IL/dataset_1-ATLASv2/code/preprocess/build_atlasv2_causal_shards.py` | Full L=3 Causal Triplet generator for ATLASv2 (1.83M events, 184 shards, 13,204 vocab tokens); published in `IL/dataset_1-ATLASv2/output/dl_shards/`. |
+| `IL/dataset_1-ATLASv2/code/DL/train_mixhead_atlasv2.py` | Domain-Incremental Learning trainer using frozen OpTC Mix-Head Backbone, 32-dim IL Adapter, 5-stage classifier, and OpTC replay buffer. |
+| `IL/dataset_1-ATLASv2/code/kaggle/generate_kaggle_notebook_atlasv2.py` | Generator for Kaggle Dual GPU (T4x2) Continual Learning notebook `ATLASv2-MixHead-IL.ipynb` with self-contained execution, forensic error traceback, and `atlasv2_traceback_results.zip` packaging. |
+| `IL/dataset_1-ATLASv2/code/kaggle/pack_kaggle_atlasv2_il.py` | Bundles pre-built ATLASv2 shards, OpTC base checkpoint, modules, and notebook into `IL/dataset_1-ATLASv2/output/kaggle/kaggle_atlasv2_upload.zip`. |
 
 Existing run directories and source datasets are preserved. Research experiments use
 new output directories and never overwrite earlier checkpoints.
