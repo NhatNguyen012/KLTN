@@ -34,15 +34,25 @@ Các cải tiến chuẩn hóa áp dụng từ **NDSS 2027 Theseus**, **REAPr**,
 
 ---
 
-## 3. Cấu Trúc 3 Heads (Đúng Kiến Trúc `MixHeadSelfAttentionCausalHost`)
+## 3. Kiến Trúc Expandable Multi-Layer + 3-Head & Continual Learning Replay (`THEIA-MixHead-IL.ipynb`)
 
-- **Head 1 (`binary_head`, 1 logit, `BCEWithLogitsLoss`)**: `0: Benign`, `1: Attack`.
-- **Head 2 (`scenario_head`, 3 classes)**:
-  - `0: Benign`
-  - `1: NationState_Firefox_Drakon` (`theia_3.3_success_gatech_profile`)
-  - `2: BrowserExtension_MicroAPT` (`theia_3.11_success`)
-- **Head 3 (`stage_head`, 5 classes)**:
-  - `0: Benign`, `1: Initial_Compromise`, `2: Execution_PrivilegeEscalation`, `3: Discovery_Reconnaissance`, `4: C2_Exfiltration`.
+1. **Multi-Layer + $L=3$ Lines (`ExpandableMixHeadCausalIL`)**:
+   - Bảo toàn trọn vẹn **50/50 tensors** từ Domain 0 (`mixhead_attention_t4x2_full.pt`, 2 Transformer blocks + `il_adapter` + `line_pooling_attn` trên 3 line `[E_incoming, E_parent, E_current]`).
+   - Thêm mới **1 Domain Transformer Block (`domain_blocks`)** + Attention Pooling riêng trên 3 line sau block mới, nối `[pooled_dom, line_0, line_1, line_2]` (`dom_dim = 512`) vào 3 residual heads (`delta_binary_head`, `delta_scenario_head` 6 classes, `delta_stage_head` 14 classes) với **residual gates khởi tạo `0.0`** (`gate_bin`, `gate_sc`, `gate_st`) $\rightarrow$ đảm bảo **Epoch-0 equivalence `max|Δ| == 0.00e+00`** trên OpTC.
+2. **Unified Expandable Heads (Zero Task-ID khi suy luận)**:
+   - **Head 1 (`binary_head`, 1 logit)**: `0: Benign`, `1: Attack`.
+   - **Head 2 (`scenario_head`, 6 Unified classes)**:
+     - `0`: Benign | `1..3`: OpTC (`SC1_EmpireStaging`, `SC2_CustomEmpireLateral`, `SC3_MaliciousUpdate`) | `4`: `THEIA_NationState_Firefox_Drakon` (`3.3_success`) | `5`: `THEIA_BrowserExtension_MicroAPT` (`3.11_success`).
+   - **Head 3 (`stage_head`, 14 Unified classes)**:
+     - `0`: Benign | `1..9`: OpTC Stages (`OpTC_Execution` .. `OpTC_Collection_Exfiltration`) | `10..13`: `THEIA_Initial_Compromise`, `THEIA_Execution_PrivilegeEscalation`, `THEIA_Discovery_Reconnaissance`, `THEIA_C2_Exfiltration`.
+3. **Progressive Unfreezing (`Phase A -> B -> C`, 12 epochs)**:
+   - **Phase A (`ep 1..4`, `A_new_only`)**: Khóa cứng toàn bộ OpTC backbone + `token_embedding[:10499]`, chỉ train `domain_blocks`, `delta_*`, `gate_*` (`lr=1e-3`) và new tokens `[10499:]` (`lr=2e-3`).
+   - **Phase B (`ep 5..8`, `B_unfreeze_upper`)**: Mở khóa `blocks.1`, `il_adapter`, `line_pooling_attn` và base heads với `lr=1e-4` (giữ `blocks.0` và `token_embedding[:10499]` khóa nguyên).
+   - **Phase C (`ep 9..12`, `C_unfreeze_all`)**: Mở khóa `blocks.0`, `token_norm`, `line_embedding` tại `lr=2e-5` và bước cập nhật trên `token_embedding[:10499]` được scale `0.02×` sau `AdamW.step()` (effective `lr=2e-5`).
+4. **Experience Replay + LwF Logit Distillation + Đánh giá Kép Trên Kaggle (`OptC Test` + `THEIA Test`)**:
+   - Đóng gói sẵn **`optc_replay_train.pt` (100,000 mẫu train OpTC phân tầng đủ cả 8 stage, `18.23 MB`)**, **`optc_val_eval.pt` (50,000 mẫu val OpTC phân tầng đủ cả 8 stage, `7.22 MB`)** và **toàn bộ 125 shards `optc_test_shards/` (1,249,689 mẫu test OpTC)**.
+   - Mỗi step trộn **384 mẫu THEIA + 128 mẫu OpTC Replay** kèm **MSE Logit Distillation** bám sát logits teacher OpTC (`t_bin, t_sc, t_st`).
+   - Chạy 1 lần duy nhất trên Kaggle xuất đồng thời metric **THEIA Test (114,577 mẫu)**, **Backward Transfer (BWT Before vs After IL trên toàn bộ 1,249,689 mẫu OpTC Test)** và forensic traceback ZIP.
 
 ---
 
@@ -57,21 +67,24 @@ IL/dataset_4-THEIA/
 │   ├── preprocess/
 │   │   ├── theia_schema.py              # Index bounds, T3, EDGE_REVERSED_OPS, filter .so, OpTC scopes
 │   │   ├── theia_stage_mapper.py        # REAPr GT + exclusion (fail/contaminated/4.6/.so) + 3 heads
-│   │   └── build_theia_causal_shards.py # Sort T3 Parquet, causal L=3 tracker, 5s window split, OpTC vocab
+│   │   ├── build_theia_causal_shards.py # Sort T3 Parquet, causal L=3 tracker, 5s window split, OpTC vocab
+│   │   └── build_optc_replay_bundle.py  # Tạo optc_replay_train.pt (100k) & optc_val_eval.pt (50k) đủ 8 OpTC stages
 │   ├── test/
-│   │   └── test_theia_labeling.py       # Unit tests cho REAPr exclusion, .so filter, Stage 1-4, OpTC vocab
+│   │   ├── test_theia_labeling.py       # Unit tests cho REAPr exclusion, .so filter, Stage 1-4, OpTC vocab
+│   │   └── test_theia_il_model.py       # Regression tests ExpandableMixHeadCausalIL, Epoch-0 ==0, pad_triplets, ZIP
 │   └── kaggle/
 │       ├── generate_kaggle_notebook_theia.py
 │       ├── THEIA-MixHead-IL.ipynb
 │       └── pack_kaggle_theia_il.py
 └── output/
-    ├── dl_shards/                       # 59 shards + extended_dl_vocab.json (20,937 tokens) + split_manifest.json
+    ├── dl_shards/                       # 59 THEIA shards + extended_dl_vocab.json (20,937 tokens) + split_manifest.json
+    ├── optc_il_eval/                    # optc_replay_train.pt (18.23 MB) + optc_val_eval.pt (7.22 MB) + manifest
     ├── theia_dl_shards.zip              # Standalone shards zip (25.82 MB)
     └── kaggle/
-        └── kaggle_theia_upload.zip      # Full Kaggle bundle zip (31.78 MB)
+        └── kaggle_theia_upload.zip      # Full Dual-Domain Kaggle bundle zip (58.42 MB, gồm 125 OpTC test shards)
 ```
 
 ### Chạy trên Kaggle
-1. Upload `IL/dataset_4-THEIA/output/kaggle/kaggle_theia_upload.zip` (hoặc `theia_dl_shards.zip` + `mixhead_attention_t4x2_full.pt`) làm Kaggle Dataset.
+1. Upload `IL/dataset_4-THEIA/output/kaggle/kaggle_theia_upload.zip` (`58.42 MB`, chứa sẵn THEIA shards, OpTC Replay/Val, **toàn bộ 125 OpTC test shards**, checkpoint `mixhead_attention_t4x2_full.pt`, và notebook) làm Kaggle Dataset.
 2. Mở notebook `IL/dataset_4-THEIA/code/kaggle/THEIA-MixHead-IL.ipynb` trên GPU (`T4 x 2` hoặc `P100`).
-3. Chọn **Run All** — kết quả đánh giá, model tốt nhất `theia_mixhead_il_best.pt` và forensic error traceback sẽ tự động đóng gói thành `/kaggle/working/theia_traceback_results.zip`.
+3. Chọn **Run All** — kết quả THEIA Test, **Backward Transfer trên 1,249,689 mẫu OpTC Test**, checkpoint tốt nhất `theia_mixhead_il_best.pt` và forensic error traceback sẽ tự động đóng gói thành `/kaggle/working/theia_traceback_results.zip`.

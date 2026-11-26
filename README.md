@@ -1,12 +1,10 @@
 # Khung phát hiện APT đa nguồn, nhận thức ngữ cảnh, học tăng dần (Incremental Learning)
 
-Khóa luận tốt nghiệp (KLTN): **Xây dựng khung phát hiện tấn công có chủ đích (APT) đa nguồn kết hợp nhận thức ngữ cảnh**, khởi đầu trên DARPA OpTC và học tăng dần sang ATLASv2 và AInception SL700.
+Khóa luận tốt nghiệp (KLTN): **Xây dựng khung phát hiện tấn công có chủ đích (APT) đa nguồn kết hợp nhận thức ngữ cảnh**, phát triển trên các tập dữ liệu **DARPA OpTC** (Domain 0), **ATLASv2** (Domain 1), **AInception SL700** (Domain 2 — nhánh cửa sổ) và **DARPA TC E3 THEIA** (Domain 2 — nhánh đồ thị nhân quả $L=3$ đa nhiệm).
 
-Cập nhật 14/11/2026. README này mô tả **trạng thái hiện tại**:
-- hai model IL cuối cùng (DL và ML) đã học qua ba miền;
-- hạ tầng OpenStack chạy hai model đó đã được kiểm thử đầu-cuối.
-
-Model OpTC ban đầu nay là **bước 1** của chuỗi IL (mục 5).
+Cập nhật **26/11/2026**. Tài liệu này tổng hợp trạng thái hiện tại của toàn bộ kho mã nguồn, bao gồm:
+- **Nhánh kiến trúc mới nhất (`23–26/11/2026`)**: **Causal Provenance Triplet ($L=3$) + `MixHeadSelfAttentionCausalHost` & `ExpandableMixHeadCausalIL`** (đa nhiệm 3 đầu ra Binary / Scenario / Stage, mở rộng tầng Transformer + residual gates + Progressive Unfreezing `A→B→C` + Experience Replay + LwF Logit Distillation) qua **OpTC → ATLASv2 / THEIA** kèm đo kiểm **Backward Transfer (BWT) trên toàn bộ 1,249,689 mẫu OpTC Test**.
+- **Nhánh 3 miền tiền nhiệm & Hạ tầng OpenStack (`14/11/2026`)**: **Host ML (`LightGBM` boosting phần dư)** + **BiLSTM cửa sổ 180s** qua **OpTC → ATLASv2 → AInception SL700** và hạ tầng triển khai thực nghiệm **OpenStack IL3**.
 
 ---
 
@@ -14,10 +12,10 @@ Model OpTC ban đầu nay là **bước 1** của chuỗi IL (mục 5).
 
 - [1. Tổng quan](#1-tổng-quan)
 - [2. Kết quả chính](#2-kết-quả-chính)
-- [3. Hai mô hình](#3-hai-mô-hình)
-- [4. Hạ tầng OpenStack (triển khai IL3)](#4-hạ-tầng-openstack-triển-khai-il3)
-- [5. Bước 1: model gốc trên DARPA OpTC](#5-bước-1-model-gốc-trên-darpa-optc)
-- [6. Giới hạn](#6-giới-hạn)
+- [3. Kiến trúc mô hình](#3-kiến-trúc-mô-hình)
+- [4. Tiền xử lý đa miền & Kiểm soát rò rỉ dữ liệu](#4-tiền-xử-lý-đa-miền--kiểm-soát-rò-rỉ-dữ-liệu)
+- [5. Hạ tầng OpenStack (triển khai IL3)](#5-hạ-tầng-openstack-triển-khai-il3)
+- [6. Giới hạn hiện tại](#6-giới-hạn-hiện-tại)
 - [7. Cấu trúc thư mục](#7-cấu-trúc-thư-mục)
 - [8. Tài liệu chi tiết](#8-tài-liệu-chi-tiết)
 
@@ -27,190 +25,142 @@ Model OpTC ban đầu nay là **bước 1** của chuỗi IL (mục 5).
 
 ![Kiến trúc hạ tầng IL3](Openstack/KLTN/images/KLTN-IL3-architecture.png)
 
-- **Bài toán:** phát hiện APT trên telemetry host. Model phải học được miền mới khi môi trường thay đổi mà không quên miền cũ.
-- **Chuỗi IL, ba miền:**
+- **Bài toán:** phát hiện tấn công APT trên telemetry host (Windows eCAR / Carbon Black EDR và Linux auditd / DARPA TC e3 THEIA) với 3 bài toán đồng thời: **Binary Detection**, **Campaign Scenario Attribution** và **MITRE ATT&CK Stage Classification** — học được miền mới mà không quên miền cũ (không cần Task-ID khi suy luận).
+- **Lộ trình học tăng dần đang phát triển song song:**
 
   ```mermaid
   flowchart LR
-    S1["Bước 1 · DARPA OpTC<br/>Windows · eCAR"] --> S2["Bước 2 · ATLASv2<br/>Windows · Carbon Black EDR"] --> S3["Bước 3 · AInception SL700<br/>Linux · auditd"]
+    OpTC["Domain 0 · DARPA OpTC<br/>Windows · eCAR"] --> ATLAS["Domain 1 · ATLASv2<br/>Windows · Carbon Black EDR"]
+    ATLAS --> SL700["Domain 2a · AInception SL700<br/>Linux · auditd (Window BiLSTM + LightGBM)"]
+    OpTC --> THEIA["Domain 2b · DARPA TC E3 THEIA<br/>Linux · Provenance L=3 (Expandable MixHead + Replay)"]
   ```
 
-- **Hai nhánh phát hiện:**
-  - **DL:** BiLSTM chấm theo cửa sổ 180 s, kèm stage tấn công theo từng sự kiện. Chạy ở central.
-  - **ML:** LightGBM chấm từng sự kiện, học tiếp bằng boosting phần dư. Chạy ngay trên end host.
-- **Fusion và vòng IL:**
-  - điểm của hai nhánh được hợp nhất theo ngữ cảnh thành incident trên trang SOC;
-  - nhãn SOC đã xác minh, drift hoặc lịch định kỳ sinh yêu cầu IL;
-  - model mới phải qua gate chống quên rồi mới được deploy.
+---
 
 ## 2. Kết quả chính
 
-F1 trên TEST. Mỗi ô là F1 của miền đó sau bước tương ứng; "—" là miền chưa học tới.
+### 2.1 Nhánh Host DL `MixHeadSelfAttentionCausalHost` ($L=3$ Causal Triplet) & `ExpandableMixHeadCausalIL`
+
+Kết quả đo trực tiếp trên các tập **TEST** (`mixhead_attention_t4x2_full.pt`, `atlasv2_traceback_results`, `theia_traceback_results (2)`):
+
+| Giai đoạn / Miền kiểm thử | Số mẫu TEST | Binary F1 | Precision | Recall | FPR | PR-AUC | Scenario Macro-F1 | Stage Macro-F1 | Ghi chú IL / BWT |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| **Domain 0 · OpTC Base** (`BEFORE IL`) | `1,249,689` (`pos=40,310`) | `0.9968` | `0.9986` | `0.9950` | `0.0047%` | `0.9994` | `0.9974` | `0.9584` | Mô hình gốc [`mixhead_attention_t4x2_full.pt`](DL/code/output/results/mixhead_attention_t4x2_full.pt) |
+| **Domain 1 · ATLASv2 IL** (bản adapter cũ, chưa Replay) | `427,065` (`pos=762`) | `0.8902` | `0.9984` | `0.8031` | `0.0002%` | `0.8637` | — | `0.3962` | Stage hiếm (`IC/ED/LM`) còn ít mẫu |
+| **THEIA IL cũ** *(không Replay / không mở rộng layer)* | `114,577` (`pos=13,018`) | `0.9973` | `0.9993` | `0.9954` | `0.0089%` | `0.9988` | `0.9107` | `0.9388` | Khi test ngược lại **OpTC 1.25M**: `FP` tăng `57 → 11,929` (`F1=0.8707`) |
+| **Domain 2 · THEIA IL mới** (`Expandable + A→B→C + Replay + LwF`) | `114,577` (`pos=13,018`) | **`0.9973`** | **`0.9995`** | **`0.9952`** | **`0.0069%`** | `0.9987` | **`0.9127`** | **`0.9249`** | Chỉ `7 FP` (`Drakon F1=0.7387`, `MicroAPT F1=0.9996`) |
+| **OpTC Test (`AFTER THEIA IL` — BWT 1 lần chạy)** | `1,249,689` (`pos=40,310`) | **`0.9968`** | **`0.9981`** | **`0.9954`** | **`0.0063%`** | **`0.9994`** | **`0.9972`** | `0.8761` *(W-F1 `0.9997`)* | **`76 FP`** (`BWT Binary=-0.00004`, `Scenario=-0.00017`) |
+
+- **Hiệu quả chống quên đã chứng minh thực nghiệm trên 1,249,689 mẫu OpTC Test:** Bổ sung tầng Transformer riêng (`domain_blocks`) + residual gates khởi tạo `0` + Progressive Unfreezing (`A → B → C`) + **25% Experience Replay OpTC** (`100,000` mẫu phân tầng) + **LwF Logit Distillation** giảm **99.4% số báo động giả OpTC** (`11,929 FP → 76 FP`), khôi phục hoàn toàn Binary F1 (`0.9968`) và Scenario Macro-F1 (`0.9974 → 0.9972`).
+- **Điểm cần tối ưu tiếp ở OpTC Stage Macro-F1 (`0.9584 → 0.8761`):** 7/8 lớp OpTC chính giữ nguyên hoặc tăng nhẹ F1 (`Credential Access 1.0000`, `Exfiltration 0.9982`, `Lateral Movement 0.9975`, `Discovery 0.9904`); duy nhất lớp cực hiếm `OpTC_Defense_Evasion_AMSI` (`6` mẫu test) chuyển sang `OpTC_Defense_Evasion_Injection` (không rơi về Benign) do `l_op_st` chưa gắn class-weight cho `AMSI`.
+
+### 2.2 Nhánh Host ML (`LightGBM`) & BiLSTM cửa sổ 180s (3 miền OpTC → ATLASv2 → AInception SL700, 14/11/2026)
 
 | Nhánh | Sau bước | OpTC | ATLASv2 | SL700 |
 |---|---|---:|---:|---:|
-| DL (cửa sổ, 3 seed) | 1 | 0,988 | — | — |
-| | 2 | 0,994 | 0,990 ± 0,014 | — |
-| | 3 | 0,994 | 0,970 ± 0,012 | **0,978 ± 0,004** |
-| ML (sự kiện) | 1 | 0,996 | — | — |
-| | 2 | 0,991 | 0,959 | — |
-| | 3 | 0,994 | 0,953 | **0,995** (theo cửa sổ 0,883) |
+| DL (cửa sổ, 3 seed) | 1 | `0.988` | — | — |
+| | 2 | `0.994` | `0.990 ± 0.014` | — |
+| | 3 | `0.994` | `0.970 ± 0.012` | **`0.978 ± 0.004`** |
+| ML (sự kiện · `LightGBM + cha & incoming`) | 1 | `0.9963` (`109 FP / 187 FN`) | — | — |
+| | 2 | `0.991` | `0.959` | — |
+| | 3 | `0.994` | `0.953` | **`0.995`** (theo cửa sổ `0.883`) |
 
-- **Chống quên:** sau cả ba bước, không miền cũ nào mất quá 0,02 F1. Cơ chế chống quên chính là replay: bỏ replay thì ATLASv2 của nhánh ML tụt từ 0,959 xuống 0,741.
-- **Không có chuyển giao xuôi:** train từ đầu trên miền mới đạt F1 ngang IL. Giá trị của IL là **một model duy nhất giữ được cả ba miền**.
-- **Stage (DL):** chỉ số stage presence trên miền mới đạt 0,837 (ATLASv2) và 0,758 (SL700).
-- **Số SL700 không dùng địa chỉ IP.** Thêm phạm vi địa chỉ thì DL đạt 0,999, ML theo cửa sổ đạt 0,966. Nhóm này được báo cáo riêng vì gần với luật gán nhãn.
+- So sánh baseline Host ML trên **1,249,689** sự kiện TEST OpTC (`ML/code/output/host_ml_parent_incoming_seed02/`): Random Forest (`0.9109`), XGBoost (`0.9492`), LightGBM baseline (`0.9533`), **LightGBM + ngữ cảnh cha & incoming (`0.9963`, ngưỡng VAL `0.87427`)**.
+- Bỏ Replay ở bước 2 làm ATLASv2 trên nhánh ML tụt từ `0.959` xuống `0.741`. Số SL700 trên bảng không dùng địa chỉ IP; nếu thêm phạm vi IP, DL đạt `0.999` và ML theo cửa sổ đạt `0.966`.
 
-Confusion matrix trên TEST: [`IL/figures/`](IL/figures/). So sánh với các nghiên cứu khác (chi phí phần cứng, nhóm phương pháp): [`IL/profile_20261114/related_work_comparison_v1.md`](IL/profile_20261114/related_work_comparison_v1.md).
+---
 
-## 3. Hai mô hình
+## 3. Kiến trúc mô hình
 
-Chi tiết tiền xử lý, kiến trúc và cơ chế IL: [`IL/README.md`](IL/README.md) mục 4–6.
+### 3.1 `MixHeadSelfAttentionCausalHost` & `ExpandableMixHeadCausalIL` (`DL/` + `IL/dataset_4-THEIA/`)
 
-### 3.1 DL: BiLSTM-IL (282.521 tham số sau bước 3)
+Chi tiết mã nguồn: [`DL/code/preprocess/model_mixhead_attention.py`](DL/code/preprocess/model_mixhead_attention.py), [`DL/code/README.md`](DL/code/README.md), [`IL/dataset_4-THEIA/code/kaggle/generate_kaggle_notebook_theia.py`](IL/dataset_4-THEIA/code/kaggle/generate_kaggle_notebook_theia.py).
 
-![DL](IL/figures/DL_model_overview.png)
+- **Biểu diễn chuỗi nhân quả $L=3$ Lines:** Mỗi sự kiện được mã hóa thành bộ ba chỉ sử dụng bằng chứng quá khứ $[E_{\text{incoming}},\, E_{\text{parent}},\, E_{\text{current}}]$ nhúng qua `EmbeddingBag(128)` cộng `line_embedding(3, 128)`, loại bỏ hoàn toàn nhiễu xen kẽ của cửa sổ thời gian phẳng.
+- **Backbone (`MixHeadOpTCBase`, 50 tensors OpTC Base):** 2 khối `TransformerCausalBlock` (`MultiHeadSelfAttention` 4 heads, `ff_dim=256`, `LayerNorm`), `il_adapter` (32-dim residual), `line_pooling_attn`, và 3 đầu ra (`binary_head`, `scenario_head`, `stage_head`).
+- **Mở rộng khi sang miền mới (`ExpandableMixHeadCausalIL`):**
+  1. **Mở rộng từ vựng đơn điệu:** giữ nguyên 10,499 dòng embedding OpTC (`dl_vocab.json`); nối thêm token mới chỉ fit từ `train` miền mới (`13,204` token cho ATLASv2; `20,937` token cho THEIA).
+  2. **Thêm tầng cho miền mới (`domain_blocks`):** gắn thêm 1 khối `TransformerCausalBlock` xử lý toàn bộ 3 lines sau backbone gốc, tổng hợp `[pooled_dom, line_0, line_1, line_2]` (`512` chiều) qua 3 residual heads (`delta_binary_head`, `delta_scenario_head` 6 lớp Unified, `delta_stage_head` 14 lớp Unified) nhân với residual gates **`gate_bin, gate_sc, gate_st` khởi tạo `0.0`** $\rightarrow$ đảm bảo **Epoch-0 Equivalence (`max|Δ| == 0.00e+00`)** trên miền gốc OpTC.
+  3. **Huấn luyện Progressive Unfreezing (`A → B → C`) + Replay + LwF:** Phase A (tầng mới + token mới) $\rightarrow$ Phase B (mở `blocks.1`, `il_adapter`, base heads `@1e-4`) $\rightarrow$ Phase C (mở `blocks.0`, `token_norm`, `line_embedding` `@2e-5` và cập nhật OpTC embeddings với bước `0.02×`).
 
-- **Phần gốc OpTC (78.698 tham số):** 4 trường contract `app_family`, `proto`, `resp_port_class`, `image_dir_class` + Δt → encoder → BiLSTM-1 → classifier, cho ra `z_old`.
-  - Bốn trường này **vẫn dùng ở mọi miền**, với cùng quy tắc tạo token.
-  - Với sự kiện không phải kết nối mạng, `proto` và `resp_port_class` là `<MISSING>`.
-- **Nhánh ngữ cảnh host:**
-  - bước 2 thêm 10 trường ngữ cảnh (loại sự kiện, actor, cha, đích, user, publisher…) và 21 đặc trưng số;
-  - bước 3 thêm túi token Linux (EmbeddingBag 1.939 × 32).
-  - Nhánh này được chiếu về 64 chiều và **cộng** vào đầu ra encoder; nhân `has_ctx` nên tắt hẳn với OpTC.
-- **Phần mới ở bước 2:** BiLSTM-2 → event head (logit từng sự kiện) và stage head (IC · ED · LM · EX · Impact).
-  - Điểm cửa sổ: `z = z_old + gate · max_t(logit sự kiện)`.
-- **Cơ chế IL:**
-  - mọi khối mới khởi tạo 0, nên ngay sau khi mở rộng model chấm điểm như cũ;
-  - mở băng dần A → B → C;
-  - replay dữ liệu thật của miền cũ;
-  - ngưỡng chọn trên VAL riêng của từng miền.
-- Ảnh chi tiết từng lớp: [`IL/DL_IL_architecture.png`](IL/DL_IL_architecture.png).
+### 3.2 Nhánh BiLSTM-IL (282,521 tham số) & LightGBM Boosting phần dư (21,487 cột, 3 × 300 cây)
 
-### 3.2 ML: LightGBM boosting phần dư (21.487 cột, 3 × 300 cây)
+Chi tiết: [`IL/README.md`](IL/README.md) và [`ML/code/README.md`](ML/code/README.md).
+- **BiLSTM-IL:** Đầu vào 4 trường contract OpTC (`app_family`, `proto`, `resp_port_class`, `image_dir_class`) + $\Delta t$, bổ sung nhánh ngữ cảnh host + túi token Linux (`EmbeddingBag 1,939 × 32`), `BiLSTM-2` + `stage head`, `z = z_old + gate · max_t(logit sự kiện)`, mở băng dần `A → B → C` và replay miền cũ.
+- **ML (`LightGBM`):** Mở rộng vector nhị phân (`10,317 → 12,365 → 21,487` cột) và cộng dồn margin đóng băng (`z1 = 0.8·z_OpTC + z_ATLASv2`, `z2 = 0.8·z1 + z_SL700`) với ngưỡng đóng băng theo miền (`OpTC 0.87427`, `ATLASv2 0.94073`).
 
-![ML](IL/figures/ML_model_overview.png)
+---
 
-- **Đặc trưng:** mỗi sự kiện host thành một vector nhị phân token theo hợp đồng Base OpTC:
-  - token eCAR;
-  - ngữ cảnh cha, incoming và `has_netconn`;
-  - token Linux `lx:` cho SL700.
-- **Từ vựng mở rộng đơn điệu:** 10.317 cột OpTC → 12.365 (bước 2) → 21.487 (bước 3).
-- **Cộng dồn margin:** `z1 = 0,8·z_OpTC + z_ATLASv2`, rồi `z2 = 0,8·z1 + z_SL700`.
-  - Booster cũ đóng băng và chỉ đọc phần cột của mình.
-  - Booster mới học phần dư, với replay, init score và trọng số hard negative.
-- **Ngưỡng:** miền cũ giữ ngưỡng đóng băng (OpTC 0,87427; ATLASv2 0,94073); miền mới chọn trên VAL.
-- **Khi triển khai:** ba booster được ghép thành một booster 900 cây và chạy trong agent trên end host.
-- Ảnh chi tiết: [`IL/ML_IL_architecture.png`](IL/ML_IL_architecture.png).
+## 4. Tiền xử lý đa miền & Kiểm soát rò rỉ dữ liệu
 
-## 4. Hạ tầng OpenStack (triển khai IL3)
+| Tập dữ liệu | Vai trò | Số mẫu sạch ($L=3$ / Shards) | Chiến dịch & Giai đoạn | Chính sách làm sạch & chống rò rỉ |
+|---|---|---:|---|---|
+| **DARPA OpTC** | Domain 0 | `~8.33M` (`1,249,689` Test) | `3` Scenarios · `10` MITRE Stages | Từ vựng gốc `10,499` (`dl_vocab.json`), ngữ cảnh cha + incoming chỉ dùng quá khứ trước sự kiện |
+| **ATLASv2** (`IL/dataset_1-ATLASv2`) | Domain 1 | `1,830,633` (`184` shards) | `5` Stages (chuyển từ CBC EDR + REAPr) | Loại DLL/loader Windows chuẩn (`ntdll.dll`, `kernel32.dll`), nối ngữ cảnh nhân quả past-only |
+| **DARPA TC E3 THEIA** (`IL/dataset_4-THEIA`) | Domain 2 | `580,048` (`59` shards) | `2` Success Scenarios · `4` Active Stages | Sort T3 `Parquet`, xử lý `EDGE_REVERSED_OPS`, **loại 4 chuỗi REAPr `fail` + 2 cạnh `contaminated` + 17 cạnh 4.6 phishing + 1,050,433 OS `.so`** (giữ `/tmp/memtrace.so`), chia cửa sổ 5s/60s không giao nhau (`0` overlap) |
+
+---
+
+## 5. Hạ tầng OpenStack (triển khai IL3)
 
 Tài liệu đầy đủ: [`Openstack/KLTN/README.md`](Openstack/KLTN/README.md).
 
-- **End host (3 VM do Terraform tạo):**
-  - 2 Ubuntu 24.04 chạy auditd với đúng bộ rule đã sinh dữ liệu SL700;
-  - 1 Windows 11 chạy Sysmon v3, Security và PowerShell 4104.
-  - Fluent Bit gửi log thô về central. `kltn-agent` chấm điểm bằng model ML ngay trên máy.
-- **Central (Docker compose `kltn-il3`):**
-  - Caddy (TLS) → FastAPI → NATS JetStream → archiver → PostgreSQL;
-  - normalizer dựng `host_events`; DL worker chấm từng cửa sổ;
-  - framework: fusion theo bucket 5 phút, gộp incident, drift, trigger IL;
-  - trang `/soc` để review alert, gán nhãn từng event, yêu cầu response và quản lý vòng đời model.
-- **Phản ứng:** `response_controller` (systemd) cô lập VM bằng security group `kltn-quarantine`. Chỉ chạy trên alert đã Confirmed và đã được duyệt. Lab dùng chính sách `single_operator` (người yêu cầu tự duyệt); môi trường dùng chung thì đổi sang `two_person`.
-- **IL service** (systemd, GPU):
-  1. export dataset đã xác minh từ SOC, chia theo incident;
-  2. gate dữ liệu: ≥ 3 incident, ≥ 20 event tấn công, ≥ 2.000 benign;
-  3. mở rộng vocab → bước IL có replay;
-  4. gate quên: F1 VAL mỗi miền cũ giảm ≤ 0,02;
-  5. ghi vào MLflow với alias `candidate`.
-  - Việc activate và deploy luôn do người vận hành làm.
-- **Parity train/serve trên log thô:**
-  - ML: 105.606/105.606 dòng TEST SL700 trùng cột đặc trưng, |Δz| = 2,3e-14;
-  - DL: 1.681/1.681 cửa sổ khớp input.
-- **Kiểm thử đầu-cuối 14/11:**
-  - sửa vòng lặp tự giám sát của sensor;
-  - SOC hiển thị đúng lệnh gốc;
-  - sửa logic drift và trigger;
-  - cả hai service systemd chạy đúng (`collect_evidence` xuất xong; request IL bị từ chối đúng vì chưa có tấn công được xác nhận).
-- **Trạng thái miền:**
-  - Ubuntu (`linux-audit`) đã validated offline;
-  - Windows (`windows-sysmon`) chạy ở chế độ `shadow_unvalidated`, vì model chưa từng thấy Sysmon có nhãn.
-- **Bước tiếp theo:** hunting bằng APT thật để có incident gán nhãn cho IL. Phương pháp và ràng buộc của hạ tầng: [`Openstack/KLTN/docs/hunting_reading_list.md`](Openstack/KLTN/docs/hunting_reading_list.md). Kịch bản emulation (chỉ dùng cho lab được phép) ở [`Openstack/KLTN/red-team/`](Openstack/KLTN/red-team/README.md): AttackMate (Linux) + Atomic Red Team (Windows), nhiều biến thể, impact đảo ngược được.
+- **End host (3 VM Terraform):** 2 Ubuntu 24.04 (`auditd` chuẩn SL700) + 1 Windows 11 (`Sysmon v3`, Security, PowerShell 4104); `kltn-agent` chấm điểm ML trực tiếp trên end host và đẩy log về central qua Fluent Bit.
+- **Central (`docker-compose kltn-il3`):** Caddy (TLS) $\rightarrow$ FastAPI $\rightarrow$ NATS JetStream $\rightarrow$ archiver $\rightarrow$ PostgreSQL; normalizer dựng `host_events`, DL worker chấm điểm, trang `/soc` review cảnh báo/gán nhãn/kích hoạt phản ứng (`response_controller` cô lập bằng security group `kltn-quarantine`).
+- **IL service:** Tự động xuất incident đã xác minh từ SOC, qua data gate và gate chống quên trên VAL (`F1` miền cũ giảm $\le 0.02$) trước khi lưu vào MLflow dưới alias `candidate`.
+- **Parity train/serve trên log thô (14/11/2026):** ML khớp `105,606/105,606` dòng TEST SL700 ($|\Delta z| = 2.3 \times 10^{-14}$); DL khớp `1,681/1,681` cửa sổ.
 
-## 5. Bước 1: model gốc trên DARPA OpTC
+---
 
-Hai model này là điểm khởi đầu của chuỗi IL. Chúng không được train lại; từ vựng OpTC được giữ nguyên ở mọi bước sau. Số liệu dưới đây là của riêng bước 1, chấm trên TEST OpTC.
+## 6. Giới hạn hiện tại
 
-**ML: LightGBM + ngữ cảnh cha và incoming** (`ML/code/output/host_ml_parent_incoming_seed02/`)
-- Mỗi sự kiện eCAR (benign 16–22/09/2019, tấn công 23–25/09/2019) thành 10.317 cột nhị phân:
-  - token cú pháp và ngữ nghĩa;
-  - dòng dõi cha;
-  - `PROCESS OPEN` / `THREAD REMOTE_CREATE` đi tới tiến trình (chỉ dùng bằng chứng trước thời điểm sự kiện).
-- Split ngẫu nhiên phân tầng theo sự kiện, 75/10/15. TEST có 1.249.689 sự kiện.
+1. **Một số sự kiện HTTP 1-hop trên THEIA (`NationState_Firefox_Drakon`) bị trùng phổ token với Benign:** `54/62` FN và `6/7` FP trên THEIA rơi vào mẫu hình `firefox ← EVENT_RECVFROM ← external_public:http_web` khi IP cụ thể bị ẩn vì chống rò rỉ.
+2. **Lớp cực hiếm trên replay đa miền:** Khi chuyển sang miền mới (`OpTC_Defense_Evasion_AMSI` chỉ có `6` mẫu test trên OpTC hay các stage hiếm `IC/ED/LM` trên ATLASv2), cần gắn class-weight cho cả luồng replay miền cũ và oversample hợp lý.
+3. **Biến thể hoàn toàn chưa thấy & FP môi trường thực:** Trên SL700 khi giữ `e_a` (cron persistence) làm test chỉ đạt `0.74–0.83`; trên hạ tầng lab OpenStack, các tác vụ quản trị (`ssh+sudo`, WinRM) vẫn sinh FP cho tới khi được vòng IL từ dữ liệu xác nhận cập nhật lại.
+4. **Windows/Sysmon trên OpenStack (`shadow_unvalidated`):** Cần hoàn tất hunting kịch bản ([`Openstack/KLTN/red-team/`](Openstack/KLTN/red-team/README.md)) để có dữ liệu gán nhãn chuẩn.
 
-| Model (cùng TEST) | Precision | Recall | F1 | FP | FN |
-|---|---:|---:|---:|---:|---:|
-| Random Forest baseline | 0,9587 | 0,8677 | 0,9109 | 1.505 | 5.334 |
-| XGBoost baseline | 0,9793 | 0,9209 | 0,9492 | 786 | 3.189 |
-| LightGBM baseline | 0,9881 | 0,9209 | 0,9533 | 446 | 3.189 |
-| **LightGBM + cha & incoming** (ngưỡng VAL 0,87427) | **0,9973** | **0,9954** | **0,9963** | **109** | **187** |
-
-**DL: BiLSTM subsetB** (`DL/05_models/v2_subsetB`)
-- Đầu vào: cửa sổ 15 phút theo máy, tối đa 512 flow mạng (Bro conn nối eCAR FLOW).
-- Chỉ dùng 4 trường `app_family`, `proto`, `resp_port_class`, `image_dir_class` + Δt. Các metric L3/L4 của Bro được bỏ hẳn, để đặc trưng nào cũng lấy được từ log hệ điều hành.
-- Split ngẫu nhiên theo cửa sổ. TEST có 34.413 mẫu, 82 dương.
-- Kết quả: BiLSTM đạt **F1 0,988** (80 TP / 0 FP / 2 FN). Mixed-Type Self-Attention đạt 0,994 nhưng không được dùng tiếp cho IL.
-
-**Lưu ý khi diễn giải bước 1:**
-- Trên OpTC, một luật đơn "cửa sổ có `powershell.exe`" đã đạt F1 0,994.
-- Split ngẫu nhiên không tách theo máy: 80/81 cửa sổ dương của TEST nằm trên máy đã có cửa sổ dương trong TRAIN.
-
-Vì vậy kết quả OpTC chủ yếu chứng minh model gốc hoạt động. Khả năng tổng quát được đo ở các bước 2–3, nơi split theo kịch bản hoặc run để TEST là tấn công chưa thấy.
-
-Tài liệu bước 1: [`ML/code/README.md`](ML/code/README.md), [`DL/01_code/README.md`](DL/01_code/README.md), [`DL/02_artifacts/22_v2_pipeline/S7_results/STEP_S7_RESULTS.md`](DL/02_artifacts/22_v2_pipeline/S7_results/STEP_S7_RESULTS.md).
-
-## 6. Giới hạn
-
-1. **Không có chuyển giao xuôi:** train từ đầu trên miền mới đạt F1 ngang IL.
-2. **Biến thể chưa thấy:** giữ run e_a (persistence bằng cron) làm TEST thì DL chỉ đạt 0,74–0,83.
-3. **SL700:** TEST chỉ là một run, nhãn là heuristic theo cây tiến trình.
-4. **Windows/Sysmon chưa có số đo**, và fusion chưa được calibrate trên lab.
-5. **Replay cần giữ dữ liệu thật** của các miền cũ.
-6. **FP trên lab:** workload benign và thao tác quản trị (ssh+sudo, WinRM) vẫn sinh FP. Chúng chỉ giảm được khi IL có incident tấn công được xác nhận.
+---
 
 ## 7. Cấu trúc thư mục
 
 ```text
 /mnt/SSD_Data/optc/
-├── README.md                 # tài liệu này
-├── AGENTS.md, MENU.md        # quy tắc thực nghiệm và bản đồ vai trò file
-├── DATASET/                  # dữ liệu gốc (OpTC, ATLASv2, AInception, …), chỉ đọc
-├── IL/                       # chuỗi Incremental Learning (DL + ML), kết quả cuối
-│   ├── README.md             # tổng quan IL: tiền xử lý, kiến trúc, cơ chế IL, kết quả
-│   ├── dataset_1-ATLASv2/    # bước 2
-│   ├── dataset_2-AInception/ # bước 3
-│   ├── figures/              # sơ đồ khối 2 model, confusion matrix TEST
-│   ├── profile_20261114/     # đo thời gian/GPU, so sánh related work
-│   └── HANDOFF_20261113.md   # nhật ký bàn giao
-├── ML/                       # bước 1: Host ML trên OpTC (LightGBM + ngữ cảnh)
-├── DL/                       # bước 1: Network DL trên OpTC (BiLSTM subsetB)
-├── Openstack/KLTN/           # hạ tầng: Terraform, Ansible, central, serving, IL service, SOC
-│   ├── README.md             # kiến trúc, vận hành, kiểm thử e2e
-│   ├── docs/                 # tài liệu hunting
-│   └── images/               # sơ đồ kiến trúc + script vẽ
-├── docs/                     # đề cương, chọn framework, ghi chú IL
-├── paper-general/, paper-token/, paper-il/   # tài liệu tham khảo
-└── Temp/                     # nháp (không track)
+├── README.md                           # Tài liệu tổng quan (tệp này)
+├── AGENTS.md, MENU.md                  # Quy tắc thực nghiệm và bản đồ vai trò mã nguồn
+├── DATASET/                            # Dữ liệu gốc (OpTC, ATLASv2, AInception, THEIA, REAPr), chỉ đọc
+├── DL/                                 # Kiến trúc Mix-Head Self-Attention & Causal BiLSTM trên OpTC (L=3)
+│   ├── code/preprocess/                # model_mixhead_attention.py, model_causal_bilstm.py, build_dl_vocab.py
+│   ├── code/kaggle/                    # Mix-Head.ipynb, BiLSTM.ipynb, scripts đóng gói Kaggle
+│   ├── code/test/                      # Unit/integration tests DL trên OpTC
+│   ├── code/output/results/            # mixhead_attention_t4x2_full.pt (OpTC Base Domain-0)
+│   └── analyst/, docs/                 # Báo cáo kiến trúc và trạng thái DL
+├── IL/                                 # Học tăng dần đa miền
+│   ├── README.md                       # Tài liệu tổng quan nhánh Window BiLSTM + LightGBM (OpTC→ATLASv2→SL700)
+│   ├── dataset_1-ATLASv2/              # Domain 1: L=3 shards (1.83M), adapter IL, LightGBM & BiLSTM IL
+│   ├── dataset_2-AInception/           # Domain 2a: Linux auditd SL700 (relabel_v3, BiLSTM & LightGBM step 3)
+│   ├── dataset_3-KLTN/                 # Kết quả runs hạ tầng KLTN
+│   └── dataset_4-THEIA/                # Domain 2b: THEIA T3 sạch (580k shards), ExpandableMixHeadCausalIL + OpTC BWT 1.25M
+│       ├── code/preprocess/            # theia_schema.py, theia_stage_mapper.py, build_theia_causal_shards.py, build_optc_replay_bundle.py
+│       ├── code/kaggle/                # THEIA-MixHead-IL.ipynb, pack_kaggle_theia_il.py
+│       ├── code/test/                  # test_theia_labeling.py, test_theia_il_model.py
+│       └── docs/, output/              # THEIA_GROUND_TRUTH_ANALYSIS.md, optc_il_eval/, kaggle/theia_traceback_results (2)/
+├── ML/                                 # Host ML gốc trên OpTC (LightGBM + ngữ cảnh cha/incoming)
+├── Openstack/KLTN/                     # Hạ tầng Terraform, Ansible, central, serving, IL service, SOC, red-team
+├── docs/                               # Đề cương KLTN, chọn framework, đối chiếu paper
+├── paper-general/, paper-token/, paper-il/  # Tài liệu tham khảo khoa học
+└── Temp/                               # Thư mục tạm cục bộ (không commit)
 ```
+
+---
 
 ## 8. Tài liệu chi tiết
 
 | Chủ đề | Tài liệu |
 |---|---|
-| Chuỗi IL, hai model, kết quả | [`IL/README.md`](IL/README.md) |
-| Báo cáo từng bước IL | [`IL/README.md`](IL/README.md) mục 9 |
-| Hạ tầng, fusion, drift, vận hành, kiểm thử e2e | [`Openstack/KLTN/README.md`](Openstack/KLTN/README.md) |
-| Sơ đồ kiến trúc | [`Openstack/KLTN/images/README.md`](Openstack/KLTN/images/README.md) |
-| Hunting và soạn kịch bản | [`Openstack/KLTN/docs/hunting_reading_list.md`](Openstack/KLTN/docs/hunting_reading_list.md) |
-| So sánh related work, chi phí | [`IL/profile_20261114/related_work_comparison_v1.md`](IL/profile_20261114/related_work_comparison_v1.md) |
-| Model gốc OpTC (bước 1) | [`ML/code/README.md`](ML/code/README.md), [`DL/01_code/README.md`](DL/01_code/README.md) |
+| Deep Learning Causal Provenance $L=3$ & Mix-Head (OpTC) | [`DL/code/README.md`](DL/code/README.md), [`DL/analyst/CAUSAL_BILSTM_ARCHITECTURE.md`](DL/analyst/CAUSAL_BILSTM_ARCHITECTURE.md) |
+| Domain-IL THEIA T3 Sạch, `ExpandableMixHeadCausalIL` & OpTC BWT | [`IL/dataset_4-THEIA/README.md`](IL/dataset_4-THEIA/README.md), [`IL/dataset_4-THEIA/docs/THEIA_GROUND_TRUTH_ANALYSIS.md`](IL/dataset_4-THEIA/docs/THEIA_GROUND_TRUTH_ANALYSIS.md) |
+| Domain-IL ATLASv2 | [`IL/dataset_1-ATLASv2/README.md`](IL/dataset_1-ATLASv2/README.md) |
+| Chuỗi IL tiền nhiệm (Window BiLSTM + LightGBM 3 miền) | [`IL/README.md`](IL/README.md), [`IL/dataset_2-AInception/README.md`](IL/dataset_2-AInception/README.md) |
+| Model ML gốc trên OpTC | [`ML/code/README.md`](ML/code/README.md) |
+| Hạ tầng OpenStack IL3, SOC & Red-Team Hunting | [`Openstack/KLTN/README.md`](Openstack/KLTN/README.md), [`Openstack/KLTN/docs/hunting_reading_list.md`](Openstack/KLTN/docs/hunting_reading_list.md) |
+| Bản đồ vai trò toàn bộ mã nguồn | [`MENU.md`](MENU.md) |
