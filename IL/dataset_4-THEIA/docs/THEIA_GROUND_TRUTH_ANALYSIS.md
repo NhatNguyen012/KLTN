@@ -41,4 +41,17 @@ Theo khuyến cáo của **REAPr Ground Truth** (`theia_edge_labels.tar.gz`, `th
 
 1. **Zero-Leakage Time-Window Split**: Thay `md5(uuid)` bằng **cửa sổ 5 giây không giao nhau** (attack) / **block 60 giây** (benign). Xác minh `0` cửa sổ và `0` UUID trùng nhau giữa `train`/`val`/`test`, đồng thời đảm bảo đủ cả 8 ô `(Scenario, Stage)` trong cả 3 tập.
 2. **OpTC Base Token Alignment**: Ánh xạ operation & thuộc tính mạng (`action::*`, `object::*`, `structure::action_object=*`, `net::*`, `image_path::category=*`, `file_path::category=*`) khớp đúng **10,499 ID gốc trong `dl_vocab.json`** (~56% lưu lượng token trên THEIA tái sử dụng trực tiếp embedding pretrained từ OpTC).
-3. **Train-Only Vocabulary Extension & Continual Learning Freeze**: **10,438 token THEIA mới** được fit duy nhất trên tập `train` (`[10499..20936]`). Khi fine-tune trên Kaggle, toàn bộ Transformer Blocks, `line_embedding`, `token_norm` và **các hàng embedding OpTC `[0:10499]` bị khóa nguyên vẹn**, chỉ cập nhật các hàng từ vựng THEIA mới `[10499:]`, `IL Adapter (32-dim)` và 3 đầu ra (`binary_head` 1 logit, `scenario_head` 3 classes, `stage_head` 5 classes).
+3. **Train-Only Vocabulary Extension & Multi-Layer Continual Learning (`ExpandableMixHeadCausalIL`)**:
+   - **10,438 token THEIA mới** được fit duy nhất trên tập `train` (`[10499..20936]`).
+   - Kiến trúc IL mở rộng trên $L=3$ lines (`E_incoming, E_parent, E_current`) bổ sung thêm **1 Domain Transformer Block (`domain_blocks`)** + Attention Pooling + residual multi-heads (`delta_binary_head`, `delta_scenario_head` 6 lớp Unified, `delta_stage_head` 14 lớp Unified) với **zero-initialized residual gates (`gate_bin, gate_sc, gate_st = 0`)** đảm bảo Epoch-0 tương đương tuyệt đối (`max|Δ| == 0.00e+00`) với Domain-0 OpTC Base.
+   - Huấn luyện theo lịch trình **Progressive Unfreezing `A -> B -> C`** (`Phase A ep 1..4`: chỉ train layer mới/heads/new vocab -> `Phase B ep 5..8`: mở `blocks.1`, `il_adapter`, `line_pooling_attn`, base heads `@1e-4` -> `Phase C ep 9..12`: mở `blocks.0`, `token_norm`, `line_embedding`, OpTC vocab `@2e-5`), kết hợp **Experience Replay OpTC** (`384 THEIA + 128 OpTC` mỗi step từ `optc_replay_train.pt` `100k` mẫu đủ 8 stages) và **LwF Logit Distillation** giữ biên quyết định gốc trên toàn bộ **1,249,689 mẫu OpTC Test** (đo BWT trực tiếp trước và sau IL).
+
+---
+
+## 4. Bằng Chứng Thực Nghiệm Chống Quên Thảm Khốc (Backward Transfer trên 1,249,689 Mẫu OpTC Test)
+
+- Đo baseline Domain-0 OpTC (`mixhead_attention_t4x2_full.pt`) trên đủ **125 shards / 1,249,689 mẫu Test OpTC (`pos=40,310`)**:
+  - `@thr=0.50`: `TP=40,110, FP=57, TN=1,209,322, FN=200 | P=0.9986, R=0.9950, F1=0.9968, FPR=0.0047%, PR-AUC=0.9994, ROC-AUC=0.9999 | Scenario Macro-F1=0.9974, Stage Macro-F1=0.9584`.
+- Khi fine-tune THEIA **không có Experience Replay + Expandable Layers/Heads + LwF Distillation** (phiên bản trước):
+  - `FP` trên OpTC Test vọt từ **`57` lên `11,929`** (`FPR: 0.0047% -> 0.9864%`, `F1: 0.9968 -> 0.8707`, giảm `-12.61%` điểm Binary F1 và mất các lớp Scenario/Stage OpTC).
+- Kiến trúc mới (`ExpandableMixHeadCausalIL` + Replay 25%/step + LwF + Progressive Unfreezing `A->B->C`) đóng gói cả **125 shards OpTC Test** vào bundle Kaggle để kiểm chứng BWT toàn vẹn trong 1 lần chạy.
