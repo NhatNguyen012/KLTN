@@ -39,6 +39,13 @@ This map covers the ATLASv2 DL investigation (2026-11-11).
 | `IL/dataset_1-ATLASv2/code/DL/train_mixhead_atlasv2.py` | Domain-Incremental Learning trainer using frozen OpTC Mix-Head Backbone, 32-dim IL Adapter, 5-stage classifier, and OpTC replay buffer. |
 | `IL/dataset_1-ATLASv2/code/kaggle/generate_kaggle_notebook_atlasv2.py` | Generator for Kaggle Dual GPU (T4x2) Continual Learning notebook `ATLASv2-MixHead-IL.ipynb` with self-contained execution, forensic error traceback, and `atlasv2_traceback_results.zip` packaging. |
 | `IL/dataset_1-ATLASv2/code/kaggle/pack_kaggle_atlasv2_il.py` | Bundles pre-built ATLASv2 shards, OpTC base checkpoint, modules, and notebook into `IL/dataset_1-ATLASv2/output/kaggle/kaggle_atlasv2_upload.zip`. |
+| `IL/dataset_4-THEIA/code/preprocess/theia_schema.py` | Schema definitions, T3 start (`T3_START_NS`), `EDGE_REVERSED_OPS`, index bounds, fail/common-threat/OS-shared-lib exclusions, and OpTC-aligned IP/port/path roles for DARPA TC E3 THEIA. |
+| `IL/dataset_4-THEIA/code/preprocess/theia_stage_mapper.py` | Resolves REAPr exclusions (fail chains, contaminated edges, Common Threat 4.6, OS `.so` noise while keeping `/tmp/memtrace.so`) and 3-head labels (Binary, Scenario `0..2`, MITRE Stage `0..4`). |
+| `IL/dataset_4-THEIA/code/preprocess/build_theia_causal_shards.py` | Sorts T3 `Parquet/event_table.parquet` chronologically, builds clean L=3 causal shards (`580,048` events across 59 shards) using disjoint 5s/60s windows and OpTC-aligned train-only vocab (`20,937` tokens). |
+| `IL/dataset_4-THEIA/code/test/test_theia_labeling.py` | Regression tests covering REAPr fail/contaminated exclusions, `.so`/loader filtering, Stage 1-4 mapping, and OpTC token compatibility. |
+| `IL/dataset_4-THEIA/code/kaggle/generate_kaggle_notebook_theia.py` | Generator for Kaggle Dual GPU Continual Learning notebook `THEIA-MixHead-IL.ipynb` matching `MixHeadSelfAttentionCausalHost` (`mixhead_attention_t4x2_full.pt`), bitwise-frozen OpTC base rows `[0:10499]`, and `theia_traceback_results.zip`. |
+| `IL/dataset_4-THEIA/code/kaggle/pack_kaggle_theia_il.py` | Bundles pre-built clean THEIA shards, OpTC base checkpoint, and notebook into `IL/dataset_4-THEIA/output/theia_dl_shards.zip` (`25.82 MB`) and `IL/dataset_4-THEIA/output/kaggle/kaggle_theia_upload.zip` (`31.78 MB`). |
+| `IL/dataset_4-THEIA/docs/THEIA_GROUND_TRUTH_ANALYSIS.md` | Literature audit summary (`NDSS 2027 Theseus`, `REAPr`, `MAGIC`, `StageFinder`, `RAPiDLe`, `TFLAG`), `.so`/loader & fail exclusion rationale, sample breakdown, and OpTC cross-domain alignment. |
 
 Existing run directories and source datasets are preserved. Research experiments use
 new output directories and never overwrite earlier checkpoints.
