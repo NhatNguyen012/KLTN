@@ -145,6 +145,7 @@ Tài liệu đầy đủ: [`Openstack/KLTN/README.md`](Openstack/KLTN/README.md)
 │       ├── code/test/                  # test_theia_labeling.py, test_theia_il_model.py
 │       └── docs/, output/              # THEIA_GROUND_TRUTH_ANALYSIS.md, optc_il_eval/, kaggle/theia_traceback_results (2)/
 ├── ML/                                 # Host ML gốc trên OpTC (LightGBM + ngữ cảnh cha/incoming)
+├── Docker/                             # 3 Docker containers serving ML + DL MixHead-IL + SOC Web UI (:8001/:8002/:8080)
 ├── Openstack/KLTN/                     # Hạ tầng Terraform, Ansible, central, serving, IL service, SOC, red-team
 ├── docs/                               # Đề cương KLTN, chọn framework, đối chiếu paper
 ├── paper-general/, paper-token/, paper-il/  # Tài liệu tham khảo khoa học
@@ -162,5 +163,6 @@ Tài liệu đầy đủ: [`Openstack/KLTN/README.md`](Openstack/KLTN/README.md)
 | Domain-IL ATLASv2 | [`IL/dataset_1-ATLASv2/README.md`](IL/dataset_1-ATLASv2/README.md) |
 | Chuỗi IL tiền nhiệm (Window BiLSTM + LightGBM 3 miền) | [`IL/README.md`](IL/README.md), [`IL/dataset_2-AInception/README.md`](IL/dataset_2-AInception/README.md) |
 | Model ML gốc trên OpTC | [`ML/code/README.md`](ML/code/README.md) |
+| Triển khai Docker ML + DL + SOC Web UI (`:8080`) | [`Docker/README.md`](Docker/README.md) |
 | Hạ tầng OpenStack IL3, SOC & Red-Team Hunting | [`Openstack/KLTN/README.md`](Openstack/KLTN/README.md), [`Openstack/KLTN/docs/hunting_reading_list.md`](Openstack/KLTN/docs/hunting_reading_list.md) |
 | Bản đồ vai trò toàn bộ mã nguồn | [`MENU.md`](MENU.md) |

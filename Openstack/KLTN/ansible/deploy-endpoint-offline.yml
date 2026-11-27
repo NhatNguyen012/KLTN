@@ -1,0 +1,158 @@
+---
+# Airgapped deployment of endpoint ML code, verified bundles, and filtered Fluent Bit policy
+- name: Deploy Linux endpoint agent & sensor policy (offline)
+  hosts: linux
+  become: true
+  gather_facts: false
+  vars:
+    endpoint_agent_enabled: true
+    agent_mode: ready_active
+    agent_bundle_path: /opt/kltn-agent/models/releases/host-ml-il3-20261114
+  tasks:
+    - name: Pause Fluent Bit & agent before sync
+      ansible.builtin.systemd_service:
+        name: '{{ item }}'
+        state: stopped
+      loop: [fluent-bit, kltn-agent]
+      failed_when: false
+    - name: Copy updated agent.py and kltn_features
+      ansible.builtin.copy:
+        src: '{{ playbook_dir }}/../serving/endpoint/agent.py'
+        dest: /opt/kltn-agent/agent.py
+        mode: '0644'
+    - name: Sync kltn_features package
+      ansible.builtin.copy:
+        src: '{{ playbook_dir }}/../serving/kltn_features'
+        dest: /opt/kltn-agent/
+        owner: root
+        group: kltn-agent
+        mode: 'u=rwX,g=rX,o=rX'
+    - name: Ensure current symlink & model.json point to Linux IL3 release
+      ansible.builtin.shell: |
+        ln -sfn /opt/kltn-agent/models/releases/host-ml-il3-20261114 /opt/kltn-agent/models/current
+        printf '{"bundle_path": "/opt/kltn-agent/models/releases/host-ml-il3-20261114", "mode": "ready_active"}\n' > /opt/kltn-agent/model.json
+        chmod 0644 /opt/kltn-agent/model.json
+      changed_when: true
+    - name: Lookup kltn-agent uid for audit self-exclusion rule
+      ansible.builtin.getent:
+        database: passwd
+        key: kltn-agent
+    - name: Update agent configuration
+      ansible.builtin.template:
+        src: roles/endpoint_agent/templates/agent.json.j2
+        dest: /etc/kltn-agent/config.json
+        owner: root
+        group: kltn-agent
+        mode: '0640'
+      vars:
+        agent_database: /var/lib/kltn-agent/inbox.sqlite
+      no_log: true
+    - name: Update systemd unit for concurrency 64
+      ansible.builtin.template:
+        src: roles/endpoint_agent/templates/kltn-agent.service.j2
+        dest: /etc/systemd/system/kltn-agent.service
+        mode: '0644'
+    - name: Update audit self-exclusion rules (with timesyncd airgap connect filter)
+      ansible.builtin.template:
+        src: roles/linux_sensor/templates/kltn-sensor.rules.j2
+        dest: /etc/audit/rules.d/99-kltn-sensor.rules
+        mode: '0640'
+    - name: Remove legacy un-numbered sensor rule if distinct and reload auditd
+      ansible.builtin.shell: |
+        rm -f /etc/audit/rules.d/kltn-sensor.rules
+        augenrules --load
+        service auditd reload
+      changed_when: true
+    - name: Update Linux Fluent Bit configuration with edge filter policy
+      ansible.builtin.template:
+        src: roles/linux_sensor/templates/fluent-bit.conf.j2
+        dest: /etc/fluent-bit/fluent-bit.conf
+        mode: '0600'
+      no_log: true
+    - name: Validate Fluent Bit configuration cleanly
+      ansible.builtin.command: /opt/fluent-bit/bin/fluent-bit --dry-run -c /etc/fluent-bit/fluent-bit.conf
+      changed_when: false
+    - name: Enable and start kltn-agent (keep fluent-bit stopped until DB wipe)
+      ansible.builtin.systemd_service:
+        name: kltn-agent
+        enabled: true
+        state: started
+        daemon_reload: true
+    - name: Verify Linux kltn-agent /readyz HTTP 200
+      ansible.builtin.uri:
+        url: http://127.0.0.1:18081/readyz
+        return_content: true
+      register: ready_res
+      until: ready_res.status == 200
+      retries: 15
+      delay: 2
+
+- name: Deploy Windows endpoint agent & Seed-02 bundle (offline)
+  hosts: windows
+  gather_facts: false
+  vars:
+    endpoint_agent_enabled: true
+    agent_mode: ready_active
+    agent_bundle_path: C:\KLTN\agent\models\releases\optc-seed02-host-ml-v1
+  tasks:
+    - name: Pause Windows collector & agent before sync
+      ansible.windows.win_service:
+        name: '{{ item }}'
+        state: stopped
+      loop: [kltn-fluent-bit, kltn-agent]
+      failed_when: false
+    - name: Copy updated agent.py
+      ansible.windows.win_copy:
+        src: '{{ playbook_dir }}/../serving/endpoint/agent.py'
+        dest: C:\KLTN\agent\agent.py
+    - name: Sync kltn_features package
+      ansible.windows.win_copy:
+        src: '{{ playbook_dir }}/../serving/kltn_features'
+        dest: C:\KLTN\agent\
+    - name: Copy OpTC Seed-02 immutable bundle
+      ansible.windows.win_copy:
+        src: '{{ runtime_dir }}/releases/optc-seed02-host-ml-v1'
+        dest: C:\KLTN\agent\models\releases\
+    - name: Write Windows model.json for optc-seed02-host-ml-v1
+      ansible.windows.win_copy:
+        content: '{"bundle_path": "C:\\KLTN\\agent\\models\\releases\\optc-seed02-host-ml-v1", "mode": "ready_active"}'
+        dest: C:\KLTN\agent\model.json
+    - name: Update Windows agent configuration
+      ansible.windows.win_template:
+        src: roles/endpoint_agent/templates/agent.json.j2
+        dest: C:\KLTN\agent\config.json
+      vars:
+        agent_database: 'C:\KLTN\agent\state\inbox.sqlite'
+      no_log: true
+    - name: Update WinSW XML configuration for concurrency 64
+      ansible.windows.win_template:
+        src: roles/endpoint_agent/templates/kltn-agent.xml.j2
+        dest: C:\KLTN\agent\kltn-agent.xml
+    - name: Grant LocalService read access to deployed code and Seed-02 bundle
+      ansible.windows.win_acl:
+        path: C:\KLTN\agent
+        user: S-1-5-19
+        rights: ReadAndExecute
+        type: allow
+        inherit: ContainerInherit,ObjectInherit
+        propagation: None
+    - name: Update Windows Fluent Bit configuration with PowerShell 4104 allowlist & edge policy
+      ansible.windows.win_template:
+        src: roles/windows_sensor/templates/fluent-bit.conf.j2
+        dest: C:\KLTN\fluent-bit.conf
+      no_log: true
+    - name: Enable and start Windows kltn-agent (keep kltn-fluent-bit stopped until DB wipe)
+      ansible.windows.win_service:
+        name: kltn-agent
+        start_mode: auto
+        state: started
+    - name: Verify Windows kltn-agent /readyz HTTP 200
+      ansible.windows.win_uri:
+        url: http://127.0.0.1:18081/readyz
+        return_content: true
+        url_timeout: 15
+        use_proxy: false
+      register: win_ready
+      until: win_ready.status_code == 200
+      retries: 15
+      delay: 2

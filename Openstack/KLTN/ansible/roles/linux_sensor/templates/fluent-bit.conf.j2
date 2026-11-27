@@ -1,5 +1,5 @@
 [SERVICE]
-    Flush 2
+    Flush 5
     Log_Level info
     storage.path /var/lib/kltn/buffer
     storage.sync full
@@ -29,6 +29,16 @@
     Systemd_Filter_Type Or
     storage.type filesystem
 
+[FILTER]
+    Name grep
+    Match audit
+    Exclude log ^type=(SERVICE_START|SERVICE_STOP|BPF|AVC|CRYPTO_KEY_USER|CRED_DISP|CRED_ACQ|CRED_REFR|USER_END)
+
+[FILTER]
+    Name grep
+    Match audit
+    Exclude log exe="/usr/lib/systemd/systemd-timesyncd"
+
 {% for source in ['audit', 'journal'] %}
 [OUTPUT]
     Name http
@@ -42,7 +52,7 @@
     tls.verify On
     tls.verify_hostname On
     tls.ca_file /etc/fluent-bit/kltn-ca.crt
-    Retry_Limit no_limits
+    Retry_Limit 10
     storage.total_limit_size 256M
 {% if endpoint_agent_enabled | default(false) %}
 
@@ -56,7 +66,7 @@
     URI /v1/raw/{{ source }}
     Format json
     Header Authorization Bearer {{ ingest_token | hash('sha256') }}
-    Retry_Limit no_limits
+    Retry_Limit 10
     storage.total_limit_size 128M
 {% endif %}
 {% endfor %}

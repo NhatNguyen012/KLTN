@@ -1,0 +1,82 @@
+{
+  "samples": [
+    {
+      "file": "optc_sc1_empire_staging_test.jsonl",
+      "host": "sysclient0201",
+      "day": "2019-09-23",
+      "total_lines": 1255,
+      "warmup_lines": 1041,
+      "test_malicious": 131,
+      "test_benign": 83,
+      "scenarios": [
+        "SC1_EmpireStaging"
+      ],
+      "stages": [
+        "Defense_Evasion_Injection",
+        "Discovery",
+        "Execution"
+      ],
+      "id": "optc_sc1_test",
+      "title": "OpTC SC1 \u00b7 Empire Staging (TEST Raw eCAR)",
+      "subtitle": "OpTC Windows eCAR \u00b7 sysclient0201 (131 ATK / 83 BEN TEST + 1041 warmup)"
+    },
+    {
+      "file": "optc_sc2_custom_empire_lateral_test.jsonl",
+      "host": "sysclient0203",
+      "day": "2019-09-24",
+      "total_lines": 1696,
+      "warmup_lines": 1611,
+      "test_malicious": 48,
+      "test_benign": 37,
+      "scenarios": [
+        "SC2_CustomEmpireLateral"
+      ],
+      "stages": [
+        "Execution"
+      ],
+      "id": "optc_sc2_test",
+      "title": "OpTC SC2 \u00b7 Custom Empire Lateral (TEST Raw eCAR)",
+      "subtitle": "OpTC Windows eCAR \u00b7 sysclient0203 (48 ATK / 37 BEN TEST + 1611 warmup)"
+    },
+    {
+      "file": "optc_sc3_malicious_update_test.jsonl",
+      "host": "sysclient0051",
+      "day": "2019-09-25",
+      "total_lines": 1159,
+      "warmup_lines": 941,
+      "test_malicious": 134,
+      "test_benign": 84,
+      "scenarios": [
+        "SC3_MaliciousUpdate"
+      ],
+      "stages": [
+        "Execution"
+      ],
+      "id": "optc_sc3_test",
+      "title": "OpTC SC3 \u00b7 Malicious Update (TEST Raw eCAR)",
+      "subtitle": "OpTC Windows eCAR \u00b7 sysclient0051 (134 ATK / 84 BEN TEST + 941 warmup)"
+    },
+    {
+      "file": "theia_linux_apt_test.jsonl",
+      "host": "ta1-theia-e3-host",
+      "day": "2018-04-10..12 (T3)",
+      "total_lines": 277,
+      "warmup_lines": 0,
+      "test_malicious": 157,
+      "test_benign": 120,
+      "scenarios": [
+        "THEIA_NationState_Firefox_Drakon",
+        "THEIA_BrowserExtension_MicroAPT"
+      ],
+      "stages": [
+        "THEIA_Initial_Compromise",
+        "THEIA_Execution_PrivilegeEscalation",
+        "THEIA_Discovery_Reconnaissance",
+        "THEIA_C2_Exfiltration"
+      ],
+      "id": "theia_e3_test",
+      "title": "DARPA THEIA T3 \u00b7 Linux APT Multi-Stage (TEST)",
+      "subtitle": "Linux Provenance L=3 \u00b7 157 ATK / 120 BEN (Drakon + MicroAPT + memtrace.so)"
+    }
+  ]
+}

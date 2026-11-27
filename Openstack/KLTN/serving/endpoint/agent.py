@@ -240,7 +240,8 @@ class HostModel:
         dom = self.manifest.get("domains", {}).get(domain)
         if domain not in DOMAIN_SOURCE or dom is None:
             raise BundleError("unsupported_domain")
-        here = Path(__file__).resolve().parent
+        raw_here = Path(__file__).resolve().parent
+        here = raw_here if (raw_here / "kltn_features").is_dir() else raw_here.parent
         for rel, expected in self.manifest.get("runtime_code_sha256", {}).items():
             deployed = here / rel
             if not deployed.is_file() or not hmac.compare_digest(sha256_file(deployed), expected):
@@ -264,18 +265,21 @@ class HostModel:
         self.self_test = self._self_test()
 
     def featurizer(self, host: str):
+        featurizer_name = str(self.manifest.get("feature_contract", {}).get("featurizer", "kltn_features.host_ml"))
+        if featurizer_name == "kltn_features.optc_ecar":
+            from kltn_features.optc_ecar import OptcEcarFeaturizer
+            return OptcEcarFeaturizer(self.domain, self.vocab, host)
         from kltn_features.host_ml import HostFeaturizer
         return HostFeaturizer(self.domain, self.vocab, host)
 
     def _self_test(self) -> dict:
         """Re-run the bundle fixture of this platform family; any difference blocks serving."""
         from kltn_features._vendor.common_schema import CanonicalEvent
-        from kltn_features.host_ml import HostFeaturizer
         name = "fixture_linux_audit.json" if self.domain == "linux-audit" else "fixture_windows_cbc.json"
         fx = json.loads((self.root / "evidence" / name).read_text())
-        fz = HostFeaturizer(fx["domain"], self.vocab, fx.get("host", "fixture"))
+        fz = self.featurizer(fx.get("host", "fixture"))
         rows = []
-        if fx["domain"] == "linux-audit":
+        if fx["domain"] == "linux-audit" or fx.get("feed_mode") == "raw":
             for i, line in enumerate(fx["inputs"]):
                 rows += fz.feed(line, ref=i)
             rows += fz.flush()

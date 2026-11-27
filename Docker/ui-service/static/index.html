@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APT Continual Learning SOC — ML & DL Multi-Container Demo</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #111827;
+      --panel-2: #1e293b;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --amber: #f59e0b;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Inter, system-ui, -apple-system, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.5;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;
+      border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px;
+    }
+    .title h1 { margin: 0; font-size: 1.45rem; color: #fff; }
+    .title p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
+    .status-strip { display: flex; flex-wrap: wrap; gap: 10px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+      border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+      background: var(--panel-2); border: 1px solid var(--border);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+    .dot.ok { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .dot.err { background: var(--red); }
+
+    .grid-top { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; margin-bottom: 20px; }
+    @media (max-width: 980px) { .grid-top { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.05rem; color: #e2e8f0; }
+
+    .sample-buttons { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 14px; }
+    .sample-btn {
+      text-align: left; background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+      cursor: pointer; transition: 0.15s border-color, 0.15s transform;
+    }
+    .sample-btn:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .sample-btn strong { display: block; font-size: 0.86rem; color: var(--accent); margin-bottom: 2px; }
+    .sample-btn span { display: block; font-size: 0.76rem; color: var(--muted); }
+
+    textarea {
+      width: 100%; min-height: 170px; background: #090e1a; color: #e2e8f0;
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem;
+      resize: vertical;
+    }
+    .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; }
+    .controls label { font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .controls input[type="number"] {
+      width: 74px; padding: 5px 8px; background: var(--panel-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px;
+    }
+    .btn {
+      background: var(--accent); color: #082f49; border: none; border-radius: 8px;
+      padding: 9px 16px; font-weight: 700; cursor: pointer; font-size: 0.86rem;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .kpi { background: var(--panel-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+    .kpi .label { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi .val { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+    .kpi .sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    .pill {
+      display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.74rem; font-weight: 600;
+    }
+    .pill.atk { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .pill.ben { background: rgba(34, 197, 94, 0.14); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.35); }
+    .pill.na  { background: rgba(148, 163, 184, 0.16); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+    .pill.stg { background: rgba(168, 85, 247, 0.18); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); }
+
+    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .filter-group { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    select, input[type="search"] {
+      background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 10px; font-size: 0.82rem;
+    }
+    .table-wrap { overflow-x: auto; max-height: 540px; border: 1px solid var(--border); border-radius: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid #1f2937; text-align: left; vertical-align: top; }
+    th { background: #0f172a; position: sticky; top: 0; color: #cbd5e1; z-index: 2; }
+    tr:hover { background: rgba(56, 189, 248, 0.06); }
+    tr.selected-row { background: rgba(56, 189, 248, 0.13); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.76rem; }
+
+    .detail-box { margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .subbox { background: #090e1a; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .subbox h4 { margin: 0 0 6px; font-size: 0.82rem; color: var(--accent); }
+    .token-chip {
+      display: inline-block; margin: 2px 4px 2px 0; padding: 2px 6px; border-radius: 4px;
+      background: #1e293b; border: 1px solid #334155; font-family: monospace; font-size: 0.73rem;
+    }
+    .bar-bg { background: #1e293b; border-radius: 999px; height: 8px; overflow: hidden; margin-top: 4px; }
+    .bar-fill { background: var(--accent); height: 100%; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="title">
+      <h1>APT Multi-Container Inference & Continual Learning Demo</h1>
+      <p>Container 1: <strong>Host ML (LightGBM OpTC)</strong> · Container 2: <strong>Host DL (ExpandableMixHeadCausalIL OpTC + THEIA)</strong> · Container 3: <strong>SOC UI Gateway</strong></p>
+    </div>
+    <div class="status-strip" id="service-badges">
+      <div class="badge"><span class="dot" id="dot-ml"></span><span id="txt-ml">ML Container...</span></div>
+      <div class="badge"><span class="dot" id="dot-dl"></span><span id="txt-dl">DL Container...</span></div>
+    </div>
+  </div>
+
+  <div class="grid-top">
+    <div class="card">
+      <h2>1. Chọn Log Tấn Công Thật (Strict TEST Split) hoặc Dán / Tải File</h2>
+      <div class="sample-buttons" id="sample-list"></div>
+      <textarea id="log-input" placeholder='Dán raw OpTC eCAR JSONL hoặc DARPA THEIA causal JSONL tại đây...'></textarea>
+      <div class="controls">
+        <input type="file" id="file-input" accept=".jsonl,.json,.log,.xml,.gz,.txt" />
+        <label>Ngưỡng ML: <input type="number" id="ml-thr" step="0.01" min="0.01" max="0.99" value="0.87427" /></label>
+        <label>Ngưỡng DL: <input type="number" id="dl-thr" step="0.01" min="0.01" max="0.99" value="0.50" /></label>
+        <button class="btn" id="btn-run">Phân tích ML + DL</button>
+        <button class="btn secondary" id="btn-clear">Xóa</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. Kết quả Tổng hợp Hai Containers (Zero-Label Leakage)</h2>
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi"><div class="label">Chưa có dữ liệu</div><div class="val">—</div><div class="sub">Chọn 1 kịch bản bên trái để chạy ngay</div></div>
+      </div>
+      <div id="breakdown-box" class="mono" style="color: #cbd5e1; font-size: 0.8rem;"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <h2 style="margin:0;">3. Chi tiết Dự đoán Theo Sự Kiện (Click 1 dòng để xem Attention & Tokens)</h2>
+      <div class="filter-group">
+        <span id="row-count" class="mono" style="color:var(--muted);"></span>
+        <select id="filter-mode">
+          <option value="all">Tất cả sự kiện</option>
+          <option value="test_only">Chỉ sự kiện TEST (bỏ Warmup)</option>
+          <option value="alerts">Chỉ báo động Attack (ML hoặc DL)</option>
+          <option value="disagree">ML và DL khác nhau</option>
+          <option value="truth_atk">Ground-Truth là Attack (nếu có)</option>
+        </select>
+        <input type="search" id="search-box" placeholder="Tìm command / action / stage..." />
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Host / Miền</th>
+            <th>Action · Object & Summary</th>
+            <th>ML (LightGBM)</th>
+            <th>DL Binary (MixHead IL)</th>
+            <th>DL Scenario & MITRE Stage</th>
+            <th>Ground Truth</th>
+          </tr>
+        </thead>
+        <tbody id="events-tbody"></tbody>
+      </table>
+    </div>
+    <div class="detail-box" id="detail-panel" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+let CURRENT_RESULT = null;
+
+function esc(v) {
+  return String(v ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+async function refreshStatus() {
+  try {
+    const r = await fetch("/api/status");
+    const d = await r.json();
+    const ml = d.ml_service || {};
+    const dl = d.dl_service || {};
+    document.getElementById("dot-ml").className = "dot " + (ml.status === "ok" ? "ok" : "err");
+    document.getElementById("txt-ml").textContent = ml.status === "ok"
+      ? `ml-service: LightGBM (${ml.num_trees} trees, ${ml.vocab_size} tokens)`
+      : "ml-service: offline";
+    document.getElementById("dot-dl").className = "dot " + (dl.status === "ok" ? "ok" : "err");
+    document.getElementById("txt-dl").textContent = dl.status === "ok"
+      ? `dl-service: MixHead-IL (${(dl.param_count/1e6).toFixed(2)}M params, 6 Sc / 14 St)`
+      : "dl-service: offline";
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function loadSamples() {
+  const r = await fetch("/api/samples");
+  const d = await r.json();
+  const box = document.getElementById("sample-list");
+  box.innerHTML = "";
+  (d.samples || []).forEach(s => {
+    const btn = document.createElement("button");
+    btn.className = "sample-btn";
+    btn.innerHTML = `<strong>${esc(s.title)}</strong><span>${esc(s.subtitle)}</span>`;
+    btn.onclick = async () => {
+      document.getElementById("detail-panel").style.display = "none";
+      document.getElementById("kpi-grid").innerHTML = `<div class="kpi"><div class="label">Đang tải & phân tích</div><div class="val">...</div><div class="sub">${esc(s.title)}</div></div>`;
+      const rawR = await fetch(`/api/samples/${encodeURIComponent(s.id)}/raw`);
+      if (rawR.ok) {
+        const rawD = await rawR.json();
+        document.getElementById("log-input").value = rawD.raw_logs;
+      }
+      const mlThr = parseFloat(document.getElementById("ml-thr").value) || 0.87427;
+      const dlThr = parseFloat(document.getElementById("dl-thr").value) || 0.5;
+      const res = await fetch(`/api/analyze-sample/${encodeURIComponent(s.id)}?ml_threshold=${mlThr}&dl_threshold=${dlThr}`, { method: "POST" });
+      const out = await res.json();
+      renderResult(out);
+    };
+    box.appendChild(btn);
+  });
+}
+
+function fmtTruthStats(gt) {
+  if (!gt) return "Không có ground-truth";
+  return `F1=${gt.f1.toFixed(4)} · P=${gt.precision.toFixed(3)} · R=${gt.recall.toFixed(3)} (TP=${gt.tp} FP=${gt.fp} FN=${gt.fn})`;
+}
+
+function renderResult(data) {
+  if (!data || data.detail) {
+    alert("Lỗi: " + (data?.detail || "Không thể phân tích"));
+    return;
+  }
+  CURRENT_RESULT = data;
+  document.getElementById("detail-panel").style.display = "none";
+  const ml = data.ml_summary;
+  const dl = data.dl_summary;
+
+  document.getElementById("kpi-grid").innerHTML = `
+    <div class="kpi">
+      <div class="label">Tổng sự kiện đầu vào</div>
+      <div class="val">${data.total_events}</div>
+      <div class="sub">${esc(data.source_name)}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">ML Alerts (LightGBM)</div>
+      <div class="val" style="color:${ml.malicious_detected > 0 ? 'var(--red)' : 'var(--green)'}">${ml.malicious_detected} / ${ml.scored_events}</div>
+      <div class="sub">${ml.latency_ms} ms · ${fmtTruthStats(ml.vs_ground_truth)}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">DL Alerts (MixHead-IL)</div>
+      <div class="val" style="color:${dl.malicious_detected > 0 ? 'var(--red)' : 'var(--green)'}">${dl.malicious_detected} / ${dl.scored_events}</div>
+      <div class="sub">${dl.latency_ms} ms · ${fmtTruthStats(dl.vs_ground_truth)}</div>
+    </div>
+    <div class="kpi">
+      <div class="label">Đồng thuận ML ↔ DL</div>
+      <div class="val">${data.ml_dl_agreement !== null ? (data.ml_dl_agreement * 100).toFixed(2) + "%" : "N/A (THEIA DL-only)"}</div>
+      <div class="sub">Ngưỡng ML=${ml.threshold} · DL=${dl.threshold}</div>
+    </div>
+  `;
+
+  const scText = Object.entries(dl.scenario_breakdown || {}).map(([k, v]) => `${k}: ${v}`).join(" | ") || "Không phát hiện Scenario tấn công";
+  const stText = Object.entries(dl.stage_breakdown || {}).map(([k, v]) => `${k}: ${v}`).join(" | ") || "Không phát hiện Stage tấn công";
+  document.getElementById("breakdown-box").innerHTML =
+    `<div><strong>DL Scenarios:</strong> ${esc(scText)}</div><div style="margin-top:4px;"><strong>DL Kill-Chain Stages:</strong> ${esc(stText)}</div>`;
+
+  renderTable();
+}
+
+function renderTable() {
+  if (!CURRENT_RESULT) return;
+  const mode = document.getElementById("filter-mode").value;
+  const q = (document.getElementById("search-box").value || "").toLowerCase();
+  const tbody = document.getElementById("events-tbody");
+  tbody.innerHTML = "";
+
+  const filtered = CURRENT_RESULT.events.filter(ev => {
+    const mlAtk = ev.ml.pred_binary === 1;
+    const dlAtk = ev.dl.pred_binary === 1;
+    if (mode === "test_only" && (!ev.truth || ev.truth.eval_split !== "test")) return false;
+    if (mode === "alerts" && !mlAtk && !dlAtk) return false;
+    if (mode === "disagree" && (!ev.ml.eligible || ev.ml.pred_binary === ev.dl.pred_binary)) return false;
+    if (mode === "truth_atk" && (!ev.truth || ev.truth.true_binary !== 1)) return false;
+    if (q) {
+      const hay = `${ev.hostname} ${ev.action} ${ev.object} ${ev.summary} ${ev.dl.scenario_name} ${ev.dl.stage_name}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const shown = filtered.slice(0, 2000);
+  document.getElementById("row-count").textContent = `Hiển thị ${shown.length} / ${filtered.length} sự kiện`;
+
+  shown.forEach(ev => {
+    const tr = document.createElement("tr");
+    let mlCell = `<span class="pill na">${esc(ev.ml.note || "N/A")}</span>`;
+    if (ev.ml.eligible && ev.ml.prob !== null) {
+      mlCell = ev.ml.pred_binary === 1
+        ? `<span class="pill atk">ATTACK (${ev.ml.prob.toFixed(4)})</span>`
+        : `<span class="pill ben">Benign (${ev.ml.prob.toFixed(4)})</span>`;
+    }
+    const dlCell = ev.dl.pred_binary === 1
+      ? `<span class="pill atk">ATTACK (${ev.dl.prob.toFixed(4)})</span>`
+      : `<span class="pill ben">Benign (${ev.dl.prob.toFixed(4)})</span>`;
+
+    let gtCell = `<span class="pill na">Unlabeled</span>`;
+    if (ev.truth) {
+      const tag = ev.truth.eval_split === "warmup" ? " [Warmup]" : " [TEST]";
+      gtCell = ev.truth.true_binary === 1
+        ? `<span class="pill atk">ATK${tag}</span><div class="mono">${esc(ev.truth.true_stage || "")}</div>`
+        : `<span class="pill ben">BEN${tag}</span>`;
+    }
+
+    tr.innerHTML = `
+      <td class="mono">${ev.index}</td>
+      <td><div class="mono">${esc(ev.hostname)}</div><span class="pill na">${esc(ev.domain_hint)}</span></td>
+      <td><strong>${esc(ev.action)} → ${esc(ev.object)}</strong><div class="mono" style="color:var(--muted);max-width:340px;word-break:break-all;">${esc(ev.summary)}</div></td>
+      <td>${mlCell}</td>
+      <td>${dlCell}</td>
+      <td><div>${esc(ev.dl.scenario_name)}</div><span class="pill stg">${esc(ev.dl.stage_name)}</span></td>
+      <td>${gtCell}</td>
+    `;
+    tr.onclick = () => {
+      document.querySelectorAll("#events-tbody tr").forEach(r => r.classList.remove("selected-row"));
+      tr.classList.add("selected-row");
+      showDetail(ev);
+    };
+    tbody.appendChild(tr);
+  });
+}
+
+function showDetail(ev) {
+  const dp = document.getElementById("detail-panel");
+  dp.style.display = "grid";
+  const att = ev.dl.line_attention;
+  dp.innerHTML = `
+    <div class="subbox">
+      <h4>Line Attention Weights (Expandable MixHead 3-Lines)</h4>
+      <div>E_incoming: ${(att.incoming * 100).toFixed(1)}%<div class="bar-bg"><div class="bar-fill" style="width:${(att.incoming*100).toFixed(1)}%"></div></div></div>
+      <div style="margin-top:6px;">E_parent: ${(att.parent * 100).toFixed(1)}%<div class="bar-bg"><div class="bar-fill" style="width:${(att.parent*100).toFixed(1)}%"></div></div></div>
+      <div style="margin-top:6px;">E_current: ${(att.current * 100).toFixed(1)}%<div class="bar-bg"><div class="bar-fill" style="width:${(att.current*100).toFixed(1)}%"></div></div></div>
+    </div>
+    <div class="subbox">
+      <h4>DL Line 0 (E_incoming) & Line 1 (E_parent)</h4>
+      <div><strong>Incoming:</strong> ${(ev.dl.lines.incoming || []).map(t => `<span class="token-chip">${esc(t)}</span>`).join("") || "<span class='muted'>—</span>"}</div>
+      <div style="margin-top:6px;"><strong>Parent:</strong> ${(ev.dl.lines.parent || []).map(t => `<span class="token-chip">${esc(t)}</span>`).join("") || "<span class='muted'>—</span>"}</div>
+    </div>
+    <div class="subbox">
+      <h4>DL Line 2 (E_current) & ML Top Tokens (OOV=${(ev.ml.oov_rate*100).toFixed(1)}%)</h4>
+      <div><strong>Current:</strong> ${(ev.dl.lines.current || []).map(t => `<span class="token-chip">${esc(t)}</span>`).join("") || "<span class='muted'>—</span>"}</div>
+      <div style="margin-top:6px;"><strong>ML Matched:</strong> ${(ev.ml.matched_tokens || []).map(t => `<span class="token-chip">${esc(t)}</span>`).join("") || "<span class='muted'>—</span>"}</div>
+    </div>
+  `;
+}
+
+document.getElementById("btn-run").onclick = async () => {
+  const mlThr = parseFloat(document.getElementById("ml-thr").value) || 0.87427;
+  const dlThr = parseFloat(document.getElementById("dl-thr").value) || 0.5;
+  const fileEl = document.getElementById("file-input");
+  const textVal = document.getElementById("log-input").value.trim();
+
+  if (fileEl.files && fileEl.files.length > 0 && !textVal) {
+    document.getElementById("detail-panel").style.display = "none";
+    document.getElementById("kpi-grid").innerHTML = `<div class="kpi"><div class="label">Đang phân tích file</div><div class="val">...</div><div class="sub">${esc(fileEl.files[0].name)}</div></div>`;
+    const fd = new FormData();
+    fd.append("file", fileEl.files[0]);
+    fd.append("ml_threshold", mlThr);
+    fd.append("dl_threshold", dlThr);
+    const res = await fetch("/api/analyze-file", { method: "POST", body: fd });
+    renderResult(await res.json());
+  } else if (textVal) {
+    document.getElementById("detail-panel").style.display = "none";
+    document.getElementById("kpi-grid").innerHTML = `<div class="kpi"><div class="label">Đang phân tích JSONL</div><div class="val">...</div><div class="sub">Gửi sang ML & DL Containers</div></div>`;
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ raw_logs: textVal, ml_threshold: mlThr, dl_threshold: dlThr }),
+    });
+    renderResult(await res.json());
+  } else {
+    alert("Vui lòng chọn file log, dán nội dung JSONL hoặc bấm một kịch bản mẫu.");
+  }
+};
+
+document.getElementById("file-input").onchange = async (e) => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  if (!f.name.endsWith(".gz") && f.size < 1024 * 1024) {
+    document.getElementById("log-input").value = await f.text();
+  } else {
+    document.getElementById("log-input").value = "";
+  }
+};
+
+document.getElementById("btn-clear").onclick = () => {
+  document.getElementById("log-input").value = "";
+  document.getElementById("file-input").value = "";
+};
+document.getElementById("filter-mode").onchange = renderTable;
+document.getElementById("search-box").oninput = renderTable;
+
+refreshStatus();
+loadSamples();
+</script>
+</body>
+</html>

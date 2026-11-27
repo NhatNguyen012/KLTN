@@ -1,5 +1,5 @@
 [SERVICE]
-    Flush 2
+    Flush 5
     Log_Level info
     Log_File C:\KLTN\fluent-bit.log
     storage.path C:\KLTN\buffer
@@ -22,6 +22,8 @@
     storage.type filesystem
 {% if source == 'security' %}
     Event_Query *[System[(EventID=4624 or EventID=4634 or EventID=4672 or EventID=4688)]]
+{% elif source == 'powershell' %}
+    Event_Query *[System[(EventID=4104)]]
 {% endif %}
 
 [OUTPUT]
@@ -36,7 +38,7 @@
     tls.verify On
     tls.verify_hostname On
     tls.ca_file C:\KLTN\ca.crt
-    Retry_Limit no_limits
+    Retry_Limit 10
     storage.total_limit_size 256M
 {% if endpoint_agent_enabled | default(false) %}
 
@@ -50,7 +52,7 @@
     URI /v1/raw/{{ source }}
     Format json
     Header Authorization Bearer {{ ingest_token | hash('sha256') }}
-    Retry_Limit no_limits
+    Retry_Limit 10
     storage.total_limit_size 128M
 {% endif %}
 {% endfor %}

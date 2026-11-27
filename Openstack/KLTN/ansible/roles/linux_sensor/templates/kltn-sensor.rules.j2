@@ -6,6 +6,7 @@
 ## first host-DL false positives); no training set contained the pipeline. Every other syscall of these programs
 ## (execve, file writes, privilege changes) stays audited.
 -A exit,never -F arch=b64 -S connect -F exe=/opt/fluent-bit/bin/fluent-bit
+-A exit,never -F arch=b64 -S connect -F exe=/usr/lib/systemd/systemd-timesyncd
 {% set agent = (ansible_facts.getent_passwd | default({})).get('kltn-agent') %}
 {% if agent %}
 -A exit,never -F arch=b64 -S connect -F uid={{ agent[1] }}

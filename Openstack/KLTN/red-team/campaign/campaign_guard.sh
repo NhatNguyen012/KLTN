@@ -18,7 +18,7 @@ while true; do
     echo "$ts PAUSE $reason" >> "$LOG"
   else
     $SSH ubuntu@$ATT "rm -f /tmp/campaign/PAUSE" 2>/dev/null
-    echo "$ts OK avail=${avail}MB swap=${swap}MB" >> "$LOG"
+    echo "$ts OK avail=${avail}MB swap_free=${swfree}MB" >> "$LOG"
   fi
   sleep ${INTERVAL:-60}
 done

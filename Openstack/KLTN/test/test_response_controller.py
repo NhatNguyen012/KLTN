@@ -32,10 +32,28 @@ class ResponseControllerTests(unittest.TestCase):
 
     def test_quarantine_group_with_extra_rule_is_refused(self):
         x = OpenStackExecutor(simulation=False, cli='/bin/false')
-        rules = [{'Direction': 'egress', 'IP Protocol': 'tcp', 'Port Range': '18443:18443'},
-                 {'Direction': 'egress', 'IP Protocol': None, 'Port Range': ''}]   # default allow-all egress
+        rules = [{'Direction': 'egress', 'IP Protocol': 'tcp', 'Port Range': '18443:18443', 'IP Range': '172.31.250.1/32'},
+                 {'Direction': 'egress', 'IP Protocol': None, 'Port Range': '', 'IP Range': '0.0.0.0/0'}]   # default allow-all egress
         with patch.object(OpenStackExecutor, 'os', side_effect=[{'id': 'sg'}, rules]):
             with self.assertRaisesRegex(RuntimeError, 'non-allowed'):
+                x.quarantine_group()
+
+    def test_quarantine_group_allows_dhcp_broadcast_only(self):
+        x = OpenStackExecutor(simulation=False, cli='/bin/false')
+        valid_rules = [
+            {'Direction': 'egress', 'IP Protocol': 'tcp', 'Port Range': '18443:18443', 'IP Range': '172.31.250.1/32'},
+            {'Direction': 'egress', 'IP Protocol': 'udp', 'Port Range': '67:67', 'IP Range': '255.255.255.255/32'},
+            {'Direction': 'ingress', 'IP Protocol': 'tcp', 'Port Range': '22:22', 'IP Range': '172.31.250.1/32'},
+            {'Direction': 'ingress', 'IP Protocol': 'tcp', 'Port Range': '5986:5986', 'IP Range': '172.31.250.1/32'},
+            {'Direction': 'ingress', 'IP Protocol': 'icmp', 'Port Range': '', 'IP Range': '172.31.250.1/32'},
+        ]
+        with patch.object(OpenStackExecutor, 'os', side_effect=[{'id': 'sg-ok'}, valid_rules]):
+            self.assertEqual(x.quarantine_group(), 'sg-ok')
+
+        bad_dhcp = [dict(r) for r in valid_rules]
+        bad_dhcp[1]['IP Range'] = '0.0.0.0/0'
+        with patch.object(OpenStackExecutor, 'os', side_effect=[{'id': 'sg-bad'}, bad_dhcp]):
+            with self.assertRaisesRegex(RuntimeError, 'disallowed IP range'):
                 x.quarantine_group()
 
 

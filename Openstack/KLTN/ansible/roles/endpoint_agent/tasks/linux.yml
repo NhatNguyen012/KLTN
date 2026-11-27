@@ -1,11 +1,15 @@
 ---
+- name: Check existing endpoint venv and Python packages
+  ansible.builtin.stat:
+    path: /opt/kltn-agent/venv/bin/uvicorn
+  register: kltn_agent_uvicorn
 - name: Install isolated Python and LightGBM native dependency
   ansible.builtin.apt:
     name: [python3-venv, libgomp1]
     state: present
-    update_cache: true
-    cache_valid_time: 3600
+    update_cache: false
     lock_timeout: 600
+  when: not kltn_agent_uvicorn.stat.exists
 - name: Create unprivileged agent user
   ansible.builtin.user:
     name: kltn-agent
@@ -49,6 +53,7 @@
     requirements: /opt/kltn-agent/requirements.txt
     virtualenv: /opt/kltn-agent/venv
     virtualenv_command: python3 -m venv
+  when: not kltn_agent_uvicorn.stat.exists or (force_agent_pip | default(false) | bool)
   notify: Restart Linux agent
 - name: Install agent private configuration
   ansible.builtin.template:

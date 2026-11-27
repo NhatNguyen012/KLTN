@@ -33,7 +33,8 @@ from common import db_connect  # noqa: E402
 from psycopg.types.json import Jsonb  # noqa: E402
 
 QUARANTINE_SG = "kltn-quarantine"
-ALLOWED_RULES = {("egress", "tcp", 18443, 18443), ("ingress", "tcp", 22, 22), ("ingress", "tcp", 5986, 5986),
+ALLOWED_RULES = {("egress", "tcp", 18443, 18443), ("egress", "udp", 67, 67),
+                 ("ingress", "tcp", 22, 22), ("ingress", "tcp", 5986, 5986),
                  ("ingress", "icmp", None, None)}
 EVIDENCE = ROOT / "runtime/evidence"
 
@@ -91,6 +92,9 @@ class OpenStackExecutor:
             key = (r.get("Direction"), proto, lo, hi)
             if key not in ALLOWED_RULES:
                 raise RuntimeError(f"quarantine group has a non-allowed rule {key}; refusing to use it")
+            ip_range = (r.get("IP Range") or "").strip()
+            if ip_range in ("0.0.0.0/0", "::/0") or (key == ("egress", "udp", 67, 67) and ip_range != "255.255.255.255/32"):
+                raise RuntimeError(f"quarantine group rule {key} has disallowed IP range {ip_range!r}; refusing to use it")
             seen.add(key)
         if ("egress", "tcp", 18443, 18443) not in seen:
             raise RuntimeError("quarantine group lacks the telemetry egress rule; refusing to cut the evidence path")

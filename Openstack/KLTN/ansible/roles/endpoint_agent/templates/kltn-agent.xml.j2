@@ -1,9 +1,9 @@
 <service>
   <id>kltn-agent</id>
   <name>KLTN Endpoint Agent</name>
-  <description>KLTN endpoint agent: inbox, featurizer, fused IL LightGBM (waits for a verified bundle).</description>
+  <description>KLTN endpoint agent: inbox, featurizer, Host ML LightGBM (near real-time endpoint detection).</description>
   <executable>C:\KLTN\agent\venv\Scripts\python.exe</executable>
-  <arguments>-m uvicorn agent:app --host 127.0.0.1 --port 18081 --no-access-log --limit-concurrency 8 --timeout-keep-alive 5</arguments>
+  <arguments>-m uvicorn agent:app --host 127.0.0.1 --port 18081 --no-access-log --limit-concurrency 64 --timeout-keep-alive 5</arguments>
   <workingdirectory>C:\KLTN\agent</workingdirectory>
   <env name="KLTN_AGENT_CONFIG" value="C:\KLTN\agent\config.json"/>
   <env name="OMP_NUM_THREADS" value="1"/>

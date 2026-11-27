@@ -1,0 +1,83 @@
+services:
+  ml-service:
+    build:
+      context: .
+      dockerfile: ml-service/Dockerfile
+      network: host
+    container_name: optc-ml-service
+    network_mode: host
+    environment:
+      ML_MODEL_PATH: /models/ml/model-slot-1.txt
+      ML_VOCAB_PATH: /models/ml/vocab.json
+      ML_THRESHOLD: "0.87427"
+    volumes:
+      - ../ML/code/preprocess:/workspace/ML/code/preprocess:ro
+      - ../DL/code/preprocess:/workspace/DL/code/preprocess:ro
+      - ../ML/code/output/host_ml_parent_incoming_seed02/vocab.json:/models/ml/vocab.json:ro
+      - ../ML/code/output/host_ml_parent_incoming_seed02/kaggle_output/lgbm_kaggle_results/results/model/model-slot-1.txt:/models/ml/model-slot-1.txt:ro
+    restart: unless-stopped
+
+  dl-service:
+    build:
+      context: .
+      dockerfile: dl-service/Dockerfile
+      network: host
+    container_name: optc-dl-service
+    network_mode: host
+    environment:
+      DL_CKPT_PATH: /models/dl/theia_mixhead_il_best.pt
+      DL_VOCAB_PATH: /models/dl/extended_dl_vocab.json
+      DL_THRESHOLD: "0.50"
+    volumes:
+      - ../ML/code/preprocess:/workspace/ML/code/preprocess:ro
+      - ../DL/code/preprocess:/workspace/DL/code/preprocess:ro
+      - ../IL/dataset_4-THEIA/output/dl_shards/extended_dl_vocab.json:/models/dl/extended_dl_vocab.json:ro
+      - "../IL/dataset_4-THEIA/output/kaggle/theia_traceback_results (2)/theia_mixhead_il_best.pt:/models/dl/theia_mixhead_il_best.pt:ro"
+    restart: unless-stopped
+
+  ui-service:
+    build:
+      context: .
+      dockerfile: ui-service/Dockerfile
+      network: host
+    container_name: optc-soc-ui
+    network_mode: host
+    environment:
+      ML_SERVICE_URL: http://127.0.0.1:8001
+      DL_SERVICE_URL: http://127.0.0.1:8002
+      SAMPLE_LOGS_DIR: /app/sample_logs
+    volumes:
+      - ./sample_logs:/app/sample_logs:ro
+    depends_on:
+      - ml-service
+      - dl-service
+    restart: unless-stopped
+
+  kltn-bridge:
+    build:
+      context: .
+      dockerfile: bridge/Dockerfile
+      network: host
+    profiles: ["kltn"]
+    container_name: kltn-optc-theia-scorer
+    network_mode: host
+    environment:
+      PG_HOST: 127.0.0.1
+      PG_PORT: "15432"
+      PG_USER: kltn
+      PG_DB: kltn
+      PG_PASSWORD_FILE: /app/secrets/postgres-password
+      KLTN_SECRETS_FILE: /app/secrets/secrets.json
+      KLTN_API_URL: http://127.0.0.1:18080
+      ML_URL: http://127.0.0.1:8001/predict
+      DL_URL: http://127.0.0.1:8002/predict
+      BRIDGE_STATE_FILE: /app/state/bridge_state.json
+      POLL_SEC: "10"
+    volumes:
+      - ../Openstack/KLTN/runtime/postgres-password:/app/secrets/postgres-password:ro
+      - ../Openstack/KLTN/runtime/secrets.json:/app/secrets/secrets.json:ro
+      - ./runtime_bridge_state:/app/state
+    depends_on:
+      - ml-service
+      - dl-service
+    restart: unless-stopped

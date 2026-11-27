@@ -17,8 +17,13 @@ param(
   [string]$Attacker = "203.0.113.66",
   [string]$LogDir   = "$env:TEMP\kltn-redteam",
   [switch]$WhatIf,
-  [switch]$Cleanup
+  [switch]$Cleanup,
+  [switch]$DownloadPrereqs
 )
+
+if ($Attacker -notmatch '^(203\.0\.113\.|10\.30\.)') {
+  throw "SAFETY BLOCK: Attacker IP '$Attacker' is outside authorized lab CIDRs (203.0.113.0/24 or 10.30.0.0/16)."
+}
 
 $ErrorActionPreference = "Continue"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
@@ -48,7 +53,7 @@ foreach ($line in Get-Content $Plan) {
     Invoke-AtomicTest @common -Cleanup
   } else {
     Write-Host "[run] $tech $testNum  ($meta)"
-    Invoke-AtomicTest @common -GetPrereqs
+    if ($DownloadPrereqs) { Invoke-AtomicTest @common -GetPrereqs }
     Invoke-AtomicTest @common -InputArgs @{ server_ip = $Attacker }
   }
 

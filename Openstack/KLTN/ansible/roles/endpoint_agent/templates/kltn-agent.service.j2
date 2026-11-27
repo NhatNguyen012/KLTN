@@ -10,7 +10,7 @@ Environment=KLTN_AGENT_CONFIG=/etc/kltn-agent/config.json
 Environment=OMP_NUM_THREADS=1
 Environment=OPENBLAS_NUM_THREADS=1
 Environment=PYTHONDONTWRITEBYTECODE=1
-ExecStart=/opt/kltn-agent/venv/bin/python -m uvicorn agent:app --host 127.0.0.1 --port 18081 --no-access-log --limit-concurrency 8 --timeout-keep-alive 5
+ExecStart=/opt/kltn-agent/venv/bin/python -m uvicorn agent:app --host 127.0.0.1 --port 18081 --no-access-log --limit-concurrency 64 --timeout-keep-alive 5
 Restart=always
 RestartSec=5
 UMask=0077
